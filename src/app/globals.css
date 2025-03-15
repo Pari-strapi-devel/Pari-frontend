@@ -1,26 +1,124 @@
+@import "keen-slider/keen-slider.min.css";
 @import "tailwindcss";
 
+@plugin "tailwindcss-animate";
+
+@custom-variant dark (&:is(.dark *));
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #F4F4F4; /* lightsurface0 */
+  --foreground: #181818; /* darksurface0 */
+  --card: #EDEDED; /* lightsurface1 */
+  --card-foreground: #181818; /* darksurface0 */
+  --popover: #FFFFFF; /* lightsurface2 */
+  --popover-foreground: #181818; /* darksurface0 */
+  --primary: #181818; /* darksurface0 */
+  --primary-foreground: #FFFFFF; /* lightsurface2 */
+  --secondary: #EDEDED; /* lightsurface1 */
+  --secondary-foreground: #181818; /* darksurface0 */
+  --muted: #EDEDED; /* lightsurface1 */
+  --muted-foreground: #202020; /* darksurface1 */
+  --accent: #EDEDED; /* lightsurface1 */
+  --accent-foreground: #181818; /* darksurface0 */
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.577 0.245 27.325);
+  --border: #EDEDED; /* lightsurface1 */
+  --input: #EDEDED; /* lightsurface1 */
+  --ring: #202020; /* darksurface1 */
+  --radius: 0.625rem;
+}
+
+.dark {
+  --background: #181818; /* darksurface0 */
+  --foreground: #F4F4F4; /* lightsurface0 */
+  --card: #202020; /* darksurface1 */
+  --card-foreground: #F4F4F4; /* lightsurface0 */
+  --popover: #121212; /* darksurface2 */
+  --popover-foreground: #F4F4F4; /* lightsurface0 */
+  --primary: #F4F4F4; /* lightsurface0 */
+  --primary-foreground: #181818; /* darksurface0 */
+  --secondary: #202020; /* darksurface1 */
+  --secondary-foreground: #F4F4F4; /* lightsurface0 */
+  --muted: #202020; /* darksurface1 */
+  --muted-foreground: #EDEDED; /* lightsurface1 */
+  --accent: #202020; /* darksurface1 */
+  --accent-foreground: #F4F4F4; /* lightsurface0 */
+  --destructive: oklch(0.396 0.141 25.723);
+  --destructive-foreground: oklch(0.637 0.237 25.331);
+  --border: #202020; /* darksurface1 */
+  --input: #202020; /* darksurface1 */
+  --ring: #282828; /* darksurface2 */
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+.fixed {
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
 }
+
+@keyframes pulse {
+  0% {
+    transform: translate(-50%, -50%) scale(0.95);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.05);
+    opacity: 0.3;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(0.95);
+    opacity: 0.5;
+  }
+}
+
+.animate-pulse {
+  animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+

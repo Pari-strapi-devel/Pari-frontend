@@ -1,19 +1,14 @@
-
-
-import * as React from "react"
 import { Header } from "@/components/layout/header/Header"
-import { Hero } from "@/components/layout/hero/Hero"
+import { CategoryGallery } from "@/components/layout/gallery/CategoryGallery"
 
-export default function Home() {
+export default function CategoriesPage() {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <Hero />
       <main className="container mx-auto px-4 py-8">
-        {/* Other content */}
+        <h1 className="text-3xl font-bold mb-6">Categories</h1>
+        <CategoryGallery />
       </main>
     </div>
   )
 }
-
-
