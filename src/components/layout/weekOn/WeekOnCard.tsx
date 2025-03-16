@@ -5,7 +5,6 @@ import Link from 'next/link'
 import { useKeenSlider } from 'keen-slider/react'
 import 'keen-slider/keen-slider.min.css'
 import { useState } from 'react'
-import { WeekOnHeader } from './WeekOnHeader'
 
 interface WeekOnArticle {
   id: number;
@@ -140,7 +139,6 @@ export function WeekOnCard() {
 
   return (
     <section className="py-12 bg-background relative">
-      <WeekOnHeader />
       <div className="container mx-auto px-4">
         <div ref={sliderRef} className="keen-slider rounded-2xl">
           {weekOnArticles.map((article) => (
@@ -172,7 +170,7 @@ export function WeekOnCard() {
                     ))}
                   </div>
                   
-                  <h3 className="font-noto-sans text-[28px] font-bold  leading-[130%] tracking-[-0.04em]  mb-3 line-clamp-2">
+                  <h3 className="font-noto-sans text-[28px] font-bold leading-[130%] tracking-[-0.04em] text-[#202020] mb-3 line-clamp-2">
                     {article.title}
                   </h3>
                   

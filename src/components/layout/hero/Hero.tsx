@@ -93,7 +93,7 @@ export function Hero() {
       },
       '(min-width: 1280px)': {
         slides: {
-          perView: 3.7,
+          perView: 3.5,
           spacing: 24,
         },
       },
@@ -116,15 +116,15 @@ export function Hero() {
           <span className="text-sm font-medium">Dismiss</span>
         </Button>
         <div className="flex flex-col space-y-2">
-          <span className="text-[15px] text-gray-400 font-noto-sans font-semibold leading-[100%] tracking-[-0.02em] align-middle uppercase">
+          <span className="text-[15px] font-[600] leading-none tracking-[-0.02em] text-muted-foreground font-noto-sans align-middle uppercase">
             {getCurrentDate()}
           </span>
-          <h2 className="text-3xl font-bold text-foreground">Welcome to PARI <br></br> Let&apos;s get you acquainted</h2>
+          <h2 className="text-3xl font-bold text-foreground">Welcome to PARI Let&apos;s get you acquainted</h2>
           <p className="text-lg text-muted-foreground"></p>
          <div className='flex justify-end pr-8'>
           <Button 
             variant="secondary" 
-            className="h-[32px] cursor-pointer rounded-2xl flex items-center gap-1"
+            className="h-[32px] cursor-pointer flex items-center gap-1"
             onClick={() => {
               // Add your jump to stories logic here
               window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })
