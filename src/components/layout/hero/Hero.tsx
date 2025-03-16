@@ -105,14 +105,15 @@ export function Hero() {
   return (
     <section className="relative mt-20 bg-background">
       <div className='shadow-lg rounded-lg bg-popover w-[95%] sm:w-[90%] max-w-[1200px] mx-auto'>
-      <div className="container mx-auto p-4 sm:p-6 md:p-8 lg:p-10 relative">
+      <div className="container mx-auto p-4  sm:p-6 md:p-8 lg:p-10 relative">
       <Button
           variant="ghost"
           size="icon"
           onClick={() => setIsVisible(false)}
-          className=" z-20 bg-white/80 cursor-pointer hover:bg-white text-red-600  rounded-full"
+          className="z-20  w-fit cursor-pointer   transition-all duration-200 text-red-600 rounded-full flex items-center gap-2  py-6 group"
         >
-          <X className="h-4 w-4" />
+          <X className="h-4 w-4 cursor-pointer transition-transform duration-200" />
+          <span className="text-sm font-medium">Dismiss</span>
         </Button>
         <div className="flex flex-col space-y-2">
           <span className="text-[15px] font-[600] leading-none tracking-[-0.02em] text-muted-foreground font-noto-sans align-middle uppercase">
@@ -123,7 +124,7 @@ export function Hero() {
          <div className='flex justify-end pr-8'>
           <Button 
             variant="secondary" 
-            className="h-[32px] flex items-center gap-1"
+            className="h-[32px] cursor-pointer flex items-center gap-1"
             onClick={() => {
               // Add your jump to stories logic here
               window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })
@@ -139,30 +140,52 @@ export function Hero() {
       <div>
       
         
-        <div className="container mx-auto rounded-2xl px-2 sm:px-4 md:px-0 py-4 sm:py-6 md:py-8 relative">
-          <div ref={sliderRef} className="keen-slider overflow-visible">
+        <div className="container mx-auto rounded-2xl sh px-2 pl-2 sm:px-4 md:px-0 py-4 sm:py-6 md:pb-8 relative">
+          <div ref={sliderRef} className="keen-slider pl-6 overflow-visible">
             {visibleCards.map((card) => (
               <div
                 key={card.id}
                 className="keen-slider__slide cursor-pointer"
               >
-                <div className="flex flex-col rounded-lg shadow-lg h-[300px] sm:h-[350px] md:h-[400px] bg-white dark:bg-gray-800 hover:shadow-xl transition-shadow duration-200 relative">
-                  <div className="relative h-[150px] sm:h-[200px] md:h-[250px] w-full">
+                <div className="flex flex-col rounded-lg shadow-lg h-[300px] sm:h-[350px] md:h-[400px] bg-white dark:bg-popover hover:shadow-xl transition-shadow duration-200 relative group">
+                  <div className="relative h-full w-full overflow-hidden rounded-lg">
                     <Image
                       src={card.imageUrl}
                       alt={card.title}
                       fill
-                      className="object-cover rounded-t-lg"
-                      sizes="(max-width: 480px) 95vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                      className="object-cover rounded-lg top-0 cover h-full transition-transform duration-400 group-hover:scale-110 scale-102"
+                      sizes="(max-width: 480px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
                     />
+                    <div className=" bg-black/10 rounded-lg group-hover:bg-black/0 transition-colors duration-500" />
                   </div>
                   
-                  <div className="p-2 sm:p-3 md:p-4 flex flex-col flex-grow">
+                  <div className="p-2 sm:p-3 md:p-4 flex flex-col flex-grow relative">
                     <span className="inline-block px-2 py-1 ring-1 ring-red-600 text-xs text-red-600 rounded-full w-fit mb-2">
                       {card.category}
                     </span>
                     <h3 className="text-base sm:text-lg md:text-xl font-bold mb-1 sm:mb-2 text-foreground line-clamp-2">{card.title}</h3>
                     <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">{card.description}</p>
+                    
+                    {/* Read More Link */}
+                    <div className="transform translate-y-4 flex items-center pt-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 ease-out">
+                      <span className="flex items-center justify-center text-red-600 font-medium">
+                        <span>Read more</span>
+                        <svg 
+                          className="w-6 h-6 ml-1 flex items-center transform group-hover:translate-x-1 transition-transform duration-200" 
+                          fill="none" 
+                          viewBox="0 0 24 24" 
+                          stroke="currentColor"
+                          style={{ marginTop: '1px' }} // Fine-tune vertical alignment
+                        >
+                          <path 
+                            strokeLinecap="round" 
+                            strokeLinejoin="round" 
+                            strokeWidth={2} 
+                            d="M17 8l4 4m0 0l-4 4m4-4H3" 
+                          />
+                        </svg>
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>

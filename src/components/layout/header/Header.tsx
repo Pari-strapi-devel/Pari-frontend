@@ -56,16 +56,16 @@ export function Header() {
             <Button 
               variant="outline" 
               size="icon"
-              className="hover:bg-accent hidden md:block dark:bg-popover bg-popover items-center justify-center p-2"
+              className="hover:bg-accent hidden  md:block dark:bg-popover bg-popover items-center justify-center p-2"
             >
-              <Search className="h-[1.2rem] w-[1.2rem] text-red-600" />
+              <Search className="h-[1.2rem] w-[1.2rem ] cursor-pointer text-red-600" />
               <span className="sr-only">Search</span>
             </Button>
             
             <div className="flex items-center space-x-2">
               <Button 
                 variant="secondary" 
-                className="rounded-2xl w-[73px] h-[32px]  flex items-center gap-1"
+                className="rounded-2xl w-[73px] cursor-pointer h-[32px]  flex items-center gap-1"
                 onClick={() => setIsFilterOpen(true)}
               >
                 {isFilterOpen ? (
@@ -76,7 +76,7 @@ export function Header() {
 
               <Button 
                 variant="secondary" 
-                className="rounded-2xl w-[73px] h-[32px]"
+                className="rounded-2xl cursor-pointer w-[73px] h-[32px]"
               >
                 Donate
               </Button>

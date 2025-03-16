@@ -35,7 +35,7 @@ export function LanguageToggle() {
 
 
   return (
-    <div className="fixed bottom-10 right-10 z-50">
+    <div className="fixed bottom-10 h-12 w-12 rounded-full right-10 z-50">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button 

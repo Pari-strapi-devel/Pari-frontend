@@ -100,25 +100,27 @@ export function FilterMenu({ isOpen, onClose }: FilterMenuProps) {
         
         {/* Author Name */}
         <div className="space-y-2">
-          <label className="block text-sm font-medium">Author name</label>
+          <label htmlFor="authorName" className="block text-sm font-medium">Author name</label>
           <input
+            id="authorName"
             type="text"
             placeholder="Enter a name of author"
-            className="w-full p-4 border h-[52px] rounded-[48px] shadow-md dark:bg-popover bg-popover "
-            value={filters.authorName}
-            onChange={(e) => setFilters(prev => ({ ...prev, authorName: e.target.value }))}
+            className="w-full p-4 border h-[52px] rounded-[48px] shadow-md dark:bg-popover bg-popover focus:outline-none focus:ring-2 focus:ring-red-600"
+          
+            
+          
           />
         </div>
 
         {/* Place */}
         <div className="space-y-2">
-          <label className="block text-sm font-medium">Place</label>
+          <label htmlFor="place" className="block text-sm font-medium">Place</label>
           <input
+            id="place"
             type="text"
             placeholder="Enter a name of place"
-            className="w-full p-4 border h-[52px] rounded-[48px] shadow-md dark:bg-popover bg-popover "
-            value={filters.place}
-            onChange={(e) => setFilters(prev => ({ ...prev, place: e.target.value }))}
+            className="w-full p-4 border h-[52px] rounded-[48px] shadow-md dark:bg-popover bg-popover focus:outline-none focus:ring-2 focus:ring-red-600"
+          
           />
         </div>
 
@@ -196,14 +198,14 @@ export function FilterMenu({ isOpen, onClose }: FilterMenuProps) {
                 variant="ghost"
                 size="icon"
                 onClick={onClose}
-                className="hover:bg-accent"
+                className="hover:bg-accent cursor-pointer"
               >
                 <X className="h-6 w-6 text-red-600" />
               </Button>
               <div className='flex flex-row space-x-2'>
                 <Button 
                   variant="secondary"
-                  className={`h-8 flex items-center ring-0 justify-center gap-2 ${
+                  className={`h-8 flex items-center cursor-pointer ring-0 justify-center gap-2 ${
                     activeTab === 'cards' ? 'bg-red-700 text-white' : 'bg-gray-200'
                   } hover:bg-red-500`}
                   onClick={() => setActiveTab('cards')}
@@ -212,7 +214,7 @@ export function FilterMenu({ isOpen, onClose }: FilterMenuProps) {
                 </Button>
                 <Button 
                   variant="secondary"
-                  className={`h-8 flex items-center ring-0 justify-center gap-2 ${
+                  className={`h-8 flex items-center cursor-pointer ring-0 justify-center gap-2 ${
                     activeTab === 'filters' ? 'bg-red-700 text-white' : 'bg-gray-200'
                   } hover:bg-red-500`}
                   onClick={() => setActiveTab('filters')}
