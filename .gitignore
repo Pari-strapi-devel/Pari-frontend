@@ -14,7 +14,7 @@
 /coverage
 
 # next.js
-# /.next/  # Comment out or remove this line
+/.next/
 /out/
 
 # production
