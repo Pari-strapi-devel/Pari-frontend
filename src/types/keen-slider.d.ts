@@ -1,6 +1,11 @@
 declare module 'keen-slider/react' {
   interface KeenSliderInstance {
-    track: any;
+    track: {
+      details?: {
+        rel: number;
+        slides: [];
+      };
+    };
     moveToIdx(idx: number): unknown;
     prev: () => void;
     next: () => void;

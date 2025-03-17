@@ -198,7 +198,7 @@ export function WeekOnCard() {
 
         {loaded && instanceRef.current && (
           <div className="flex justify-center gap-2 mt-6">
-            {[...Array(instanceRef.current.track.details.slides.length)].map((_, idx) => (
+            {[...Array(weekOnArticles.length)].map((_, idx) => (
               <button
                 key={idx}
                 onClick={(e) => {
