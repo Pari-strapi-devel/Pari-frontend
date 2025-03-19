@@ -104,27 +104,34 @@ export function Hero() {
 
   return (
     <section className="relative mt-20 bg-background">
-      <div className='shadow-lg rounded-lg bg-popover w-[95%] sm:w-[90%] max-w-[1200px] mx-auto'>
+      <div className='shadow-lg rounded-lg bg-popover w-[95%] sm:w-[90%] max-w-[1232px] mx-auto'>
       <div className="container mx-auto p-4  sm:p-6 md:p-8 lg:p-10 relative">
       <Button
           variant="ghost"
           size="icon"
           onClick={() => setIsVisible(false)}
-          className="z-20  w-fit cursor-pointer   transition-all duration-200 text-red-600 rounded-full flex items-center gap-2  py-6 group"
+          className="z-20  w-fit -ml-2 cursor-pointer   hover:text-red-600  transition-all duration-200 text-red-600 rounded-full flex items-center gap-2  py-6 group"
         >
-          <X className="h-4 w-4 cursor-pointer transition-transform duration-200" />
+          <div className='hover:bg-red-400 h-8 w-8  rounded-full flex items-center justify-center hover:text-white'>
+          <X className="h-4 w-4 hover:bg-red-400 cursor-pointer  transition-transform duration-200" />
+          </div>
+         
           <span className="text-sm font-medium">Dismiss</span>
         </Button>
-        <div className="flex flex-col space-y-2">
-          <span className="text-[15px] font-[600] leading-none tracking-[-0.02em] text-muted-foreground font-noto-sans align-middle uppercase">
+        <div className="flex sm:justify-between flex-col sm:flex-row gap-4 pt-6">
+          <div>
+          <span className="text-[15px] text-gray-400 font-[600] leading-none tracking-[-0.02em]  font-noto-sans align-middle uppercase">
             {getCurrentDate()}
           </span>
-          <h2 className="text-3xl font-bold text-foreground">Welcome to PARI Let&apos;s get you acquainted</h2>
-          <p className="text-lg text-muted-foreground"></p>
-         <div className='flex justify-end pr-8'>
+          <h2 className="font-noto-sans text-[32px] sm:text-[40px] md:text-[48px] lg:text-[56px] font-bold leading-[112%] tracking-[-0.04em] text-foreground">
+            Welcome to PARI<br />Let&apos;s get you acquainted
+          </h2>
+          
+          </div>
+         <div className='flex  items-end pr-8'>
           <Button 
             variant="secondary" 
-            className="h-[32px] cursor-pointer flex items-center gap-1"
+            className="h-[32px] cursor-pointer  flex items-center rounded-[48px] gap-1"
             onClick={() => {
               // Add your jump to stories logic here
               window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })
@@ -140,7 +147,7 @@ export function Hero() {
       <div>
       
         
-        <div className="container mx-auto rounded-2xl sh px-2 pl-2 sm:px-4 md:px-0 py-4 sm:py-6 md:pb-8 relative">
+        <div className="container mx-auto rounded-2xl sh px-2 pl-2 sm:px-4 md:px-0 py-2 sm:py-6 md:pb-8 relative">
           <div ref={sliderRef} className="keen-slider pl-6 overflow-visible">
             {visibleCards.map((card) => (
               <div
@@ -156,11 +163,11 @@ export function Hero() {
                       className="object-cover rounded-lg top-0 cover h-full transition-transform duration-400 group-hover:scale-110 scale-102"
                       sizes="(max-width: 480px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
                     />
-                    <div className=" bg-black/10 rounded-lg group-hover:bg-black/0 transition-colors duration-500" />
+                    <div className=" bg-black/10 rounded-lg  pt-4 group-hover:bg-black/0 transition-colors duration-500" />
                   </div>
                   
-                  <div className="p-2 sm:p-3 md:p-4 flex flex-col flex-grow relative">
-                    <span className="inline-block px-2 py-1 ring-1 ring-red-600 text-xs text-red-600 rounded-full w-fit mb-2">
+                  <div className="p-4 sm:p-3 md:p-4 flex flex-col flex-grow relative">
+                    <span className="inline-block items-center px-2 py-1 ring-1 ring-red-600 text-xs text-red-600 rounded-full w-fit h-[23px] mb-2">
                       {card.category}
                     </span>
                     <h3 className="text-base sm:text-lg md:text-xl font-bold mb-1 sm:mb-2 text-foreground line-clamp-2">{card.title}</h3>

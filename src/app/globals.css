@@ -26,6 +26,7 @@
   --input: #EDEDED; /* lightsurface1 */
   --ring: #202020; /* darksurface1 */
   --radius: 0.625rem;
+  --grey3: #828282;
 }
 
 .dark {

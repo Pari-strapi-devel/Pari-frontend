@@ -97,6 +97,7 @@
       }
     },
     "outputFileTracingRoot": "/Users/hasura/work/pari-project/my-app",
+    "allowedDevOrigins": [],
     "experimental": {
       "allowedDevOrigins": [],
       "nodeMiddleware": false,

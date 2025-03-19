@@ -6,6 +6,7 @@ import { Hero } from "@/components/layout/hero/Hero"
 import { WeekOnCard } from '../components/layout/weekOn/WeekOnCard';
 import './globals.css'
 import { LanguageToggle } from '../components/layout/header/LanguageToggle';
+import { MakeInIndiaCard } from '@/components/layout/makeInIndia/MakeInIndiaCard'
 
 export default function Home() {
   return (
@@ -13,7 +14,8 @@ export default function Home() {
       <Header />
       <Hero />
       <WeekOnCard />
-      <LanguageToggle></LanguageToggle>
+      <MakeInIndiaCard />
+      <LanguageToggle />
       <main className="container mx-auto px-4 py-8">
         {/* Other content */}
       </main>
