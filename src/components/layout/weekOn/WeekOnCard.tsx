@@ -133,34 +133,34 @@ export function WeekOnCard() {
         slides: { perView: 2, spacing: 16 },
       },
       '(min-width: 1024px)': {
-        slides: { perView: 2.2, spacing: 24 },
+        slides: { perView: 2, spacing: 24 },
       },
     },
   })
 
   return (
     
-    <section className="py-20 relative">
+    <section className="py-20 relative overflow-hidden">
       <div className=" ">
-        <div className='max-w-[1232px] mx-auto'>
+        <div className='max-w-[1232px] mx-auto '>
         <WeekOnHeader />
         </div>
        
-        <div ref={sliderRef} className="keen-slider relative max-w-[1232px] mx-auto z-50 overflow-visible   ">
+        <div ref={sliderRef} className="!overflow-visible keen-slider  relative max-w-[1232px] mx-auto    ">
           {weekOnArticles.map((article) => (
             <Link 
               href={`/articles/${article.slug}`} 
               key={article.id}
               className="keen-slider__slide"
             >
-              <article className="group rounded-lg overflow-hidden pt-8  hover:shadow-xl transition-discrete-00 transition-all duration-300 h-full">
-                <div className="relative h-[306px] overflow-hidden">
+              <article className="group rounded-lg overflow-hidden pt-8 hover:rounded-xl  hover:shadow-xl transition-discrete-00 transition-all duration-300 h-full">
+                <div className="relative h-[306px] w-100% overflow-hidden rounded-2xl ">
                   <Image
                     src={article.imageUrl}
                     alt={article.title}
                     fill
-                    className="object-cover transition-transform rounded-xl duration-300 group-hover:scale-105"
-                    sizes="(max-width: 540px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    className="object-cover transition-transform scale-102  rounded-xl duration-300 group-hover:scale-108"
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                   />
                 </div>
                 

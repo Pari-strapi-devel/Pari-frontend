@@ -1,7 +1,7 @@
 
 "use client"
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from "@/components/ui/button"
 import { X } from "lucide-react"
 import {
@@ -10,43 +10,95 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { useFilterStore } from '@/store/filterStore'
 
 interface Language {
   code: string;
+  displayCode: {
+    en: string;    // English script
+    native: string; // Native script
+  };
   name: string;
 }
 
+// interface FilterState {
+//   isOpen: boolean;
+// }
+
 const languages: Language[] = [
-  { code: 'en', name: 'English' },
-  { code: 'ur', name: 'اردو' },
-  { code: 'mr', name: 'मराठी' },
-  { code: 'hi', name: 'हिंदी' },
-  { code: 'or', name: 'ଓଡ଼ିଆ' },
-  { code: 'bn', name: 'বাংলা' },
+  { 
+    code: 'en', 
+    displayCode: { en: 'EN', native: 'EN' }, 
+    name: 'English' 
+  },
+  { 
+    code: 'ur', 
+    displayCode: { en: 'UR', native: 'اردو' }, 
+    name: 'اردو' 
+  },
+  { 
+    code: 'mr', 
+    displayCode: { en: 'MR', native: 'मरा' }, 
+    name: 'मराठी' 
+  },
+  { 
+    code: 'hi', 
+    displayCode: { en: 'HI', native: 'हि' }, 
+    name: 'हिंदी' 
+  },
+  { 
+    code: 'or', 
+    displayCode: { en: 'OR', native: 'ଓଡ଼ି' }, 
+    name: 'ଓଡ଼ିଆ' 
+  },
+  { 
+    code: 'bn', 
+    displayCode: { en: 'BN', native: 'বাং' }, 
+    name: 'বাংলা' 
+  },
 ]
 
 export function LanguageToggle() {
+  const [open, setOpen] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState('en');
+  const [isVisible, setIsVisible] = useState(true);
+  const isFilterOpen = useFilterStore((state) => state.isOpen);
+
+  useEffect(() => {
+    setIsVisible(!isFilterOpen);
+  }, [isFilterOpen]);
 
   const handleLanguageSelect = (languageCode: string) => {
     setSelectedLanguage(languageCode);
-    // Here you can add logic to change the application language
+    setOpen(false);
   };
 
+  const getDisplayCode = (code: string) => {
+    const language = languages.find(lang => lang.code === code);
+    return language ? (
+      <div className="flex items-center gap-2">
+        <span>{language.displayCode.en}</span>
+        <span className="text-xs opacity-50">|</span>
+        <span>{language.displayCode.native}</span>
+      </div>
+    ) : code;
+  };
+
+  if (!isVisible) return null;
 
   return (
-    <div className="fixed bottom-10 h-12 w-12 rounded-full right-10 z-50">
-      <DropdownMenu>
+    <div className="fixed bottom-10 h-[61px] w-[110px] rounded-full right-10 z-50">
+      <DropdownMenu open={open} onOpenChange={setOpen}>
         <DropdownMenuTrigger asChild>
           <Button 
             variant="outline" 
             size="icon" 
-            className="relative h-12 w-12 border-none rounded-full cursor-pointer bg-red-600 text-white hover:bg-red-700 backdrop-blur-3xl supports-[backdrop-filter]:bg-red-600/90 after:content-[''] after:absolute after:top-1/2 after:left-1/2 after:transform after:-translate-x-1/2 after:-translate-y-1/2 after:w-[110%] after:h-[110%] after:border-10 after:border-red-500/50 after:rounded-full after:animate-ping"
+            className="relative h-[61px] w-[110px] gap-2 border-none rounded-full cursor-pointer bg-red-600 text-white hover:bg-red-700 backdrop-blur-3xl supports-[backdrop-filter]:bg-red-600/90 after:content-[''] after:absolute after:top-1/2 after:left-1/2 after:transform after:-translate-x-1/2 after:-translate-y-1/2 after:w-[90%] after:h-[110%] after:border-12 after:border-red-500/50 after:rounded-full after:animate-ping"
           >
-            <div className="flex items-center justify-center w-6 h-6 font-semibold text-sm">
-              {selectedLanguage.toUpperCase()}
+            <div className="flex items-center justify-center w-14 h-6 gap-2 font-semibold text-xs">
+              {getDisplayCode(selectedLanguage)}
             </div>
-            <span className="sr-only">Toggle language</span>
+          
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent 
@@ -59,8 +111,8 @@ export function LanguageToggle() {
                 <Button 
                   variant="ghost" 
                   size="icon" 
-                  className="h-8 w-8 text-red-600 cursor-pointer hover:bg-accent"
-                  onClick={() => document.body.click()}
+                  className="h-8 w-8 text-red-600 cursor-pointer hover:bg-accent ${} "
+                  onClick={() => setOpen(false)}
                 >
                   <X className="h-4 w-4" />
                 </Button>
@@ -95,3 +147,5 @@ export function LanguageToggle() {
     </div>
   )
 }
+
+

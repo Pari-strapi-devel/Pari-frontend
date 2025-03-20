@@ -1,15 +1,17 @@
 "use client"
-import { useState } from 'react'
+import { useState,  } from 'react'
 import { Navigation } from './Navigation'
 import { ThemeToggle } from "./ThemeToggle"
 import { FilterMenu } from "./FilterMenu"
 import { Button } from "@/components/ui/button"
 import { Search, Menu, X } from "lucide-react"
 import Image from 'next/image'
+import { useFilterStore } from '@/store/filterStore'
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [isFilterOpen, setIsFilterOpen] = useState(false)
+  const isFilterOpen = useFilterStore((state) => state.isOpen)
+  const setIsFilterOpen = useFilterStore((state) => state.setIsOpen)
 
   return (
     <header className="border-b border-border dark:bg-popover bg-popover relative">
@@ -65,7 +67,7 @@ export function Header() {
             <div className="flex items-center space-x-2">
               <Button 
                 variant="secondary" 
-                className="rounded-2xl w-[73px] cursor-pointer h-[32px]  flex items-center gap-1"
+                className="rounded-2xl w-[73px] cursor-pointer h-[32px] flex items-center gap-1"
                 onClick={() => setIsFilterOpen(true)}
               >
                 {isFilterOpen ? (
