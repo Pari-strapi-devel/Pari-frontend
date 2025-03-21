@@ -10,6 +10,7 @@ import StoriesPage from './stories/page'
 import './globals.css'
 import { LanguageToggle } from '../components/layout/header/LanguageToggle'
 import { PariLibraryStory } from '@/components/layout/pariLibrary/PariLibraryStory'
+import { AudioVideoCard } from '@/components/layout/audioVideo/AudioVideoCard'
 
 export default function Home() {
   return (
@@ -20,11 +21,13 @@ export default function Home() {
       <div className="bg-[#EDEDED] py-20 dark:bg-popover">
         <MakeInIndiaCard />
         <StoriesPage />
+       
       </div>
       <div>
         <PariLibrary />
         <PariLibraryStory />
       </div>
+      <AudioVideoCard />
       <LanguageToggle />
       <main className="container mx-auto px-4 py-8">
         {/* Other content */}
