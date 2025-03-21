@@ -1,22 +1,21 @@
 "use client"
 
-import Image from 'next/image'
-import Link from 'next/link'
 import { useKeenSlider } from 'keen-slider/react'
 import 'keen-slider/keen-slider.min.css'
 import { useState } from 'react'
 import WeekOnHeader from './WeekOnHeader'
+import { ArticleCard } from '@/components/ui/ArticleCard'
 
 interface WeekOnArticle {
-  id: number;
-  title: string;
-  description: string;
-  imageUrl: string;
-  categories: string[];
-  slug: string;
-  authors: string[];
-  location: string;
-  date: string;
+  id: number
+  title: string
+  description: string
+  imageUrl: string
+  categories: string[]
+  slug: string
+  authors: string[]
+  location: string
+  date: string
 }
 
 const weekOnArticles: WeekOnArticle[] = [
@@ -148,54 +147,11 @@ export function WeekOnCard() {
        
         <div ref={sliderRef} className="!overflow-visible keen-slider  relative max-w-[1232px]  mx-auto    ">
           {weekOnArticles.map((article) => (
-            <Link 
-              href={`/articles/${article.slug}`} 
+            <ArticleCard 
               key={article.id}
+              {...article}
               className="keen-slider__slide"
-            >
-              <article className="group rounded-lg overflow-hidden pt-8 hover:rounded-xl  hover:shadow-xl transition-discrete-00 transition-all duration-300 h-full">
-                <div className="relative h-[306px] w-100% overflow-hidden rounded-2xl ">
-                  <Image
-                    src={article.imageUrl}
-                    alt={article.title}
-                    fill
-                    className="object-cover transition-transform scale-102  rounded-xl duration-300 group-hover:scale-108"
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                  />
-                </div>
-                
-                <div className="py-6 px-1 rounded-2xl">
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {article.categories.map((category, index) => (
-                      <span 
-                        key={index}
-                        className="inline-block items-center px-2 py-1 ring-1 ring-red-600 text-xs text-red-600 rounded-full w-fit h-[23px] mb-2">
-                        {category}
-                      </span>
-                    ))}
-                  </div>
-                  
-                  <h3 className="font-noto-sans text-[28px] font-bold leading-[130%] tracking-[-0.04em] text-foreground mb-3 line-clamp-2">
-                    {article.title}
-                  </h3>
-                  
-                  <p className="font-noto-sans text-base font-normal leading-[170%] tracking-[-0.01em] text-muted-foreground mb-4 line-clamp-3">
-                    {article.description}
-                  </p>
-                  
-                  <div className="flex items-center justify-between  font-noto-sans text-sm text-muted-foreground">
-                    <div>
-                      <p className="font-noto-sans text-[15px] font-medium leading-[180%] tracking-[-0.02em] text-foreground">{article.authors.join(', ')}</p>
-                      <div className='flex gap-1 items-center text-red-700'> 
-                        <p>{article.location}</p>•
-                        <p>{article.date}</p>
-                        <span className='text-xl'>→</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </article>
-            </Link>
+            />
           ))}
         </div>
 

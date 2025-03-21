@@ -45,7 +45,7 @@ const features = [
     className: "lg:col-start-1 lg:col-end-2 lg:row-start-3 lg:row-end-4",
   },
   {
-    category: ["Contributors"],
+    category: ["Contributors" ,"Contributors"],
     name: "Author Profile",
     title: "Umesh Solanki",
     description: "Award-winning journalist covering rural India",
@@ -74,7 +74,7 @@ const features = [
 
 export function MakeInIndiaCard() {
   return (
-    <div className="pb-20   max-w-[1232px] mx-auto border-b-1 border-[#D9D9D9]">
+    <div className="pb-20   max-w-[1232px] mx-auto border-b-1 border-[#D9D9D9] dark:border-gray-800">
        <div className=' '>
         <div className="flex  flex-col gap-2 py-4 mb-4">
             <div className='flex flex- items-center gap-2'>

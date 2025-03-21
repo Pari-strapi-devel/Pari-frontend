@@ -4,10 +4,12 @@ import * as React from "react"
 import { Header } from "@/components/layout/header/Header"
 import { Hero } from "@/components/layout/hero/Hero"
 import { WeekOnCard } from '../components/layout/weekOn/WeekOnCard'
-import './globals.css'
-import { LanguageToggle } from '../components/layout/header/LanguageToggle'
+import { PariLibrary } from '@/components/layout/pariLibrary/PariLibrary'
 import { MakeInIndiaCard } from '@/components/layout/makeInIndia/MakeInIndiaCard'
 import StoriesPage from './stories/page'
+import './globals.css'
+import { LanguageToggle } from '../components/layout/header/LanguageToggle'
+import { PariLibraryStory } from '@/components/layout/pariLibrary/PariLibraryStory'
 
 export default function Home() {
   return (
@@ -15,11 +17,14 @@ export default function Home() {
       <Header />
       <Hero />
       <WeekOnCard />
-      <div className=" bg-[#EDEDED] py-20 dark:bg-popover">
-      <MakeInIndiaCard />
-      <StoriesPage />
+      <div className="bg-[#EDEDED] py-20 dark:bg-popover">
+        <MakeInIndiaCard />
+        <StoriesPage />
       </div>
-     
+      <div>
+        <PariLibrary />
+        <PariLibraryStory />
+      </div>
       <LanguageToggle />
       <main className="container mx-auto px-4 py-8">
         {/* Other content */}
