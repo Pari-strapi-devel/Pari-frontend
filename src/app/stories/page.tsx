@@ -1,4 +1,6 @@
 import { StoryCard } from '@/components/layout/stories/StoryCard'
+import { Button } from '@/components/ui/button'
+import { ChevronRight, Sparkle  } from 'lucide-react'
 
 // Example story with video
 
@@ -79,7 +81,19 @@ const stories = [
 
 export default function StoriesPage() {
   return (
-    <div className='max-w-[1232px] mx-auto'>
+    <div className='max-w-[1232px] pt-20 mx-auto'>
+       <div>
+        <div className="flex justify-between items-center mb-4">
+            <div className='flex flex-row items-center gap-2'>
+                 <Sparkle  className="h-4 w-4 text-red-600" />
+                <h2 className="text-13px font-noto-sans uppercase text-gray-400 leading-[100%] letter-spacing-[-2%] font-semibold">This week on PARI</h2>
+            </div>
+          
+          <Button variant={"secondary"} className="text-sm h-[32px] rounded-[48px] text-red-600">See all storys
+          <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
+    </div>
     <div className="grid grid-cols-1 md:grid-cols-2 bg-propover  lg:grid-cols-4  gap-6 py-4">
      
       {stories.map((story) => (
