@@ -125,12 +125,12 @@ export function WeekOnCard() {
       setLoaded(true)
     },
     slides: {
-      perView: 1,
+      perView: 1.1,
       spacing: 16,
     },
     breakpoints: {
       '(min-width: 640px)': {
-        slides: { perView: 2, spacing: 16 },
+        slides: { perView: 2.2, spacing: 16 },
       },
       '(min-width: 1024px)': {
         slides: { perView: 2, spacing: 24 },
@@ -140,13 +140,13 @@ export function WeekOnCard() {
 
   return (
     
-    <section className="py-20 relative overflow-hidden">
+    <section className="py-20 px-4 relative overflow-hidden">
       <div className=" ">
         <div className='max-w-[1232px] mx-auto '>
         <WeekOnHeader />
         </div>
        
-        <div ref={sliderRef} className="!overflow-visible keen-slider  relative max-w-[1232px] mx-auto    ">
+        <div ref={sliderRef} className="!overflow-visible keen-slider  relative max-w-[1232px]  mx-auto    ">
           {weekOnArticles.map((article) => (
             <Link 
               href={`/articles/${article.slug}`} 
