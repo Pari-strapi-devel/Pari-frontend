@@ -1,6 +1,7 @@
 import { Metadata } from 'next'
 import { ThemeProvider } from '@/components/theme-provider'
 import './globals.css'
+import { Footer } from '@/components/layout/footer/Footer'
 
 export const metadata: Metadata = {
   title: {
@@ -29,6 +30,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
           storageKey="theme"
         >
           {children}
+          <Footer />
         </ThemeProvider>
       </body>
     </html>
