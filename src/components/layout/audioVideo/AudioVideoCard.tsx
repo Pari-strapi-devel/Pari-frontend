@@ -79,7 +79,7 @@ export function AudioVideoCard() {
   const featuredStory = mediaStories[0] // Use your featured story data
 
   return (
-    <div className="max-w-[1232px] mx-auto py-20">
+    <div className="max-w-[1232px] lg:px-0 px-4 mx-auto md:py-20 sm:py-10">
       <div className="flex justify-between items-center mb-8">
         <div className="flex items-center gap-2">
           <CirclePlay className="h-4 w-4 text-red-600" />
@@ -101,7 +101,7 @@ export function AudioVideoCard() {
         <AudioVideoBigCard {...featuredStory} />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {mediaStories.map((story) => (
           <Link 
             key={story.id} 
@@ -136,7 +136,7 @@ export function AudioVideoCard() {
                   {story.categories.map((category, index) => (
                     <span
                       key={index}
-                      className="inline-block px-2 py-1 ring-1 ring-red-600 text-xs text-red-600 rounded-full"
+                      className="inline-block px-2 py-1 items-center h-[24px] hover:bg-red-600 hover:text-white ring-1 ring-red-600 text-xs text-red-600 rounded-full"
                     >
                       {category}
                     </span>

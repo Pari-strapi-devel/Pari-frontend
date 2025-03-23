@@ -148,9 +148,9 @@ export function PariLibrary() {
   })
 
   return (
-    <div className=" overflow-hidden pt-20">
+    <div className=" overflow-hidden h-fit pt-8 px-4 sm:pt-20">
       <div className="px-2">
-        <div className="flex justify-between max-w-[1232px] mx-auto items-end mb-8">
+        <div className="flex md:justify-between max-w-[1232px] flex-col sm:flex-row mx-auto sm:items-end  mb-8">
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2">
               <Book className="h-4 w-4 text-red-600" />
@@ -158,7 +158,7 @@ export function PariLibrary() {
               In Focus
               </h2>
             </div>
-            <h3 className="font-noto-sans text-[56px] font-bold leading-[122%] tracking-[-0.04em]">
+            <h3 className="font-noto-sans md:text-[56px] text-[40px] font-bold leading-[122%] tracking-[-0.04em]">
               The PARI Library
             </h3>
             <p className="font-noto-sans max-w-[500px] text-[16px] font-normal leading-[170%] tracking-[-0.01em] text-muted-foreground">
@@ -166,12 +166,12 @@ export function PariLibrary() {
             </p>
           </div>
           
-          <div className="flex items-end h-full  gap-4">
+          <div className="flex items-end h-full  sm:pt-0 pt-6  gap-4">
             
             
             <Button 
               variant="secondary" 
-              className="text-sm h-[32px] rounded-[48px] text-red-600"
+              className="text-sm h-[32px]  rounded-[48px] text-red-600"
             >
               See more reports
               <ChevronRight className="h-4 w-4" />

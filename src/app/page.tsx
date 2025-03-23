@@ -14,11 +14,11 @@ import { AudioVideoCard } from '@/components/layout/audioVideo/AudioVideoCard'
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen  bg-background">
       <Header />
       <Hero />
       <WeekOnCard />
-      <div className="bg-[#EDEDED] py-20 dark:bg-popover">
+      <div className="bg-[#EDEDED] md:py-10 py-8 dark:bg-popover">
         <MakeInIndiaCard />
         <StoriesPage />
        

@@ -107,9 +107,9 @@ export function Footer() {
             </div>
 
             {/* Social Media Links */}
-            <div>
-              <div className="flex items-center justify-between space-x-6 pr-9 pt-4">
-              <div className="flex items-center space-x-4">
+            <div className='w-full'>
+              <div className="flex w-full items-center md:justify-between justify-center flex-col md:flex-row gap-4 space-x-6 md:pr-9 pt-4">
+              <div className="flex items-center w-full md:justify-start justify-center space-x-4">
                   <Link 
                     href="#" 
                     className="group"
@@ -142,7 +142,7 @@ export function Footer() {
                   </Link>
                 </div>
                 {/* Social Media Icons */}
-                <div className="flex items-center space-x-8">
+                <div className="flex items-center w-full md:justify-center justify-evenly  md:space-x-8">
                   {[
                     { 
                       href: "https://twitter.com/PARInetwork", 
@@ -175,8 +175,8 @@ export function Footer() {
                       <Image 
                         src={imgSrc}
                         alt={label}
-                        width={24}
-                        height={24}
+                        width={30}
+                        height={30}
                         className="opacity-100 hover:opacity-100 transition-opacity"
                       />
                      

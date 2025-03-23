@@ -167,7 +167,7 @@ export function Hero() {
                   </div>
                   
                   <div className="p-4 sm:p-3 md:p-4 flex flex-col flex-grow relative">
-                    <span className="inline-block items-center px-2 py-1 ring-1 ring-red-600 text-xs text-red-600 rounded-full w-fit h-[23px] mb-2">
+                    <span className="inline-block items-center justify-center px-2 py-1 ring-1 hover:bg-red-600 hover:text-white  ring-red-600 text-xs text-red-600 rounded-full w-fit h-[23px] mb-2">
                       {card.category}
                     </span>
                     <h3 className="text-base sm:text-lg md:text-xl font-bold mb-1 sm:mb-2 text-foreground line-clamp-2">{card.title}</h3>

@@ -31,7 +31,7 @@ export function StoryCard({
 }: StoryCardProps) {
   return (
     <Link href={`/stories/${slug}`}>
-      <article className="group rounded-lg h-[358px] overflow-hidden bg-background hover:shadow-xl transition-all duration-300 border border-border">
+      <article className="group rounded-lg h-[338px] overflow-hidden bg-background hover:shadow-xl transition-all duration-300 border border-border">
         <div className="relative h-[156px] w-full overflow-hidden rounded-t-2xl">
           <Image
             src={imageUrl || '/images/placeholder.png'}
@@ -58,23 +58,23 @@ export function StoryCard({
           )}
         </div>
 
-        <div className="py-1 h-[192px] flex justify-between flex-col px-4">
+        <div className="py-3 h-[172px] flex  justify-around flex-col px-4">
           <div className="flex flex-wrap gap-2 ">
             {categories?.map((category, index) => (
               <span 
                 key={index}
-                className="inline-block px-2 py-1 ring-1 ring-red-600 text-xs text-red-600 rounded-full"
+                className="inline-block px-2  ring-1 hover:bg-red-600 hover:text-white ring-red-600 text-xs text-red-600 rounded-full"
               >
                 {category}
               </span>
             ))}
           </div>
 
-          <h3 className="font-noto-sans text-[18px] font-semibold leading-[136%] tracking-[-0.04em] text-foreground mb-3 line-clamp-2">
+          <h3 className="font-noto-sans line-clamp-1 text-[18px] font-semibold leading-[136%] tracking-[-0.04em] text-foreground ">
             {title}
           </h3>
 
-          <p className="font-noto-sans text-[15px] font-semibold leading-[170%] text-gray-400 tracking-[-0.04em]  line-clamp-3">
+          <p className="font-noto-sans text-[15px] font-semibold leading-[170%] text-gray-400 tracking-[-0.04em]  -mb-2 line-clamp-3">
             {description}
           </p>
 
@@ -84,7 +84,7 @@ export function StoryCard({
                 <span>{languages}</span>
               </div>
 
-              <div className="flex gap-1 items-center text-red-700">
+              <div className="flex gap-1 justify-around items-center text-red-700">
                 <p>{location}</p>•
                 <p>{date}</p>
                 <span className="text-xl">→</span>

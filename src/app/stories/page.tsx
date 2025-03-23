@@ -81,7 +81,7 @@ const stories = [
 
 export default function StoriesPage() {
   return (
-    <div className='max-w-[1232px] pt-20 mx-auto'>
+    <div className='max-w-[1232px] lg:px-0 py-10 px-4 hover:h-fit mx-auto'>
        <div>
         <div className="flex justify-between items-center mb-4">
             <div className='flex flex-row items-center gap-2'>
@@ -94,7 +94,7 @@ export default function StoriesPage() {
           </Button>
         </div>
     </div>
-    <div className="grid grid-cols-1 md:grid-cols-2 bg-propover  lg:grid-cols-4  gap-6 py-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 bg-propover  lg:grid-cols-4  gap-6 py-4">
      
       {stories.map((story) => (
         <StoryCard key={story.slug} {...story} />

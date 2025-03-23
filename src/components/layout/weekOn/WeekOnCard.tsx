@@ -139,7 +139,7 @@ export function WeekOnCard() {
 
   return (
     
-    <section className="py-20 px-4 relative overflow-hidden">
+    <section className="m:py-20  py-10 px-4 relative overflow-hidden">
       <div className=" ">
         <div className='max-w-[1232px] mx-auto '>
         <WeekOnHeader />

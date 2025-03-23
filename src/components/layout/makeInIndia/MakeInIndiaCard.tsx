@@ -74,7 +74,7 @@ const features = [
 
 export function MakeInIndiaCard() {
   return (
-    <div className="pb-20   max-w-[1232px] mx-auto border-b-1 border-[#D9D9D9] dark:border-gray-800">
+    <div className="sm:pb-20  px-4  max-w-[1232px] mx-auto border-b-1 border-[#D9D9D9] dark:border-gray-800">
        <div className=' '>
         <div className="flex  flex-col gap-2 py-4 mb-4">
             <div className='flex flex- items-center gap-2'>

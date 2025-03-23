@@ -32,7 +32,7 @@ const BentoGrid = ({ children, className, ...props }: BentoGridProps) => {
   return (
     <div
       className={cn(
-        "grid w-full max-h-[600px] auto-rows-[22rem] grid-cols-3 gap-4",
+        "grid w-full max-h-[900px]  grid-cols-3 g gap-4",
         className,
       )}
       {...props}
@@ -65,7 +65,7 @@ const BentoCard = ({
     )}
     {...props}
   >
-    <div className="absolute inset-0 w-full h-full">{background}</div>
+    <div className="absolute inset-0 w-full h-2/3">{background}</div>
 
     <div className="absolute flex gap-2 left-9 top-4 mb-4 z-80">
       {features.map((category: Category, index: number) => (
@@ -77,14 +77,14 @@ const BentoCard = ({
         </span>
       ))}
     </div>
- <div className="relative z-10 flex flex-col h-full">
-    <div className="pointer-events-none h-full z-10 flex  -bottom-2 justify-end transform-gpu flex-col gap-1 p-6 transition-all duration-300 group-hover:-translate-y-20">
+ <div className="relative z-10 flex flex-col bg-gradient-to-t from-black/80 to-transparent h-full">
+    <div className="pointer-events-none h-full z-10 flex  -bottom-5 justify-end transform-gpu flex-col gap-1 px-6 transition-all duration-300 group-hover:-translate-y-20">
       <h3 className="text-xl font-semibold text-white">
         {title || name}
       </h3>
       <p className=" text-white/70">{description}</p>
       <div className="pointer-events-none absolute -bottom-20 left-0 right-0 flex transform-gpu flex-col p-6 transition-all duration-300 bg-gradient-to-t from-black/80 to-transparent">
-      <div className="flex flex-col justify-between gap-1 font-noto-sans text-sm text-white/70">
+      <div className="flex flex-col justify-between  font-noto-sans text-sm text-white/70">
         {languages && (
           <div className="font-noto-sans text-[15px] font-medium leading-[180%] tracking-[-0.02em] text-white flex items-center gap-1">
             <span>{languages?.join(', ')}</span>

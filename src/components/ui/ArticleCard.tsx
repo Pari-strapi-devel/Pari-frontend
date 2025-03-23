@@ -32,7 +32,7 @@ export function ArticleCard({
       href={`/articles/${slug}`}
       className={className}
     >
-      <article className="group rounded-lg overflow-hidden pt-8 hover:rounded-xl hover:shadow-xl transition-discrete-00 transition-all duration-300 h-full">
+      <article className="group rounded-lg overflow-hidden sm:pt-8 hover:rounded-xl hover:shadow-xl transition-discrete-00 transition-all duration-300 h-full">
         <div className="relative h-[306px] w-100% overflow-hidden rounded-2xl">
           <Image
             src={imageUrl}
@@ -48,7 +48,7 @@ export function ArticleCard({
             {categories.map((category, index) => (
               <span 
                 key={index}
-                className="inline-block items-center px-2 py-1 ring-1 ring-red-600 text-xs text-red-600 rounded-full w-fit h-[23px] mb-2"
+                className="inline-block items-center px-2 py-1 ring-1 hover:bg-red-600 hover:text-white ring-red-600 text-xs text-red-600 rounded-full w-fit h-[23px] mb-2"
               >
                 {category}
               </span>

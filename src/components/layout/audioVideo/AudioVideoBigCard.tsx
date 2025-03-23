@@ -37,7 +37,7 @@ export function AudioVideoBigCard({
     >
       <article className="grid grid-cols-1 md:grid-cols-2 gap-6 rounded-lg overflow-hidden bg-background hover:shadow-xl transition-all duration-300 border border-border">
         {/* Left side - Image */}
-        <div className="relative h-[300px] md:h-full w-full shadow-lg overflow-hidden">
+        <div className="relative h-[300px]  md:h-full w-full shadow-lg overflow-hidden">
           <Image
             src={imageUrl}
             alt={title}
@@ -69,7 +69,7 @@ export function AudioVideoBigCard({
             {categories.map((category, index) => (
               <span
                 key={index}
-                className="inline-block px-3 py-1 ring-1 ring-red-600 text-sm text-red-600 rounded-full"
+                className="inline-block px-3 py-1 hover:bg-red-600 hover:text-white ring-1 ring-red-600 text-sm text-red-600 rounded-full"
               >
                 {category}
               </span>
