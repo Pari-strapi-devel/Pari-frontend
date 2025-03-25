@@ -104,7 +104,7 @@ export function Hero() {
 
   return (
     <section className="relative mt-20 bg-background">
-      <div className='shadow-lg rounded-lg bg-popover w-[95%] sm:w-[90%] max-w-[1232px] mx-auto'>
+      <div className='shadow-lg rounded-lg bg-popover w-[%] sm:w-[90%] max-w-[1232px] mx-auto'>
       <div className="container mx-auto p-4  sm:p-6 md:p-8 lg:p-10 relative">
       <Button
           variant="ghost"
@@ -147,8 +147,8 @@ export function Hero() {
       <div>
       
         
-        <div className="container mx-auto rounded-2xl sh px-2 pl-2 sm:px-4 md:px-0 py-2 sm:py-6 md:pb-8 relative">
-          <div ref={sliderRef} className="keen-slider pl-6 overflow-visible">
+        <div className="container mx-auto rounded-2xl  pl-2 sm:px-4   md:px-0 py-2 md:pb-8 relative overflow-hidden ">
+          <div ref={sliderRef} className="keen-slider !px-10  relative overflow-visible">
             {visibleCards.map((card) => (
               <div
                 key={card.id}
