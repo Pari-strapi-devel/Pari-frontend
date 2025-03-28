@@ -72,7 +72,7 @@ const features = [
   },
 ];
 
-export function MakeInIndiaCard() {
+export function MakeInIndiaCard0() {
   return (
     <div className="sm:pb-20  px-4  max-w-[1232px] mx-auto border-b-1 border-[#D9D9D9] dark:border-gray-800">
        <div className=' '>

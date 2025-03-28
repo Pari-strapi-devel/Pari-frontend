@@ -87,7 +87,7 @@ export function Hero() {
       },
       '(min-width: 1024px)': {
         slides: {
-          perView: 3.2,
+          perView: 3.5,
           spacing: 24,
         },
       },
@@ -103,8 +103,8 @@ export function Hero() {
   if (!isVisible) return null;
 
   return (
-    <section className="relative mt-20 bg-background">
-      <div className='shadow-lg rounded-lg bg-popover w-[%] sm:w-[90%] max-w-[1232px] mx-auto'>
+    <section className="relative px-4 mt-20 bg-background ">
+      <div className='shadow-lg rounded-lg bg-popover  pb-10 sm:w-[90%] max-w-[1232px] mx-auto'>
       <div className="container mx-auto p-4  sm:p-6 md:p-8 lg:p-10 relative">
       <Button
           variant="ghost"
@@ -147,14 +147,17 @@ export function Hero() {
       <div>
       
         
-        <div className="container mx-auto rounded-2xl  pl-2 sm:px-4   md:px-0 py-2 md:pb-8 relative overflow-hidden ">
-          <div ref={sliderRef} className="keen-slider !px-10  relative overflow-visible">
-            {visibleCards.map((card) => (
+        <div className="!overflow-hidden keen-slider relative  max-w-[1232px] mx-auto ">
+          <div ref={sliderRef} className="keen-slider  relative md:mx-10 mx-4 pb-10 !overflow-visible">
+          
+            {visibleCards.map((card, index) => (
               <div
                 key={card.id}
-                className="keen-slider__slide cursor-pointer"
+                className={`keen-slider__slide  bg-none !cursor-pointer ${
+                  index === visibleCards.length - 1 ? 'gap-0' : ''
+                }`}
               >
-                <div className="flex flex-col rounded-lg shadow-lg h-[300px] sm:h-[350px] md:h-[400px] bg-white dark:bg-popover hover:shadow-xl transition-shadow duration-200 relative group">
+                <div className="flex flex-col rounded-lg  h-[300px] sm:h-[350px] md:h-[400px]  dark:bg-popover   duration-200 relative group">
                   <div className="relative h-full w-full overflow-hidden rounded-lg">
                     <Image
                       src={card.imageUrl}
@@ -167,7 +170,7 @@ export function Hero() {
                   </div>
                   
                   <div className="p-4 sm:p-3 md:p-4 flex flex-col flex-grow relative">
-                    <span className="inline-block items-center justify-center px-2 py-1 ring-1 hover:bg-red-600 hover:text-white  ring-red-600 text-xs text-red-600 rounded-full w-fit h-[23px] mb-2">
+                    <span className="inline-block items-center justify-center px-2 py-1 ring-1 hover:bg-red-600 hover:text-white  ring-red-700 text-xs text-red-700 rounded-full w-fit h-[23px] mb-2">
                       {card.category}
                     </span>
                     <h3 className="text-base sm:text-lg md:text-xl font-bold mb-1 sm:mb-2 text-foreground line-clamp-2">{card.title}</h3>
@@ -175,10 +178,10 @@ export function Hero() {
                     
                     {/* Read More Link */}
                     <div className="transform translate-y-4 flex items-center pt-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 ease-out">
-                      <span className="flex items-center justify-center text-red-600 font-medium">
+                      <span className="flex items-center justify-center text-red-700 font-medium">
                         <span>Read more</span>
                         <svg 
-                          className="w-6 h-6 ml-1 flex items-center transform group-hover:translate-x-1 transition-transform duration-200" 
+                          className="w-4 h-7 ml-1 mt-2 flex items-center justify-center transform group-hover:translate-x-1 transition-transform duration-200" 
                           fill="none" 
                           viewBox="0 0 24 24" 
                           stroke="currentColor"

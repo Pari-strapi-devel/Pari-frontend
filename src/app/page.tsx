@@ -5,7 +5,7 @@ import { Header } from "@/components/layout/header/Header"
 import { Hero } from "@/components/layout/hero/Hero"
 import { WeekOnCard } from '../components/layout/weekOn/WeekOnCard'
 import { PariLibrary } from '@/components/layout/pariLibrary/PariLibrary'
-import { MakeInIndiaCard } from '@/components/layout/makeInIndia/MakeInIndiaCard'
+import { MakeInIndiaCard0 as MakeInIndiaCard } from '@/components/layout/makeInIndia/MakeInIndiaCard'
 import StoriesPage from './stories/page'
 import './globals.css'
 import { LanguageToggle } from '../components/layout/header/LanguageToggle'
