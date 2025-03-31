@@ -15,7 +15,7 @@ const features = [
     languages: ["Available in 6 languages"],
     location: "Kolhapur",
     date: "Feb 15, 2024",
-    background: <Image src="/images/categories/pari-re4.png" alt="Dalits story" width={300} height={400} className="w-full bg-gradient-to-t from-black/100 to-transparent  h-full absolute right-0 top-0 opacity-60 bg-cover" />,
+    background: <Image src="/images/categories/pari-re4.png" alt="Dalits story" width={300} height={400} className="w-full bg-gradient-to-t from-black/100 to-transparent  h-full absolute right-0 top-0  bg-cover" />,
     className: "lg:row-start-1 lg:row-end-4 lg:col-start-2 lg:col-end-3",
   },
   {
@@ -41,7 +41,7 @@ const features = [
     languages: ["Available in 6 languages"],
     location: "Kerala",
     date: "Feb 20, 2023",
-    background: <Image src="/images/categories/pari-re3.png" alt="Education story" width={300} height={400} className="w-full bg-gradient-to-t from-black/80 to-transparent  h-full absolute right-0 top-0 opacity-60 bg-cover" />,
+    background: <Image src="/images/categories/pari-re3.png" alt="Education story" width={300} height={400} className="w-full bg-gradient-to-t from-black/80 to-transparent  h-full absolute right-0 top-0  bg-cover" />,
     className: "lg:col-start-1 lg:col-end-2 lg:row-start-3 lg:row-end-4",
   },
   {
@@ -54,7 +54,7 @@ const features = [
     languages: ["Available in 6 languages"],
     location: "Mumbai",
     date: "Feb 22, 2024",
-    background: <Image src="/images/categories/pari-re2.png" alt="Author profile" width={300} height={400} className="w-full bg-gradient-to-t from-black/80 to-transparent  h-full absolute right-0 top-0 opacity-60 bg-cover" />,
+    background: <Image src="/images/categories/pari-re2.png" alt="Author profile" width={300} height={400} className="w-full bg-gradient-to-t from-black/80 to-transparent  h-full absolute right-0 top-0  bg-cover" />,
     className: "lg:col-start-3 lg:col-end-3 lg:row-start-1 lg:row-end-2",
   },
   {
@@ -62,12 +62,13 @@ const features = [
     name: "Related Stories",
     title: " Related Stories",
     description: "Explore more stories related to this topic",
+    athor: "Priya sharma",
     href: "/related-stories",
     cta: "View all",
     languages: ["Available in 6 languages"],
     location: "Pan India",
     date: "Feb 23, 2024",
-    background: <Image src="/images/categories/pari-re1.png" alt="Related stories" width={300} height={10} className="w-full bg-gradient-to-t from-black/80 to-transparent  h-full absolute right-0 top-0 opacity-60 bg-cover" />,
+    background: <Image src="/images/categories/pari-re1.png" alt="Related stories" width={300} height={10} className="w-full bg-gradient-to-t from-black/80 to-transparent  h-full absolute right-0 top-0  bg-center bg-contain" />,
     className: "lg:col-start-3 lg:col-end-3 lg:row-start-2 lg:row-end-4",
   },
 ];

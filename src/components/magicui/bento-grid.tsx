@@ -19,6 +19,7 @@ interface BentoCardProps extends ComponentPropsWithoutRef<"div"> {
   background: ReactNode;
   Icon?: React.ElementType;
   description: string;
+  athor?: string;
   href: string;
   cta: string;
   features: Category[];
@@ -47,6 +48,7 @@ const BentoCard = ({
   className,
   background,
   description,
+  athor,
   features,
   languages,
   location,
@@ -57,7 +59,7 @@ const BentoCard = ({
   <div
     key={name}
     className={cn(
-      "group relative col-span-3 flex flex-col justify-between overflow-hidden rounded-xl",
+      "group relative col-span-3  flex flex-col justify-between overflow-hidden opacity-90  cursor-pointer rounded-2xl",
       "bg-[linear-gradient(180deg,rgba(0,0,0,0)_36.67%,#000000_70%)]",
       "[box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)]",
       "transform-gpu dark:bg-[linear-gradient(180deg,rgba(0,0,0,0)_36.67%,#000000_70%)]",
@@ -67,10 +69,10 @@ const BentoCard = ({
     {...props}
   >
     {/* Background */}
-    <div className="absolute inset-0  w-full h-full">{background}</div>
+    <div className="absolute inset-0 group-hover:scale-104 bg-[linear-gradient(180deg,rgba(0,0,0,0)_36.67%,#000000_70%)] scale-102 duration-300 w-full h-[90%]">{background}</div>
 
     {/* Categories - Now in a fixed position */}
-    <div className="absolute flex gap-2 left-9 top-4 z-50">
+    <div className="absolute flex gap-2 h-20 left-9 top-4 z-50">
       {features.map((category: Category, index: number) => (
         <span
           key={index}
@@ -84,12 +86,13 @@ const BentoCard = ({
     {/* Content wrapper with gradient */}
     <div className="relative flex flex-col justify-end h-full">
       {/* Main content that slides up */}
-      <div className="transform-gpu  transition-all   relative !overflow-hidden   -bottom-20 duration200 group-hover:-translate-y-20 px-6 pb-6">
+      <div className="relative !overflow-hidden -bottom-11 z-10 f">
+      <div className="transform-gpu  transition-all  -bottom-12 relative overflow-hidden  pb-6  duration200 group-hover:-translate-y-20 px-6 pb-6">
         <h3 className="text-xl font-semibold text-white mb-2">
           {title || name}
         </h3>
-        <p className="text-white mb-4">{description}</p>
-        
+        <p className="text-white mb-4 line-clamp-2">{description}</p>
+        <p>{athor}</p>
         {/* Additional info */}
         <div className="flex flex-col gap-2 font-noto-sans text-sm text-white">
           {languages && (
@@ -99,7 +102,7 @@ const BentoCard = ({
           )}
 
           {(location || date) && (
-            <div className="flex gap-1 items-center text-red-400">
+            <div className="flex gap-1 items-center text-red-500">
               {location && <p>{location}</p>}
               {location && date && '•'}
               {date && <p>{date}</p>}
@@ -108,6 +111,8 @@ const BentoCard = ({
           )}
         </div>
       </div>
+      </div>
+      
     </div>
 
     {/* Overlay gradient */}
