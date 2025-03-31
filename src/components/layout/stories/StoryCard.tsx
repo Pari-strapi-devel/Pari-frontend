@@ -7,6 +7,7 @@ import {  Play, } from 'lucide-react'
 interface StoryCardProps {
   title?: string
   description?: string
+  authors?: string
   imageUrl?: string
   categories?: string[]
   slug?: string
@@ -20,6 +21,7 @@ interface StoryCardProps {
 export function StoryCard({
   title,
   description,
+  authors,
   imageUrl,
   categories,
   slug,
@@ -70,12 +72,15 @@ export function StoryCard({
             ))}
           </div>
 
-          <h3 className="font-noto-sans line-clamp-1 text-[18px] font-semibold leading-[136%] tracking-[-0.04em] text-foreground ">
+          <h3 className="font-noto-sans line-clamp-1 text-[18px] font-semibold leading-[136%] tracking-[-0.04em] mb-2 text-foreground ">
             {title}
           </h3>
 
-          <p className="font-noto-sans text-[15px] font-semibold leading-[170%] text-gray-400 tracking-[-0.04em]  -mb-2 line-clamp-3">
+          <p className="font-noto-sans text-[15px] font-semibold leading-[170%] text-gray-400 tracking-[-0.04em]  mb-2 line-clamp-2">
             {description}
+          </p>
+          <p className="font-noto-sans text-[15px] font-semibold leading-[170%] text-gray-400 tracking-[-0.04em]  mb-2 line-clamp-2">
+            {authors}
           </p>
 
           <div className="flex items-center justify-between font-noto-sans text-sm text-muted-foreground">

@@ -32,6 +32,8 @@ export function FilterMenu({ isOpen, onClose }: FilterMenuProps) {
     contentTypes: []
   });
 
+  
+
   const handleOptionSelect = (option: FilterOption) => {
     setSelectedOptions(currentOptions => {
       const isSelected = currentOptions.some(opt => opt.id === option.id)
