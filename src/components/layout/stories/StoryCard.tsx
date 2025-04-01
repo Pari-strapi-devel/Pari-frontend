@@ -65,7 +65,7 @@ export function StoryCard({
             {categories?.map((category, index) => (
               <span 
                 key={index}
-                className="inline-block px-2  ring-1 hover:bg-red-600 hover:text-white ring-red-600 text-xs text-red-600 rounded-full"
+                className="inline-flex items-center justify-center w-fit h-[23px] gap-[8px] rounded-[32px] px-3 py-[7px] ring-1 hover:bg-red-700 hover:text-white ring-red-700 text-xs text-red-700 mb-2"
               >
                 {category}
               </span>

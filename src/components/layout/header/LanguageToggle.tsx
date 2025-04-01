@@ -87,23 +87,21 @@ export function LanguageToggle() {
   if (!isVisible) return null;
 
   return (
-    <div className="fixed bottom-10 h-[61px] w-[110px] rounded-full right-10 z-50">
-      <DropdownMenu open={open} onOpenChange={setOpen}>
+    <div className="fixed md:bottom-10 bottom-4 right-6 h-[41px] w-[90px] md:h-[61px] md:w-[110px] rounded-full z-50">
+      <DropdownMenu open={open} onOpenChange={setOpen} modal={false}>
         <DropdownMenuTrigger asChild>
           <Button 
-            variant="outline" 
-            size="icon" 
-            className="relative h-[61px] w-[110px] gap-2 border-none rounded-full cursor-pointer bg-red-600 text-white hover:bg-red-700 backdrop-blur-3xl supports-[backdrop-filter]:bg-red-600/90 after:content-[''] after:absolute after:top-1/2 after:left-1/2 after:transform after:-translate-x-1/2 after:-translate-y-1/2 after:w-[90%] after:h-[110%] after:border-12 after:border-red-500/50 after:rounded-full after:animate-ping"
+            variant="ghost" 
+            className="relative h-[41px] w-[90px] md:h-[61px] md:w-[110px] active:outline-none gap-2 border-none rounded-full cursor-pointer bg-red-700 text-white hover:bg-red-600 hover:text-white backdrop-blur-3xl supports-[backdrop-filter]:bg-red-600/90 after:content-[''] after:absolute after:top-1/2 after:left-1/2 after:transform after:-translate-x-1/2 after:-translate-y-1/2 after:w-[80%] after:h-[105%] after:border-12 after:border-red-500/50 after:rounded-full after:animate-ping"
           >
             <div className="flex items-center justify-center w-14 h-6 gap-2 font-semibold text-xs">
               {getDisplayCode(selectedLanguage)}
             </div>
-          
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent 
           align="end"
-          className="w-[350px] dark:bg-background bg-background mt-2"
+          className="w-[350px] dark:bg-background bg-background mt-2 mr-1"
         >
           <div className="p-4">
             <div className="flex items-center">
@@ -124,7 +122,7 @@ export function LanguageToggle() {
               </div>
             </div>
           </div>
-          <div className='grid grid-cols-3 hover:text-red-600 gap-2 p-4'>
+          <div className='grid grid-cols-3 hover:text-red-700 gap-2 p-4'>
             {languages.map((language) => (
               <DropdownMenuItem
                 key={language.code}
@@ -137,7 +135,7 @@ export function LanguageToggle() {
               >
                 <span className="text-center">{language.name}</span>
                 {selectedLanguage === language.code && (
-                  <span className="ml-2"></span>
+                  <span className="ml-"></span>
                 )}
               </DropdownMenuItem>
             ))}

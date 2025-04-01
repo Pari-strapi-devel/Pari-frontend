@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import { BentoCard, BentoGrid } from "@/components/magicui/bento-grid";
-import { Lightbulb } from 'lucide-react';
+import { HiOutlineLightBulb } from 'react-icons/hi';
 
 
 
@@ -79,7 +79,7 @@ export function MakeInIndiaCard0() {
        <div className=' '>
         <div className="flex  flex-col gap-2 py-4 mb-4">
             <div className='flex flex- items-center gap-2'>
-                 <Lightbulb className="h-4 w-4 text-red-600" />
+                 <HiOutlineLightBulb className="h-6 w-7 text-red-700" />
                 <h2 className="text-13px font-noto-sans uppercase text-gray-400 leading-[100%] letter-spacing-[-2%] font-semibold">This week on PARI</h2>
             </div>
           <h4 className="font-noto-sans text-[56px] font-bold leading-[122%] tracking-[-0.04em]">

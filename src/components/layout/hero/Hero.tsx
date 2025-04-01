@@ -57,7 +57,7 @@ const getCurrentDate = () => {
 export function Hero() {
   const [currentSlide, setCurrentSlide] = useState(0)
   const [loaded, setLoaded] = useState(false)
-  const [isVisible, setIsVisible] = useState(true)
+
   const [visibleCards] = useState(heroCards)
 
   const [sliderRef, instanceRef] = useKeenSlider({
@@ -101,17 +101,17 @@ export function Hero() {
     },
   })
 
-  if (!isVisible) return null;
+
 
   return (
     <section className="relative px-4 mt-20 bg-background ">
-      <div className='shadow-lg rounded-lg bg-popover  pb-10 sm:w-[90%] max-w-[1232px] mx-auto'>
+      <div className='shadow-lg rounded-lg bg-popover  sm:w-[90%] max-w-[1232px] mx-auto'>
       <div className="container mx-auto p-4  sm:p-6 md:p-8 lg:p-10 relative">
       <Button
           variant="ghost"
           size="icon"
-          onClick={() => setIsVisible(false)}
-          className="z-20  w-fit -ml-2 cursor-pointer   hover:text-red-600  transition-all duration-200 text-red-600 rounded-full flex items-center gap-2  py-6 group"
+    
+          className="z-20  w-fit -ml-2 cursor-pointer   hover:text-red-700  transition-all duration-200 text-red-700 rounded-full flex items-center gap-2  py-6 group"
         >
           <div className='hover:bg-red-400 h-8 w-8  rounded-full flex items-center justify-center hover:text-white'>
           <X className="h-4 w-4 hover:bg-red-400 cursor-pointer  transition-transform duration-200" />
@@ -132,7 +132,7 @@ export function Hero() {
          <div className='flex  items-end pr-8'>
           <Button 
             variant="secondary" 
-            className="h-[32px] cursor-pointer  flex items-center rounded-[48px] gap-1"
+            className="h-[32px] cursor-pointer hover  flex items-center rounded-[48px] gap-1"
             onClick={() => {
               // Add your jump to stories logic here
               window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })
@@ -148,7 +148,7 @@ export function Hero() {
       <div>
       
       <div className='relative max-w-[1232px] mx-auto'>
-      <div className="absolute inset-y-6 z-10  overflow-visible sshadow-lg md:-left-10 md:-right-10 -left-7 -right-7  flex items-center justify-between pointer-events-none px-4">
+      <div className="absolute inset-y-1/2 z-50   overflow-visible sshadow-2xl md:-left-10 top-6 md:-right-10 -left-7 -right-7  flex items-center justify-between pointer-events-none px-4">
               <Button
                 variant="ghost"
                 size="icon"
@@ -156,7 +156,7 @@ export function Hero() {
                   e.stopPropagation()
                   instanceRef.current?.next()
                 }}
-                className="pointer-events-auto  bg-white/80 hover:bg-white text-red-600 shadow-lg rounded-full z-10 cursor-pointer w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12"
+                className="pointer-events-auto  bg-white hover:bg-white text-red-700 shadow-3xl rounded-full z-10 cursor-pointer w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12"
               >
                 <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6" />
               </Button>
@@ -168,7 +168,7 @@ export function Hero() {
                   e.stopPropagation()
                   instanceRef.current?.prev()
                 }}
-                className="pointer-events-auto bg-white/80 hover:bg-white text-red-600 shadow-lg rounded-full z-10 cursor-pointer w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12"
+                className="pointer-events-auto bg-white hover:bg-white text-red-700 shadow-lg rounded-full z-10 cursor-pointer w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12"
               >
                 <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6" />
               </Button>
@@ -183,7 +183,7 @@ export function Hero() {
                   index === visibleCards.length - 1 ? 'gap-0' : ''
                 }`}
               >
-                <div className="flex flex-col rounded-lg  !gap-x-4 h-[350px] sm:h-[350px] md:h-[400px]  dark:bg-popover   duration-200 relative group">
+                <div className="flex flex-col rounded-lg  !gap-x-4 h-[320px] sm:h-[350px] md:h-[400px]  dark:bg-popover   duration-200 relative group">
                   <div className="relative h-full w-full overflow-hidden rounded-lg">
                     <Image
                       src={card.imageUrl}

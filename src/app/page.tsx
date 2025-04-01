@@ -15,7 +15,7 @@ import { AudioVideoCard } from '@/components/layout/audioVideo/AudioVideoCard'
 
 export default function Home() {
   return (
-    <div className="min-h-screen  bg-background">
+    <div className="min-h-screen  bg-background ">
       <Header />
       <Hero />
       <WeekOnCard />

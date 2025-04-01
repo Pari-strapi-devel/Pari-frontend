@@ -65,7 +65,7 @@ export default function StoriesPage() {
       <div>
         <div className="flex justify-between items-center mb-4">
           <div className='flex flex-row items-center gap-2'>
-            <Sparkle className="h-4 w-4 text-red-600" />
+            <Sparkle className="h-7 w-7 text-red-700" />
             <h2 className="text-13px font-noto-sans uppercase text-gray-400 leading-[100%] letter-spacing-[-2%] font-semibold">
               Pari recommends
             </h2>

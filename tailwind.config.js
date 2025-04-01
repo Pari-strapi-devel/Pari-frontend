@@ -1,4 +1,6 @@
 /** @type {import('tailwindcss').Config} */
+import animate from "tailwindcss-animate";
+
 export default {
   darkMode: ["class"],
   content: [
@@ -13,9 +15,10 @@ export default {
         primary: {
           DEFAULT: 'var(--primary)',
           foreground: 'var(--primary-foreground)',
-        }
+        },
+        red700: 'var(--red700)'  // Define custom color using CSS variable
       }
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [animate],
 }

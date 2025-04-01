@@ -27,6 +27,7 @@
   --ring: #202020; /* darksurface1 */
   --radius: 0.625rem;
   --grey3: #828282;
+  --red700: #B82929;
 }
 
 .dark {
@@ -49,6 +50,7 @@
   --border: #202020; /* darksurface1 */
   --input: #202020; /* darksurface1 */
   --ring: #282828; /* darksurface2 */
+  --red700: #B82929;
 }
 
 @theme inline {

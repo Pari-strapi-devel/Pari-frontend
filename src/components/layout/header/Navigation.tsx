@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { useState } from "react"
-import { Button } from "@/components/ui/button"
+
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -30,15 +30,7 @@ export function Navigation() {
     });
   };
 
-  const handleConfirm = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    if (selectedItems.length > 0) {
-      console.log('Selected items:', selectedItems);
-      setSelectedItems([]); // Reset selections
-    }
-  };
+  
 
   return (
     <NavigationMenu className="max-md:w-full dark:bg-popover bg-popover">
@@ -65,15 +57,15 @@ export function Navigation() {
                 </div>
               ))}
 
-              {selectedItems.length > 0 && (
-                <Button 
-                  variant="secondary"
-                  className="w-full bg-red-600 text-white hover:bg-red-700 mt-4 transition-colors duration-150"
-                  onClick={handleConfirm}
-                >
-                  Confirm Selection ({selectedItems.length})
-                </Button>
-              )}
+              {/* {selectedItems.length > 0 && (
+                // <Button 
+                //   variant="secondary"
+                //   className="w-full bg-red-600 text-white hover:bg-red-700 mt-4 transition-colors duration-150"
+                //   onClick={handleConfirm}
+                // >
+                //   Confirm Selection ({selectedItems.length})
+                // </Button>
+              )} */}
             </div>
           </NavigationMenuContent>
         </NavigationMenuItem>

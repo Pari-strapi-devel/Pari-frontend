@@ -7,11 +7,11 @@ const WeekOnHeader = () => {
     <div>
         <div className="flex justify-between items-center mb-4">
             <div className='flex flex-row items-center gap-2'>
-                 <Presentation className="h-4 w-4 text-red-600" />
+                 <Presentation className="h-7 w-7 text-red-700" />
                 <h2 className="text-13px font-noto-sans uppercase text-gray-400 leading-[100%] letter-spacing-[-2%] font-semibold">This week on PARI</h2>
             </div>
           
-          <Button variant={"secondary"} className="text-sm h-[32px] rounded-[48px] text-red-600">See all storys
+          <Button variant={"secondary"} className="text-sm h-[32px] rounded-[48px] text-red-700">See all storys
           <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
