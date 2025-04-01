@@ -161,7 +161,7 @@ export function PariLibrary() {
             <h3 className="font-noto-sans md:text-[56px] text-[40px] font-bold leading-[122%] tracking-[-0.04em]">
               The PARI Library
             </h3>
-            <p className="font-noto-sans max-w-[500px] text-[16px] font-normal leading-[170%] tracking-[-0.01em] text-muted-foreground">
+            <p className="font-noto-sans max-w-[400px] text-[16px] font-normal leading-[170%] tracking-[-0.01em] text-muted-foreground">
             The PARI Library brings reports and information on rural India to a single location for students, researchers and other readers. It includes official as well as independent reports, out-of-print books, rare documents and reviewed research articles.
             </p>
           </div>

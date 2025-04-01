@@ -59,7 +59,7 @@ export function ArticleCard({
             {title}
           </h3>
           
-          <p className="font-noto-sans text-base font-normal leading-[170%] tracking-[-0.01em] text-muted-foreground mb-4 line-clamp-3">
+          <p className="font-noto-sans text-base font-normal max-w-[500px] leading-[170%] tracking-[-0.01em] text-muted-foreground mb-4 line-clamp-3">
             {description}
           </p>
           
