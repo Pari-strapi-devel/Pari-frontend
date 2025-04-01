@@ -57,12 +57,11 @@ const getCurrentDate = () => {
 export function Hero() {
   const [currentSlide, setCurrentSlide] = useState(0)
   const [loaded, setLoaded] = useState(false)
-
+  const [isVisible, setIsVisible] = useState(true)
   const [visibleCards] = useState(heroCards)
 
   const [sliderRef, instanceRef] = useKeenSlider({
     initial: 0,
-//   dd this to make the carousel infinite
     slideChanged(slider) {
       setCurrentSlide(slider.track.details?.rel ?? 0)
     },
@@ -95,13 +94,18 @@ export function Hero() {
       '(min-width: 1280px)': {
         slides: {
           perView: 3.5,
-          spacing:32,
+          spacing: 32,
         },
       },
     },
   })
 
+  // Add this handler
+  const handleDismiss = () => {
+    setIsVisible(false)
+  }
 
+  if (!isVisible) return null; // Move conditional return after hooks
 
   return (
     <section className="relative px-4 md:mt-20 mt-10 bg-background ">
@@ -110,11 +114,11 @@ export function Hero() {
       <Button
           variant="ghost"
           size="icon"
-    
-          className="z-20  w-fit -ml-2 cursor-pointer   hover:text-red-700  transition-all duration-200 text-red-700 rounded-full flex items-center gap-2  py-6 group"
+          onClick={handleDismiss} // Add onClick handler
+          className="z-20 w-fit -ml-2 cursor-pointer hover:text-red-700 transition-all duration-200 text-red-700 rounded-full flex items-center gap-2 py-6 group"
         >
-          <div className='hover:bg-red-400 h-8 w-8  rounded-full flex items-center justify-center hover:text-white'>
-          <X className="h-4 w-4 hover:bg-red-400 cursor-pointer  transition-transform duration-200" />
+          <div className='hover:bg-red-400 h-8 w-8 rounded-full flex items-center justify-center hover:text-white'>
+          <X className="h-4 w-4 hover:bg-red-400 cursor-pointer transition-transform duration-200" />
           </div>
          
           <span className="text-sm font-medium">Dismiss</span>
@@ -182,7 +186,7 @@ export function Hero() {
                 className={`keen-slider__slide  bg-none cursor-pointer `}
               >
                 <div className="flex flex-col rounded-lg h-[320px] sm:h-[350px] md:h-[400px]  dark:bg-popover   duration-200 relative group">
-                  <div className="relative h-full w-full overflow-hidden rounded-lg">
+                  <div className="relative h-[240px] w-full overflow-hidden rounded-lg">
                     <Image
                       src={card.imageUrl}
                       alt={card.title}
@@ -206,7 +210,7 @@ export function Hero() {
                     <div className="transform translate-y-4 flex items-center pt-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 ease-out">
                       <span className="flex items-center gap-2 py-2  text-red-700 font-medium">
                         <span className='text-sm'>Read more </span>
-                        <span className="text-xl pt-1 text-center">→</span>
+                        <span className="text-xl md:pt-1 text-center">→</span>
                          
                        
                       </span>
@@ -248,3 +252,4 @@ export function Hero() {
     </section>
   )
 }
+

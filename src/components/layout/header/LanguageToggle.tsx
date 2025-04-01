@@ -101,7 +101,7 @@ export function LanguageToggle() {
         </DropdownMenuTrigger>
         <DropdownMenuContent 
           align="end"
-          className="w-[280px] sm:w-[300px] md:w-[320px] lg:w-[350px] dark:bg-background bg-background mt-2 mr-1"
+          className="w-[320px]  p-4  dark:bg-background bg-background mt-2 mr-1"
         >
           <div className="p-3 sm:p-4">
             <div className="flex items-center">
@@ -122,13 +122,13 @@ export function LanguageToggle() {
               </div>
             </div>
           </div>
-          <div className='grid grid-cols-3 hover:text-red-700 gap-1 sm:gap-2 p-2 sm:p-4'>
+          <div className='grid grid-cols-3 hover:text-red-700 gap-3 sm:gap-2 p-2 sm:p-4'>
             {languages.map((language) => (
               <DropdownMenuItem
                 key={language.code}
-                className={`flex items-center cursor-pointer dark:bg-popover bg-popover text-red-600 justify-center h-8 sm:h-10 md:h-12 text-xs sm:text-sm ${
+                className={`flex items-center cursor-pointer p-2 dark:bg-popover bg-popover text-red-700 justify-center h-8 sm:h-10 md:h-12 text-xs sm:text-sm ${
                   selectedLanguage === language.code 
-                    ? 'ring-1 ring-red-600' 
+                    ? 'ring-1 ring-red-700' 
                     : 'hover:bg-accent/50'
                 }`}
                 onClick={() => handleLanguageSelect(language.code)}
