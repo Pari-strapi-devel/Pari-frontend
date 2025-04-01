@@ -70,32 +70,32 @@ export function Hero() {
       setLoaded(true)
     },
     slides: {
-      perView: 1.2,
-      spacing: 16,
+      perView: 1.3,
+      spacing: 24,
     },
     breakpoints: {
       '(min-width: 640px)': {
         slides: {
           perView: 2.2,
-          spacing: 20,
+          spacing: 32,
         },
       },
       '(min-width: 768px)': {
         slides: {
           perView: 2.5,
-          spacing: 24,
+          spacing: 32,
         },
       },
       '(min-width: 1024px)': {
         slides: {
           perView: 3.5,
-          spacing: 24,
+          spacing: 32,
         },
       },
       '(min-width: 1280px)': {
         slides: {
           perView: 3.5,
-          spacing: 24,
+          spacing:32,
         },
       },
     },
@@ -104,7 +104,7 @@ export function Hero() {
 
 
   return (
-    <section className="relative px-4 mt-20 bg-background ">
+    <section className="relative px-4 md:mt-20 mt-10 bg-background ">
       <div className='shadow-lg rounded-lg bg-popover  sm:w-[90%] max-w-[1232px] mx-auto'>
       <div className="container mx-auto p-4  sm:p-6 md:p-8 lg:p-10 relative">
       <Button
@@ -147,43 +147,41 @@ export function Hero() {
 
       <div>
       
-      <div className='relative max-w-[1232px] mx-auto'>
-      <div className="absolute inset-y-1/2 z-50   overflow-visible sshadow-2xl md:-left-10 top-6 md:-right-10 -left-7 -right-7  flex items-center justify-between pointer-events-none px-4">
+      <div className='relative max-w-[1232px] mb-8 mx-auto'>
+      <div className="absolute  z-50   overflow-visible  md:-left-10 top-6 md:-right-10  left-1/3 right-1/3 gap-6 -bottom-92 md:bottom-1/2 flex items-center justify-between pointer-events-none px-4">
               <Button
-                variant="ghost"
+                variant="outline"
                 size="icon"
                 onClick={(e) => {
                   e.stopPropagation()
                   instanceRef.current?.next()
                 }}
-                className="pointer-events-auto  bg-white hover:bg-white text-red-700 shadow-3xl rounded-full z-10 cursor-pointer w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12"
+                className="pointer-events-auto bg-white dark:bg-popover inset-shadow-sm dark:hover:text-red-700 dark:inset-shadow-red-800 inset-shadow-primary text-red-700 hover:text-red-700 shadow-lg rounded-full z-10 cursor-pointer w-11 h-11  sm:w-10 sm:h-10 md:w-12 md:h-12"
               >
-                <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6" />
+                <ChevronLeft className="h-8 w-8 sm:h-5 sm:w-5 md:h-6 md:w-6" />
               </Button>
 
               <Button
-                variant="ghost"
+                variant="outline"
                 size="icon"
                 onClick={(e) => {
                   e.stopPropagation()
                   instanceRef.current?.prev()
                 }}
-                className="pointer-events-auto bg-white hover:bg-white text-red-700 shadow-lg rounded-full z-10 cursor-pointer w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12"
+                className="pointer-events-auto bg-white dark:bg-popover inset-shadow-sm dark:hover:text-red-700 dark:inset-shadow-red-800 inset-shadow-primary text-red-700 hover:text-red-700 shadow-lg rounded-full z-10 cursor-pointer w-11 h-11  sm:w-10 sm:h-10 md:w-12 md:h-12"
               >
                 <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6" />
               </Button>
             </div>
-            <div className="!overflow-hidden keen-slider relative   ">
-          <div ref={sliderRef} className="keen-slider  relative md:mx-10 mx-4  !overflow-visible">
+            <div className=" !overflow-hidden keen-slider relative  max-w-[1232px] px-4 md:px-0 mx-auto ">
+          <div ref={sliderRef} className="keen-slider !overflow-visible  relative  md:mx-10">
           
-            {visibleCards.map((card, index) => (
+            {visibleCards.map((card) => (
               <div
                 key={card.id}
-                className={`keen-slider__slide  bg-none cursor-pointer ${
-                  index === visibleCards.length - 1 ? 'gap-0' : ''
-                }`}
+                className={`keen-slider__slide  bg-none cursor-pointer `}
               >
-                <div className="flex flex-col rounded-lg  !gap-x-4 h-[320px] sm:h-[350px] md:h-[400px]  dark:bg-popover   duration-200 relative group">
+                <div className="flex flex-col rounded-lg h-[320px] sm:h-[350px] md:h-[400px]  dark:bg-popover   duration-200 relative group">
                   <div className="relative h-full w-full overflow-hidden rounded-lg">
                     <Image
                       src={card.imageUrl}
