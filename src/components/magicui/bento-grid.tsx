@@ -59,7 +59,7 @@ const BentoCard = ({
   <div
     key={name}
     className={cn(
-      "group relative col-span-3  flex flex-col justify-between overflow-hidden opacity-90  cursor-pointer rounded-2xl",
+      "group relative col-span-3  flex flex-col justify-between h-full overflow-hidden opacity-90  cursor-pointer rounded-2xl",
       "bg-[linear-gradient(180deg,rgba(0,0,0,0)_36.67%,#000000_70%)]",
       "[box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)]",
       "transform-gpu dark:bg-[linear-gradient(180deg,rgba(0,0,0,0)_36.67%,#000000_70%)]",
@@ -69,7 +69,7 @@ const BentoCard = ({
     {...props}
   >
     {/* Background */}
-    <div className="absolute inset-0 group-hover:scale-104 bg-[linear-gradient(180deg,rgba(0,0,0,0)_36.67%,#000000_70%)] scale-102 duration-300 w-full h-[90%]">{background}</div>
+    <div className="absolute inset-0 group-hover:scale-104 bg-no-repeat ,#000000_70%)] scale-102 duration-300 w-full ]">{background}</div>
 
     {/* Categories - Now in a fixed position */}
     <div className="absolute flex gap-2 h-20 left-9 top-4 z-50">
@@ -87,7 +87,7 @@ const BentoCard = ({
     <div className="relative flex flex-col justify-end h-full">
       {/* Main content that slides up */}
       <div className="relative !overflow-hidden -bottom-11 z-10 f">
-      <div className="transform-gpu  transition-all  -bottom-12 relative overflow-hidden  pb-6  duration200 group-hover:-translate-y-20 px-6 pb-6">
+      <div className="transform-gpu  transition-all  -bottom-12 relative overflow-hidden   duration200 group-hover:-translate-y-20 px-6 pb-6">
         <h3 className="text-xl font-semibold text-white mb-2">
           {title || name}
         </h3>

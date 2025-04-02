@@ -87,14 +87,14 @@ export function LanguageToggle() {
   if (!isVisible) return null;
 
   return (
-    <div className="fixed bottom-4 sm:bottom-6 md:bottom-8 lg:bottom-10 right-4 sm:right-6 md:right-8 lg:right-10 z-50">
+    <div className="fixed bottom-4 sm:bottom-6 md:bottom-8  rounded-full lg:bottom-10 right-4 sm:right-6 md:right-8 lg:right-10 z-50">
       <DropdownMenu open={open} onOpenChange={setOpen} modal={false}>
         <DropdownMenuTrigger asChild>
           <Button 
             variant="ghost" 
-            className="relative h-[40px] w-[80px] sm:h-[45px] sm:w-[85px] md:h-[50px] md:w-[90px] lg:h-[61px] lg:w-[110px] active:outline-none gap-2 border-none rounded-full cursor-pointer bg-red-700 text-white hover:bg-red-600 hover:text-white backdrop-blur-3xl supports-[backdrop-filter]:bg-red-600/90 after:content-[''] after:absolute after:top-1/2 after:left-1/2 after:transform after:-translate-x-1/2 after:-translate-y-1/2 after:w-[80%] after:h-[105%] after:border-12 after:border-red-500/50 after:rounded-full after:animate-ping"
+            className="relative h-[40px] w-[80px] sm:h-[45px]  sm:w-[85px] md:h-[50px] md:w-[90px] lg:h-[61px] lg:w-[110px] active:outline-none gap-2 border-none rounded-full cursor-pointer bg-red-700 text-white hover:bg-red-600 hover:text-white backdrop-blur-3xl supports-[backdrop-filter]:bg-red-600/90 after:content-[''] after:absolute after:top-1/2 after:left-1/2 after:transform after:-translate-x-1/2 after:-translate-y-1/2 after:w-[80%] after:h-[105%] after:border-12 after:border-red-500/50 after:rounded-full after:animate-ping"
           >
-            <div className="flex items-center justify-center w-full h-full gap-1 sm:gap-2 font-semibold text-[10px] sm:text-xs">
+            <div className="flex items-center justify-center w-full h-full rounded-full gap-1 sm:gap-2 font-semibold text-[10px] sm:text-xs">
               {getDisplayCode(selectedLanguage)}
             </div>
           </Button>

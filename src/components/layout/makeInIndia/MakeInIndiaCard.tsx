@@ -15,7 +15,7 @@ const features = [
     languages: ["Available in 6 languages"],
     location: "Kolhapur",
     date: "Feb 15, 2024",
-    background: <Image src="/images/categories/pari-re4.png" alt="Dalits story" width={300} height={400} className="w-full bg-gradient-to-t from-black/100 to-transparent  h-full absolute right-0 top-0  bg-cover" />,
+    background: <Image src="/images/categories/pari-re2.png" alt="Dalits story" width={300} height={400} className="w-full bg-gradient-to-t from-black/100 to-transparent  h-full absolute right-0 top-0  bg-cover" />,
     className: "lg:row-start-1 lg:row-end-4 lg:col-start-2 lg:col-end-3",
   },
   {
@@ -28,7 +28,7 @@ const features = [
     languages: ["Available in 6 languages"],
     location: "Totana",
     date: "Feb 18, 2024",
-    background: <Image src="/images/categories/pari-re4.png" alt="Farming story" width={300} height={400} className="w-full bg-gradient-to-t from-black/80 to-transparent  h-full absolute right-0 top-0  bg-cover"/>,
+    background: <Image src="/images/categories/pari-re2.png" alt="Farming story" width={300} height={400} className="w-full bg-gradient-to-t from-black/80 to-transparent  h-full absolute right-0 top-0  bg-cover"/>,
     className: "lg:col-start-1 lg:col-end-2 lg:row-start-1 lg:row-end-3",
   },
   {
@@ -68,7 +68,7 @@ const features = [
     languages: ["Available in 6 languages"],
     location: "Pan India",
     date: "Feb 23, 2024",
-    background: <Image src="/images/categories/pari-re1.png" alt="Related stories" width={300} height={10} className="w-full bg-gradient-to-t from-black/80 to-transparent  h-full absolute right-0 top-0  bg-center bg-contain" />,
+    background: <Image src="/images/categories/pari-re1.png" alt="Related stories" width={300} height={10} className="w-full bg-gradient-to-t from-black/80 to-transparent bg-no-repeat bg-right-bottom md:bg-right md:bg-contain h-full absolute right-0 top-0   bg-contain" />,
     className: "lg:col-start-3 lg:col-end-3 lg:row-start-2 lg:row-end-4",
   },
 ];
