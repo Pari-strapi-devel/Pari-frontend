@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import {  Play, } from 'lucide-react'
+import {  ArrowRight, Play, } from 'lucide-react'
 
 interface StoryCardProps {
   title?: string
@@ -92,7 +92,7 @@ export function StoryCard({
               <div className="flex gap-1 justify-around items-center text-red-700">
                 <p>{location}</p>•
                 <p>{date}</p>
-                <span className="text-xl">→</span>
+                <span className="text-xl"> <ArrowRight className="h-4 w-4" /></span>
               </div>
             </div>
           </div>
