@@ -33,7 +33,7 @@ const BentoGrid = ({ children, className, ...props }: BentoGridProps) => {
   return (
     <div
       className={cn(
-        "grid w-full md:pb-0 pb-10   grid-cols-3  gap-4",
+        "grid w-full md:pb-0 pb-10 grid-cols-1 md:grid-cols-3 gap-4 auto-rows-fr",
         className,
       )}
       {...props}
@@ -59,7 +59,7 @@ const BentoCard = ({
   <div
     key={name}
     className={cn(
-      "group relative col-span-3  flex flex-col justify-between h-full overflow-hidden opacity-90  cursor-pointer rounded-2xl",
+      "group relative col-span-1 md:col-span-3 flex flex-col justify-between l sm:min-h-[150px] min-h-[160px] overflow-hidden opacity-90 cursor-pointer rounded-2xl",
       "bg-[linear-gradient(180deg,rgba(0,0,0,0)_36.67%,#000000_70%)]",
       "[box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)]",
       "transform-gpu dark:bg-[linear-gradient(180deg,rgba(0,0,0,0)_36.67%,#000000_70%)]",
@@ -76,7 +76,7 @@ const BentoCard = ({
       {features.map((category: Category, index: number) => (
         <span
           key={index}
-          className="inline-block items-center px-2 py-1 ring-1 hover:bg-red-600 hover:text-white ring-red-600 text-xs text-red-600 rounded-full w-fit h-[23px]"
+          className="inline-block items-center px-2 py-1 ring-1 z-50 hover:bg-red-600 hover:text-white ring-white text-xs text-white rounded-full w-fit h-[23px]"
         >
           {category.title}
         </span>
@@ -92,9 +92,9 @@ const BentoCard = ({
           {title || name}
         </h3>
         <p className="text-white mb-4 line-clamp-2">{description}</p>
-        <p>{athor}</p>
+        <p className="text-gray-400 mb-4 ">{athor}</p>
         {/* Additional info */}
-        <div className="flex flex-col gap-2 font-noto-sans text-sm text-white">
+        <div className="flex flex-col gap-2 font-noto-sans text-sm text-gray-800">
           {languages && (
             <div className="font-noto-sans text-[15px]  font-medium leading-[180%] tracking-[-0.02em] text-white flex items-center gap-1">
               <span>{languages?.join(', ')}</span>

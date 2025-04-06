@@ -73,7 +73,7 @@ export default function StoriesPage() {
           
           <Button 
             variant="secondary" 
-            className="text-sm h-[32px] rounded-[48px] text-red-600"
+            className="text-sm h-[32px] rounded-[48px] text-red-700"
             onClick={() => setShowAll(!showAll)}
           >
             {showAll ? 'Show less' : 'See all stories'}

@@ -105,8 +105,6 @@ export function PariLibraryStory() {
   return (
     <div className="overflow-hidden rounded-md px-4 md:py-0 py-10">
       <div className="px-2">
-        
-
         <div className="relative  overflow-visible">
           <div ref={sliderRef} className="keen-slider border-b-1 md:pb-20 pb-10 dark:border-gray-800  max-w-[1232px] mx-auto relative !overflow-visible">
             {libraryStories.map((story) => (

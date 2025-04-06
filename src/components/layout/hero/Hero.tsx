@@ -225,10 +225,10 @@ export function Hero() {
                     <span className="inline-flex items-center justify-center w-fit h-[23px] gap-[8px] rounded-[32px] px-3 py-[7px] ring-1 hover:bg-red-700 hover:text-white ring-red-700 text-xs text-red-700 mb-2">
                       Categories
                      </span>
-                      <h3 className="font-noto-sans text-[20px] md:h-[70px] sm:text-[24px] md:text-[28px] font-bold leading-[124%] tracking-[-0.04em] mb-2 mb-0 text-foreground line-clamp-1 sm:line-clamp-2">
+                      <h3 className="font-noto-sans text-[20px] md:h-[70px] sm:text-[24px] md:text-[28px] font-bold leading-[124%] tracking-[-0.04em] mb-2 text-foreground line-clamp-1 sm:line-clamp-2">
                         {info.title}
                       </h3>
-                      <p className="font-noto-sans text-[13px] sm:text-[14px] md:text-[15px] font-[400] leading-[170%] tracking-[-0.03em] text-muted-foreground line-clamp-2 sm:line-clamp-3">
+                      <p className="font-noto-sans text-[15px] ] font-normal leading-[170%] tracking-[-0.03em] text-muted-foreground line-clamp-2 sm:line-clamp-3">
                         {info.description}
                       </p>
                       

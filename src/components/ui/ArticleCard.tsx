@@ -48,7 +48,7 @@ export function ArticleCard({
             {categories.map((category, index) => (
               <span 
                 key={index}
-                className="inline-block items-center px-2 py-1 ring-1 hover:bg-red-600 hover:text-white ring-red-600 text-xs text-red-600 rounded-full w-fit h-[23px] mb-2"
+                className="inline-block items-center px-2 py-1 ring-1 hover:bg-red-700 hover:text-white ring-red-700 text-xs text-red-700 rounded-full w-fit h-[23px] mb-2"
               >
                 {category}
               </span>
@@ -59,7 +59,7 @@ export function ArticleCard({
             {title}
           </h3>
           
-          <p className="font-noto-sans text-base font-normal max-w-[500px] leading-[170%] tracking-[-0.01em] text-muted-foreground mb-4 line-clamp-3">
+          <p className="font-noto-sans text-[16px] font-normal max-w-[500px] leading-[170%] tracking-[-0.01em] text-muted-foreground mb-4 line-clamp-3">
             {description}
           </p>
           

@@ -33,13 +33,13 @@ export function Navigation() {
   
 
   return (
-    <NavigationMenu className="max-md:w-full dark:bg-popover bg-popover">
-      <NavigationMenuList className="max-md:flex-col max-md:space-y-2 max-md:w-full">
-        <NavigationMenuItem className="max-md:w-full">
-          <NavigationMenuTrigger className="max-md:w-full dark:bg-popover bg-popover max-md:justify-start transition-colors duration-10">
+    <NavigationMenu className="max-md:w-full dark:bg-popover !w-full bg-popover ">
+      <NavigationMenuList className="max-md:flex-col w-full   max-md:space-y-2 max-md:w-full">
+        <NavigationMenuItem className="max-md:w-full !w-full ">
+          <NavigationMenuTrigger className="max-md:w-full  w-full dark:bg-popover bg-popover max-md:justify-start transition-colors duration-10">
             Stories
           </NavigationMenuTrigger>
-          <NavigationMenuContent>
+          <NavigationMenuContent className="max-md:w-full w-[400px]">
             <div className="grid gap-3 p-4 w-[400px] max-md:w-full">
               {[
                 { id: 'featured', label: 'Featured Stories' },

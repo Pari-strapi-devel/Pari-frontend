@@ -82,14 +82,14 @@ export function AudioVideoCard() {
     <div className="max-w-[1232px] lg:px-0 px-4 mx-auto md:py-20 sm:py-10">
       <div className="flex justify-between items-center mb-8">
         <div className="flex items-center gap-2">
-          <CirclePlay className="h-4 w-4 text-red-600" />
+          <CirclePlay className="h-7 w-7 text-red-700" />
           <h2 className="text-13px font-noto-sans uppercase text-gray-400 leading-[100%] tracking-[-0.02em] font-semibold">
             Audio & Video Stories
           </h2>
         </div>
         <Button 
           variant="secondary" 
-          className="text-sm h-[32px] rounded-[48px] text-red-600"
+          className="text-sm h-[32px] rounded-[48px] text-red-700"
         >
           See all stories
           <ChevronRight className="h-4 w-4" />
@@ -119,7 +119,7 @@ export function AudioVideoCard() {
                 />
                 <div className="absolute inset-0 bg-black/30 flex items-center justify-center group-hover:bg-black/40 transition-colors">
                   <div className="flex flex-col items-center gap-2">
-                    <div className="w-12 h-12 rounded-full bg-red-600 hover:bg-red-500 flex items-center justify-center">
+                    <div className="w-12 h-12 rounded-full bg-red-700 hover:bg-red-500 flex items-center justify-center">
                       {story.type === 'video' ? (
                         <Play className="w-6 h-6 text-white ml-1" />
                       ) : (
@@ -136,14 +136,14 @@ export function AudioVideoCard() {
                   {story.categories.map((category, index) => (
                     <span
                       key={index}
-                      className="inline-block px-2 py-1 items-center h-[24px] hover:bg-red-600 hover:text-white ring-1 ring-red-600 text-xs text-red-600 rounded-full"
+                      className="inline-block px-2 py-1 items-center h-[24px] hover:bg-red-600 hover:text-white ring-1 ring-red-700 text-xs text-red-700 rounded-full"
                     >
                       {category}
                     </span>
                   ))}
                 </div>
 
-                <h3 className="font-noto-sans text-[18px] font-semibold leading-[136%] tracking-[-0.04em] text-foreground">
+                <h3 className="font-noto-sans text-[18px] h-[40px] font-semibold leading-[136%] tracking-[-0.04em] text-foreground">
                   {story.title}
                 </h3>
 
@@ -151,7 +151,7 @@ export function AudioVideoCard() {
                   {story.description}
                 </p>
 
-                <div className="flex items-center gap-2 text-sm text-red-600">
+                <div className="flex items-center gap-2 text-sm text-red-700">
                   <span>{story.location}</span>
                   <span>•</span>
                   <span>{story.date}</span>

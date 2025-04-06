@@ -33,7 +33,7 @@ export function Header() {
               <span className="sr-only">Toggle menu</span>
             </Button>
             <div className="flex items-center">
-              <h3 className=" sm:w-[180px]  text-[13px] gap-2 flex items-center font-bold text-foreground">
+              <h3 className="sm:w-[180px] text-[13px] gap-2 flex items-center font-bold text-foreground">
                 <Image 
                   src="/pari-logo.png" 
                   alt="pari-logo" 
@@ -41,20 +41,18 @@ export function Header() {
                   height={90} 
                   priority
                 /> 
-                <p className='hidden sm:block'>  People’s Archive
-                of Rural India</p>
-               
+                <p className='hidden sm:block'>People&apos;s Archive of Rural India</p>
               </h3>
             </div>
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden   md:flex items-center space-x-8">
+          <div className="hidden md:flex items-center space-x-8">
             <Navigation />
           </div>
 
           {/* Right Side Actions */}
-          <div className="flex items-center space-x-2 md:space-x-4">
+          <div className="flex items-center space-x-2  md:space-x-4">
             <Button 
               variant="outline" 
               size="icon"
@@ -89,15 +87,47 @@ export function Header() {
         </nav>
       </div>
 
-      {/* Mobile Menu */}
-      {isMenuOpen && (
-        <div className="absolute top-16 left-0 right-0 bg-background border-b border-border sm:hidden">
-          <div className="container mx-auto px-4 py-4">
-            <div className="flex flex-col space-y-4">
-              <Navigation />
+      {/* Mobile Menu Slider */}
+      <div 
+        className={`fixed top-0 left-0 h-full w-[100%] max-w-[350px] bg-background border-r border-border transform transition-transform duration-300 ease-in-out z-50 md:hidden ${
+          isMenuOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
+      >
+        <div className="flex flex-col h-full">
+          {/* Mobile Menu Header */}
+          <div className="p-4 border-b border-border">
+            <div className="flex items-center justify-between">
+              <Image 
+                src="/pari-logo.png" 
+                alt="pari-logo" 
+                width={60} 
+                height={60} 
+                priority
+              />
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsMenuOpen(false)}
+                className="md:hidden"
+              >
+                <X className="h-5 w-5" />
+              </Button>
             </div>
           </div>
+
+          {/* Mobile Navigation */}
+          <div className="flex-1 overflow-y-auto p-4">
+            <Navigation />
+          </div>
         </div>
+      </div>
+
+      {/* Overlay */}
+      {isMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 md:hidden"
+          onClick={() => setIsMenuOpen(false)}
+        />
       )}
 
       {/* Filter Menu */}

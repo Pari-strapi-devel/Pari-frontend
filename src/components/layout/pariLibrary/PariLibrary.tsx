@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from 'react'
-import { Book, ChevronRight } from 'lucide-react'
+import {  BookOpen, ChevronRight } from 'lucide-react'
 import { ArticleCard } from '@/components/ui/ArticleCard'
 import { Button } from '@/components/ui/button'
 import { useKeenSlider } from 'keen-slider/react'
@@ -153,7 +153,7 @@ export function PariLibrary() {
         <div className="flex md:justify-between max-w-[1232px] flex-col sm:flex-row mx-auto sm:items-end  mb-8">
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2">
-              <Book className="h-4 w-4 text-red-600" />
+              <BookOpen className="h-7 w-7 text-red-700" />
               <h2 className="text-13px font-noto-sans uppercase text-gray-400 leading-[100%] tracking-[-0.02em] font-semibold">
               In Focus
               </h2>
@@ -171,7 +171,7 @@ export function PariLibrary() {
             
             <Button 
               variant="secondary" 
-              className="text-sm h-[32px]  rounded-[48px] text-red-600"
+              className="text-sm h-[32px]  rounded-[48px] text-red-700"
             >
               See more reports
               <ChevronRight className="h-4 w-4" />
