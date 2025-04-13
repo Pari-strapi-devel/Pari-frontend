@@ -11,12 +11,15 @@ export default {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        'noto-sans': ['var(--font-noto-sans)'],
+      },
       colors: {
         primary: {
           DEFAULT: 'var(--primary)',
           foreground: 'var(--primary-foreground)',
         },
-        red700: 'var(--red700)'  // Define custom color using CSS variable
+        red700: 'var(--red700)'
       }
     },
   },

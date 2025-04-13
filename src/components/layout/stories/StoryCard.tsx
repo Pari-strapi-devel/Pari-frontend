@@ -32,7 +32,7 @@ export function StoryCard({
   duration
 }: StoryCardProps) {
   return (
-    <Link href={`/stories/${slug}`}>
+    <Link href={`/stories/${slug || ''}`}>
       <article className="group rounded-lg h-[338px] overflow-hidden bg-background hover:shadow-xl transition-all duration-300 border border-border">
         <div className="relative h-[156px] w-full overflow-hidden rounded-t-2xl">
           <Image

@@ -59,7 +59,7 @@ const BentoCard = ({
   <div
     key={name}
     className={cn(
-      "group relative col-span-1 md:col-span-3 flex flex-col justify-between l sm:min-h-[150px] min-h-[160px] overflow-hidden opacity-90 cursor-pointer rounded-2xl",
+      "group relative col-span-1 md:col-span-3 flex flex-col justify-between  sm:min-h-[150px] min-h-[160px] overflow-hidden opacity-90 cursor-pointer rounded-2xl",
       "bg-[linear-gradient(180deg,rgba(0,0,0,0)_36.67%,#000000_70%)]",
       "[box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)]",
       "transform-gpu dark:bg-[linear-gradient(180deg,rgba(0,0,0,0)_36.67%,#000000_70%)]",
@@ -69,7 +69,7 @@ const BentoCard = ({
     {...props}
   >
     {/* Background */}
-    <div className="absolute inset-0 group-hover:scale-104 bg-no-repeat ,#000000_70%)] scale-102 duration-300 w-full ]">{background}</div>
+    <div className="absolute inset-0 group-hover:scale-104 o bg-no-repeat ,#000000_70%)] scale-102 duration-300 w-full ]">{background}</div>
 
     {/* Categories - Now in a fixed position */}
     <div className="absolute flex gap-2 h-20 left-9 top-4 z-50">

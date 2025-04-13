@@ -1,5 +1,5 @@
 "use client"
-import { useState,  } from 'react'
+import { useState, useEffect } from 'react'
 import { Navigation } from './Navigation'
 import { ThemeToggle } from "./ThemeToggle"
 import { FilterMenu } from "./FilterMenu"
@@ -13,9 +13,23 @@ export function Header() {
   const isFilterOpen = useFilterStore((state) => state.isOpen)
   const setIsFilterOpen = useFilterStore((state) => state.setIsOpen)
 
+  // Add useEffect to handle body scroll
+  useEffect(() => {
+    if (isMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+
+    // Cleanup function
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isMenuOpen]);
+
   return (
     <header className="border-b border-border dark:bg-popover bg-popover relative">
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto f top-0 px-4">
         <nav className="flex items-center justify-between h-16">
           {/* Left side with logo and mobile menu */}
           <div className="flex items-center space-x-2">
@@ -52,13 +66,13 @@ export function Header() {
           </div>
 
           {/* Right Side Actions */}
-          <div className="flex items-center space-x-2  md:space-x-4">
+          <div className={`flex items-center space-x-2 md:space-x-4 ${isMenuOpen ? 'md:flex hidden' : 'flex'}`}>
             <Button 
               variant="outline" 
               size="icon"
-              className="hover:bg-accent  dark:bg-popover bg-popover items-center justify-center p-2"
+              className="hover:bg-accent dark:bg-popover bg-popover items-center justify-center p-2"
             >
-              <Search className="h-[1.2rem] w-[1.2rem ] cursor-pointer text-red-600" />
+              <Search className="h-[1.2rem] w-[1.2rem] cursor-pointer text-red-600" />
               <span className="sr-only">Search</span>
             </Button>
             
@@ -76,7 +90,7 @@ export function Header() {
 
               <Button 
                 variant="secondary" 
-                className="rounded-2xl hidden  md:block cursor-pointer w-[73px] h-[32px]"
+                className="rounded-2xl hidden md:block cursor-pointer w-[73px] h-[32px]"
               >
                 Donate
               </Button>
@@ -89,7 +103,7 @@ export function Header() {
 
       {/* Mobile Menu Slider */}
       <div 
-        className={`fixed top-0 left-0 h-full w-[100%] max-w-[350px] bg-background border-r border-border transform transition-transform duration-300 ease-in-out z-50 md:hidden ${
+        className={`fixed top-0 left-0 h-full w-full max-w-[350px] bg-background border-r border-border transform transition-transform duration-300 ease-in-out z-[60] md:hidden ${
           isMenuOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
@@ -125,7 +139,7 @@ export function Header() {
       {/* Overlay */}
       {isMenuOpen && (
         <div 
-          className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 md:hidden"
+          className="fixed inset-0 bg-black/20 backdrop-blur-sm z-[55] md:hidden"
           onClick={() => setIsMenuOpen(false)}
         />
       )}
