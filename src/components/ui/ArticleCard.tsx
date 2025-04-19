@@ -59,21 +59,21 @@ export function ArticleCard({
             {title}
           </h3>
           
-          <p className="font-noto-sans text-[16px] font-normal max-w-[500px] leading-[170%] tracking-[-0.01em] text-muted-foreground mb-4 line-clamp-3">
+          <p className="!font-noto-sans text-[16px] font-normal max-w-[500px] leading-[170%] tracking-[-0.01em] text-muted-foreground mb-4 line-clamp-3">
             {description}
           </p>
           
           <div className="flex items-center justify-between font-noto-sans text-sm text-muted-foreground">
             <div>
-              <p className="font-noto-sans text-[15px] font-medium leading-[180%] tracking-[-0.02em] text-foreground">
+              <p className="font-noto-sans text-[15px] font-medium leading-[180%] tracking-[-0.02em] text-[#828282]">
                 {authors.join(', ')}
               </p>
-              <div className='flex gap-1 items-center text-red-700'> 
+              <div className='flex gap-1 items-center pt-4 text-red-700'> 
                 {location && <p>{location}</p>}
                 {location && date && '•'}
                 {date && <p>{date}</p>}
                 {readMore && <p>{readMore}</p>}
-                <ArrowRight className="h-4 w-4" />
+                <ArrowRight className="h-4 gap-2 w-4" />
               </div>
             </div>
           </div>
