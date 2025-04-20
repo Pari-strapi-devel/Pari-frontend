@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { useEffect, useState } from 'react'
 import axios from 'axios'
 import { BASE_URL } from '@/config'
+import { useLocale } from '@/lib/locale'
 
 interface Article {
   id: number;
@@ -111,7 +112,10 @@ const getTextDirection = (langCode: string) => {
 };
 
 export default function ShowcasePage() {
-  const [selectedLang, setSelectedLang] = useState('en')
+
+  const { language, setLanguage } = useLocale()
+
+
   const [activeSection, setActiveSection] = useState<'articles' | 'stories' | 'media'>('articles')
   const [showExplanation, setShowExplanation] = useState(false)
   const [articles, setArticles] = useState<Article[]>([])
@@ -125,10 +129,10 @@ export default function ShowcasePage() {
       try {
         setLoading(true)
         const response = await axios.get(
-          `${BASE_URL}api/articles`, {
+          `${BASE_URL}api/articles`, {  
           params: {
             'pagination[withCount]': false,
-            locale: selectedLang,
+            locale:language,
             'populate[Cover_image]': true,
           }
         })
@@ -156,7 +160,7 @@ export default function ShowcasePage() {
           `${BASE_URL}api/articles`, {  // Changed from 'api/articles' to 'api/stories'
           params: {
             'pagination[withCount]': false,
-            locale: selectedLang,
+            locale:language,
             'populate[Cover_image]': true,
           }
         })
@@ -202,6 +206,7 @@ export default function ShowcasePage() {
           params: {
             'pagination[withCount]': true,
             'populate': 'video',
+            locale: language
           }
         })
         
@@ -251,15 +256,15 @@ export default function ShowcasePage() {
         fetchMediaContent()
         break
     }
-  }, [selectedLang, activeSection])
+  }, [language, activeSection])
 
   const handleLanguageChange = (langCode: string) => {
-    setSelectedLang(langCode)
+    setLanguage(langCode)
   }
 
   const formatArticleData = (article: Article) => {
     const imageUrl = article.attributes.Cover_image?.data?.attributes?.url;
-    const direction = getTextDirection(selectedLang);
+    const direction = getTextDirection(language);
     
     return {
       title: article.attributes.Title,
@@ -309,7 +314,7 @@ export default function ShowcasePage() {
                       key={lang.code}
                       variant="outline"
                       className={`h-8 px-3 text-sm ${
-                        selectedLang === lang.code 
+                        language === lang.code 
                           ? 'bg-red-700 text-white hover:bg-red-800' 
                           : 'text-red-700 hover:bg-red-50 hover:text-red-800'
                       }`}
@@ -373,8 +378,8 @@ export default function ShowcasePage() {
                 return (
                   <div 
                     key={article.id} 
-                    className={`${selectedLang === 'ur' ? 'text-right' : 'text-left'}`}
-                    dir={getTextDirection(selectedLang)}
+                    className={`${language === 'ur' ? 'text-right' : 'text-left'}`}
+                    dir={getTextDirection(language)}
                   >
                     <ArticleCard {...formattedData} />
                   </div>
@@ -396,8 +401,8 @@ export default function ShowcasePage() {
               {stories.map((story) => (
                 <div 
                   key={story.id}
-                  className={`${selectedLang === 'ur' ? 'text-right' : 'text-left'}`}
-                  dir={getTextDirection(selectedLang)}
+                  className={`${language === 'ur' ? 'text-right' : 'text-left'}`}
+                  dir={getTextDirection(language)}
                 >
                   <StoryCard 
                     {...story} 
@@ -421,8 +426,8 @@ export default function ShowcasePage() {
               {mediaContent.map((media) => (
                 <div 
                   key={media.id}
-                  className={`${selectedLang === 'ur' ? 'text-right' : 'text-left'}`}
-                  dir={getTextDirection(selectedLang)}
+                  className={`${language === 'ur' ? 'text-right' : 'text-left'}`}
+                  dir={getTextDirection(language)}
                 >
                   <AudioVideoBigCard {...media} />
                 </div>

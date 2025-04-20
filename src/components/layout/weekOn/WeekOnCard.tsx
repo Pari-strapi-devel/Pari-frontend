@@ -3,11 +3,13 @@
 import { useKeenSlider } from 'keen-slider/react'
 import 'keen-slider/keen-slider.min.css'
 import { useState, useEffect } from 'react'
-import WeekOnHeader from './WeekOnHeader'
+// import WeekOnHeader from './WeekOnHeader'
 import { ArticleCard } from '@/components/ui/ArticleCard'
 import axios from 'axios'
 import { BASE_URL } from '@/config'
 import qs from 'qs'
+import WeekOnHeader from './WeekOnHeader'
+import { useLocale } from '@/lib/locale'
 
 interface Author {
   author_role: {
@@ -95,7 +97,8 @@ interface ApiResponse {
   data: {
     attributes: {
       thisWeekOnPari: {
-        article_with_lang_selection_1: ArticleWithLangSelection;
+        ThisWeek_On_Pari_Icon?: string;
+        [key: string]: ArticleWithLangSelection | string | undefined;
       };
     };
   };
@@ -120,12 +123,18 @@ interface CategoryData {
   }
 }
 
+// interface WeekOnHeaderProps {
+//   header?: string;
+// } // Removed this unused interface
+
 export function WeekOnCard() {
   const [currentSlide, setCurrentSlide] = useState(0)
   const [loaded, ] = useState(false)
   const [articles, setArticles] = useState<FormattedArticle[]>([])
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [header, setHeader] = useState<string>()
+  const { language } = useLocale()
 
   const [sliderRef, instanceRef] = useKeenSlider({
     initial: 0,
@@ -153,21 +162,23 @@ export function WeekOnCard() {
   })
 
   useEffect(() => {
-    const fetchArticles = async () => {
+    async function thisWeekOnPari() {
       try {
         setIsLoading(true)
-        
+
         const query = {
           populate: {
             thisWeekOnPari: {
+              fields: ['*'],
               populate: {
+               
                 article_with_lang_selection_1: {
                   populate: {
                     all_language: true,
                     article: {
                       populate: {
                         Cover_image: true,
-                        Authors:{
+                        Authors: {
                           populate: {
                             author_name: {
                               populate: true
@@ -181,65 +192,47 @@ export function WeekOnCard() {
                     }
                   }
                 },
-                article_with_lang_selection_2: {
-                  populate: {
-                    all_language: true,
-                    article: {
-                      populate: {
-                        Cover_image: true,
-                        Authors:{
-                          populate: {
-                            author_name: {
-                              populate: true
-                            }
-                          }
-                        },
-                        author_role: true,
-                        categories: true,
-                        location: true
-                      }
-                    }
-                  }
-                }
               }
             }
-          }
+          },
+          locale: language
         }
 
         const queryString = qs.stringify(query, { encodeValuesOnly: true })
-        console.log('Fetching from:', `${BASE_URL}api/home-page?${queryString}`)
 
         const response = await axios.get<ApiResponse>(
           `${BASE_URL}api/home-page?${queryString}`
         )
+         
+        const headerIcon = response.data?.data?.attributes?.thisWeekOnPari?.ThisWeek_On_Pari_Icon;
+        setHeader(headerIcon);
 
-        // Process article 1
-        const articleArray = response.data?.data?.attributes?.thisWeekOnPari?.article_with_lang_selection_1 || [];
+        const articleArray = response.data?.data?.attributes?.thisWeekOnPari?.article_with_lang_selection_1 || []
 
         const articles = (Array.isArray(articleArray) ? articleArray : [])
           .map((item: ArticleWithLangSelection, index: number): FormattedArticle | null => {
-            const articleData = item?.article?.data?.attributes;
+            const articleData = item?.article?.data?.attributes
             console.log('Article data:', articleData)
-            if (!articleData) return null;
-            
-            
+            if (!articleData) return null
+
+
             const authors = Array.isArray(articleData.Authors)
-            ? articleData.Authors.map(author => {
-                const name = author?.author_name?.data?.attributes?.Name;
-                return name && typeof name === 'string' && name.trim().length > 0 ? name : 'PARI';
+              ? articleData.Authors.map(author => {
+                const name = author?.author_name?.data?.attributes?.Name
+                return name && typeof name === 'string' && name.trim().length > 0 ? name : 'PARI'
               })
-            : ['PARI'];
-          
-       
+              : ['PARI']
+
+
             console.log(JSON.stringify(articleData.Authors, null, 2))
-          
-    
-        
+
+
+
             const categories = articleData.categories?.data?.map((cat: CategoryData) => ({
               slug: cat?.attributes?.slug || '',
               Title: cat?.attributes?.Title || ''
-            })) || [];
-        
+            })) || []
+
             return {
               id: index + 1,
               title: articleData.Title || 'Untitled',
@@ -252,22 +245,21 @@ export function WeekOnCard() {
               categories,
               slug: articleData.slug || '',
               authors,
-              location: articleData.location?.data?.attributes 
+              location: articleData.location?.data?.attributes
                 ? `${articleData.location.data.attributes.district}, ${articleData.location.data.attributes.state}`
                 : articleData.location_auto_suggestion || 'India',
-              date: articleData.Original_published_date 
+              date: articleData.Original_published_date
                 ? new Date(articleData.Original_published_date).toLocaleDateString('en-US', {
-                    month: 'short',
-                    day: '2-digit',
-                    year: 'numeric'
-                  })
+                  month: 'short',
+                  day: '2-digit',
+                  year: 'numeric'
+                })
                 : '',
-            };
+            }
           })
-          .filter((article): article is FormattedArticle => article !== null);
-        
+          .filter((article): article is FormattedArticle => article !== null)
+
         // Process article 2
-   
         // If no articles found, show a more specific error
         if (articles.length === 0) {
           console.error('No articles found in response. Full response:', response.data)
@@ -300,8 +292,8 @@ export function WeekOnCard() {
       }
     }
 
-    fetchArticles()
-  }, [])
+    thisWeekOnPari()
+  }, [language])
   
 
   if (isLoading) {
@@ -319,7 +311,7 @@ export function WeekOnCard() {
   return (
     <section className="py-10 md:py-20 px-4 relative overflow-hidden">
       <div className="max-w-[1232px] mx-auto">
-        <WeekOnHeader />
+        <WeekOnHeader header={header} />
         
         <div className="relative mt-8">
           <div ref={sliderRef} className="keen-slider !overflow-visible">
@@ -348,7 +340,7 @@ export function WeekOnCard() {
                     e.stopPropagation()
                     instanceRef.current?.moveToIdx(idx)
                   }}
-                  className={`h-2 w-2 rounded-full transition-colors duration-300 ${
+                  className={`h-2 w-2 rounded-full transition-colors duration-100 ${
                     currentSlide === idx ? 'bg-red-600' : 'bg-gray-300'
                   }`}
                   aria-label={`Go to slide ${idx + 1}`}

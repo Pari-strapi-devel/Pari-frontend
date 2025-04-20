@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useFilterStore } from '@/store/filterStore'
+import { useLocale } from '@/lib/locale'
 
 interface Language {
   code: string;
@@ -60,7 +61,7 @@ const languages: Language[] = [
 
 export function LanguageToggle() {
   const [open, setOpen] = useState(false);
-  const [selectedLanguage, setSelectedLanguage] = useState('en');
+  const { language: selectedLanguage, setLanguage } = useLocale()
   const [isVisible, setIsVisible] = useState(true);
   const isFilterOpen = useFilterStore((state) => state.isOpen);
 
@@ -69,7 +70,7 @@ export function LanguageToggle() {
   }, [isFilterOpen]);
 
   const handleLanguageSelect = (languageCode: string) => {
-    setSelectedLanguage(languageCode);
+    setLanguage(languageCode);
     setOpen(false);
   };
 

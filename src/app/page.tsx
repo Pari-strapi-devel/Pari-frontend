@@ -6,7 +6,7 @@ import { Hero } from "@/components/layout/hero/Hero"
 import { WeekOnCard } from '../components/layout/weekOn/WeekOnCard'
 import { PariLibrary } from '@/components/layout/pariLibrary/PariLibrary'
 import { MakeInIndiaCard0 as MakeInIndiaCard } from '@/components/layout/makeInIndia/MakeInIndiaCard'
-import StoriesPage from './stories/page'
+import StoriesPage from '../components/layout/pariRecommends/page'
 import './globals.css'
 import { LanguageToggle } from '../components/layout/header/LanguageToggle'
 import { PariLibraryStory } from '@/components/layout/pariLibrary/PariLibraryStory'

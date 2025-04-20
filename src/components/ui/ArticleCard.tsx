@@ -45,14 +45,22 @@ export function ArticleCard({
         
         <div className="py-6 px-1 rounded-2xl">
           <div className="flex flex-wrap gap-2 mb-4">
-            {categories.map((category, index) => (
-              <span 
-                key={index}
-                className="inline-block items-center px-2 py-1 ring-1 hover:bg-red-700 hover:text-white ring-red-700 text-xs text-red-700 rounded-full w-fit h-[23px] mb-2"
-              >
-                {category}
-              </span>
-            ))}
+            {categories.length > 0 && (
+              <>
+                <span 
+                  className="inline-block items-center px-2 py-1 ring-1 hover:bg-red-700 hover:text-white ring-red-700 text-xs text-red-700 rounded-full w-fit h-[23px] mb-2"
+                >
+                  {categories[0]}
+                </span>
+                {categories.length > 1 && (
+                  <span 
+                    className="inline-block items-center px-2 py-1 ring-1 hover:bg-red-700 hover:text-white ring-red-700 text-xs text-red-700 rounded-full w-fit h-[23px] mb-2"
+                  >
+                    +{categories.length - 1}
+                  </span>
+                )}
+              </>
+            )}
           </div>
           
           <h3 className="font-noto-sans text-[28px] font-bold leading-[130%] tracking-[-0.04em] text-foreground mb-3 line-clamp-2">
