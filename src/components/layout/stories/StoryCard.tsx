@@ -11,11 +11,17 @@ interface StoryCardProps {
   imageUrl?: string
   categories?: string[]
   slug?: string
-  languages?: string[]
+  // languages?: string[]
   location?: string
   date?: string
   videoUrl?: string
   duration?: string
+  localizations?: Array<{
+    locale: string
+    title: string
+    strap: string
+    slug: string
+  }>
 }
 
 export function StoryCard({
@@ -25,11 +31,12 @@ export function StoryCard({
   imageUrl,
   categories,
   slug,
-  languages,
+  // languages,
   location,
   date,
   videoUrl,
-  duration
+  duration,
+  localizations
 }: StoryCardProps) {
   return (
     <Link href={`/stories/${slug || ''}`}>
@@ -62,14 +69,22 @@ export function StoryCard({
 
         <div className="py-3 h-[172px] flex  justify-around flex-col px-4">
           <div className="flex flex-wrap gap-2 ">
-            {categories?.map((category, index) => (
-              <span 
-                key={index}
-                className="inline-flex items-center justify-center w-fit h-[23px] gap-[8px] rounded-[32px] px-3 py-[7px] ring-1 hover:bg-red-700 hover:text-white ring-red-700 text-xs text-red-700 mb-2"
-              >
-                {category}
-              </span>
-            ))}
+          {(categories && categories.length > 0) && (
+              <>
+                <span 
+                  className="inline-block items-center px-2 py-1 ring-1 hover:bg-red-700 hover:text-white ring-red-700 text-xs text-red-700 rounded-full w-fit h-[23px] mb-2"
+                >
+                  {categories[0]}
+                </span>
+                {categories.length > 2 && (
+                  <span 
+                    className="inline-block items-center px-2 py-1 ring-1 hover:bg-red-700 hover:text-white ring-red-700 text-xs text-red-700 rounded-full w-fit h-[23px] mb-2"
+                  >
+                    +{categories.length - 1}
+                  </span>
+                )}
+              </>
+            )}
           </div>
 
           <h3 className="font-noto-sans line-clamp-1 text-[18px] font-semibold leading-[136%] tracking-[-0.04em] mb-2 text-foreground ">
@@ -86,7 +101,9 @@ export function StoryCard({
           <div className="flex items-center justify-between font-noto-sans text-sm text-muted-foreground">
             <div>
               <div className="font-noto-sans text-[15px] font-medium leading-[180%] tracking-[-0.02em] text-foreground flex items-center gap-1">
-                <span>{languages}</span>
+                <span>
+                Available in {localizations?.length} languages
+                </span>
               </div>
 
               <div className="flex gap-1 justify-around items-center text-red-700">

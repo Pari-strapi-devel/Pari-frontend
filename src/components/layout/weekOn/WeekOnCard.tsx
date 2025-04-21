@@ -212,7 +212,7 @@ export function WeekOnCard() {
         const articles = (Array.isArray(articleArray) ? articleArray : [])
           .map((item: ArticleWithLangSelection, index: number): FormattedArticle | null => {
             const articleData = item?.article?.data?.attributes
-            console.log('Article data:', articleData)
+            
             if (!articleData) return null
 
 
@@ -224,7 +224,7 @@ export function WeekOnCard() {
               : ['PARI']
 
 
-            console.log(JSON.stringify(articleData.Authors, null, 2))
+        
 
 
 
@@ -262,7 +262,7 @@ export function WeekOnCard() {
         // Process article 2
         // If no articles found, show a more specific error
         if (articles.length === 0) {
-          console.error('No articles found in response. Full response:', response.data)
+  
           setArticles([{
             id: 1,
             title: 'No articles available',
@@ -278,13 +278,9 @@ export function WeekOnCard() {
           setArticles(articles)
         }
       } catch (err) {
-        console.error('Error fetching articles:', err)
+       
         if (axios.isAxiosError(err)) {
-          console.error('Axios error details:', {
-            status: err.response?.status,
-            statusText: err.response?.statusText,
-            data: err.response?.data
-          })
+          
         }
         setError('Failed to fetch articles')
       } finally {
