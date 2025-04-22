@@ -1,10 +1,15 @@
 "use client"
 
+import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Play, Headphones, ChevronRight, CirclePlay} from 'lucide-react'
+import { Play, Headphones, ChevronRight, CirclePlay } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { AudioVideoBigCard } from './AudioVideoBigCard'
+import axios from 'axios'
+import { BASE_URL } from '@/config'
+import qs from 'qs'
+import { ArticleWithLangSelection } from '../pariRecommends/page'
 
 interface MediaStory {
   id: number
@@ -18,65 +23,184 @@ interface MediaStory {
   languages?: string[]
   location?: string
   date?: string
+  authors: string[]
 }
 
-const mediaStories: MediaStory[] = [
-  {
-    id: 1,
-    title: "Nats at Singhu: nearing the end of their rope",
-    description: "A documentary capturing the lives of cotton farmers in Maharashtra, their struggles and triumphs through the seasons.",
-    imageUrl: "/images/categories/pari-vidoe.png",
-    type: "video",
-    duration: "24:15",
-    categories: ["Agriculture", "Documentary"],
-    slug: "cotton-fields-documentary",
-    languages: ["English", "Marathi", "Hindi"],
-    location: "Maharashtra",
-    date: "Mar 15, 2024"
-  },
-  {
-    id: 2,
-    title: "Songs of the Fisherwomen",
-    description: "Traditional songs and stories of the fishing communities along the Konkan coast, preserved through oral histories.",
-    imageUrl: "/images/categories/pari-re4.png",
-    type: "audio",
-    duration: "18:30",
-    categories: ["Culture", "Oral History"],
-    slug: "fisherwomen-songs",
-    languages: ["Konkani", "English"],
-    location: "Konkan Coast",
-    date: "Mar 12, 2024"
-  },
-  {
-    id: 3,
-    title: "The Last Bamboo Craftsmen",
-    description: "Video documentation of traditional bamboo craft in Northeast India, featuring master artisans and their unique techniques.",
-    imageUrl: "/images/categories/pari-re3.png",
-    type: "video",
-    duration: "32:45",
-    categories: ["Crafts", "Heritage"],
-    slug: "bamboo-craftsmen",
-    languages: ["English", "Assamese"],
-    location: "Assam",
-    date: "Mar 10, 2024"
-  },
-  {
-    id: 4,
-    title: "Tribal Music of Bastar",
-    description: "An audio journey through the rich musical traditions of Bastar's tribal communities, recorded live during festivals.",
-    imageUrl: "/images/categories/pari-re3.png",
-    type: "audio",
-    duration: "45:20",
-    categories: ["Music", "Tribal Culture"],
-    slug: "bastar-tribal-music",
-    languages: ["Gondi", "Hindi", "English"],
-    location: "Bastar",
-    date: "Mar 8, 2024"
+interface ApiResponse {
+  data: {
+    attributes: {
+      pari_movable_sections: Array<{
+        title: string
+        av_stories_button: string
+        av_stories_icon: string
+        sub_title: string
+        article_with_lang_selection_1: ArticleWithLangSelection[]
+    
+      }>
+    }
   }
-]
+}
 
 export function AudioVideoCard() {
-  const featuredStory = mediaStories[0] // Use your featured story data
+  const [mediaStories, setMediaStories] = useState<MediaStory[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const fetchAudioVideoStories = async () => {
+      try {
+        const sharedArticlePopulation = {
+          fields: ['id'],
+          populate: {
+            all_language: { fields: ['language_name'] },
+            article: {
+              fields: [
+                'Title',
+                'Strap',
+                'original_published_date',
+                'slug',
+                'location_auto_suggestion',
+              ],
+              populate: {
+                location: { fields: ['name', 'district', 'state'] },
+                localizations: {
+                  fields: ['locale', 'title', 'strap', 'slug'],
+                },
+                Authors: {
+                  populate: {
+                    author_role: { fields: ['Name'] },
+                    author_name: { fields: ['Name'] },
+                  },
+                },
+                Cover_image: { fields: ['url'] },
+                mobilecover: { fields: ['url'] },
+                categories: { fields: ['slug', 'Title'] },
+              },
+            },
+          },
+        }
+
+        const query = {
+          populate: {
+            pari_movable_sections: {
+              on: {
+                'home-page.audio-video-stories': {
+                  fields: [
+                    'title',
+                    'av_stories_button',
+                    'av_stories_icon',
+                    'sub_title',
+                  ],
+                  populate: {
+                    article_with_lang_selection_1: sharedArticlePopulation,
+                    article_with_lang_selection_2: sharedArticlePopulation,
+                  },
+                },
+              },
+            },
+          },
+        }
+
+        const queryString = qs.stringify(query, { encodeValuesOnly: true })
+        const response = await axios.get<ApiResponse>(`${BASE_URL}api/home-page?${queryString}`)
+
+        const stories = response.data.data.attributes.pari_movable_sections[0]
+        const allArticles = [
+          ...(stories.article_with_lang_selection_1 || []),
+          
+        ]
+
+        const formattedStories = allArticles.map(item => {
+          const articleData = item.article.data.attributes;
+          console.log('Processing article data:', articleData); // Debug log
+
+          // Extract authors
+          const authors = Array.isArray(articleData.Authors)
+          ? articleData.Authors.map(author => {
+            const name = author?.author_name?.data?.attributes?.Name
+            return name && typeof name === 'string' && name.trim().length > 0 ? name : 'PARI'
+          })
+          : ['PARI']
+          console.log('Extracted authors:', authors); // Debug log
+
+          // Extract localizations
+          // First, ensure localizations is an array
+            const localizationsData = Array.isArray(articleData.localizations) 
+              ? articleData.localizations 
+              : (articleData.localizations as { data: Array<{ locale: string; title: string; strap: string; slug: string }> })?.data || [];
+
+            // Then map over the array
+            const localizations = localizationsData.map(
+              (loc: { locale: string; title: string; strap: string; slug: string }) => ({
+                locale: loc.locale,
+                title: loc.title,
+                strap: loc.strap,
+                slug: loc.slug
+              })
+            );
+             console.log('Extracted localizations:', localizations); // Debug log
+            
+          return {
+            id: item.id,
+            title: articleData.Title,
+            description: (console.log('Strap value:', articleData.Strap), articleData.Strap || 'No description available'),
+            imageUrl: articleData.Cover_image?.data?.attributes?.url
+              ? `${BASE_URL}${articleData.Cover_image.data.attributes.url}`
+              : '/images/categories/default.jpg',
+            type: 'video', // You might want to determine this from the API data
+            duration: '00:00', // You might want to get this from the API
+            categories: Array.isArray(articleData.categories?.data) 
+              ? articleData.categories.data.map(
+                  (cat: { attributes: { Title: string } }) => cat.attributes.Title
+                )
+              : [],
+            slug: articleData.slug,
+            localizations,
+            languages: Array.isArray(item.all_language?.data)
+              ? item.all_language.data.map(
+                  (lang: { attributes: { language_name: string } }) => lang.attributes.language_name
+                )
+              : [],
+            location: (articleData.location?.data?.attributes?.district && articleData.location?.data?.attributes?.state) 
+              ? `${articleData.location.data.attributes.district}, ${articleData.location.data.attributes.state}`
+              : articleData.location_auto_suggestion || 
+                'India',
+                     date: articleData.Original_published_date
+                     ? new Date(articleData.Original_published_date).toLocaleDateString('en-US', {
+                         month: 'short',
+                         day: '2-digit',
+                         year: 'numeric'
+                       })
+                     : '',
+            authors,
+          }
+        })
+
+        console.log('Story types before mapping:', formattedStories.map(s => s.type));
+        setMediaStories(formattedStories.map(story => {
+          console.log('Processing story:', { id: story.id, type: story.type });
+          return {
+            ...story,
+            type: story.type.toLowerCase() === 'audio' ? 'audio' : 'video'
+          };
+        }));
+        console.log('Final media stories:', mediaStories);
+        setIsLoading(false)
+      } catch (error) {
+        console.error('Error fetching audio video stories:', error)
+        setError('Failed to load audio video stories')
+        setIsLoading(false)
+      }
+    }
+
+    fetchAudioVideoStories()
+  }, [])
+
+  if (isLoading) return <div className="text-center py-10">Loading...</div>
+  if (error) return <div className="text-center py-10 text-red-500">{error}</div>
+  if (!mediaStories.length) return null
+
+  const featuredStory = mediaStories[0]
 
   return (
     <div className="max-w-[1232px] lg:px-0 px-4 mx-auto md:py-20 sm:py-10">
@@ -98,11 +222,13 @@ export function AudioVideoCard() {
 
       {/* Featured Story */}
       <div className="mb-12">
-        <AudioVideoBigCard {...featuredStory} />
+        <AudioVideoBigCard 
+          {...featuredStory}
+        />
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {mediaStories.map((story) => (
+        {mediaStories.slice(1).map((story) => (
           <Link 
             key={story.id} 
             href={`/stories/${story.slug}`}
@@ -126,7 +252,6 @@ export function AudioVideoCard() {
                         <Headphones className="w-6 h-6 text-white" />
                       )}
                     </div>
-                    
                   </div>
                 </div>
               </div>
@@ -151,10 +276,15 @@ export function AudioVideoCard() {
                   {story.description}
                 </p>
 
-                <div className="flex items-center gap-2 text-sm text-red-700">
-                  <span>{story.location}</span>
-                  <span>•</span>
-                  <span>{story.date}</span>
+                <div className="flex flex-col gap-2">
+                  <p className="font-noto-sans text-[15px] font-medium leading-[180%] tracking-[-0.02em] text-[#828282]">
+                    {story.authors.join(', ')}
+                  </p>
+                  <div className="flex items-center gap-2 text-sm text-red-700">
+                    <span>{story.location}</span>
+                    <span>•</span>
+                    <span>{story.date}</span>
+                  </div>
                 </div>
               </div>
             </article>

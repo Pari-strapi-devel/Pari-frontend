@@ -25,6 +25,7 @@ interface Story {
 }
 
 export interface ArticleWithLangSelection {
+  id: number;
   all_language: {
     data: Array<{
       attributes: {
@@ -35,6 +36,8 @@ export interface ArticleWithLangSelection {
   article: {
     data: {
       attributes: {
+        Strap: string;
+        original_published_date: string;
         Original_published_date: string;
         localizations: {  locale: string; title: string; strap: string; slug: string; }[];
         Authors: {

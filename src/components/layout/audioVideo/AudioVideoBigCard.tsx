@@ -2,8 +2,7 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-
-import { Headphones, Play } from 'lucide-react'
+import { ArrowRight, Headphones, Play, } from 'lucide-react'
 
 interface AudioVideoBigCardProps {
   title: string
@@ -15,7 +14,14 @@ interface AudioVideoBigCardProps {
   slug: string
   languages?: string[]
   location?: string
+  localizations?: Array<{
+    locale: string
+    title: string
+    strap: string
+    slug: string
+  }>
   date?: string
+  authors?: string[]
 }
 
 export function AudioVideoBigCard({
@@ -28,7 +34,9 @@ export function AudioVideoBigCard({
   slug,
   languages,
   location,
-  date
+  localizations,
+  date,
+  authors
 }: AudioVideoBigCardProps) {
   return (
     <Link 
@@ -66,14 +74,22 @@ export function AudioVideoBigCard({
         {/* Right side - Content */}
         <div className="p-6 flex flex-col lg:pr-36 gap-4">
           <div className="flex flex-wrap gap-2">
-            {categories.map((category, index) => (
-              <span
-                key={index}
-                className="inline-block px-3 py-1 hover:bg-red-700 hover:text-white ring-1 ring-red-700  text-sm text-red-700 rounded-full"
-              >
-                {category}
-              </span>
-            ))}
+            {(categories && categories.length > 0) && (
+              <>
+                <span 
+                  className="inline-block px-3 py-1 hover:bg-red-700 hover:text-white ring-1 ring-red-700 text-sm text-red-700 rounded-full"
+                >
+                  {categories[0]}
+                </span>
+                {categories.length > 2 && (
+                  <span 
+                    className="inline-block px-3 py-1 hover:bg-red-700 hover:text-white ring-1 ring-red-700 text-sm text-red-700 rounded-full"
+                  >
+                    +{categories.length - 1}
+                  </span>
+                )}
+              </>
+            )}
           </div>
 
           <h2 className="font-noto-sans text-2xl md:text-3xl font-semibold leading-tight tracking-[-0.04em] text-foreground">
@@ -83,6 +99,7 @@ export function AudioVideoBigCard({
           <p className="font-noto-sans text-base leading-relaxed text-gray-400 tracking-[-0.02em]">
             {description}
           </p>
+
 
           {languages && (
             <div className="flex flex-wrap gap-2">
@@ -97,12 +114,28 @@ export function AudioVideoBigCard({
             </div>
           )}
 
-          <div className="flex items-center gap-2 text-sm text-red-700 mt-auto">
-            {location && <span>{location}</span>}
-            {location && date && <span>•</span>}
-            {date && <span>{date}</span>}
+          <div className="flex flex-col gap-2">
+            <p className="font-noto-sans text-[15px] font-medium leading-[180%] tracking-[-0.02em] text-[#828282]">
+              {authors?.join(', ') || 'PARI'}
+            </p>
+
+            <div className="flex gap-1 items-center text-neutral-500">
+              {localizations?.length && (
+                <span>
+                  Available in {localizations.length} languages
+                </span>
+              )}
+            </div>
+
+            <div className="flex items-center gap-2 text-sm text-red-700 mt-auto">
+              {location && <span>{location}</span>}
+              {location && date && <span>•</span>}
+              {date && <span>{date}</span>}
+                <ArrowRight className="h-4 w-4" />
+            </div>
           </div>
         </div>
+        
       </article>
     </Link>
   )
