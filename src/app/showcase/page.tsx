@@ -5,7 +5,7 @@ import { StoryCard } from '@/components/layout/stories/StoryCard'
 import { AudioVideoBigCard } from '@/components/layout/audioVideo/AudioVideoBigCard'
 import { LanguageToggle } from '../../components/layout/header/LanguageToggle'
 import { Button } from '@/components/ui/button'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import axios from 'axios'
 import { BASE_URL } from '@/config'
 import { useLocale } from '@/lib/locale'
@@ -111,8 +111,7 @@ const getTextDirection = (langCode: string) => {
   return rtlLanguages.includes(langCode) ? 'rtl' : 'ltr';
 };
 
-export default function ShowcasePage() {
-
+function ShowcaseContent() {
   const { language, setLanguage } = useLocale()
 
 
@@ -438,5 +437,13 @@ export default function ShowcasePage() {
       </div>
       <LanguageToggle />
     </div>
+  )
+}
+
+export default function ShowcasePage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ShowcaseContent />
+    </Suspense>
   )
 }
