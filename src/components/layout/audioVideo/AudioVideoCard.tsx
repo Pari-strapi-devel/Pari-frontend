@@ -10,32 +10,38 @@ import axios from 'axios'
 import { BASE_URL } from '@/config'
 import qs from 'qs'
 import { ArticleWithLangSelection } from '../pariRecommends/page'
+import { useLocale } from '@/lib/locale'
+
 
 interface MediaStory {
-  id: number
-  title: string
-  description: string
-  imageUrl: string
-  type: 'audio' | 'video'
-  duration?: string
-  categories: string[]
-  slug: string
-  languages?: string[]
-  location?: string
-  date?: string
-  authors: string[]
+  localizations: Array<{
+    locale: string;
+    title: string;
+    strap: string;
+    slug: string;
+  }>;
+  id: number;
+  title: string;
+  description: string;
+  imageUrl: string;
+  type: 'audio' | 'video';  // This must be strictly 'audio' or 'video'
+  categories: string[];
+  slug: string;
+  authors: string[];
+  location: string;
+  date: string;
 }
 
 interface ApiResponse {
   data: {
     attributes: {
       pari_movable_sections: Array<{
-        title: string
-        av_stories_button: string
-        av_stories_icon: string
-        sub_title: string
-        article_with_lang_selection_1: ArticleWithLangSelection[]
-    
+        title: string;
+        av_stories_button: string;
+        av_stories_icon: string;
+        sub_title: string;
+        article_with_lang_selection_1: ArticleWithLangSelection[];
+        article_with_lang_selection_2: ArticleWithLangSelection[];
       }>
     }
   }
@@ -45,12 +51,13 @@ export function AudioVideoCard() {
   const [mediaStories, setMediaStories] = useState<MediaStory[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-
+  const { language } = useLocale();
+  
   useEffect(() => {
     const fetchAudioVideoStories = async () => {
       try {
         const sharedArticlePopulation = {
-          fields: ['id'],
+          fields: ['id', 'headtitle', 'sub_title'],
           populate: {
             all_language: { fields: ['language_name'] },
             article: {
@@ -60,6 +67,7 @@ export function AudioVideoCard() {
                 'original_published_date',
                 'slug',
                 'location_auto_suggestion',
+                'Type',
               ],
               populate: {
                 location: { fields: ['name', 'district', 'state'] },
@@ -99,56 +107,52 @@ export function AudioVideoCard() {
               },
             },
           },
+          locale: language, // Add the current language to the query
         }
 
         const queryString = qs.stringify(query, { encodeValuesOnly: true })
         const response = await axios.get<ApiResponse>(`${BASE_URL}api/home-page?${queryString}`)
-
+        
         const stories = response.data.data.attributes.pari_movable_sections[0]
         const allArticles = [
           ...(stories.article_with_lang_selection_1 || []),
-          
+          ...(stories.article_with_lang_selection_2 || []),
         ]
 
         const formattedStories = allArticles.map(item => {
           const articleData = item.article.data.attributes;
-          console.log('Processing article data:', articleData); // Debug log
-
-          // Extract authors
+          
           const authors = Array.isArray(articleData.Authors)
-          ? articleData.Authors.map(author => {
-            const name = author?.author_name?.data?.attributes?.Name
-            return name && typeof name === 'string' && name.trim().length > 0 ? name : 'PARI'
-          })
-          : ['PARI']
-          console.log('Extracted authors:', authors); // Debug log
-
-          // Extract localizations
-          // First, ensure localizations is an array
-            const localizationsData = Array.isArray(articleData.localizations) 
-              ? articleData.localizations 
-              : (articleData.localizations as { data: Array<{ locale: string; title: string; strap: string; slug: string }> })?.data || [];
-
-            // Then map over the array
-            const localizations = localizationsData.map(
-              (loc: { locale: string; title: string; strap: string; slug: string }) => ({
-                locale: loc.locale,
-                title: loc.title,
-                strap: loc.strap,
-                slug: loc.slug
+            ? articleData.Authors.map(author => {
+                const name = author?.author_name?.data?.attributes?.Name
+                return name && typeof name === 'string' && name.trim().length > 0 ? name : 'PARI'
               })
-            );
-             console.log('Extracted localizations:', localizations); // Debug log
-            
+            : ['PARI']
+          
+          const localizationsData = Array.isArray(articleData.localizations) 
+            ? articleData.localizations 
+            : (articleData.localizations as { data: Array<{ locale: string; title: string; strap: string; slug: string }> })?.data || [];
+
+          const localizations = localizationsData.map(
+            (loc: { locale: string; title: string; strap: string; slug: string }) => ({
+              locale: loc.locale,
+              title: loc.title,
+              strap: loc.strap,
+              slug: loc.slug
+            })
+          );
+          
           return {
             id: item.id,
+            headtitle: item.headtitle,
+            sub_title: item.sub_title,
             title: articleData.Title,
-            description: (console.log('Strap value:', articleData.Strap), articleData.Strap || 'No description available'),
+            description: articleData.Strap || 'No description available',
             imageUrl: articleData.Cover_image?.data?.attributes?.url
               ? `${BASE_URL}${articleData.Cover_image.data.attributes.url}`
               : '/images/categories/default.jpg',
-            type: 'video', // You might want to determine this from the API data
-            duration: '00:00', // You might want to get this from the API
+            type: 'video',
+            duration: '00:00',
             categories: Array.isArray(articleData.categories?.data) 
               ? articleData.categories.data.map(
                   (cat: { attributes: { Title: string } }) => cat.attributes.Title
@@ -163,28 +167,33 @@ export function AudioVideoCard() {
               : [],
             location: (articleData.location?.data?.attributes?.district && articleData.location?.data?.attributes?.state) 
               ? `${articleData.location.data.attributes.district}, ${articleData.location.data.attributes.state}`
-              : articleData.location_auto_suggestion || 
-                'India',
-                     date: articleData.Original_published_date
-                     ? new Date(articleData.Original_published_date).toLocaleDateString('en-US', {
-                         month: 'short',
-                         day: '2-digit',
-                         year: 'numeric'
-                       })
-                     : '',
+              : articleData.location_auto_suggestion || 'India',
+            date: articleData.Original_published_date
+              ? new Date(articleData.Original_published_date).toLocaleDateString('en-US', {
+                  month: 'short',
+                  day: '2-digit',
+                  year: 'numeric'
+                })
+              : '',
             authors,
           }
         })
 
-        console.log('Story types before mapping:', formattedStories.map(s => s.type));
-        setMediaStories(formattedStories.map(story => {
-          console.log('Processing story:', { id: story.id, type: story.type });
-          return {
-            ...story,
-            type: story.type.toLowerCase() === 'audio' ? 'audio' : 'video'
-          };
-        }));
-        console.log('Final media stories:', mediaStories);
+        const updatedMediaStories = formattedStories.map(story => ({
+          ...story,
+          type: story.type.toLowerCase() === 'audio' ? 'audio' : 'video',
+          id: story.id,
+          title: story.title,
+          description: story.description,
+          imageUrl: story.imageUrl,
+          categories: story.categories,
+          slug: story.slug,
+          authors: story.authors,
+          location: story.location,
+          date: story.date
+        } as MediaStory));
+
+        setMediaStories(updatedMediaStories);
         setIsLoading(false)
       } catch (error) {
         console.error('Error fetching audio video stories:', error)
@@ -194,7 +203,7 @@ export function AudioVideoCard() {
     }
 
     fetchAudioVideoStories()
-  }, [])
+  }, [language]) // Only depend on language changes
 
   if (isLoading) return <div className="text-center py-10">Loading...</div>
   if (error) return <div className="text-center py-10 text-red-500">{error}</div>
@@ -226,70 +235,89 @@ export function AudioVideoCard() {
           {...featuredStory}
         />
       </div>
+      
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {mediaStories.slice(1).map((story) => (
-          <Link 
-            key={story.id} 
-            href={`/stories/${story.slug}`}
-            className="group"
-          >
-            <article className="rounded-lg overflow-hidden bg-background hover:shadow-xl transition-all duration-300 border border-border h-full">
-              <div className="relative h-[156px] w-full overflow-hidden rounded-t-2xl">
-                <Image
-                  src={story.imageUrl}
-                  alt={story.title}
-                  fill
-                  className="object-cover transition-transform scale-102 duration-300 group-hover:scale-108"
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                />
-                <div className="absolute inset-0 bg-black/30 flex items-center justify-center group-hover:bg-black/40 transition-colors">
-                  <div className="flex flex-col items-center gap-2">
-                    <div className="w-12 h-12 rounded-full bg-red-700 hover:bg-red-500 flex items-center justify-center">
-                      {story.type === 'video' ? (
-                        <Play className="w-6 h-6 text-white ml-1" />
-                      ) : (
-                        <Headphones className="w-6 h-6 text-white" />
-                      )}
+        {mediaStories.slice(1).map((story: MediaStory) => {
+          
+          return (
+            <Link 
+              key={story.id} 
+              href={`/stories/${story.slug}`}
+              className="group"
+            >
+              <article className="rounded-lg overflow-hidden bg-background hover:shadow-xl transition-all duration-300 border border-border h-full">
+                <div className="relative h-[156px] w-full overflow-hidden rounded-t-2xl">
+                  <Image
+                    src={story.imageUrl}
+                    alt={story.title}
+                    fill
+                    className="object-cover transition-transform scale-102 duration-300 group-hover:scale-108"
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                  />
+                  <div className="absolute inset-0 bg-black/30 flex items-center justify-center group-hover:bg-black/40 transition-colors">
+                    <div className="flex flex-col items-center gap-2">
+                      <div className="w-12 h-12 rounded-full bg-red-700 hover:bg-red-500 flex items-center justify-center">
+                        {story.type === 'video' ? (
+                          <Play className="w-6 h-6 text-white ml-1" />
+                        ) : (
+                          <Headphones className="w-6 h-6 text-white" />
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="p-4 flex flex-col gap-3">
-                <div className="flex flex-wrap gap-2">
-                  {story.categories.map((category, index) => (
-                    <span
-                      key={index}
-                      className="inline-block px-2 py-1 items-center h-[24px] hover:bg-red-600 hover:text-white ring-1 ring-red-700 text-xs text-red-700 rounded-full"
-                    >
-                      {category}
-                    </span>
-                  ))}
-                </div>
+                <div className="p-4 flex flex-col gap-3">
+                  <div className="flex flex-wrap gap-2">
+                    {story.categories.length > 0 && (
+                      <>
+                        <span
+                          className="inline-block px-2 py-1 items-center h-[24px] hover:bg-red-600 hover:text-white ring-1 ring-red-700 text-xs text-red-700 rounded-full"
+                        >
+                          {story.categories[0]}
+                        </span>
+                        {story.categories.length > 1 && (
+                          <span
+                            className="inline-block px-2 py-1 items-center h-[24px] hover:bg-red-600 hover:text-white ring-1 ring-red-700 text-xs text-red-700 rounded-full"
+                          >
+                            +{story.categories.length - 1}
+                          </span>
+                        )}
+                      </>
+                    )}
+                  </div>
 
-                <h3 className="font-noto-sans text-[18px] h-[40px] font-semibold leading-[136%] tracking-[-0.04em] text-foreground">
-                  {story.title}
-                </h3>
+                  <h3 className="font-noto-sans text-[18px] h-[40px] font-semibold leading-[136%] tracking-[-0.04em] text-foreground">
+                    {story.title}
+                  </h3>
 
-                <p className="font-noto-sans text-[15px] leading-[170%] text-gray-400 tracking-[-0.04em] line-clamp-2">
-                  {story.description}
-                </p>
-
-                <div className="flex flex-col gap-2">
-                  <p className="font-noto-sans text-[15px] font-medium leading-[180%] tracking-[-0.02em] text-[#828282]">
-                    {story.authors.join(', ')}
+                  <p className="font-noto-sans text-[15px] leading-[170%] text-gray-400 tracking-[-0.04em] line-clamp-2">
+                    {story.description}
                   </p>
-                  <div className="flex items-center gap-2 text-sm text-red-700">
-                    <span>{story.location}</span>
-                    <span>•</span>
-                    <span>{story.date}</span>
+
+                  <div className="flex flex-col gap-2">
+                    <p className="font-noto-sans text-[15px] font-medium leading-[180%] tracking-[-0.02em]  line-clamp-1 text-[#828282]">
+                      {story.authors.join(', ')}
+                    </p>
+                    <div className="flex gap-1 items-center text-neutral-500">
+              {story.localizations?.length && (
+                <span>
+                  Available in {story.localizations.length} languages
+                </span>
+              )}
+            </div>
+                    <div className="flex items-center gap-2 text-sm text-red-700">
+                      <span className='line-clamp-1 w-fit'>{story.location}</span>
+                      <span>•</span>
+                      <span className=' w-fit'>{story.date}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </article>
-          </Link>
-        ))}
+              </article>
+            </Link>
+          );
+        })}
       </div>
     </div>
   )

@@ -25,6 +25,9 @@ interface Story {
 }
 
 export interface ArticleWithLangSelection {
+  headtitle: string;
+  sub_title: string;
+  
   id: number;
   all_language: {
     data: Array<{
