@@ -222,9 +222,7 @@ export function Hero() {
                     </div>
                     
                     <div className="py-4 px-1 flex flex-col justify-between  relative">
-                    <span className="inline-flex items-center justify-center w-fit h-[23px] gap-[8px] rounded-[32px] px-3 py-[7px] ring-1 hover:bg-red-700 hover:text-white ring-red-700 text-xs text-red-700 mb-2">
-                      Categories
-                     </span>
+                   
                       <h3 className="font-noto-sans text-[20px] md:h-[70px] sm:text-[24px] md:text-[28px] font-bold leading-[124%] tracking-[-0.04em] mb-2 text-foreground line-clamp-1 sm:line-clamp-2">
                         {info.title}
                       </h3>

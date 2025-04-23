@@ -3,6 +3,7 @@ import { ComponentPropsWithoutRef, ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 
+
 interface Category {
   title: string;
 }
@@ -49,7 +50,7 @@ const BentoCard = ({
   background,
   description,
   athor,
-  features,
+  category,
   languages,
   location,
   date,
@@ -72,16 +73,25 @@ const BentoCard = ({
     <div className="absolute inset-0 group-hover:scale-104 o bg-no-repeat ,#000000_70%)] scale-102 duration-300 w-full ]">{background}</div>
 
     {/* Categories - Now in a fixed position */}
-    <div className="absolute flex gap-2 h-20 left-9 top-4 z-50">
-      {features.map((category: Category, index: number) => (
-        <span
-          key={index}
-          className="inline-block items-center px-2 py-1 ring-1 z-50 hover:bg-red-600 hover:text-white ring-white text-xs text-white rounded-full w-fit h-[23px]"
-        >
-          {category.title}
-        </span>
-      ))}
-    </div>
+    <div className="flex flex-wrap gap-2">
+            {(category && category.length > 0) && (
+              <>
+                <span 
+                  className="inline-block px-3 py-1 hover:bg-red-700 hover:text-white ring-1 ring-red-700 text-sm text-red-700 rounded-full"
+                >
+                  {category[0]}
+                </span>
+                {category.length > 2 && (
+                  <span 
+                    className="inline-block px-3 py-1 hover:bg-red-700 hover:text-white ring-1 ring-red-700 text-sm text-red-700 rounded-full"
+                  >
+                    +{category.length - 1}
+                  </span>
+                )}
+              </>
+            )}
+          </div>
+
 
     {/* Content wrapper with gradient */}
     <div className="relative flex flex-col justify-end h-full">

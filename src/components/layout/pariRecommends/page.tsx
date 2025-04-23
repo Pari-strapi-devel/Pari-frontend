@@ -11,6 +11,7 @@ import { useLocale } from '@/lib/locale'
 import { useSearchParams } from 'next/navigation'
 
 interface Story {
+  sub_title: string;
   localizations: { locale: string; title: string; strap: string; slug: string; }[] | undefined;
   headtitle: string;
   authors: string | string[];  // Changed from authors(authors: any): unknown
@@ -111,11 +112,13 @@ export default function StoriesPage() {
         const query = {
           locale: currentLocale,
           populate: {
+            fields: ['seeallStories'],
             pari_movable_sections: {
               on: {
                 'home-page.pari-recommends': {
-                  fields: ['Title'],
+                  fields: ['Title', ],
                   populate: {
+                    see_all_button: true,
                     article_with_lang_selection_1: {
                       populate: {
                         all_language: {
@@ -148,6 +151,8 @@ export default function StoriesPage() {
                       }
                     }
                   }
+                
+
                 }
               }
             }
@@ -159,12 +164,11 @@ export default function StoriesPage() {
   
         const sections: Array<{
           Title: string;
-          pari_recommends: Array<{
-            Title: string;
-          }>;
+          see_all_button: string;
           article_with_lang_selection_1: ArticleWithLangSelection[];
         }> = response.data?.data?.attributes?.pari_movable_sections;
-        
+      const see_all_button = response.data?.data?.attributes?.seeallStories;
+     
         const articles = sections[0]?.article_with_lang_selection_1 || [];
         if (!articles.length) {
           return;
@@ -212,9 +216,11 @@ export default function StoriesPage() {
                 slug: loc.slug
               })
             );
-
+           
+        
             return {
               headtitle: sections[0]?.Title,
+              sub_title: see_all_button,
               title: articleData.Title,
               description: articleData.strap,
               imageUrl: articleData.Cover_image?.data?.attributes?.url
@@ -271,7 +277,7 @@ export default function StoriesPage() {
             className="text-sm h-[32px] rounded-[48px] text-red-700"
             onClick={() => setShowAll(!showAll)}
           >
-            {showAll ? 'Show less' : 'See all stories'}
+            {showAll ? 'Show less' : stories[0]?.sub_title || 'See all'}
             <ChevronRight className="h-4 w-4" />
           </Button>
         </div>

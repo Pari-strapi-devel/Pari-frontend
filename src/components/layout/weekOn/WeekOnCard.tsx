@@ -86,6 +86,7 @@ interface Article {
 }
 
 interface ArticleWithLangSelection {
+  id: number
   forEach(arg0: (item: ArticleWithLangSelection, index: number) => void): void;
   all_language: {
     language_name: string;
@@ -96,9 +97,18 @@ interface ArticleWithLangSelection {
 interface ApiResponse {
   data: {
     attributes: {
+      seeallStories: string;
       thisWeekOnPari: {
-        ThisWeek_On_Pari_Icon?: string;
-        [key: string]: ArticleWithLangSelection | string | undefined;
+        ThisWeek_On_Pari_Icon: {
+          data: {
+            attributes: {
+              url: string;
+            }
+          }
+        };
+        id: number;
+        ThisWeek_On_Pari_Title: string;
+        article_with_lang_selection_1: ArticleWithLangSelection[];
       };
     };
   };
@@ -134,6 +144,7 @@ export function WeekOnCard() {
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [header, setHeader] = useState<string>()
+  const [thisWeekData, setThisWeekData] = useState<ApiResponse['data']['attributes']['thisWeekOnPari'] | null>(null)
   const { language } = useLocale()
 
   const [sliderRef, instanceRef] = useKeenSlider({
@@ -168,10 +179,13 @@ export function WeekOnCard() {
 
         const query = {
           populate: {
+            fields: ['seeallStories'],
             thisWeekOnPari: {
-              fields: ['*'],
               populate: {
-               
+                
+                ThisWeek_On_Pari_Icon: {
+                  fields: ['url', 'name', 'alternativeText'],
+                },
                 article_with_lang_selection_1: {
                   populate: {
                     all_language: true,
@@ -182,16 +196,17 @@ export function WeekOnCard() {
                           populate: {
                             author_name: {
                               populate: true
-                            }
+                            },
+                            author_role: true
                           }
                         },
-                        author_role: true,
                         categories: true,
                         location: true
                       }
                     }
                   }
                 },
+                ThisWeek_On_Pari_Title: true
               }
             }
           },
@@ -203,38 +218,47 @@ export function WeekOnCard() {
         const response = await axios.get<ApiResponse>(
           `${BASE_URL}api/home-page?${queryString}`
         )
-         
-        const headerIcon = response.data?.data?.attributes?.thisWeekOnPari?.ThisWeek_On_Pari_Icon;
-        setHeader(headerIcon);
+       
+        const weekData = response.data?.data?.attributes?.thisWeekOnPari;
+        const seeAllStories = response.data?.data?.attributes?.seeallStories;
+        setThisWeekData({
+          ...weekData,
+          ThisWeek_On_Pari_Title: weekData?.ThisWeek_On_Pari_Title || seeAllStories
+        });
 
-        const articleArray = response.data?.data?.attributes?.thisWeekOnPari?.article_with_lang_selection_1 || []
+        // Update header icon handling
+        const iconUrl = weekData?.ThisWeek_On_Pari_Icon?.data?.attributes?.url;
+        if (iconUrl) {
+          setHeader(iconUrl.startsWith('http') ? iconUrl : `${BASE_URL}${iconUrl}`);
+        } else {
+          setHeader('/images/default-header-icon.png');
+        }
+
+        const articleArray = weekData?.article_with_lang_selection_1 || [];
 
         const articles = (Array.isArray(articleArray) ? articleArray : [])
-          .map((item: ArticleWithLangSelection, index: number): FormattedArticle | null => {
-            const articleData = item?.article?.data?.attributes
+          .map((item: ArticleWithLangSelection): FormattedArticle | null => {
+            const articleData = item?.article?.data?.attributes;
             
-            if (!articleData) return null
-
+            if (!articleData) {
+              console.log('No article data for item:', item);
+              return null;
+            }
 
             const authors = Array.isArray(articleData.Authors)
               ? articleData.Authors.map(author => {
-                const name = author?.author_name?.data?.attributes?.Name
-                return name && typeof name === 'string' && name.trim().length > 0 ? name : 'PARI'
-              })
-              : ['PARI']
-
-
-        
-
-
+                  const name = author?.author_name?.data?.attributes?.Name;
+                  return name && typeof name === 'string' && name.trim().length > 0 ? name : 'PARI';
+                })
+              : ['PARI'];
 
             const categories = articleData.categories?.data?.map((cat: CategoryData) => ({
               slug: cat?.attributes?.slug || '',
               Title: cat?.attributes?.Title || ''
-            })) || []
+            })) || [];
 
             return {
-              id: index + 1,
+              id: item.id || 0,
               title: articleData.Title || 'Untitled',
               description: articleData.Strap || '',
               imageUrl: articleData.Cover_image?.data?.attributes?.url
@@ -250,19 +274,16 @@ export function WeekOnCard() {
                 : articleData.location_auto_suggestion || 'India',
               date: articleData.Original_published_date
                 ? new Date(articleData.Original_published_date).toLocaleDateString('en-US', {
-                  month: 'short',
-                  day: '2-digit',
-                  year: 'numeric'
-                })
+                    month: 'short',
+                    day: '2-digit',
+                    year: 'numeric'
+                  })
                 : '',
             }
           })
-          .filter((article): article is FormattedArticle => article !== null)
+          .filter((article): article is FormattedArticle => article !== null);
 
-        // Process article 2
-        // If no articles found, show a more specific error
         if (articles.length === 0) {
-  
           setArticles([{
             id: 1,
             title: 'No articles available',
@@ -273,22 +294,19 @@ export function WeekOnCard() {
             authors: ['PARI'],
             location: 'India',
             date: new Date().toISOString(),
-          }])
+          }]);
         } else {
-          setArticles(articles)
+          setArticles(articles);
         }
       } catch (err) {
-       
-        if (axios.isAxiosError(err)) {
-          
-        }
-        setError('Failed to fetch articles')
+        console.error('Error fetching data:', err);
+        setError('Failed to fetch articles');
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
     }
 
-    thisWeekOnPari()
+    thisWeekOnPari();
   }, [language])
   
 
@@ -307,14 +325,19 @@ export function WeekOnCard() {
   return (
     <section className="py-10 md:py-20 px-4 relative overflow-hidden">
       <div className="max-w-[1232px] mx-auto">
-        <WeekOnHeader header={header} />
+        <WeekOnHeader 
+          header={header}
+          title={thisWeekData?.ThisWeek_On_Pari_Title || "This Week on PARI"}
+          buttonText={thisWeekData?.ThisWeek_On_Pari_Title || "See all stories"}
+          buttonLink="/showcase"
+        />
         
         <div className="relative mt-8">
           <div ref={sliderRef} className="keen-slider !overflow-visible">
             {articles.map((article) => (
               <ArticleCard
                 key={article.id}
-                title={article?.title}
+                title={article.title}
                 description={article.description}
                 imageUrl={article.imageUrl}
                 categories={article.categories?.map(cat => cat.Title) || []}
