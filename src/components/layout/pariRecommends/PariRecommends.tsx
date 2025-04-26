@@ -10,8 +10,71 @@ import { useLocale } from '@/lib/locale'
 import { Carousel, CarouselItem } from '@/components/ui/Carousel'
 import { cn } from '@/lib/utils'
 
+interface AuthorName {
+  data: {
+    attributes: {
+      Name: string;
+    };
+  };
+}
+
+interface Author {
+  author_name?: AuthorName;
+}
+
+interface Category {
+  attributes: {
+    Title: string;
+  };
+}
+
+interface ArticleAttributes {
+  Title: string;
+  strap: string;
+  Original_published_date: string;
+  slug: string;
+  Authors?: Author[];
+  Cover_image?: {
+    data: {
+      attributes: {
+        url: string;
+      };
+    };
+  };
+  categories?: {
+    data: Category[];
+  };
+  location?: {
+    data: {
+      attributes: {
+        district: string;
+      };
+    };
+  };
+  location_auto_suggestion?: string;
+}
+
+interface ArticleData {
+  article: {
+    data: {
+      attributes: ArticleAttributes;
+    };
+  };
+}
+
+interface Story {
+  title: string;
+  description: string;
+  imageUrl: string;
+  categories: string[];
+  slug: string;
+  authors: string;
+  location: string;
+  date: string;
+}
+
 export function PariRecommends() {
-  const [stories, setStories] = useState([])
+  const [stories, setStories] = useState<Story[]>([])
   const [showAll, setShowAll] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const { language } = useLocale()
@@ -74,7 +137,7 @@ export function PariRecommends() {
         }
 
         const articles = sections.article_with_lang_selection_1 || []
-        const formattedStories = articles.map(article => {
+        const formattedStories = articles.map((article: ArticleData): Story => {
           const articleData = article.article.data.attributes
           const authors = articleData.Authors?.map(author => author?.author_name?.data?.attributes?.Name).filter(Boolean) || ['PARI']
           const categories = articleData.categories?.data?.map(cat => cat.attributes.Title) || []
@@ -94,13 +157,7 @@ export function PariRecommends() {
                   day: '2-digit',
                   year: 'numeric'
                 })
-              : '',
-            localizations: articleData.localizations?.data?.map(loc => ({
-              locale: loc.attributes.locale,
-              title: loc.attributes.title,
-              strap: loc.attributes.strap,
-              slug: loc.attributes.slug
-            })) || []
+              : ''
           }
         })
 

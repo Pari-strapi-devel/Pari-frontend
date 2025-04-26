@@ -238,20 +238,14 @@ export function Hero() {
  
   return (
     <div className="relative font-noto-sans">
-      {/* Language selector */}
-      <div className="absolute top-4 right-4 z-10 flex gap-2">
-   
-        
-      </div>
-
       <section className="relative px-4 md:mt-20 mt-10 bg-background">
         <div className='shadow-lg rounded-lg bg-popover sm:w-[90%] max-w-[1232px] mx-auto'>
-          <div className="container mx-auto p-4 sm:p-6 md:p-8 lg:p-10 relative">
+          <div className={`container mx-auto p-4 sm:p-6 md:p-8 lg:p-10 relative ${language === 'ur' ? 'flex flex-col' : ''}`}>
             <Button
               variant="ghost"
               size="icon"
               onClick={handleDismiss}
-              className="z-20 w-fit -ml-2 cursor-pointer hover:text-red-700 transition-all duration-200 text-red-700 rounded-full flex items-center gap-2 py-6 group"
+              className="z-20 w-fit cursor-pointer hover:text-red-700 transition-all duration-200 text-red-700 rounded-full flex items-center gap-2 py-6 group"
             >
               <div className='hover:bg-red-400 h-8 w-8 rounded-full flex items-center justify-center hover:text-white'>
                 <X className="h-4 w-4 hover:bg-red-400 cursor-pointer transition-transform duration-200" />
@@ -259,8 +253,8 @@ export function Hero() {
               <span className="text-sm font-medium">Dismiss</span>
             </Button>
 
-            <div className="flex sm:justify-between flex-col sm:flex-row gap-4 pt-6">
-              <div>
+            <div className={`flex sm:justify-between flex-col sm:flex-row gap-4 pt-6 ${language === 'ur' ? 'sm:flex-row-reverse' : ''}`}>
+              <div className={language === 'ur' ? 'text-right' : 'text-left'}>
                 <span className="text-[15px] text-gray-400 font-[600] leading-none tracking-[-0.02em] align-middle uppercase">
                   { String(getCurrentDate(months as unknown as Record<string, string>, weekDays as unknown as Record<string, string>)) }
                 </span>
@@ -270,7 +264,7 @@ export function Hero() {
                   {pariInfo[0]?.sabHeading}
                 </h2>
               </div>
-              <div className='flex items-end '>
+              <div className="flex items-end">
                 <Button 
                   variant="secondary" 
                   className="h-[32px] cursor-pointer hover ring-red-700 text-red-700 flex items-center rounded-[48px] gap-1"
@@ -278,8 +272,10 @@ export function Hero() {
                     window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })
                   }}
                 >
-                  {pariInfo[0]?.seeallStories}
-                  <ChevronRight className="h-4 w-4 rotate-90" />
+                  <span className={`flex items-center gap-2 ${language === 'ur' ? 'flex-row-reverse' : ''}`}>
+                    {pariInfo[0]?.seeallStories}
+                    <ChevronRight className="h-4 w-4 rotate-90" />
+                  </span>
                 </Button>
               </div>
             </div>
@@ -292,7 +288,7 @@ export function Hero() {
                 size="icon"
                 onClick={(e) => {
                   e.stopPropagation()
-                  instanceRef.current?.prev()
+                  instanceRef.current?.next()
                 }}
                 className="pointer-events-auto bg-white dark:bg-popover inset-shadow-sm dark:hover:text-red-700 dark:inset-shadow-red-800 inset-shadow-primary text-red-700 hover:text-red-700 shadow-lg rounded-full z-10 cursor-pointer w-11 h-11 sm:w-10 sm:h-10 md:w-12 md:h-12"
               >
@@ -304,7 +300,7 @@ export function Hero() {
                 size="icon"
                 onClick={(e) => {
                   e.stopPropagation()
-                  instanceRef.current?.next()
+                  instanceRef.current?.prev()
                 }}
                 className="pointer-events-auto bg-white dark:bg-popover inset-shadow-sm dark:hover:text-red-700 dark:inset-shadow-red-800 inset-shadow-primary text-red-700 hover:text-red-700 shadow-lg rounded-full z-10 cursor-pointer w-11 h-11 sm:w-10 sm:h-10 md:w-12 md:h-12"
               >
@@ -312,8 +308,8 @@ export function Hero() {
               </Button>
             </div>
 
-            <div className="!overflow-hidden keen-slider relative max-w-[1232px] px-4 h-fit  md:px-0 mx-auto">
-              <div ref={sliderRef} className="keen-slider !overflow-visible  relative md:mx-10">
+            <div className={`!overflow-hidden keen-slider relative max-w-[1232px] px-4 h-fit md:px-0 mx-auto`}>
+              <div ref={sliderRef} className="keen-slider !overflow-visible relative md:mx-10">
                 {pariInfo.map((info, index) => (
                   <Link
                     key={info.id || index}
@@ -333,10 +329,7 @@ export function Hero() {
                         <div className="bg-black/10 rounded-lg pt-4 group-hover:bg-black/0 transition-colors duration-500" />
                       </div>
                       
-                      <div className={`py-4 px-1 flex flex-col justify-between relative ${
-                        language === 'ur' ? 'text-right' : 'text-left'
-                      }`}>
-                     
+                      <div className={`py-4 px-1 flex flex-col justify-between relative ${language === 'ur' ? 'text-right' : 'text-left'}`}>
                         <h3 className="font-noto-sans text-[20px] md:h-[70px] sm:text-[24px] md:text-[28px] font-bold leading-[124%] tracking-[-0.04em] mb-2 text-foreground line-clamp-1 sm:line-clamp-2">
                           {info.title}
                         </h3>
@@ -344,12 +337,10 @@ export function Hero() {
                           {info.description}
                         </p>
                         
-                        <div className="transform translate-y-4 flex items-center pt-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 ease-out">
-                          <span className="flex items-center gap-2 py-2 text-red-700 font-medium">
+                        <div className={`transform translate-y-4 flex items-center pt-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 ease-out ${language === 'ur' ? 'flex-row-reverse' : ''}`}>
+                          <span className={`flex items-center gap-2 py-2 text-red-700 font-medium ${language === 'ur' ? 'flex-row-reverse' : ''}`}>
                             <span className='text-sm'>{info.ButtonText}</span>
-                            <span className="text-xl pt-1 text-center">
-                              <ArrowRight className="h-4 w-4" />
-                            </span>
+                            <ArrowRight className="h-4 w-4" />
                           </span>
                         </div>
                       </div>
