@@ -11,7 +11,6 @@ interface StoryCardProps {
   imageUrl?: string
   categories?: string[]
   slug?: string
-  // languages?: string[]
   location?: string
   date?: string
   videoUrl?: string
@@ -22,6 +21,7 @@ interface StoryCardProps {
     strap: string
     slug: string
   }>
+  className?: string
 }
 
 export function StoryCard({
@@ -31,7 +31,6 @@ export function StoryCard({
   imageUrl,
   categories,
   slug,
-  // languages,
   location,
   date,
   videoUrl,

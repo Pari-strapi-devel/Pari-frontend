@@ -5,10 +5,12 @@ import { Button } from '@/components/ui/button'
 import { BASE_URL } from '@/config';
 import qs from 'qs';
 import axios from 'axios';
-import { ChevronRight,  Sparkle  } from 'lucide-react'
+import { ChevronRight, Sparkle } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useLocale } from '@/lib/locale'
 import { useSearchParams } from 'next/navigation'
+import { Carousel, CarouselItem } from '@/components/ui/Carousel'
+import { cn } from '@/lib/utils'
 
 interface Story {
   sub_title: string;
@@ -216,7 +218,6 @@ export default function StoriesPage() {
                 slug: loc.slug
               })
             );
-           
         
             return {
               headtitle: sections[0]?.Title,
@@ -282,23 +283,48 @@ export default function StoriesPage() {
           </Button>
         </div>
       </div>
-      <div className={`grid grid-cols-1 sm:grid-cols-2 bg-propover lg:grid-cols-4 gap-6 py-4 ${showAll ? 'h-auto' : ''}`}>
+
+      <Carousel
+        slides={{ perView: 1, spacing: 24 }}
+        breakpoints={{
+          '(min-width: 640px)': {
+            slides: { perView: 2, spacing: 32 },
+          },
+          '(min-width: 768px)': {
+            slides: { perView: 2, spacing: 32 },
+          },
+          '(min-width: 1024px)': {
+            slides: { perView: 3, spacing: 32 },
+          },
+          '(min-width: 1280px)': {
+            slides: { perView: 4, spacing: 32 },
+          },
+        }}
+      >
         {visibleStories.map((story, index) => (
-          <StoryCard
+          <CarouselItem 
             key={`${story.slug}-${index}`}
-            title={story.title}
-            description={story.description}
-            imageUrl={story.imageUrl}
-            categories={story.categories}
-            slug={story.slug}
-            authors={Array.isArray(story.authors) ? story.authors.join(', ') : story.authors}
-            location={story.location}
-            date={story.date}
-            // languages={story.languages}
-            localizations={story.localizations}
-          />
+            className="min-h-[400px]"
+          >
+            <StoryCard
+              title={story.title}
+              description={story.description}
+              imageUrl={story.imageUrl}
+              categories={story.categories}
+              slug={story.slug}
+              authors={Array.isArray(story.authors) ? story.authors.join(', ') : story.authors}
+              location={story.location}
+              date={story.date}
+              localizations={story.localizations}
+              className={cn(
+                "h-full",
+                "group relative flex flex-col justify-between overflow-hidden rounded-2xl",
+                "bg-[linear-gradient(180deg,rgba(0,0,0,0)_36.67%,#000000_70%)]"
+              )}
+            />
+          </CarouselItem>
         ))}
-      </div>
+      </Carousel>
     </div>
   );
 }

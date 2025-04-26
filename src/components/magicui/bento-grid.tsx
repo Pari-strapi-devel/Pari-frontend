@@ -20,11 +20,11 @@ interface BentoCardProps extends ComponentPropsWithoutRef<"div"> {
   background: ReactNode;
   Icon?: React.ElementType;
   description: string;
-  athor?: string;
+  authors?: string[];
   href: string;
   cta: string;
   features: Category[];
-  languages?: string[];
+  localizations?: Array<{ locale: string; title: string; strap: string; slug: string }>;
   location?: string;
   date?: string;
   title?: string;
@@ -49,9 +49,9 @@ const BentoCard = ({
   className,
   background,
   description,
-  athor,
+  authors,
   category,
-  languages,
+  localizations,
   location,
   date,
   title,
@@ -72,57 +72,52 @@ const BentoCard = ({
     {/* Background */}
     <div className="absolute inset-0 group-hover:scale-104 o bg-no-repeat ,#000000_70%)] scale-102 duration-300 w-full ]">{background}</div>
 
-    {/* Categories - Now in a fixed position */}
+    {/* Categories */}
     <div className="flex flex-wrap gap-2">
-            {(category && category.length > 0) && (
-              <>
-                <span 
-                  className="inline-block px-3 py-1 hover:bg-red-700 hover:text-white ring-1 ring-red-700 text-sm text-red-700 rounded-full"
-                >
-                  {category[0]}
-                </span>
-                {category.length > 2 && (
-                  <span 
-                    className="inline-block px-3 py-1 hover:bg-red-700 hover:text-white ring-1 ring-red-700 text-sm text-red-700 rounded-full"
-                  >
-                    +{category.length - 1}
-                  </span>
-                )}
-              </>
-            )}
-          </div>
-
+      {(category && category.length > 0) && (
+        <>
+          <span className="inline-block px-3 py-1 hover:bg-red-700 hover:text-white ring-1 ring-red-700 text-sm text-red-700 rounded-full">
+            {category[0]}
+          </span>
+          {category.length > 2 && (
+            <span className="inline-block px-3 py-1 hover:bg-red-700 hover:text-white ring-1 ring-red-700 text-sm text-red-700 rounded-full">
+              +{category.length - 1}
+            </span>
+          )}
+        </>
+      )}
+    </div>
 
     {/* Content wrapper with gradient */}
     <div className="relative flex flex-col justify-end h-full">
       {/* Main content that slides up */}
       <div className="relative !overflow-hidden -bottom-11 z-10 f">
-      <div className="transform-gpu  transition-all  -bottom-12 relative overflow-hidden   duration200 group-hover:-translate-y-20 px-6 pb-6">
-        <h3 className="text-xl font-semibold text-white mb-2">
-          {title || name}
-        </h3>
-        <p className="text-white mb-4 line-clamp-2">{description}</p>
-        <p className="text-gray-400 mb-4 ">{athor}</p>
-        {/* Additional info */}
-        <div className="flex flex-col gap-2 font-noto-sans text-sm text-gray-800">
-          {languages && (
-            <div className="font-noto-sans text-[15px]  font-medium leading-[180%] tracking-[-0.02em] text-white flex items-center gap-1">
-              <span>{languages?.join(', ')}</span>
-            </div>
-          )}
+        <div className="transform-gpu transition-all -bottom-12 relative overflow-hidden duration200 group-hover:-translate-y-20 px-6 pb-6">
+          <h3 className="text-xl font-semibold text-white mb-2">
+            {title || name}
+          </h3>
+          <p className="text-white mb-4 line-clamp-2">{description}</p>
+          <p className="text-gray-400 mb-4 line-clamp-1">{authors?.join(', ')}</p>
+          
+          {/* Additional info */}
+          <div className="flex flex-col gap-2 font-noto-sans text-sm text-gray-800">
+            {Array.isArray(localizations) && (
+              <div className="font-noto-sans text-[15px] font-medium leading-[180%] tracking-[-0.02em] text-white flex items-center gap-1">
+                <span>Available in {localizations.length} languages</span>
+              </div>
+            )}
 
-          {(location || date) && (
-            <div className="flex gap-1 items-center text-red-500">
-              {location && <p>{location}</p>}
-              {location && date && '•'}
-              {date && <p>{date}</p>}
-              <ArrowRightIcon className="h-4 w-4" />
-            </div>
-          )}
+            {(location || date) && (
+              <div className="flex gap-1 items-center text-red-500">
+                {location && <p>{location}</p>}
+                {location && date && '•'}
+                {date && <p>{date}</p>}
+                <ArrowRightIcon className="h-4 w-4" />
+              </div>
+            )}
+          </div>
         </div>
       </div>
-      </div>
-      
     </div>
 
     {/* Overlay gradient */}
