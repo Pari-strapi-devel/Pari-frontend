@@ -145,6 +145,7 @@ export function WeekOnCard() {
   const [isLoading, setIsLoading] = useState(true)
   const [header, setHeader] = useState<string>()
   const [thisWeekData, setThisWeekData] = useState<ApiResponse['data']['attributes']['thisWeekOnPari'] | null>(null)
+  const [seeAllStories, setSeeAllStories] = useState<string>("See all stories");
   const { language } = useLocale()
 
   const [sliderRef, instanceRef] = useKeenSlider({
@@ -223,15 +224,18 @@ export function WeekOnCard() {
         const seeAllStories = response.data?.data?.attributes?.seeallStories;
         setThisWeekData({
           ...weekData,
-          ThisWeek_On_Pari_Title: weekData?.ThisWeek_On_Pari_Title || seeAllStories
+          ThisWeek_On_Pari_Title: weekData?.ThisWeek_On_Pari_Title || "This Week on PARI"
         });
+        setSeeAllStories(seeAllStories || "See all stories");
+        
 
+     console.log('Week Data:', seeAllStories);
         // Update header icon handling
         const iconUrl = weekData?.ThisWeek_On_Pari_Icon?.data?.attributes?.url;
         if (iconUrl) {
           setHeader(iconUrl.startsWith('http') ? iconUrl : `${BASE_URL}${iconUrl}`);
         } else {
-          setHeader('/images/default-header-icon.png');
+          setHeader('https://beta.ruralindiaonline.org/v1/uploads/stand_2aa0fa18b2.svg'); // Removed extra quotes
         }
 
         const articleArray = weekData?.article_with_lang_selection_1 || [];
@@ -328,7 +332,7 @@ export function WeekOnCard() {
         <WeekOnHeader 
           header={header}
           title={thisWeekData?.ThisWeek_On_Pari_Title || "This Week on PARI"}
-          buttonText={thisWeekData?.ThisWeek_On_Pari_Title || "See all stories"}
+          buttonText={seeAllStories || "See all stories"}
           buttonLink="/showcase"
         />
         
