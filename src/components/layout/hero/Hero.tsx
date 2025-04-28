@@ -282,7 +282,7 @@ export function Hero() {
           </div>
 
           <div className='relative max-w-[1232px] h-fit mb-8 mx-auto'>
-            <div className="absolute z-50 overflow-visible md:-left-10 top-6 md:-right-10 left-1/3 right-1/3 gap-6 -bottom-92 md:bottom-1/2 flex items-center justify-between pointer-events-none px-4">
+            <div className="absolute  overflow-visible md:-left-10 top-6 md:-right-10 left-1/3 right-1/3 gap-6 -bottom-92 md:bottom-1/2 flex items-center justify-between pointer-events-none px-4">
               <Button
                 variant="outline"
                 size="icon"
@@ -290,7 +290,7 @@ export function Hero() {
                   e.stopPropagation()
                   instanceRef.current?.next()
                 }}
-                className="pointer-events-auto bg-white dark:bg-popover inset-shadow-sm dark:hover:text-red-700 dark:inset-shadow-red-800 inset-shadow-primary text-red-700 hover:text-red-700 shadow-lg rounded-full z-10 cursor-pointer w-11 h-11 sm:w-10 sm:h-10 md:w-12 md:h-12"
+                className="pointer-events-auto bg-white dark:bg-popover inset-shadow-sm dark:hover:text-red-700 dark:inset-shadow-red-800 inset-shadow-primary text-red-700 hover:text-red-700 shadow-lg z-10 rounded-full  cursor-pointer w-11 h-11 sm:w-10 sm:h-10 md:w-12 md:h-12"
               >
                 <ChevronLeft className="h-8 w-8 sm:h-5 sm:w-5 md:h-6 md:w-6" />
               </Button>
@@ -302,7 +302,7 @@ export function Hero() {
                   e.stopPropagation()
                   instanceRef.current?.prev()
                 }}
-                className="pointer-events-auto bg-white dark:bg-popover inset-shadow-sm dark:hover:text-red-700 dark:inset-shadow-red-800 inset-shadow-primary text-red-700 hover:text-red-700 shadow-lg rounded-full z-10 cursor-pointer w-11 h-11 sm:w-10 sm:h-10 md:w-12 md:h-12"
+                className="pointer-events-auto bg-white dark:bg-popover inset-shadow-sm dark:hover:text-red-700 dark:inset-shadow-red-800 inset-shadow-primary text-red-700 hover:text-red-700 shadow-lg z-10 rounded-full  cursor-pointer w-11 h-11 sm:w-10 sm:h-10 md:w-12 md:h-12"
               >
                 <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6" />
               </Button>

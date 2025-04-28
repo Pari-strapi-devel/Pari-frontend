@@ -2,12 +2,13 @@
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { Button } from "@/components/ui/button"
-import { categories } from "@/components/layout/header/Category"
+import { useCategories } from "@/components/layout/header/Category"
 import { useState } from 'react'
 
 export function CategoryGallery() {
   const router = useRouter()
   const [selectedCategories, setSelectedCategories] = useState<string[]>([])
+  const { categories, loading, error } = useCategories()
 
   const handleCategorySelect = (slug: string) => {
     setSelectedCategories(prev => {
@@ -23,6 +24,22 @@ export function CategoryGallery() {
       const categoryQuery = selectedCategories.join(',')
       router.push(`/categories?selected=${categoryQuery}`)
     }
+  }
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-32">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600"></div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="text-red-500 text-center p-4">
+        <p>Error: {error}</p>
+      </div>
+    )
   }
 
   return (
@@ -51,7 +68,6 @@ export function CategoryGallery() {
                 <h3 className="text-xl font-bold mb-2">{category.title}</h3>
                 <p className="text-sm text-gray-200 mb-4">{category.description}</p>
                 
-                {/* Selection Button */}
                 <Button 
                   variant="secondary"
                   className={`w-full ${
@@ -92,7 +108,6 @@ export function CategoryGallery() {
         })}
       </div>
 
-      {/* Confirmation button - Fixed at bottom */}
       {selectedCategories.length > 0 && (
         <div className="fixed bottom-8 left-0 right-0 flex justify-center z-50">
           <Button 

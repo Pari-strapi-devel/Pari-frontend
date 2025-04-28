@@ -33,7 +33,7 @@ export function Navigation() {
   
 
   return (
-    <NavigationMenu className="max-md:w-full dark:bg-popover z-50 !w-full bg-popover ">
+    <NavigationMenu className="max-md:w-full dark:bg-popover !w-full bg-popover ">
       <NavigationMenuList className="max-md:flex-col w-full max-md:space-y-2 max-md:w-full">
         <NavigationMenuItem className="max-md:w-full !w-full ">
           <NavigationMenuTrigger className="max-md:w-full !w-full dark:bg-popover bg-popover max-md:justify-start transition-colors duration-10">

@@ -3,6 +3,7 @@ import { ThemeProvider } from '@/components/theme-provider'
 import './globals.css'
 import { Footer } from '@/components/layout/footer/Footer'
 import { Noto_Sans } from 'next/font/google'
+import { Suspense } from 'react'
 
 const notoSans = Noto_Sans({
   subsets: ['latin'],
@@ -37,7 +38,13 @@ export default function RootLayout({ children }: RootLayoutProps) {
           storageKey="theme"
         >
           {children}
-          <Footer />
+          <Suspense fallback={
+            <div className="bg-white dark:bg-popover text-card-foreground px-5 py-8 sm:py-12 md:py-16">
+              <div className="max-w-[1232px] mx-auto px-4">Loading footer...</div>
+            </div>
+          }>
+            <Footer />
+          </Suspense>
         </ThemeProvider>
       </body>
     </html>

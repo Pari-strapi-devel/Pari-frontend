@@ -1,9 +1,12 @@
 
-import { useState } from 'react'
+import {  useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from "@/components/ui/button"
 import { X } from "lucide-react"
-import { FilterOption, filterOptions } from './Category'
+import { CategoryCard, FilterOption } from './Category'
+
+import { useCategories } from './Category'
+
 
 interface FilterMenuProps {
   isOpen: boolean;
@@ -31,7 +34,7 @@ export function FilterMenu({ isOpen, onClose }: FilterMenuProps) {
     dateRanges: [],
     contentTypes: []
   });
-
+  const { categories } = useCategories()
   
 
   const handleOptionSelect = (option: FilterOption) => {
@@ -232,32 +235,39 @@ export function FilterMenu({ isOpen, onClose }: FilterMenuProps) {
             {activeTab === 'filters' ? (
               <FilterOptionsView />
             ) : (
-              <div className="grid grid-cols-2  gap-4">
-                {filterOptions.map((option) => (
+              <div className="grid grid-cols-2 gap-4">
+                {categories.map((category: CategoryCard) => (
                   <div
-                    key={option.id}
+                    key={category.id}
                     className={`group relative overflow-hidden rounded-lg h-[164px] shadow-sm hover:shadow-md transition-shadow duration-300 cursor-pointer ${
-                      selectedOptions.some(opt => opt.id === option.id) 
+                      selectedOptions.some(opt => opt.id === category.id.toString()) 
                         ? ' ring-1 ring-red-600' 
                         : ''
                     }`}
-                    onClick={() => handleOptionSelect(option)}
+                    onClick={() => handleOptionSelect({
+                      id: category.id.toString(),
+                      title: category.title,
+                      path: category.slug,
+                      img: category.imageUrl
+                    })}
                   >
+                    
+                   
                     <div 
-                      className={`${option.color} p-4 text-white flex flex-col justify-end items-center h-full  ${
-                        selectedOptions.some(opt => opt.id === option.id)
+                      className={`p-4 text-white flex flex-col justify-end items-center h-full gradient-overlay ${
+                        selectedOptions.some(opt => opt.id === category.id.toString())
                           ? 'bg-gradient-to-t h-full from-red-700 via-red-700/90 to-transparent'
                           : ''
                       }`}
                     >
-                      {option.icon && <option.icon className="h-6 w-6 mb-2" />}
                       <div 
-                        className="absolute inset-0 bg-cover bg-center  h-full -z-10"
+                        className="absolute inset-0 bg-cover bg-center h-full group-hover:opacity-50 -z-10"
                         style={{
-                          backgroundImage: `url(${option.img || `/images/categories/${option.path?.replace('/', '')}.jpg`})`
+                          backgroundImage: `url(${category.imageUrl})`
                         }}
                       />
-                      <h3 className="font-semibold">{option.title}</h3>
+                      <h3 className="font-semibold text-center">{category.title}</h3>
+                      {/* <p className="text-sm text-white/80 mt-1">{category.description}</p> */}
                     </div>
                   </div>
                 ))}
@@ -275,7 +285,7 @@ export function FilterMenu({ isOpen, onClose }: FilterMenuProps) {
               </div>
               <Button 
                 variant="secondary"
-                className="w-full bg-red-700 ring-0  text-white hover:bg-red-500 px-8 py-4 text-lg font-semibold"
+                className="w-full bg-red-700 ring-0 text-white hover:bg-red-500 px-8 py-4 text-lg font-semibold"
                 onClick={handleConfirmSelection}
               >
                 Confirm Selection
