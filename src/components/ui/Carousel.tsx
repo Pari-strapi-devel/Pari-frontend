@@ -1,8 +1,7 @@
 "use client"
 
 import { useKeenSlider } from 'keen-slider/react'
-import { useState } from 'react'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { useState, useEffect } from 'react'
 import { cn } from '@/lib/utils'
 import 'keen-slider/keen-slider.min.css'
 
@@ -27,89 +26,50 @@ export function Carousel({
   children, 
   className,
   slides = { perView: 1, spacing: 16 },
-  breakpoints = {
-    '(min-width: 640px)': {
-      slides: { perView: 2, spacing: 20 },
-    },
-    '(min-width: 768px)': {
-      slides: { perView: 2.5, spacing: 24 },
-    },
-    '(min-width: 1024px)': {
-      slides: { perView: 3, spacing: 24 },
-    },
-    '(min-width: 1280px)': {
-      slides: { perView: 2, spacing: 24 },
-    },
-  }
+  breakpoints
 }: CarouselProps) {
-  const [currentSlide, setCurrentSlide] = useState(0)
-  const [loaded, setLoaded] = useState(false)
+  const [, setCurrentSlide] = useState(0)
+  const [, setLoaded] = useState(false)
 
-  const [sliderRef, instanceRef] = useKeenSlider({
+  const [sliderRef, instanceRef] = useKeenSlider<HTMLDivElement>({
     initial: 0,
+    slides: {
+      perView: slides.perView,
+      spacing: slides.spacing,
+    },
+    breakpoints: breakpoints,
     slideChanged(slider) {
       setCurrentSlide(slider.track.details?.rel ?? 0)
     },
     mounted() {
       setLoaded(true)
     },
-    slides,
-    breakpoints,
   })
 
+  // Add cleanup
+  useEffect(() => {
+    return () => {
+      if (instanceRef.current) {
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        instanceRef.current.destroy()
+      }
+    }
+  }, [instanceRef])
+
   return (
-    <div className="relative overflow-hidden">
-      {/* Carousel Container */}
-      <div className={cn("keen-slider", className)} ref={sliderRef}>
-        {children}
-      </div>
-
-      {/* Navigation Arrows */}
-      {loaded && instanceRef.current && (
-        <>
-          <button
-            onClick={(e) => {
-              e.stopPropagation()
-              instanceRef.current?.prev()
-            }}
-            className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-white/80 p-2 shadow-md hover:bg-white disabled:opacity-0"
-            disabled={currentSlide === 0}
-          >
-            <ChevronLeft className="h-5 w-5 text-gray-800" />
-          </button>
-
-          <button
-            onClick={(e) => {
-              e.stopPropagation()
-              instanceRef.current?.next()
-            }}
-            className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-white/80 p-2 shadow-md hover:bg-white disabled:opacity-0"
-            disabled={
-              currentSlide ===
-              (instanceRef.current.track.details?.slides.length ?? 0) - 1
-            }
-          >
-            <ChevronRight className="h-5 w-5 text-gray-800" />
-          </button>
-        </>
-      )}
-
-      {/* Dots Navigation */}
-      {loaded && instanceRef.current && (
-        <div className="flex justify-center gap-2 mt-4">
-          {[...Array(instanceRef.current.track.details?.slides.length)].map((_, idx) => (
-            <button
-              key={idx}
-              onClick={() => instanceRef.current?.moveToIdx(idx)}
-              className={cn(
-                "h-2 w-2 rounded-full transition-colors",
-                currentSlide === idx ? "bg-red-600" : "bg-gray-300"
-              )}
-              aria-label={`Go to slide ${idx + 1}`}
-            />
-          ))}
+    <div className="relative max-w-[1234px] mx-auto h-full">
+      {/* Overflow hidden wrapper */}
+      <div className="relative  !overflow-visible">
+        <div 
+          ref={sliderRef} 
+          className={cn(
+            "keen-slider relative !overflow-visible scrollbar-none",
+            className
+          )}
+        >
+          {children}
         </div>
-      )}
+      </div>
     </div>
   )
 }
@@ -122,7 +82,7 @@ export function CarouselItem({
   className?: string
 }) {
   return (
-    <div className={cn("keen-slider__slide", className)}>
+    <div className={cn("keen-slider__slide relative !overflow-visible", className)}>
       {children}
     </div>
   )

@@ -32,20 +32,20 @@ export function ArticleCard({
       href={`/articles/${slug}`}
       className={className}
     >
-      <article className="group rounded-lg overflow-hidden sm:pt-8 hover:rounded-xl hover:shadow-xl transition-discrete-00 transition-all duration-300 h-full">
-        <div className="relative h-[306px] w-100% overflow-hidden rounded-2xl">
+      <article className="group rounded-lg  overflow-hidden sm:pt-8 hover:rounded-xl hover:shadow-xl transition-discrete-00 transition-all duration-300 h-full">
+        <div className="relative h-[376px] w-100% overflow-hidden rounded-2xl" style={{ boxShadow: '0px 1px 4px 0px #00000047' }}>
           <Image
             src={imageUrl}
             alt={title}
             fill
-            className="object-cover transition-transform scale-102 rounded-xl duration-300 group-hover:scale-108"
+            className="object-cover transition-transform scale-102 shadow-lg rounded-xl duration-300 group-hover:scale-108"
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           />
         </div>
-        
-        <div className="py-6 px-1 rounded-2xl">
+        <div>
+        <div className="py-5 px-1 rounded-2xl">
           <div className="flex flex-wrap gap-2 mb-4">
-            {categories.length > 0 && (
+            {categories?.length > 0 && (
               <>
                 <span 
                   className="inline-block items-center px-2 py-1 ring-1 hover:bg-red-700 hover:text-white ring-red-700 text-xs text-red-700 rounded-full w-fit h-[23px] mb-2"
@@ -56,36 +56,51 @@ export function ArticleCard({
                   <span 
                     className="inline-block items-center px-2 py-1 ring-1 hover:bg-red-700 hover:text-white ring-red-700 text-xs text-red-700 rounded-full w-fit h-[23px] mb-2"
                   >
-                    +{categories.length - 1}
+                    {categories[1]}
+                  </span>
+                )}
+                {categories.length > 2 && (
+                  <span 
+                    className="inline-block items-center px-2 py-1 ring-1 hover:bg-red-700 hover:text-white ring-red-700 text-xs text-red-700 rounded-full w-fit h-[23px] mb-2"
+                  >
+                    +{categories.length - 2}
                   </span>
                 )}
               </>
             )}
           </div>
-          
-          <h3 className="font-noto-sans text-[28px] font-bold leading-[130%] tracking-[-0.04em] text-foreground mb-3 line-clamp-2">
+          <div className=" ">
+
+          <div className="flex flex-col h-[130px] gap-1 ">
+          <h3 className="font-noto-sans text-[28px] font-bold leading-[130%] tracking-[-0.04em] text-foreground line-clamp-1">
             {title}
           </h3>
           
-          <p className="!font-noto-sans text-[16px] font-normal max-w-[500px] leading-[170%] tracking-[-0.01em] text-muted-foreground mb-4 line-clamp-3">
+          <p className="!font-noto-sans text-[16px] text-discreet-text font-normal max-w-[500px] leading-[170%] tracking-[-0.01em]  line-clamp-3">
             {description}
           </p>
-          
-          <div className="flex items-center justify-between font-noto-sans text-sm text-muted-foreground">
+          </div>
+              
+          <div className="flex items-end justify-between font-noto-sans text-sm text-muted-foreground">
             <div>
-              <p className="font-noto-sans text-[15px] font-medium leading-[180%] tracking-[-0.02em] text-[#828282]">
+              <p className="font-noto-sans text-[15px] font-medium leading-[180%] line-clamp-1 tracking-[-0.02em] text-[#828282]">
                 {authors.join(', ')}
               </p>
-              <div className='flex gap-1 items-center pt-4 text-red-700'> 
+              <div className='flex gap-1 items-center  text-red-700 font-noto-sans text-[14px] font-medium leading-[160%] tracking-[-0.03em]'> 
                 {location && <p>{location}</p>}
                 {location && date && '•'}
                 {date && <p>{date}</p>}
                 {readMore && <p>{readMore}</p>}
-                <ArrowRight className="h-4 gap-2 w-4" />
+                <ArrowRight className="h-5 gap-2 w-5" />
               </div>
             </div>
           </div>
+          </div>
+  
+      
         </div>
+        </div>
+        
       </article>
     </Link>
   )

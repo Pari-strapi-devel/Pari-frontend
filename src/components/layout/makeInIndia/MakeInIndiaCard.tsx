@@ -2,7 +2,6 @@
 
 import Image from 'next/image';
 import { BentoCard } from "@/components/magicui/bento-grid";
-import { HiOutlineLightBulb } from 'react-icons/hi';
 import { useLocale } from '@/lib/locale';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
@@ -11,6 +10,9 @@ import { JSX } from 'react/jsx-runtime';
 import { Carousel, CarouselItem } from '@/components/ui/Carousel';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
+import { Newspaper } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 export interface Article {
   id: string;
@@ -87,6 +89,8 @@ export function MakeInIndiaCard() {
   useEffect(() => {
     const fetchMakeInIndiaData = async () => {
       try {
+        setIsLoading(true);
+
         const sharedArticlePopulation = {
           fields: ['id'],
           populate: {
@@ -207,7 +211,7 @@ export function MakeInIndiaCard() {
                 alt={articleData.Title}
                 width={300} 
                 height={400} 
-                className="w-full bg-gradient-to-t from-black/80 to-transparent h-full absolute right-0 top-0 bg-cover"
+                className="w-full bg-gradient-to-t from-black/80 to-transparent inset-0 object-cover h-full absolute right-0 top-0 bg-cover"
               />
             ),
             className: gridPositions[index] || "",
@@ -226,18 +230,45 @@ export function MakeInIndiaCard() {
   }, [language]);
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex justify-center items-center min-h-[400px]">
+        Loading...
+      </div>
+    )
   }
  
   return (
-    <div className="sm:pb-20 px-4 max-w-[1234px] mx-auto border-b-1 border-[#D9D9D9] dark:border-gray-800"> {/* Increased max-width */}
-      <div>
+    <div className="sm:pb-20  px-4 overflow-hidden   dark:border-gray-800"> {/* Increased max-width */}
+      <div className="max-w-[1232px] mx-auto">
         <div className="flex flex-col gap-2 py-4 mb-4">
-          <div className='flex items-center gap-2'>
-            <HiOutlineLightBulb className="h-6 w-7 text-red-700" />
-            <h2 className="text-13px font-noto-sans uppercase text-gray-400 leading-[100%] letter-spacing-[-2%] font-semibold">
-           {strap}
-            </h2>
+          <div className='flex items-center justify-between'>
+            <div className='flex items-center gap-2'>
+              <Newspaper className="h-6 w-7 text-red-700" />
+              <h2 className="text-13px font-noto-sans uppercase text-gray-400 leading-[100%] letter-spacing-[-2%] font-semibold">
+                {strap}
+              </h2>
+            </div>
+            
+            {/* Desktop navigation buttons */}
+            <div className="hidden md:flex items-center gap-4">
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => document.querySelector('.keen-slider')?.scrollBy(-400, 0)}
+                className="bg-white dark:bg-popover hover:bg-red-700 text-red-700 hover:text-white rounded-full cursor-pointer w-10 h-10"
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </Button>
+
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => document.querySelector('.keen-slider')?.scrollBy(400, 0)}
+                className="bg-white dark:bg-popover hover:bg-red-700 text-red-700 hover:text-white rounded-full cursor-pointer w-10 h-10"
+              >
+                <ChevronRight className="h-5 w-5" />
+              </Button>
+            </div>
           </div>
           <h4 className="font-noto-sans text-[56px] font-bold leading-[122%] tracking-[-0.04em]">
             {sectionTitle}
@@ -247,6 +278,7 @@ export function MakeInIndiaCard() {
       
       <Carousel
         slides={{ perView: 1, spacing: 24 }} 
+
         breakpoints={{
           '(min-width: 640px)': {
             slides: { perView: 1.5, spacing: 32 }, // Reduced items per view to make them wider
@@ -271,7 +303,7 @@ export function MakeInIndiaCard() {
               features={[{ title: feature.category[0] }]}
               {...feature}
               className={cn(
-                "h-[400px] w-full",
+                "h-[520px] w-full",
                 "group relative col-span-1 md:col-span-3 flex flex-col justify-between overflow-hidden opacity-90 cursor-pointer rounded-2xl",
                 "bg-[linear-gradient(180deg,rgba(0,0,0,0)_36.67%,#000000_70%)]",
                 feature.className

@@ -1,16 +1,18 @@
 
 "use client"
-import { StoryCard } from '@/components/layout/stories/StoryCard'
-import { Button } from '@/components/ui/button'
-import { BASE_URL } from '@/config';
-import qs from 'qs';
-import axios from 'axios';
-import { ChevronRight, Sparkle } from 'lucide-react'
-import { useEffect, useState } from 'react'
+
+import { useKeenSlider } from 'keen-slider/react'
+import { useState, useEffect } from 'react'
 import { useLocale } from '@/lib/locale'
 import { useSearchParams } from 'next/navigation'
-import { Carousel, CarouselItem } from '@/components/ui/Carousel'
+import { StoryCard } from '@/components/layout/stories/StoryCard'
 import { cn } from '@/lib/utils'
+import 'keen-slider/keen-slider.min.css'
+import { Sparkle, ChevronRight } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import qs from 'qs'
+import axios from 'axios'
+import { BASE_URL } from '@/config'
 
 interface Story {
   sub_title: string;
@@ -100,17 +102,60 @@ export interface ArticleWithLangSelection {
 }
 
 export default function StoriesPage() {
-  const [stories, setStories] = useState<Story[]>([]);
-  const [showAll, setShowAll] = useState(false);
-  const { language } = useLocale();
-  const searchParams = useSearchParams();
+  const [stories, setStories] = useState<Story[]>([])
+  const [showAll, setShowAll] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const { language: currentLocale } = useLocale()
+  const searchParams = useSearchParams()
   
+  // Add slider states
+  const [currentSlide, setCurrentSlide] = useState(0)
+  const [loaded, setLoaded] = useState(false)
+
+  // Initialize keen-slider
+  const [sliderRef, instanceRef] = useKeenSlider({
+    initial: 0,
+    slides: {
+      perView: 1.1,
+      spacing: 16,
+    },
+    breakpoints: {
+      '(min-width: 640px)': {
+        slides: { perView: 2.2, spacing: 16 },
+      },
+      '(min-width: 768px)': {
+        slides: { perView: 2.5, spacing: 24 },
+      },
+      '(min-width: 1024px)': {
+        slides: { perView: 2, spacing: 24 },
+      },
+      '(min-width: 1280px)': {
+        slides: { perView: 4, spacing: 24 },
+      },
+    },
+    slideChanged(slider) {
+      setCurrentSlide(slider.track.details?.rel ?? 0)
+    },
+    mounted() {
+      setLoaded(true)
+    },
+  })
+
+  // Add cleanup
+  useEffect(() => {
+    return () => {
+      if (instanceRef.current) {
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        instanceRef.current.destroy()
+      }
+    }
+  }, [instanceRef])
+
   useEffect(() => {
     const fetchStories = async () => {
-      // Get the initial locale from URL or fallback to default
-      const currentLocale = searchParams?.get('locale') || language;
-      
       try {
+        setIsLoading(true)
+
         const query = {
           locale: currentLocale,
           populate: {
@@ -248,26 +293,33 @@ export default function StoriesPage() {
             };
           });
 
-        setStories(formattedStories);
-      } catch (err) {
-        console.error('Error fetching stories:', err);
-        setStories([]);
+        setStories(formattedStories)
+      } catch (error) {
+        console.error('Error fetching stories:', error)
+      } finally {
+        setIsLoading(false)
       }
-    };
+    }
 
-    fetchStories();
-  }, [language, searchParams]);
+    fetchStories()
+  }, [currentLocale, searchParams])
 
-  // Show all stories if showAll is true, otherwise show only 8
-  const visibleStories = showAll ? stories : stories.slice(0, 8);
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center min-h-[400px]">
+        Loading...
+      </div>
+    )
+  }
 
+  const visibleStories = showAll ? stories : stories.slice(0, 4)
 
   return (
-    <div className='max-w-[1232px] lg:px-0 py-10 px-4 hover:h-fit mx-auto'>
-      <div>
+    <div className='max-w-[1232px] border-t-1 border-[#D9D9D9] lg:px-0 pt-12 py-10 px-4 mx-auto'>
+      <div className="pb-4 ">
         <div className="flex justify-between items-center mb-4">
           <div className='flex flex-row items-center gap-2'>
-            <Sparkle className="h-7 w-7 text-red-700" />
+            <Sparkle className="h-6 w-6 text-red-700" />
             <h2 className="text-13px font-noto-sans uppercase text-gray-400 leading-[100%] letter-spacing-[-2%] font-semibold">
               {stories[0]?.headtitle}
             </h2>
@@ -284,47 +336,42 @@ export default function StoriesPage() {
         </div>
       </div>
 
-      <Carousel
-        slides={{ perView: 1, spacing: 24 }}
-        breakpoints={{
-          '(min-width: 640px)': {
-            slides: { perView: 2, spacing: 32 },
-          },
-          '(min-width: 768px)': {
-            slides: { perView: 2, spacing: 32 },
-          },
-          '(min-width: 1024px)': {
-            slides: { perView: 3, spacing: 32 },
-          },
-          '(min-width: 1280px)': {
-            slides: { perView: 4, spacing: 32 },
-          },
-        }}
-      >
-        {visibleStories.map((story, index) => (
-          <CarouselItem 
-            key={`${story.slug}-${index}`}
-            className="min-h-[400px]"
-          >
-            <StoryCard
-              title={story.title}
-              description={story.description}
-              imageUrl={story.imageUrl}
-              categories={story.categories}
-              slug={story.slug}
-              authors={Array.isArray(story.authors) ? story.authors.join(', ') : story.authors}
-              location={story.location}
-              date={story.date}
-              localizations={story.localizations}
-              className={cn(
-                "h-full",
-                "group relative flex flex-col justify-between overflow-hidden rounded-2xl",
-                "bg-[linear-gradient(180deg,rgba(0,0,0,0)_36.67%,#000000_70%)]"
-              )}
-            />
-          </CarouselItem>
-        ))}
-      </Carousel>
+      <div className="relative ">
+        <div ref={sliderRef} className="keen-slider overflow-visible">
+          {visibleStories.map((story, index) => (
+            <div 
+              key={`${story.slug}-${index}-${currentLocale}`}
+              className="keen-slider__slide min-h-[400px]"
+            >
+              <StoryCard
+                {...story}
+                description={story.description}
+                authors={Array.isArray(story.authors) ? story.authors.join(', ') : story.authors}
+                className={cn(
+                  "h-full",
+                  "group relative flex flex-col justify-between overflow-hidden rounded-2xl",
+                  "bg-[linear-gradient(180deg,rgba(0,0,0,0)_36.67%,#000000_70%)]"
+                )}
+              />
+            </div>
+          ))}
+        </div>
+
+        {loaded && instanceRef.current && (
+          <div className="flex justify-center gap-2 mt-6">
+            {[...Array(visibleStories.length)].map((_, idx) => (
+              <button
+                key={idx}
+                onClick={() => instanceRef.current?.moveToIdx(idx)}
+                className={`h-2 w-2 rounded-full transition-colors ${
+                  currentSlide === idx ? 'bg-red-600' : 'bg-gray-300'
+                }`}
+                aria-label={`Go to slide ${idx + 1}`}
+              />
+            ))}
+          </div>
+        )}
+      </div>
     </div>
-  );
+  )
 }

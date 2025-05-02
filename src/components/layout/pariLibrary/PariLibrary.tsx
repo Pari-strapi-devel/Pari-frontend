@@ -40,6 +40,8 @@ export function PariLibrary() {
   useEffect(() => {
     const fetchLibraryData = async () => {
       try {
+        setIsLoading(true);
+
         const query = {
           locale: language,
           populate: {
@@ -97,7 +99,7 @@ export function PariLibrary() {
             : '/images/categories/default.jpg',
           categories: project.Categories?.split(',').map(cat => stripHtmlTags(cat)) || [],
           slug: project.link,
-          authors: ['PARI'],
+          authors: [''],
           readMore: 'See project'
         }));
 
@@ -141,7 +143,11 @@ export function PariLibrary() {
   })
 
   if (isLoading) {
-    return <div className="text-center py-10">Loading...</div>;
+    return (
+      <div className="flex justify-center items-center min-h-[400px]">
+        Loading...
+      </div>
+    )
   }
 
   return (
@@ -158,7 +164,7 @@ export function PariLibrary() {
             <h3 className="font-noto-sans md:text-[56px] text-[40px] font-bold leading-[122%] tracking-[-0.04em]">
               {libraryData[0]?.headtitle}
             </h3>
-            <p className="font-noto-sans max-w-[400px] text-[16px] font-normal leading-[170%] tracking-[-0.01em] text-muted-foreground">
+            <p className="font-noto-sans max-w-[518px] text-[16px] font-normal leading-[170%] tracking-[-0.01em] text-muted-foreground">
               {libraryData[0]?.headDescription}
             </p>
           </div>

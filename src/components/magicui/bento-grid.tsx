@@ -34,7 +34,7 @@ const BentoGrid = ({ children, className, ...props }: BentoGridProps) => {
   return (
     <div
       className={cn(
-        "grid w-full md:pb-0 pb-10 grid-cols-1 md:grid-cols-3 gap-4 auto-rows-fr",
+        "grid w-full md:pb-0 pb-10 grid-cols-1 md:grid-cols-3  gap-4 auto-rows-fr",
         className,
       )}
       {...props}
@@ -60,28 +60,36 @@ const BentoCard = ({
   <div
     key={name}
     className={cn(
-      "group relative col-span-1 md:col-span-3 flex flex-col justify-between  sm:min-h-[150px] min-h-[160px] overflow-hidden opacity-90 cursor-pointer rounded-2xl",
-      "bg-[linear-gradient(180deg,rgba(0,0,0,0)_36.67%,#000000_70%)]",
-      "[box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)]",
-      "transform-gpu dark:bg-[linear-gradient(180deg,rgba(0,0,0,0)_36.67%,#000000_70%)]",
-      "dark:[border:1px_solid_rgba(255,255,255,.1)] dark:[box-shadow:0_-20px_80px_-20px_#ffffff1f_inset]",
+      "group relative col-span-1 md:col-span-3 flex flex-col justify-between sm:min-h-[150px] min-h-[160px] overflow-hidden opacity-90 cursor-pointer rounded-2xl bg-[linear-gradient(180deg,rgba(0,0,0,0)_36.67%,#000000_70%)]",
+      
+      "shadow-[0px_1px_2px_0px_#00000014] z-50",
       className
     )}
     {...props}
   >
     {/* Background */}
-    <div className="absolute inset-0 group-hover:scale-104 o bg-no-repeat ,#000000_70%)] scale-102 duration-300 w-full ]">{background}</div>
+    <div className="absolute inset-0 w-full h-full object-cover transition-transform scale-102 shadow-lg rounded-xl duration-300 group-hover:scale-108" style={{ background: "linear-gradient(180deg, rgba(0, 0, 0, 0) 36.67%, #000000 70%)" }}>
+      {background}
+    </div>
+    <div className="absolute inset-0 w-full h-full" style={{ background: "linear-gradient(180deg, rgba(0, 0, 0, 0) 36.67%, #000000 70%)" }}>
+   
+    </div>
 
     {/* Categories */}
-    <div className="flex flex-wrap gap-2">
+    <div className="absolute top-3 left-3 flex flex-wrap gap-2 z-50">
       {(category && category.length > 0) && (
         <>
-          <span className="inline-block px-3 py-1 hover:bg-red-700 hover:text-white ring-1 ring-red-700 text-sm text-red-700 rounded-full">
+          <span className="inline-block px-2 py-1 bg-white/80 text-red-700 hover:bg-red-700 hover:text-white text-xs rounded-full w-fit h-[24px] mb-2">
             {category[0]}
           </span>
+          {category.length > 1 && (
+            <span className="inline-block px-2 py-1 bg-white/80 text-red-700 hover:bg-red-700 hover:text-white text-xs rounded-full w-fit h-[24px] mb-2">
+              {category[1]}
+            </span>
+          )}
           {category.length > 2 && (
-            <span className="inline-block px-3 py-1 hover:bg-red-700 hover:text-white ring-1 ring-red-700 text-sm text-red-700 rounded-full">
-              +{category.length - 1}
+            <span className="inline-block px-2 py-1 bg-white/80 text-red-700 hover:bg-red-700 hover:text-white text-xs rounded-full w-fit h-[24px] mb-2">
+              +{category.length - 2}
             </span>
           )}
         </>
@@ -89,33 +97,30 @@ const BentoCard = ({
     </div>
 
     {/* Content wrapper with gradient */}
-    <div className="relative flex flex-col justify-end h-full">
-      {/* Main content that slides up */}
-      <div className="relative !overflow-hidden -bottom-11 z-10 f">
-        <div className="transform-gpu transition-all -bottom-12 relative overflow-hidden duration200 group-hover:-translate-y-20 px-6 pb-6">
-          <h3 className="text-xl font-semibold text-white mb-2">
-            {title || name}
-          </h3>
-          <p className="text-white mb-4 line-clamp-2">{description}</p>
-          <p className="text-gray-400 mb-4 line-clamp-1">{authors?.join(', ')}</p>
-          
-          {/* Additional info */}
-          <div className="flex flex-col gap-2 font-noto-sans text-sm text-gray-800">
-            {Array.isArray(localizations) && (
-              <div className="font-noto-sans text-[15px] font-medium leading-[180%] tracking-[-0.02em] text-white flex items-center gap-1">
-                <span>Available in {localizations.length} languages</span>
-              </div>
-            )}
+    <div className="relative flex flex-col justify-end h-full z-10">
+      <div className="px-6 pb-6">
+        <h3 className="text-xl font-semibold text-white line-clamp-1 mb-2">
+          {title || name}
+        </h3>
+        <p className="dark:text-discreet-text text-[#969696] mb-4  line-clamp-2">{description}</p>
+        <p className="text-grey-300 text-[15px] font-medium mb-2 line-clamp-1">{authors?.join(', ')}</p>
+        
+        {/* Additional info */}
+        <div className="flex flex-col gap-2 font-noto-sans text-sm">
+          {Array.isArray(localizations) && localizations.length > 0 && (
+            <div className="font-noto-sans text-[14px]  leading-[160%] tracking-[-0.03em] text-white flex items-center gap-1">
+              <span>Available in {localizations.length} languages</span>
+            </div>
+          )}
 
-            {(location || date) && (
-              <div className="flex gap-1 items-center text-red-500">
-                {location && <p>{location}</p>}
-                {location && date && '•'}
-                {date && <p>{date}</p>}
-                <ArrowRightIcon className="h-4 w-4" />
-              </div>
-            )}
-          </div>
+          {(location || date) && (
+            <div className="flex gap-1 items-center text-red-500 font-noto-sans text-[14px] font-medium leading-[160%] tracking-[-0.03em]">
+              {location && <p>{location}</p>}
+              {location && date && <span>•</span>}
+              {date && <p>{date}</p>}
+              <ArrowRightIcon className="h-5 w-5" />
+            </div>
+          )}
         </div>
       </div>
     </div>

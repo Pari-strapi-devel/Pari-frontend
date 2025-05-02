@@ -11,6 +11,7 @@ import qs from 'qs'
 import WeekOnHeader from './WeekOnHeader'
 import { useLocale } from '@/lib/locale'
 
+
 interface Author {
   author_role: {
     Name: string;
@@ -327,7 +328,7 @@ export function WeekOnCard() {
   }
 
   return (
-    <section className="py-10 md:py-20 px-4 relative overflow-hidden">
+    <section className="py-10 md:py-12 px-4 relative overflow-hidden">
       <div className="max-w-[1232px] mx-auto">
         <WeekOnHeader 
           header={header}
@@ -336,7 +337,7 @@ export function WeekOnCard() {
           buttonLink="/showcase"
         />
         
-        <div className="relative mt-8">
+        <div className="relative mt-4">
           <div ref={sliderRef} className="keen-slider !overflow-visible">
             {articles.map((article) => (
               <ArticleCard

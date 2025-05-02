@@ -1,5 +1,7 @@
 declare module 'keen-slider/react' {
   interface KeenSliderInstance {
+    update(): unknown;
+    destroy(): unknown;
     track: {
       details?: {
         rel: number;

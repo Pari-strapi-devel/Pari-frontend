@@ -96,7 +96,7 @@ export function AudioVideoBigCard({
             {title}
           </h2>
 
-          <p className="font-noto-sans text-base leading-relaxed text-gray-400 tracking-[-0.02em]">
+          <p className="font-noto-sans text-base leading-relaxed text-discreet-text tracking-[-0.02em]">
             {description}
           </p>
 

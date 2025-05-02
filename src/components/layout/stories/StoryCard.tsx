@@ -3,6 +3,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import {  ArrowRight, Play, } from 'lucide-react'
+// import { CategoryList } from '@/components/ui/category'
 
 interface StoryCardProps {
   title?: string
@@ -39,13 +40,31 @@ export function StoryCard({
 }: StoryCardProps) {
   return (
     <Link href={`/stories/${slug || ''}`}>
-      <article className="group rounded-lg h-[338px] overflow-hidden bg-background hover:shadow-xl transition-all duration-300 border border-border">
-        <div className="relative h-[156px] w-full overflow-hidden rounded-t-2xl">
+      <article className="  rounded-[16px] bg-white dark:bg-popover  transition-all duration-300 border border-border shadow-[0px_1px_2px_0px_#00000014]">
+        <div className="relative h-[180px] w-full overflow-hidden rounded-t-2xl">
+        <div className="absolute top-3 left-3 flex flex-wrap  gap-2 z-50 ">
+          {(categories && categories.length > 0) && (
+              <>
+                <span 
+                  className="inline-block items-center px-2 py-1 bg-white/80 text-red-700  hover:bg-red-700 hover:text-white  text-xs  rounded-full w-fit h-[24px] mb-2"
+                >
+                  {categories[0]}
+                </span>
+                {categories.length > 2 && (
+                  <span 
+                    className="inline-block items-center px-2 py-1 bg-white/80   hover:bg-red-700 hover:text-white ring-red-700 text-xs text-red-700 rounded-full w-fit h-[24px] mb-2"
+                  >
+                    +{categories.length - 1}
+                  </span>
+                )}
+              </>
+            )}
+          </div>
           <Image
             src={imageUrl || '/images/placeholder.png'}
             alt={title || 'Story thumbnail'}
             fill
-            className="object-cover transition-transform  scale-102 duration-300 group-hover:scale-108"
+            className="object-cover transition-transform scale-102 shadow-lg  duration-300 hover:scale-108"
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw "
           />
           
@@ -53,8 +72,8 @@ export function StoryCard({
           {videoUrl && (
             <div className="absolute inset-0 bg-black/30 flex items-center justify-center group-hover:bg-black/40 transition-colors">
               <div className="flex flex-col items-center gap-2">
-                <div className="w-12 h-12 rounded-full bg-white/90 flex items-center justify-center">
-                  <Play className="w-6 h-6 text-red-600 ml-1" />
+                <div className="w-12 h-12 rounded-full bg-red-700 hover:bg-red-500 flex items-center justify-center">
+                  <Play className="w-6 h-6 text-white ml-1" />
                 </div>
                 {duration && (
                   <span className="text-white text-sm font-medium bg-black/50 px-2 py-1 rounded">
@@ -65,53 +84,41 @@ export function StoryCard({
             </div>
           )}
         </div>
+        {/* <CategoryList categories={categories && categories.length > 0 ? categories : []}></CategoryList> */}
 
-        <div className="py-3 h-[172px] flex  justify-around flex-col px-4">
-          <div className="flex flex-wrap gap-2 ">
-          {(categories && categories.length > 0) && (
-              <>
-                <span 
-                  className="inline-block items-center px-2 py-1 ring-1 hover:bg-red-700 hover:text-white ring-red-700 text-xs text-red-700 rounded-full w-fit h-[23px] mb-2"
-                >
-                  {categories[0]}
-                </span>
-                {categories.length > 2 && (
-                  <span 
-                    className="inline-block items-center px-2 py-1 ring-1 hover:bg-red-700 hover:text-white ring-red-700 text-xs text-red-700 rounded-full w-fit h-[23px] mb-2"
-                  >
-                    +{categories.length - 1}
-                  </span>
-                )}
-              </>
-            )}
-          </div>
+        <div className="py-6   flex  justify-around flex-col px-4">
+          
 
-          <h3 className="font-noto-sans line-clamp-1 text-[18px] font-semibold leading-[136%] tracking-[-0.04em] mb-2 text-foreground ">
+          <h3 className="font-noto-sans line-clamp-1 text-[18px] font-semibold leading-[136%] tracking-[-0.04em]  text-foreground ">
             {title}
           </h3>
 
-          <p className="font-noto-sans text-[15px] font-semibold leading-[170%] text-gray-400 tracking-[-0.04em]  mb-2 line-clamp-2">
+          <p className="font-noto-sans pt-1 text-discreet-text text-[15px] font-normal leading-[160%]  tracking-[-0.04em] line-clamp-2">
             {description}
           </p>
-          <p className="font-noto-sans text-[15px] font-semibold leading-[170%] text-gray-400 tracking-[-0.04em]  mb-2 line-clamp-2">
+
+          <div className="flex flex-col pt-3">
+          <p className="font-noto-sans text-[15px] pb-1 font-semibold leading-[170%] text-grey-300 tracking-[-0.04em] line-clamp-1">
             {authors}
           </p>
 
           <div className="flex items-center justify-between font-noto-sans text-sm text-muted-foreground">
-            <div>
-              <div className="font-noto-sans text-[15px] font-medium leading-[180%] tracking-[-0.02em] text-foreground flex items-center gap-1">
+            <div className='flex flex-col '>
+              <div className="font-noto-sans text-[14px] font-normal leading-[150%] tracking-[-0.03em] text-foreground flex items-center gap-1">
                 <span>
                 Available in {localizations?.length} languages
                 </span>
               </div>
 
-              <div className="flex gap-1 justify-around items-center text-red-700">
+              <div className="flex gap-1 justify-around items-center text-red-700 font-noto-sans text-[14px] font-medium leading-[160%] tracking-[-0.03em]">
                 <p>{location}</p>•
                 <p>{date}</p>
-                <span className="text-xl"> <ArrowRight className="h-4 w-4" /></span>
+                <span className="text-xl "> <ArrowRight className="h-5 w-5" /></span>
               </div>
             </div>
           </div>
+          </div>
+         
         </div>
       </article>
     </Link>

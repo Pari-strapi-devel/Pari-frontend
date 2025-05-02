@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button'
-import { ChevronRight} from 'lucide-react'
+import { CalendarDays, ChevronRight} from 'lucide-react'
 import Link from 'next/link'
-import Image from 'next/image'
+// import Image from 'next/image'
 import React from 'react'
 
 interface WeekOnHeaderProps {
@@ -12,7 +12,7 @@ interface WeekOnHeaderProps {
 }
 
 const WeekOnHeader: React.FC<WeekOnHeaderProps> = ({ 
-  header,
+  // header,
   title = "This Week on PARI",
   buttonText = "See all stories",
   buttonLink = "/showcase"
@@ -21,7 +21,7 @@ const WeekOnHeader: React.FC<WeekOnHeaderProps> = ({
     <div>
         <div className="flex justify-between items-center mb-4">
             <div className='flex flex-row items-center gap-2'>
-              {header && (
+              {/* {header && (
                 <Image 
                   src={ header || "https://beta.ruralindiaonline.org/v1/uploads/stand_2aa0fa18b2.svg"} // Removed extra quotes
                   alt={title} 
@@ -29,8 +29,9 @@ const WeekOnHeader: React.FC<WeekOnHeaderProps> = ({
                   height={24}
                   className="object-contain"
                 />
-              )}
-                <h2 className="text-13px font-noto-sans uppercase text-gray-400 leading-[100%] letter-spacing-[-2%] font-semibold">
+              )} */}
+              <CalendarDays className="h-6 w-7 text-red-700" />
+                <h2 className="text-13px font-noto-sans uppercase text-grey-300 leading-[100%] letter-spacing-[-2%] font-semibold">
                   {title}
                 </h2>
             </div>

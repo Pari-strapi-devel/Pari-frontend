@@ -11,7 +11,7 @@ import 'keen-slider/keen-slider.min.css'
 import { BASE_URL } from '@/config'
 import { useLocale } from '@/lib/locale'
 import qs from 'qs'
-
+import {  Category,  } from '../../ui/category';
 
 export const getTextDirection = (langCode: string) => {
   const rtlLanguages = ['ur'];
@@ -22,8 +22,10 @@ const stripHtmlTags = (html: string) => {
   if (!html) return '';
   return html.replace(/<[^>]*>/g, '');
 };
+const defaultCategories = ["The Platform", "Languages", "The Archive", "Donations", "PARI Education"];
 
 export interface PariInformation {
+  categories: string[];
   seeallStories: ReactNode
   id: number;
   heading: string;
@@ -167,6 +169,7 @@ export function Hero() {
 
           return {
             ...info,
+            categories: defaultCategories,
             description: stripHtmlTags(localizedContent?.description || info.description),
             title: localizedContent?.title || info.title,
             heading: welcomeTitle || "Welcome to PARI",
@@ -237,34 +240,39 @@ export function Hero() {
   // Add language selection handler
  
   return (
-    <div className="relative font-noto-sans">
-      <section className="relative px-4 md:mt-20 mt-10 bg-background">
-        <div className='shadow-lg rounded-lg bg-popover sm:w-[90%] max-w-[1232px] mx-auto'>
-          <div className={`container mx-auto p-4 sm:p-6 md:p-8 lg:p-10 relative ${language === 'ur' ? 'flex flex-col' : ''}`}>
+    <div className="relative font-notoSans">
+      <section className="relative px-4 md:mt-[66px] mt-10 bg-background">
+        <div className='shadow-[0px_1px_6px_0px_rgba(0,0,0,0.12)]
+          font-notoSans rounded-[12px] bg-popover sm:w-[90%] max-w-[1232px] mx-auto'>
+          <div className={` p-6 sm:p-6 md:p-8 lg:p-10 relative ${language === 'ur' ? 'flex flex-col ' : ''}`}>
+            <div className={`flex justify-between ${language === 'ur' ? 'flex-row-reverse' : ''}`}>
             <Button
               variant="ghost"
               size="icon"
               onClick={handleDismiss}
               className="z-20 w-fit cursor-pointer hover:text-red-700 transition-all duration-200 text-red-700 rounded-full flex items-center gap-2 py-6 group"
             >
-              <div className='hover:bg-red-400 h-8 w-8 rounded-full flex items-center justify-center hover:text-white'>
-                <X className="h-4 w-4 hover:bg-red-400 cursor-pointer transition-transform duration-200" />
+              <div className={`hover:bg-red-700 h-8 w-8 rounded-full flex items-center justify-center hover:text-white ${language === 'ur' ? 'sm:flex-row-reverse' : ''}`}>
+                <X className="h-6 w-6 hover:bg-red-700 cursor-pointer transition-transform duration-200" />
               </div>
               <span className="text-sm font-medium">Dismiss</span>
             </Button>
+            </div>
+           
 
-            <div className={`flex sm:justify-between flex-col sm:flex-row gap-4 pt-6 ${language === 'ur' ? 'sm:flex-row-reverse' : ''}`}>
+
+            <div className={`flex sm:justify-between flex-col sm:flex-row gap-4 pt-7 ${language === 'ur' ? 'sm:flex-row-reverse' : ''}`}>
               <div className={language === 'ur' ? 'text-right' : 'text-left'}>
-                <span className="text-[15px] text-gray-400 font-[600] leading-none tracking-[-0.02em] align-middle uppercase">
+                <span className="text-[15px] font-noto-sans text-grey-300 font-[600] leading-none tracking-[-0.02em] align-middle uppercase">
                   { String(getCurrentDate(months as unknown as Record<string, string>, weekDays as unknown as Record<string, string>)) }
                 </span>
-                <h2 className="text-[32px] sm:text-[40px] md:text-[48px] lg:text-[56px] font-bold leading-[112%] tracking-[-0.04em] text-foreground">
+                <h2 className="text-[32px] font-noto-sans sm:text-[40px] md:text-[48px] lg:text-[56px] font-bold leading-[112%] tracking-[-0.04em] text-foreground">
                   {pariInfo[0]?.heading}
                   <br />
                   {pariInfo[0]?.sabHeading}
                 </h2>
               </div>
-              <div className="flex items-end">
+              {/* <div className="flex items-end">
                 <Button 
                   variant="secondary" 
                   className="h-[32px] cursor-pointer hover ring-red-700 text-red-700 flex items-center rounded-[48px] gap-1"
@@ -277,24 +285,13 @@ export function Hero() {
                     <ChevronRight className="h-4 w-4 rotate-90" />
                   </span>
                 </Button>
-              </div>
+              </div> */}
             </div>
           </div>
 
           <div className='relative max-w-[1232px] h-fit mb-8 mx-auto'>
-            <div className="absolute  overflow-visible md:-left-10 top-6 md:-right-10 left-1/3 right-1/3 gap-6 -bottom-92 md:bottom-1/2 flex items-center justify-between pointer-events-none px-4">
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  instanceRef.current?.next()
-                }}
-                className="pointer-events-auto bg-white dark:bg-popover inset-shadow-sm dark:hover:text-red-700 dark:inset-shadow-red-800 inset-shadow-primary text-red-700 hover:text-red-700 shadow-lg z-10 rounded-full  cursor-pointer w-11 h-11 sm:w-10 sm:h-10 md:w-12 md:h-12"
-              >
-                <ChevronLeft className="h-8 w-8 sm:h-5 sm:w-5 md:h-6 md:w-6" />
-              </Button>
-
+            {/* Modified navigation buttons container */}
+            <div className={`absolute right-10 top-[-60px] hidden md:block items-center !gap-6 z-10 ${language === 'ur' ? 'left-10 right-auto flex-row-reverse' : ''}`}>
               <Button
                 variant="outline"
                 size="icon"
@@ -302,14 +299,26 @@ export function Hero() {
                   e.stopPropagation()
                   instanceRef.current?.prev()
                 }}
-                className="pointer-events-auto bg-white dark:bg-popover inset-shadow-sm dark:hover:text-red-700 dark:inset-shadow-red-800 inset-shadow-primary text-red-700 hover:text-red-700 shadow-lg z-10 rounded-full  cursor-pointer w-11 h-11 sm:w-10 sm:h-10 md:w-12 md:h-12"
+                className="pointer-events-auto mr-4 bg-white dark:bg-popover hover:bg-red-700 text-red-700 hover:text-white rounded-full cursor-pointer w-10 h-10"
               >
-                <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6" />
+                <ChevronLeft className="h-10 w-10" />
+              </Button>
+
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  instanceRef.current?.next()
+                }}
+                className="pointer-events-auto bg-white dark:bg-popover hover:bg-red-700 text-red-700 hover:text-white rounded-full cursor-pointer w-10 h-10"
+              >
+                <ChevronRight className="h-5 w-5" />
               </Button>
             </div>
 
-            <div className={`!overflow-hidden keen-slider relative max-w-[1232px] px-4 h-fit md:px-0 mx-auto`}>
-              <div ref={sliderRef} className="keen-slider !overflow-visible relative md:mx-10">
+            <div className={`!overflow-hidden keen-slider relative max-w-[1232px] md:px-10 px-6 h-fit mx-auto`}>
+              <div ref={sliderRef} className="keen-slider !overflow-visible relative">
                 {pariInfo.map((info, index) => (
                   <Link
                     key={info.id || index}
@@ -330,17 +339,23 @@ export function Hero() {
                       </div>
                       
                       <div className={`py-4 px-1 flex flex-col justify-between relative ${language === 'ur' ? 'text-right' : 'text-left'}`}>
+                        {info.categories && info.categories.length > 0 && (
+                          <div className={`flex flex-wrap gap-2 ${language === 'ur' ? 'justify-end' : ''}`}>
+                            <Category name={info.categories[index % info.categories.length]} />
+                          </div>
+                        )}
+                       
                         <h3 className="font-noto-sans text-[20px] md:h-[70px] sm:text-[24px] md:text-[28px] font-bold leading-[124%] tracking-[-0.04em] mb-2 text-foreground line-clamp-1 sm:line-clamp-2">
                           {info.title}
                         </h3>
-                        <p className="font-noto-sans text-[15px] font-normal leading-[170%] tracking-[-0.03em] text-muted-foreground line-clamp-2 sm:line-clamp-3">
+                        <p className="font-noto-sans text-[15px] font-normal leading-[170%] tracking-[-0.03em] text-discreet-text line-clamp-2 sm:line-clamp-3">
                           {info.description}
                         </p>
                         
                         <div className={`transform translate-y-4 flex items-center pt-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 ease-out ${language === 'ur' ? 'flex-row-reverse' : ''}`}>
-                          <span className={`flex items-center gap-2 py-2 text-red-700 font-medium ${language === 'ur' ? 'flex-row-reverse' : ''}`}>
-                            <span className='text-sm'>{info.ButtonText}</span>
-                            <ArrowRight className="h-4 w-4" />
+                          <span className={`flex items-center gap-2 py-2 text-red-700 ${language === 'ur' ? 'flex-row-reverse' : ''}`}>
+                            <span className='text-[14px] font-noto-sans font-medium leading-[160%] tracking-[-0.03em]'>{info.ButtonText}</span>
+                            <ArrowRight className="h-5 w-5" />
                           </span>
                         </div>
                       </div>
@@ -359,7 +374,7 @@ export function Hero() {
                       }}
                       aria-label={`Go to slide ${idx + 1}`}
                       className={`h-1.5 sm:h-2 w-1.5 sm:w-2 rounded-full transition-colors ${
-                        currentSlide === idx ? 'bg-red-600' : 'bg-gray-300'
+                        currentSlide === idx ? 'bg-red-600' : 'bg-grey3'
                       }`}
                     />
                   ))}

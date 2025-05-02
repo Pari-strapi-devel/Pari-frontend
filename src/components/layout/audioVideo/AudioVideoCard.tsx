@@ -1,9 +1,8 @@
 "use client"
 
 import { useEffect, useState } from 'react'
-import Image from 'next/image'
-import Link from 'next/link'
-import { Play, Headphones, ChevronRight, CirclePlay } from 'lucide-react'
+
+import { Play, Headphones, } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { AudioVideoBigCard } from './AudioVideoBigCard'
 import axios from 'axios'
@@ -13,6 +12,7 @@ import { ArticleWithLangSelection } from '../pariRecommends/page'
 import { useLocale } from '@/lib/locale'
 import { useKeenSlider } from 'keen-slider/react'
 import 'keen-slider/keen-slider.min.css'
+import { StoryCard } from '@/components/layout/stories/StoryCard'
 
 interface MediaStory {
   headtitle:  string;
@@ -76,7 +76,7 @@ export function AudioVideoCard() {
       },
       '(min-width: 1024px)': {
         slides: {
-          perView: 3,
+          perView: 4,
         },
       },
     },
@@ -85,6 +85,8 @@ export function AudioVideoCard() {
   useEffect(() => {
     const fetchAudioVideoStories = async () => {
       try {
+        setIsLoading(true)
+
         const sharedArticlePopulation = {
           fields: ['id'],
           populate: {
@@ -197,7 +199,7 @@ export function AudioVideoCard() {
                 )
               : [],
             location: (articleData.location?.data?.attributes?.district && articleData.location?.data?.attributes?.state) 
-              ? `${articleData.location.data.attributes.district}, ${articleData.location.data.attributes.state}`
+              ? `${articleData.location.data.attributes.district}, ` //${articleData.location.data.attributes.state}
               : articleData.location_auto_suggestion || 'India',
             date: articleData.Original_published_date
               ? new Date(articleData.Original_published_date).toLocaleDateString('en-US', {
@@ -237,11 +239,21 @@ export function AudioVideoCard() {
   }, [language]) // Only depend on language changes
 
   if (isLoading) {
-    return <div className="text-center py-10">Loading...</div>
+    return (
+      <div className="flex justify-center items-center min-h-[400px]">
+        <Play className="h-8 w-8 text-red-700 animate-pulse mr-2" />
+        Loading...
+      </div>
+    )
   }
 
   if (error) {
-    return <div className="text-center py-10 text-red-500">{error}</div>
+    return (
+      <div className="text-center py-10 text-red-500 flex items-center justify-center">
+        <Play className="h-6 w-6 text-red-500 mr-2" />
+        {error}
+      </div>
+    )
   }
 
   if (!mediaStories.length) {
@@ -254,17 +266,21 @@ export function AudioVideoCard() {
     <div className="max-w-[1232px] relative lg:px-0 px-4 mx-auto md:py-20 sm:py-10">
       <div className="flex justify-between items-center mb-8">
         <div className="flex items-center gap-2">
-          <CirclePlay className="h-7 w-7 text-red-700" />
+          {featuredStory.type === 'audio' ? (
+            <Headphones className="h-7 w-7 text-red-700" />
+          ) : (
+            <Play className="h-7 w-7 text-red-700" />
+          )}
           <h2 className="text-13px font-noto-sans uppercase text-gray-400 leading-[100%] tracking-[-0.02em] font-semibold">
-          {featuredStory.headtitle}
+            {featuredStory.headtitle}
           </h2>
         </div>
         <Button 
           variant="secondary" 
-          className="text-sm h-[32px] rounded-[48px] text-red-700"
+          className="text-sm h-[32px] rounded-[48px] text-red-700 group"
         >
           {featuredStory.sub_title}
-          <ChevronRight className="h-4 w-4" />
+          <Play className="h-4 w-4 ml-1" />
         </Button>
       </div>
 
@@ -275,84 +291,25 @@ export function AudioVideoCard() {
         />
       </div>
       
-
       <div className="relative overflow-hidden">
         <div ref={sliderRef} className="keen-slider max-w-[1232px] mx-auto relative !overflow-visible">
-          {mediaStories.slice(1).map((story: MediaStory) => {
-            return (
-              <Link 
-                key={story.id} 
-                href={`/stories/${story.slug}`}
-                className="keen-slider__slide group"
-              >
-                <article className="rounded-lg overflow-hidden bg-background hover:shadow-xl transition-all duration-300 border border-border h-full mx-2">
-                  <div className="relative h-[156px] w-full overflow-hidden rounded-t-2xl">
-                    <Image
-                      src={story.imageUrl}
-                      alt={story.title}
-                      fill
-                      className="object-cover transition-transform scale-102 duration-300 group-hover:scale-108"
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                    />
-                    <div className="absolute inset-0 bg-black/30 flex items-center justify-center group-hover:bg-black/40 transition-colors">
-                      <div className="flex flex-col items-center gap-2">
-                        <div className="w-12 h-12 rounded-full bg-red-700 hover:bg-red-500 flex items-center justify-center">
-                          {story.type === 'video' ? (
-                            <Play className="w-6 h-6 text-white ml-1" />
-                          ) : (
-                            <Headphones className="w-6 h-6 text-white" />
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="p-4 flex flex-col gap-3">
-                    <div className="flex flex-wrap gap-2">
-                      {story.categories.length > 0 && (
-                        <>
-                          <span className="inline-block px-2 py-1 items-center h-[24px] hover:bg-red-600 hover:text-white ring-1 ring-red-700 text-xs text-red-700 rounded-full">
-                            {story.categories[0]}
-                          </span>
-                          {story.categories.length > 1 && (
-                            <span className="inline-block px-2 py-1 items-center h-[24px] hover:bg-red-600 hover:text-white ring-1 ring-red-700 text-xs text-red-700 rounded-full">
-                              +{story.categories.length - 1}
-                            </span>
-                          )}
-                        </>
-                      )}
-                    </div>
-
-                    <h3 className="font-noto-sans text-[18px] h-[40px] font-semibold leading-[136%] tracking-[-0.04em] text-foreground">
-                      {story.title}
-                    </h3>
-
-                    <p className="font-noto-sans text-[15px] leading-[170%] text-gray-400 tracking-[-0.04em] line-clamp-2">
-                      {story.description}
-                    </p>
-
-                    <div className="flex flex-col gap-2">
-                      <p className="font-noto-sans text-[15px] font-medium leading-[180%] tracking-[-0.02em] line-clamp-1 text-[#828282]">
-                        {story.authors.join(', ')}
-                      </p>
-                      <div className="flex gap-1 items-center text-neutral-500">
-                        {story.localizations?.length && (
-                          <span>
-                            Available in {story.localizations.length} languages
-                          </span>
-                        )}
-                      </div>
-                      <div className="flex items-center w-fit gap-2 text-sm text-red-700">
-                        <span className='line-clamp-1'>{story.location}</span>
-                        <span>•</span>
-                        <span className='font-noto-sans text-[15px] flex-row font-medium leading-[180%] tracking-[-0.02em] text-red-700'>{story.date}</span>
-                      </div>
-                    </div>
-                  </div>
-                </article>
-              </Link>
-            );
-          })}
+          {mediaStories.slice(1).map((story: MediaStory) => (
+            <div key={story.id} className="keen-slider__slide">
+              <StoryCard
+                title={story.title}
+                description={story.description}
+                authors={story.authors.join(', ')}
+                imageUrl={story.imageUrl}
+                categories={story.categories}
+                slug={story.slug}
+                location={story.location}
+                date={story.date}
+                videoUrl={story.type === 'video' ? 'true' : undefined}
+                localizations={story.localizations}
+                className="h-full mx-2"
+              />
+            </div>
+          ))}
         </div>
 
         {isLoaded && instanceRef.current && (

@@ -15,6 +15,7 @@ import { AudioVideoCard } from '@/components/layout/audioVideo/AudioVideoCard'
 
 function HomeContent() {
   return (
+
     <div className="min-h-screen bg-background !scroll-y-auto">
       <Header />
       <Hero />
