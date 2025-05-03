@@ -40,19 +40,19 @@ export function StoryCard({
 }: StoryCardProps) {
   return (
     <Link href={`/stories/${slug || ''}`}>
-      <article className="  rounded-[16px] bg-white dark:bg-popover  transition-all duration-300 border border-border shadow-[0px_1px_2px_0px_#00000014]">
+      <article className="group rounded-[16px] bg-white dark:bg-popover  transition-all duration-300 border border-border shadow-[0px_1px_2px_0px_#00000014]">
         <div className="relative h-[180px] w-full overflow-hidden rounded-t-2xl">
         <div className="absolute top-3 left-3 flex flex-wrap  gap-2 z-50 ">
           {(categories && categories.length > 0) && (
               <>
                 <span 
-                  className="inline-block items-center px-2 py-1 bg-white/80 text-red-700  hover:bg-red-700 hover:text-white  text-xs  rounded-full w-fit h-[24px] mb-2"
+                  className="inline-block items-center px-2 py-1 bg-white text-primary-PARI-Red hover:bg-primary-PARI-Red hover:text-white text-xs rounded-full w-fit h-[24px] mb-2"
                 >
                   {categories[0]}
                 </span>
                 {categories.length > 2 && (
                   <span 
-                    className="inline-block items-center px-2 py-1 bg-white/80   hover:bg-red-700 hover:text-white ring-red-700 text-xs text-red-700 rounded-full w-fit h-[24px] mb-2"
+                    className="inline-block items-center px-2 py-1 bg-white text-primary-PARI-Red hover:bg-primary-PARI-Red hover:text-white text-xs rounded-full w-fit h-[24px] mb-2"
                   >
                     +{categories.length - 1}
                   </span>
@@ -64,7 +64,7 @@ export function StoryCard({
             src={imageUrl || '/images/placeholder.png'}
             alt={title || 'Story thumbnail'}
             fill
-            className="object-cover transition-transform scale-102 shadow-lg  duration-300 hover:scale-108"
+            className="object-cover transition-transform scale-102 shadow-lg  duration-300 group-hover:scale-108"
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw "
           />
           
@@ -72,7 +72,7 @@ export function StoryCard({
           {videoUrl && (
             <div className="absolute inset-0 bg-black/30 flex items-center justify-center group-hover:bg-black/40 transition-colors">
               <div className="flex flex-col items-center gap-2">
-                <div className="w-12 h-12 rounded-full bg-red-700 hover:bg-red-500 flex items-center justify-center">
+                <div className="w-12 h-12 rounded-full bg-primary-PARI-Red hover:bg-red-500 flex items-center justify-center">
                   <Play className="w-6 h-6 text-white ml-1" />
                 </div>
                 {duration && (
@@ -110,7 +110,7 @@ export function StoryCard({
                 </span>
               </div>
 
-              <div className="flex gap-1 justify-around items-center text-red-700 font-noto-sans text-[14px] font-medium leading-[160%] tracking-[-0.03em]">
+              <div className="flex gap-1 justify-around items-center text-primary-PARI-Red font-noto-sans text-[14px] font-medium leading-[160%] tracking-[-0.03em]">
                 <p>{location}</p>•
                 <p>{date}</p>
                 <span className="text-xl "> <ArrowRight className="h-5 w-5" /></span>

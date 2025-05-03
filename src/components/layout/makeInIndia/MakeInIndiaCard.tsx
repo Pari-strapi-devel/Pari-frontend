@@ -7,12 +7,14 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { BASE_URL } from '@/config';
 import { JSX } from 'react/jsx-runtime';
-import { Carousel, CarouselItem } from '@/components/ui/Carousel';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { Newspaper } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useKeenSlider } from 'keen-slider/react';
+import 'keen-slider/keen-slider.min.css';
+// Remove any imports of Carousel if they exist
 
 export interface Article {
   id: string;
@@ -85,6 +87,38 @@ export function MakeInIndiaCard() {
   const [sectionTitle, setSectionTitle] = useState('');
   const [strap, setStrap] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const [, setCurrentSlide] = useState(0);
+  const [, setLoaded] = useState(false);
+  
+  const [sliderRef, instanceRef] = useKeenSlider({
+    initial: 0,
+    slides: {
+      perView: 1,
+      spacing: 24,
+    },
+    breakpoints: {
+      '(min-width: 640px)': {
+        slides: { perView: 1.5, spacing: 32 },
+      },
+      '(min-width: 768px)': {
+        slides: { perView: 2, spacing: 32 },
+      },
+      '(min-width: 1024px)': {
+        slides: { perView: 2.5, spacing: 32 },
+      },
+      '(min-width: 1280px)': {
+        slides: { perView: 3, spacing: 32 },
+      },
+    },
+    slideChanged(slider) {
+      setCurrentSlide(slider.track.details?.rel ?? 0);
+    },
+    mounted() {
+      setLoaded(true);
+    },
+  });
+
+
 
   useEffect(() => {
     const fetchMakeInIndiaData = async () => {
@@ -238,24 +272,27 @@ export function MakeInIndiaCard() {
   }
  
   return (
-    <div className="sm:pb-20  px-4 overflow-hidden   dark:border-gray-800"> {/* Increased max-width */}
+    <div className="sm:pb-16 pb-10 px-4 overflow-hidden dark:border-gray-800">
       <div className="max-w-[1232px] mx-auto">
-        <div className="flex flex-col gap-2 py-4 mb-4">
+        <div className="flex flex-col gap-2 pb-4 mb-4">
           <div className='flex items-center justify-between'>
             <div className='flex items-center gap-2'>
-              <Newspaper className="h-6 w-7 text-red-700" />
-              <h2 className="text-13px font-noto-sans uppercase text-gray-400 leading-[100%] letter-spacing-[-2%] font-semibold">
+              <Newspaper className="h-6 w-7 text-primary-PARI-Red" />
+              <h2 className="text-[13px] font-noto-sans uppercase text-gray-400 leading-[100%] letter-spacing-[-2%] font-semibold">
                 {strap}
               </h2>
             </div>
-            
-            {/* Desktop navigation buttons */}
-            <div className="hidden md:flex items-center gap-4">
+          </div>
+          <div className="flex justify-between items-end">
+            <h4 className="font-noto-sans text-[36px] font-bold leading-[122%] tracking-[-0.04em]">
+              {sectionTitle}
+            </h4>
+            <div className="hidden md:flex items-end gap-4">
               <Button
                 variant="outline"
                 size="icon"
-                onClick={() => document.querySelector('.keen-slider')?.scrollBy(-400, 0)}
-                className="bg-white dark:bg-popover hover:bg-red-700 text-red-700 hover:text-white rounded-full cursor-pointer w-10 h-10"
+                onClick={() => instanceRef.current?.prev()}
+                className="bg-white dark:bg-popover hover:bg-primary-PARI-Red text-primary-PARI-Red hover:text-white rounded-full cursor-pointer w-10 h-10"
               >
                 <ChevronLeft className="h-5 w-5" />
               </Button>
@@ -263,112 +300,88 @@ export function MakeInIndiaCard() {
               <Button
                 variant="outline"
                 size="icon"
-                onClick={() => document.querySelector('.keen-slider')?.scrollBy(400, 0)}
-                className="bg-white dark:bg-popover hover:bg-red-700 text-red-700 hover:text-white rounded-full cursor-pointer w-10 h-10"
+                onClick={() => instanceRef.current?.next()}
+                className="bg-white dark:bg-popover hover:bg-primary-PARI-Red text-primary-PARI-Red hover:text-white rounded-full cursor-pointer w-10 h-10"
               >
                 <ChevronRight className="h-5 w-5" />
               </Button>
             </div>
           </div>
-          <h4 className="font-noto-sans text-[56px] font-bold leading-[122%] tracking-[-0.04em]">
-            {sectionTitle}
-          </h4>
         </div>
       </div>
       
-      <Carousel
-        slides={{ perView: 1, spacing: 24 }} 
-
-        breakpoints={{
-          '(min-width: 640px)': {
-            slides: { perView: 1.5, spacing: 32 }, // Reduced items per view to make them wider
-          },
-          '(min-width: 768px)': {
-            slides: { perView: 2, spacing: 32 },
-          },
-          '(min-width: 1024px)': {
-            slides: { perView: 2.5, spacing: 32 },
-          },
-          '(min-width: 1280px)': {
-            slides: { perView: 3, spacing: 32 }, // Reduced items per view to make them wider
-          },
-        }}
-      >
-        {features.map((feature, index) => (
-          <CarouselItem 
-            key={`${feature.href}-${index}`} 
-            className="min-h-[400px] min-w-[360px]"
-          >
-            <BentoCard
-              features={[{ title: feature.category[0] }]}
-              {...feature}
-              className={cn(
-                "h-[520px] w-full",
-                "group relative col-span-1 md:col-span-3 flex flex-col justify-between overflow-hidden opacity-90 cursor-pointer rounded-2xl",
-                "bg-[linear-gradient(180deg,rgba(0,0,0,0)_36.67%,#000000_70%)]",
-                feature.className
-              )}
-
+      <div className="relative max-w-[1234px] mx-auto">
+        <div ref={sliderRef} className="keen-slider !overflow-visible">
+          {features.map((feature, index) => (
+            <div 
+              key={`${feature.href}-${index}`} 
+              className="keen-slider__slide min-h-[400px] min-w-[360px]"
             >
-              
-              {feature.background}
-              <div className="absolute inset-0 p-4 flex flex-col justify-between z-10">
-                <div>
-                  <div className="flex items-center gap-2">
-                    {feature.category.map((cat, idx) => (
-                      <span key={idx} className="text-xs font-medium text-white bg-red-700 px-2 py-1 rounded-full">
-                        {cat}
-                      </span>
-                    ))}
+              <BentoCard
+                features={[{ title: feature.category[0] }]}
+                {...feature}
+                className={cn(
+                  "h-[520px] w-full",
+                  "group relative col-span-1 md:col-span-3 flex flex-col justify-between overflow-hidden opacity-90 cursor-pointer rounded-2xl",
+                  "bg-[linear-gradient(180deg,rgba(0,0,0,0)_36.67%,#000000_70%)]",
+                  feature.className
+                )}
+              >
+                {feature.background}
+                <div className="absolute inset-0 p-4 flex flex-col justify-between z-10">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      {feature.category.map((cat, idx) => (
+                        <span key={idx} className="text-xs font-medium text-white bg-red-700 px-2 py-1 rounded-full">
+                          {cat}
+                        </span>
+                      ))}
+                    </div>
+                    <h3 className="mt-4  font-bold text-white">
+                      {feature.title}
+                    </h3>
+                    <p className="mt-2 text-sm text-gray-200">
+                      {feature.description}
+                    </p>
                   </div>
-                  <h3 className="mt-4 text-2xl font-bold text-white">
-                    {feature.title}
-                  </h3>
-                  <p className="mt-2 text-sm text-gray-200">
-                    {feature.description}
-                  </p>
-                </div>
                 
-                <div className="space-y-2">
-                  <p className="text-sm text-gray-300">
-                    {feature.authors.join(', ')}
-                  </p>
-                  <div className="flex items-center gap-2 text-gray-300 text-sm">
-                    {feature.location && <span>{feature.location}</span>}
-                    {feature.location && feature.date && <span>•</span>}
-                    {feature.date && <span>{feature.date}</span>}
-                  </div>
-                  {feature.localizations && feature.localizations.length > 0 && (
-                    <div className="text-sm text-gray-300">
-                      <div className="flex items-center gap-2">
-                        <span>Available in {feature.localizations.length} languages</span>
-                        <div className="relative flex gap-1">
-                          <Carousel
-                            slides={{ perView: 3, spacing: 8 }}
-                            className="w-fit"
-                          >
-                            {feature.localizations.map((loc, idx) => (
-                              <CarouselItem key={`${loc.locale}-${idx}`}>
+                  <div className="space-y-2">
+                    <p className="text-sm text-gray-300">
+                      {feature.authors.join(', ')}
+                    </p>
+                    <div className="flex items-center gap-2 text-gray-300 text-sm">
+                      {feature.location && <span>{feature.location}</span>}
+                      {feature.location && feature.date && <span>•</span>}
+                      {feature.date && <span>{feature.date}</span>}
+                    </div>
+                    {feature.localizations && feature.localizations.length > 0 && (
+                      <div className="text-sm text-gray-300">
+                        <div className="flex items-center gap-2">
+                          <span>Available in {feature.localizations.length} languages</span>
+                          <div className="relative flex gap-1">
+                            {/* Replace Carousel with a simple div */}
+                            <div className="w-fit flex gap-1">
+                              {feature.localizations.map((loc, idx) => (
                                 <Link 
+                                  key={`${loc.locale}-${idx}`}
                                   href={`/stories/${loc.slug}`}
                                   className="px-2 py-1 text-xs bg-gray-800 rounded-full hover:bg-gray-700 transition-colors"
                                 >
-                                 
+                                  {loc.locale}
                                 </Link>
-                              </CarouselItem>
-                            ))}
-                          </Carousel>
+                              ))}
+                            </div>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  )}
-                  
+                    )}
+                  </div>
                 </div>
-              </div>
-            </BentoCard>
-          </CarouselItem>
-        ))}
-      </Carousel>
+              </BentoCard>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

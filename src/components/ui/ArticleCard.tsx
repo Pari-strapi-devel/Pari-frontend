@@ -38,30 +38,30 @@ export function ArticleCard({
             src={imageUrl}
             alt={title}
             fill
-            className="object-cover transition-transform scale-102 shadow-lg rounded-xl duration-300 group-hover:scale-108"
+            className="object-cover transition-transform scale-102 rounded-xl duration-300 group-hover:scale-108"
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           />
         </div>
         <div>
         <div className="py-5 px-1 rounded-2xl">
-          <div className="flex flex-wrap gap-2 mb-4">
+          <div className="flex flex-wrap gap-2 sm:mb-4">
             {categories?.length > 0 && (
               <>
                 <span 
-                  className="inline-block items-center px-2 py-1 ring-1 hover:bg-red-700 hover:text-white ring-red-700 text-xs text-red-700 rounded-full w-fit h-[23px] mb-2"
+                  className="inline-block items-center px-2 py-1 ring-1 hover:bg-primary-PARI-Red hover:text-white ring-primary-PARI-Red text-xs text-primary-PARI-Red rounded-full w-fit h-[23px] mb-2"
                 >
                   {categories[0]}
                 </span>
                 {categories.length > 1 && (
                   <span 
-                    className="inline-block items-center px-2 py-1 ring-1 hover:bg-red-700 hover:text-white ring-red-700 text-xs text-red-700 rounded-full w-fit h-[23px] mb-2"
+                    className="inline-block items-center px-2 py-1 ring-1 hover:bg-primary-PARI-Red hover:text-white ring-primary-PARI-Red text-xs text-primary-PARI-Red rounded-full w-fit h-[23px] mb-2"
                   >
                     {categories[1]}
                   </span>
                 )}
                 {categories.length > 2 && (
                   <span 
-                    className="inline-block items-center px-2 py-1 ring-1 hover:bg-red-700 hover:text-white ring-red-700 text-xs text-red-700 rounded-full w-fit h-[23px] mb-2"
+                    className="inline-block items-center px-2 py-1 ring-1 hover:bg-primary-PARI-Red hover:text-white ring-primary-PARI-Red text-xs text-primary-PARI-Red rounded-full w-fit h-[23px] mb-2"
                   >
                     +{categories.length - 2}
                   </span>
@@ -86,7 +86,7 @@ export function ArticleCard({
               <p className="font-noto-sans text-[15px] font-medium leading-[180%] line-clamp-1 tracking-[-0.02em] text-[#828282]">
                 {authors.join(', ')}
               </p>
-              <div className='flex gap-1 items-center  text-red-700 font-noto-sans text-[14px] font-medium leading-[160%] tracking-[-0.03em]'> 
+              <div className='flex gap-1 items-center w-fit text-primary-PARI-Red font-noto-sans text-[14px] font-medium leading-[160%] tracking-[-0.03em]'> 
                 {location && <p>{location}</p>}
                 {location && date && '•'}
                 {date && <p>{date}</p>}

@@ -1,5 +1,5 @@
-import { Button } from '@/components/ui/button'
-import { CalendarDays, ChevronRight} from 'lucide-react'
+// import { Button } from '@/components/ui/button'
+import { CalendarDays, } from 'lucide-react'
 import Link from 'next/link'
 // import Image from 'next/image'
 import React from 'react'
@@ -14,7 +14,7 @@ interface WeekOnHeaderProps {
 const WeekOnHeader: React.FC<WeekOnHeaderProps> = ({ 
   // header,
   title = "This Week on PARI",
-  buttonText = "See all stories",
+  // buttonText = "See all stories",
   buttonLink = "/showcase"
 }) => {
   return (
@@ -30,17 +30,17 @@ const WeekOnHeader: React.FC<WeekOnHeaderProps> = ({
                   className="object-contain"
                 />
               )} */}
-              <CalendarDays className="h-6 w-7 text-red-700" />
+              <CalendarDays className="h-6 w-7 text-primary-PARI-Red" />
                 <h2 className="text-13px font-noto-sans uppercase text-grey-300 leading-[100%] letter-spacing-[-2%] font-semibold">
                   {title}
                 </h2>
             </div>
           
           <Link href={buttonLink}>
-            <Button variant="secondary" className="text-sm h-[32px] rounded-[48px] text-red-700">
+            {/* <Button variant="secondary" className="text-sm h-[32px] rounded-[48px] text-red-700">
               {buttonText}
               <ChevronRight className="h-4 w-4" />
-            </Button>
+            </Button> */}
           </Link>
         </div>
     </div>

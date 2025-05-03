@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from 'react'
-import { BookOpen, ChevronRight } from 'lucide-react'
+import { BookOpen, ChevronRight, ChevronLeft } from 'lucide-react'
 import { ArticleCard } from '@/components/ui/ArticleCard'
 import { Button } from '@/components/ui/button'
 import { useKeenSlider } from 'keen-slider/react'
@@ -151,12 +151,12 @@ export function PariLibrary() {
   }
 
   return (
-    <div className="overflow-hidden h-fit pt-8 px-4 sm:pt-20">
+    <div className="overflow-hidden h-fit py-10 px-4 sm:py-20">
       <div className="px-2">
-        <div className="flex md:justify-between max-w-[1232px] flex-col sm:flex-row mx-auto sm:items-end mb-8">
+        <div className="flex md:justify-between max-w-[1232px] flex-col sm:flex-row mx-auto sm:items-end mb-4">
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2">
-              <BookOpen className="h-7 w-7 text-red-700" />
+              <BookOpen className="h-6 w-6 text-primary-PARI-Red" />
               <h2 className="text-13px font-noto-sans uppercase text-gray-400 leading-[100%] tracking-[-0.02em] font-semibold">
                 {libraryData[0]?.sub_title}
               </h2>
@@ -164,19 +164,40 @@ export function PariLibrary() {
             <h3 className="font-noto-sans md:text-[56px] text-[40px] font-bold leading-[122%] tracking-[-0.04em]">
               {libraryData[0]?.headtitle}
             </h3>
-            <p className="font-noto-sans max-w-[518px] text-[16px] font-normal leading-[170%] tracking-[-0.01em] text-muted-foreground">
+            <p className="font-noto-sans max-w-[32.375rem] text-[16px] text-discreet-text font-normal leading-[170%] tracking-[-0.01em] ">
               {libraryData[0]?.headDescription}
             </p>
           </div>
           
-          <div className="flex items-end h-full sm:pt-0 pt-6 gap-4">
+          <div className="flex items-center h-full sm:pt-0 pt-6 gap-4">
             <Button 
               variant="secondary" 
-              className="text-sm h-[32px] rounded-[48px] text-red-700"
+              className="text-sm h-[36px] ring-[2px] rounded-[48px] text-primary-PARI-Red"
             >
               {libraryData[0]?.Button}
               <ChevronRight className="h-4 w-4" />
             </Button>
+            
+            {/* Add navigation buttons similar to other components */}
+            <div className="hidden md:flex items-center gap-4">
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => instanceRef.current?.prev()}
+                className="bg-white dark:bg-popover hover:bg-primary-PARI-Red text-primary-PARI-Red hover:text-white rounded-full cursor-pointer w-10 h-10"
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </Button>
+
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => instanceRef.current?.next()}
+                className="bg-white dark:bg-popover hover:bg-primary-PARI-Red text-primary-PARI-Red hover:text-white rounded-full cursor-pointer w-10 h-10"
+              >
+                <ChevronRight className="h-5 w-5" />
+              </Button>
+            </div>
           </div>
         </div>
 
@@ -201,7 +222,7 @@ export function PariLibrary() {
                     instanceRef.current?.moveToIdx(idx)
                   }}
                   className={`h-2 w-2 rounded-full transition-colors ${
-                    currentSlide === idx ? 'bg-red-600' : 'bg-gray-300'
+                    currentSlide === idx ? 'bg-primary-PARI-Red' : 'bg-gray-300'
                   }`}
                   aria-label={`Go to slide ${idx + 1}`}
                 />

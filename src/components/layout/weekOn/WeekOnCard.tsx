@@ -10,7 +10,9 @@ import { BASE_URL } from '@/config'
 import qs from 'qs'
 import WeekOnHeader from './WeekOnHeader'
 import { useLocale } from '@/lib/locale'
-
+import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import Link from 'next/link'
 
 interface Author {
   author_role: {
@@ -275,7 +277,7 @@ export function WeekOnCard() {
               slug: articleData.slug || '',
               authors,
               location: articleData.location?.data?.attributes
-                ? `${articleData.location.data.attributes.district}, ${articleData.location.data.attributes.state}`
+                ? `${articleData.location.data.attributes.district}, ` //${articleData.location.data.attributes.state}
                 : articleData.location_auto_suggestion || 'India',
               date: articleData.Original_published_date
                 ? new Date(articleData.Original_published_date).toLocaleDateString('en-US', {
@@ -330,14 +332,55 @@ export function WeekOnCard() {
   return (
     <section className="py-10 md:py-12 px-4 relative overflow-hidden">
       <div className="max-w-[1232px] mx-auto">
-        <WeekOnHeader 
-          header={header}
-          title={thisWeekData?.ThisWeek_On_Pari_Title || "This Week on PARI"}
-          buttonText={seeAllStories || "See all stories"}
-          buttonLink="/showcase"
-        />
+        <div className="flex justify-between items-center">
+          <WeekOnHeader 
+            header={header}
+            title={thisWeekData?.ThisWeek_On_Pari_Title || "This Week on PARI"}
+         
+          />
+          
+        
+        </div>
         
         <div className="relative mt-4">
+          <div className="absolute right-0 top-[-60px]  flex items-center gap-4 z-10">
+            <Link href="/showcase" >
+              <Button 
+                variant="secondary" 
+                className="text-sm h-[36px] ring-[2px] rounded-[48px] text-primary-PARI-Red mr-4"
+              >
+                {seeAllStories || "See all stories"}
+                <ChevronRight className="h-4 w-4 ml-1" />
+              </Button>
+            </Link>
+            <div className=" gap-4 hidden md:flex">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={(e) => {
+                e.stopPropagation()
+                instanceRef.current?.prev()
+              }}
+              className="bg-white dark:bg-popover hover:bg-primary-PARI-Red text-primary-PARI-Red hover:text-white rounded-full cursor-pointer w-10 h-10"
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </Button>
+
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={(e) => {
+                e.stopPropagation()
+                instanceRef.current?.next()
+              }}
+              className="bg-white dark:bg-popover hover:bg-primary-PARI-Red text-primary-PARI-Red hover:text-white rounded-full cursor-pointer w-10 h-10"
+            >
+              <ChevronRight className="h-5 w-5" />
+            </Button>
+            </div>
+        
+          </div>
+          
           <div ref={sliderRef} className="keen-slider !overflow-visible">
             {articles.map((article) => (
               <ArticleCard
@@ -365,7 +408,7 @@ export function WeekOnCard() {
                     instanceRef.current?.moveToIdx(idx)
                   }}
                   className={`h-2 w-2 rounded-full transition-colors duration-100 ${
-                    currentSlide === idx ? 'bg-red-600' : 'bg-gray-300'
+                    currentSlide === idx ? 'bg-primary-PARI-Red' : 'bg-gray-300'
                   }`}
                   aria-label={`Go to slide ${idx + 1}`}
                 />

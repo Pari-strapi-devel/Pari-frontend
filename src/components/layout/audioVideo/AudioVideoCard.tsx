@@ -1,8 +1,8 @@
 "use client"
 
 import { useEffect, useState } from 'react'
-
-import { Play, Headphones, } from 'lucide-react'
+import Link from 'next/link'
+import { CirclePlay, Headphones, ChevronRight, ChevronLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { AudioVideoBigCard } from './AudioVideoBigCard'
 import axios from 'axios'
@@ -65,18 +65,26 @@ export function AudioVideoCard() {
       setIsLoaded(true)
     },
     slides: {
-      perView: 1,
+      perView: 1.2,
       spacing: 16,
     },
     breakpoints: {
-      '(min-width: 600px)': {
+      '(min-width: 640px)': {
         slides: {
-          perView: 2,
+          perView: 1.5,
+          spacing: 16,
+        },
+      },
+      '(min-width: 768px)': {
+        slides: {
+          perView: 3,
+          spacing: 24,
         },
       },
       '(min-width: 1024px)': {
         slides: {
           perView: 4,
+          spacing: 24,
         },
       },
     },
@@ -241,7 +249,7 @@ export function AudioVideoCard() {
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-[400px]">
-        <Play className="h-8 w-8 text-red-700 animate-pulse mr-2" />
+      
         Loading...
       </div>
     )
@@ -250,7 +258,7 @@ export function AudioVideoCard() {
   if (error) {
     return (
       <div className="text-center py-10 text-red-500 flex items-center justify-center">
-        <Play className="h-6 w-6 text-red-500 mr-2" />
+       
         {error}
       </div>
     )
@@ -263,35 +271,59 @@ export function AudioVideoCard() {
   const featuredStory = mediaStories[0]
 
   return (
-    <div className="max-w-[1232px] relative lg:px-0 px-4 mx-auto md:py-20 sm:py-10">
+    <div className="max-w-[1232px] relative border-t-1 border-[#D9D9D9] dark:border-[#444444] lg:px-0 px-4 mx-auto md:py-20 py-10 ">
       <div className="flex justify-between items-center mb-8">
         <div className="flex items-center gap-2">
           {featuredStory.type === 'audio' ? (
-            <Headphones className="h-7 w-7 text-red-700" />
+            <Headphones className="h-7 w-7 text-primary-PARI-Red" />
           ) : (
-            <Play className="h-7 w-7 text-red-700" />
+            <CirclePlay className="h-6 w-6 text-primary-PARI-Red" />
           )}
-          <h2 className="text-13px font-noto-sans uppercase text-gray-400 leading-[100%] tracking-[-0.02em] font-semibold">
+          <h2 className="text-13px font-noto-sans uppercase text-grey-300 leading-[100%] tracking-[-0.02em] font-semibold">
             {featuredStory.headtitle}
           </h2>
         </div>
-        <Button 
-          variant="secondary" 
-          className="text-sm h-[32px] rounded-[48px] text-red-700 group"
-        >
-          {featuredStory.sub_title}
-          <Play className="h-4 w-4 ml-1" />
-        </Button>
+        <div className="flex items-center gap-4">
+         
+          <Link href="/audio-video">
+            <Button 
+              variant="secondary" 
+              className="text-sm h-[36px] ring-[2px] rounded-[48px] text-primary-PARI-Red group"
+            >
+              {featuredStory.sub_title}
+              <ChevronRight className="h-4 w-4 ml-1" />
+            </Button>
+          </Link>
+        </div>
       </div>
 
       {/* Featured Story */}
-      <div className="mb-12">
+      <div className="md:mb-6 mb-12 ">
         <AudioVideoBigCard 
           {...featuredStory}
         />
       </div>
       
       <div className="relative overflow-hidden">
+      <div className="hidden md:flex items-center justify-end pb-5 gap-4">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => instanceRef.current?.prev()}
+              className="bg-white dark:bg-popover hover:bg-primary-PARI-Red text-primary-PARI-Red hover:text-white rounded-full cursor-pointer w-10 h-10"
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </Button>
+
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => instanceRef.current?.next()}
+              className="bg-white dark:bg-popover hover:bg-primary-PARI-Red text-primary-PARI-Red hover:text-white rounded-full cursor-pointer w-10 h-10"
+            >
+              <ChevronRight className="h-5 w-5" />
+            </Button>
+          </div>
         <div ref={sliderRef} className="keen-slider max-w-[1232px] mx-auto relative !overflow-visible">
           {mediaStories.slice(1).map((story: MediaStory) => (
             <div key={story.id} className="keen-slider__slide">
@@ -322,7 +354,7 @@ export function AudioVideoCard() {
                   instanceRef.current?.moveToIdx(idx)
                 }}
                 className={`h-2 w-2 rounded-full transition-colors ${
-                  currentSlide === idx ? 'bg-red-600' : 'bg-gray-300'
+                  currentSlide === idx ? 'bg-primary-PARI-Red' : 'bg-gray-300'
                 }`}
                 aria-label={`Go to slide ${idx + 1}`}
               />

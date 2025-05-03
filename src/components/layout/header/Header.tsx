@@ -76,7 +76,7 @@ export function Header() {
                 size="icon"
                 className="hover:bg-accent dark:bg-popover bg-popover items-center justify-center p-2"
               >
-                <Search className="h-[1.2rem] w-[1.2rem] cursor-pointer text-red-600" />
+                <Search className="h-[1.2rem] w-[1.2rem] cursor-pointer text-primary-PARI-Red" />
                 <span className="sr-only">Search</span>
               </Button>
               
@@ -94,7 +94,8 @@ export function Header() {
 
                 <Button 
                   variant="secondary" 
-                  className="rounded-2xl hidden md:block cursor-pointer w-[73px] h-[32px]"
+                  className="rounded-2xl ju
+                   items-center hidden md:flex cursor-pointer w-[73px] h-[32px]"
                 >
                   Donate
                 </Button>

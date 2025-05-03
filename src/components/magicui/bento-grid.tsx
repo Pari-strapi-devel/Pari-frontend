@@ -79,16 +79,16 @@ const BentoCard = ({
     <div className="absolute top-3 left-3 flex flex-wrap gap-2 z-50">
       {(category && category.length > 0) && (
         <>
-          <span className="inline-block px-2 py-1 bg-white/80 text-red-700 hover:bg-red-700 hover:text-white text-xs rounded-full w-fit h-[24px] mb-2">
+          <span className="inline-block px-2 py-1 bg-white text-primary-PARI-Red hover:bg-primary-PARI-Red hover:text-white text-xs rounded-full w-fit h-[24px] mb-2">
             {category[0]}
           </span>
           {category.length > 1 && (
-            <span className="inline-block px-2 py-1 bg-white/80 text-red-700 hover:bg-red-700 hover:text-white text-xs rounded-full w-fit h-[24px] mb-2">
+            <span className="inline-block px-2 py-1 bg-white text-primary-PARI-Red hover:bg-primary-PARI-Red hover:text-white text-xs rounded-full w-fit h-[24px] mb-2">
               {category[1]}
             </span>
           )}
           {category.length > 2 && (
-            <span className="inline-block px-2 py-1 bg-white/80 text-red-700 hover:bg-red-700 hover:text-white text-xs rounded-full w-fit h-[24px] mb-2">
+            <span className="inline-block px-2 py-1 bg-white/80 text-primary-PARI-Red hover:bg-primary-PARI-Red hover:text-white text-xs rounded-full w-fit h-[24px] mb-2">
               +{category.length - 2}
             </span>
           )}
@@ -106,7 +106,7 @@ const BentoCard = ({
         <p className="text-grey-300 text-[15px] font-medium mb-2 line-clamp-1">{authors?.join(', ')}</p>
         
         {/* Additional info */}
-        <div className="flex flex-col gap-2 font-noto-sans text-sm">
+        <div className="flex flex-col  font-noto-sans text-sm">
           {Array.isArray(localizations) && localizations.length > 0 && (
             <div className="font-noto-sans text-[14px]  leading-[160%] tracking-[-0.03em] text-white flex items-center gap-1">
               <span>Available in {localizations.length} languages</span>
@@ -114,7 +114,7 @@ const BentoCard = ({
           )}
 
           {(location || date) && (
-            <div className="flex gap-1 items-center text-red-500 font-noto-sans text-[14px] font-medium leading-[160%] tracking-[-0.03em]">
+            <div className="flex gap-1 items-center text-primary-PARI-Red font-noto-sans text-[14px] font-medium leading-[160%] tracking-[-0.03em]">
               {location && <p>{location}</p>}
               {location && date && <span>•</span>}
               {date && <p>{date}</p>}

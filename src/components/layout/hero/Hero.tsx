@@ -235,7 +235,7 @@ export function Hero() {
 
   if (!isVisible) return null
   if (isLoading) return <div className="flex justify-center items-center min-h-[400px]">Loading...</div>
-  if (error) return <div className="text-red-500 text-center">{error}</div>
+  if (error) return <div className="text-primary-PARI-Red text-center">{error}</div>
 
   // Add language selection handler
  
@@ -250,10 +250,10 @@ export function Hero() {
               variant="ghost"
               size="icon"
               onClick={handleDismiss}
-              className="z-20 w-fit cursor-pointer hover:text-red-700 transition-all duration-200 text-red-700 rounded-full flex items-center gap-2 py-6 group"
+              className="z-20 w-fit cursor-pointer hover:text-primary-PARI-Red transition-all duration-200 text-primary-PARI-Red rounded-full flex items-center gap-2 py-6 group"
             >
-              <div className={`hover:bg-red-700 h-8 w-8 rounded-full flex items-center justify-center hover:text-white ${language === 'ur' ? 'sm:flex-row-reverse' : ''}`}>
-                <X className="h-6 w-6 hover:bg-red-700 cursor-pointer transition-transform duration-200" />
+              <div className={`hover:bg-primary-PARI-Red h-8 w-8 rounded-full flex items-center justify-center hover:text-white ${language === 'ur' ? 'sm:flex-row-reverse' : ''}`}>
+                <X className="h-6 w-6 hover:bg-primary-PARI-Red cursor-pointer transition-transform duration-200" />
               </div>
               <span className="text-sm font-medium">Dismiss</span>
             </Button>
@@ -275,7 +275,7 @@ export function Hero() {
               {/* <div className="flex items-end">
                 <Button 
                   variant="secondary" 
-                  className="h-[32px] cursor-pointer hover ring-red-700 text-red-700 flex items-center rounded-[48px] gap-1"
+                  className="h-[32px] cursor-pointer hover ring-primary-PARI-Red text-primary-PARI-Red flex items-center rounded-[48px] gap-1"
                   onClick={() => {
                     window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })
                   }}
@@ -299,7 +299,7 @@ export function Hero() {
                   e.stopPropagation()
                   instanceRef.current?.prev()
                 }}
-                className="pointer-events-auto mr-4 bg-white dark:bg-popover hover:bg-red-700 text-red-700 hover:text-white rounded-full cursor-pointer w-10 h-10"
+                className="pointer-events-auto mr-4 bg-white dark:bg-popover hover:bg-primary-PARI-Red text-primary-PARI-Red hover:text-white rounded-full cursor-pointer w-10 h-10"
               >
                 <ChevronLeft className="h-10 w-10" />
               </Button>
@@ -311,7 +311,7 @@ export function Hero() {
                   e.stopPropagation()
                   instanceRef.current?.next()
                 }}
-                className="pointer-events-auto bg-white dark:bg-popover hover:bg-red-700 text-red-700 hover:text-white rounded-full cursor-pointer w-10 h-10"
+                className="pointer-events-auto bg-white dark:bg-popover hover:bg-primary-PARI-Red text-primary-PARI-Red hover:text-white rounded-full cursor-pointer w-10 h-10"
               >
                 <ChevronRight className="h-5 w-5" />
               </Button>
@@ -353,7 +353,7 @@ export function Hero() {
                         </p>
                         
                         <div className={`transform translate-y-4 flex items-center pt-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 ease-out ${language === 'ur' ? 'flex-row-reverse' : ''}`}>
-                          <span className={`flex items-center gap-2 py-2 text-red-700 ${language === 'ur' ? 'flex-row-reverse' : ''}`}>
+                          <span className={`flex items-center gap-2 py-2 text-primary-PARI-Red ${language === 'ur' ? 'flex-row-reverse' : ''}`}>
                             <span className='text-[14px] font-noto-sans font-medium leading-[160%] tracking-[-0.03em]'>{info.ButtonText}</span>
                             <ArrowRight className="h-5 w-5" />
                           </span>
@@ -374,7 +374,7 @@ export function Hero() {
                       }}
                       aria-label={`Go to slide ${idx + 1}`}
                       className={`h-1.5 sm:h-2 w-1.5 sm:w-2 rounded-full transition-colors ${
-                        currentSlide === idx ? 'bg-red-600' : 'bg-grey3'
+                        currentSlide === idx ? 'bg-primary-PARI-Red' : 'bg-grey3'
                       }`}
                     />
                   ))}

@@ -21,7 +21,7 @@ function HomeContent() {
       <Hero />
       <WeekOnCard />
    
-      <div className="bg-[#EDEDED] md:py-10 py-8 dark:bg-popover">
+      <div className="bg-[#EDEDED]  md:py-20 py-10 dark:bg-popover">
         <MakeInIndiaCard />
         <StoriesPage />
       </div>
@@ -31,9 +31,7 @@ function HomeContent() {
       </div>
       <AudioVideoCard />
       <LanguageToggle />
-      <main className="container mx-auto px-4 py-8">
-        {/* Other content */}
-      </main>
+    
     </div>
   )
 }

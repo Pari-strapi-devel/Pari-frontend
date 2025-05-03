@@ -29,7 +29,6 @@ export function AudioVideoBigCard({
   description,
   imageUrl,
   type,
-  duration,
   categories,
   slug,
   languages,
@@ -43,7 +42,7 @@ export function AudioVideoBigCard({
       href={`/stories/${slug}`}
       className="group"
     >
-      <article className="grid grid-cols-1 md:grid-cols-2 gap-6 rounded-lg overflow-hidden bg-background  transition-all duration-300 ">
+      <article className="grid grid-cols-1 md:grid-cols-2 gap-6 rounded-[8px] overflow-hidden bg-background  transition-all duration-300 ">
         {/* Left side - Image */}
         <div className="relative h-[376px] rounded-2xl  md:h-full w-full shadow-lg overflow-hidden">
           <Image
@@ -55,48 +54,51 @@ export function AudioVideoBigCard({
           />
           <div className="absolute inset-0 bg-black/30 flex items-center justify-center group-hover:bg-black/40 transition-colors">
             <div className="flex flex-col items-center gap-2">
-              <div className="w-16 h-16 rounded-full bg-red-700 hover:bg-red-500 flex items-center justify-center">
+              <div className="w-16 h-16 rounded-full bg-primary-PARI-Red hover:bg-red-500 flex items-center justify-center">
                 {type === 'video' ? (
                   <Play className="w-8 h-8 text-white ml-1" />
                 ) : (
-                  <Headphones className="w-8 h-8 text-red-600" />
+                  <Headphones className="w-8 h-8 text-white" />
                 )}
               </div>
-              {duration && (
-                <span className="text-white text-sm font-medium bg-black/50 px-3 py-1 rounded-full">
-                  
-                </span>
-              )}
+            
             </div>
           </div>
         </div>
 
         {/* Right side - Content */}
-        <div className="p-6 flex flex-col lg:pr-36 gap-4">
-          <div className="flex flex-wrap gap-2">
-            {(categories && categories.length > 0) && (
+        <div className="md:p-6 px-1  flex flex-col lg:pr-36 gap-4">
+        <div className="flex flex-wrap gap-2 ">
+            {categories?.length > 0 && (
               <>
                 <span 
-                  className="inline-block px-3 py-1 hover:bg-red-700 hover:text-white ring-1 ring-red-700 text-sm text-red-700 rounded-full"
+                  className="inline-block items-center px-2 py-1 ring-1 hover:bg-primary-PARI-Red hover:text-white ring-primary-PARI-Red text-xs text-primary-PARI-Red rounded-full w-fit h-[23px] mb-2"
                 >
                   {categories[0]}
                 </span>
+                {categories.length > 1 && (
+                  <span 
+                    className="inline-block items-center px-2 py-1 ring-1 hover:bg-primary-PARI-Red hover:text-white ring-primary-PARI-Red text-xs text-primary-PARI-Red rounded-full w-fit h-[23px] mb-2"
+                  >
+                    {categories[1]}
+                  </span>
+                )}
                 {categories.length > 2 && (
                   <span 
-                    className="inline-block px-3 py-1 hover:bg-red-700 hover:text-white ring-1 ring-red-700 text-sm text-red-700 rounded-full"
+                    className="inline-block items-center px-2 py-1 ring-1 hover:bg-primary-PARI-Red hover:text-white ring-primary-PARI-Red text-xs text-primary-PARI-Red rounded-full w-fit h-[23px] mb-2"
                   >
-                    +{categories.length - 1}
+                    +{categories.length - 2}
                   </span>
                 )}
               </>
             )}
           </div>
 
-          <h2 className="font-noto-sans text-2xl md:text-3xl font-semibold leading-tight tracking-[-0.04em] text-foreground">
+          <h2 className="font-noto-sans text-2xl md:text-3xl font-bold leading-[130%] tracking-[-0.04em] text-foreground">
             {title}
           </h2>
 
-          <p className="font-noto-sans text-base leading-relaxed text-discreet-text tracking-[-0.02em]">
+          <p className="font-noto-sans text-[16px] font-normal  leading-[170%] tracking-[-0.01em] text-discreet-text">
             {description}
           </p>
 
@@ -114,24 +116,22 @@ export function AudioVideoBigCard({
             </div>
           )}
 
-          <div className="flex flex-col gap-2">
-            <p className="font-noto-sans text-[15px] font-medium leading-[180%] tracking-[-0.02em] text-[#828282]">
+          <div className="flex flex-col  ">
+          <p className="font-noto-sans text-[15px] pb-1 font-semibold leading-[170%] text-grey-300 tracking-[-0.04em] line-clamp-1">
               {authors?.join(', ') || 'PARI'}
             </p>
 
-            <div className="flex gap-1 items-center text-neutral-500">
-              {localizations?.length && (
+            <div className="font-noto-sans text-[14px] font-normal leading-[150%] tracking-[-0.03em] text-foreground flex items-center gap-1">
                 <span>
-                  Available in {localizations.length} languages
+                Available in {localizations?.length} languages
                 </span>
-              )}
-            </div>
+              </div>
 
-            <div className="flex items-center gap-2 text-sm text-red-700 mt-auto">
+            <div className="flex items-center gap-2 pt-1 text-primary-PARI-Red font-noto-sans text-[14px] font-medium leading-[160%] tracking-[-0.03em] mt-auto">
               {location && <span>{location}</span>}
               {location && date && <span>•</span>}
               {date && <span>{date}</span>}
-                <ArrowRight className="h-4 w-4" />
+              <ArrowRight className="h-5 w-5" />
             </div>
           </div>
         </div>

@@ -28,7 +28,9 @@
   --ring: #202020; /* darksurface1 */
   --radius: 0.625rem;
   --grey-300: #828282;
-  --red-700: #B82929;
+
+
+  --primary-PARI-Red: #B82929;
   --discreet-text: #333333;
 }
 
@@ -51,8 +53,8 @@
   --destructive-foreground: oklch(0.637 0.237 25.331);
   --border: #202020; /* darksurface1 */
   --input: #202020; /* darksurface1 */
+  --primary-PARI-Red: #B82929;
   --ring: #282828; /* darksurface2 */
-  --red-700: #B82929;
   --grey-300: #828282;
   --discreet-text: #969696;
 
@@ -96,7 +98,7 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-grey-300: var(--grey-300);
-  --color-red-700: var(--red-700);
+  --color-primary-PARI-Red: var(--primary-PARI-Red);
   --color-discreet-text: var(--discreet-text);
 }
 

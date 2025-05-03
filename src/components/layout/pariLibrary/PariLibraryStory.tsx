@@ -126,7 +126,7 @@ export function PariLibraryStory() {
                     instanceRef.current?.moveToIdx(idx)
                   }}
                   className={`h-2 w-2 rounded-full transition-colors ${
-                    currentSlide === idx ? 'bg-red-600' : 'bg-gray-300'
+                    currentSlide === idx ? 'bg-primary-PARI-Red' : 'bg-gray-300'
                   }`}
                   aria-label={`Go to slide ${idx + 1}`}
                 />

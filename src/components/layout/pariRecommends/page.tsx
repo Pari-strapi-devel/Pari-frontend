@@ -8,7 +8,7 @@ import { useSearchParams } from 'next/navigation'
 import { StoryCard } from '@/components/layout/stories/StoryCard'
 import { cn } from '@/lib/utils'
 import 'keen-slider/keen-slider.min.css'
-import { Sparkle, ChevronRight } from 'lucide-react'
+import { Sparkle, ChevronRight, ChevronLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import qs from 'qs'
 import axios from 'axios'
@@ -315,24 +315,45 @@ export default function StoriesPage() {
   const visibleStories = showAll ? stories : stories.slice(0, 4)
 
   return (
-    <div className='max-w-[1232px] border-t-1 border-[#D9D9D9] lg:px-0 pt-12 py-10 px-4 mx-auto'>
+    <div className='max-w-[1232px] border-t-1 border-[#D9D9D9] dark:border-[#444444] lg:px-0 md:pt-12 pt-10 px-4 mx-auto'>
       <div className="pb-4 ">
-        <div className="flex justify-between items-center mb-4">
+        <div className="flex justify-between sm:flex-row  flex-col sm:items-center gap-5 mb-4">
           <div className='flex flex-row items-center gap-2'>
-            <Sparkle className="h-6 w-6 text-red-700" />
-            <h2 className="text-13px font-noto-sans uppercase text-gray-400 leading-[100%] letter-spacing-[-2%] font-semibold">
+            <Sparkle className="h-6 w-6 text-primary-PARI-Red" />
+            <h2 className="text-13px font-noto-sans  uppercase text-grey-300 line-clamp-1 leading-[100%] letter-spacing-[-2%] font-semibold">
               {stories[0]?.headtitle}
             </h2>
           </div>
+          <div className="flex items-center gap-4">
+            <Button
+              variant="secondary"
+              className="text-sm h-[36px] ring-[2px] rounded-[48px] text-red-700"
+              onClick={() => setShowAll(!showAll)}
+            >
+              {showAll ? 'Show less' : stories[0]?.sub_title || 'See all'}
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+            
+            <div className="hidden md:flex items-center gap-4">
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => instanceRef.current?.prev()}
+                className="bg-white dark:bg-popover hover:bg-red-700 text-red-700 hover:text-white rounded-full cursor-pointer w-10 h-10"
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </Button>
 
-          <Button
-            variant="secondary"
-            className="text-sm h-[32px] rounded-[48px] text-red-700"
-            onClick={() => setShowAll(!showAll)}
-          >
-            {showAll ? 'Show less' : stories[0]?.sub_title || 'See all'}
-            <ChevronRight className="h-4 w-4" />
-          </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => instanceRef.current?.next()}
+                className="bg-white dark:bg-popover hover:bg-red-700 text-red-700 hover:text-white rounded-full cursor-pointer w-10 h-10"
+              >
+                <ChevronRight className="h-5 w-5" />
+              </Button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -341,7 +362,7 @@ export default function StoriesPage() {
           {visibleStories.map((story, index) => (
             <div 
               key={`${story.slug}-${index}-${currentLocale}`}
-              className="keen-slider__slide min-h-[400px]"
+              className="keen-slider__slide min-h-[500px]"
             >
               <StoryCard
                 {...story}

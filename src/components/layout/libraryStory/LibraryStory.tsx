@@ -87,7 +87,7 @@ export function LibraryStory() {
               
               <Button 
                 variant="secondary"
-                className="text-red-600 hover:text-red-700"
+                className="text-primary-PARI-Red hover:text-primary-PARI-Red"
               >
                 Browse Collection
                 <ChevronRight className="h-4 w-4 ml-2" />

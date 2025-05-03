@@ -205,14 +205,14 @@ export function FilterMenu({ isOpen, onClose }: FilterMenuProps) {
                 onClick={onClose}
                 className="hover:bg-accent cursor-pointer"
               >
-                <X className="h-6 w-6 text-red-600" />
+                <X className="h-6 w-6 text-primary-PARI-Red" />
               </Button>
               <div className='flex flex-row space-x-2'>
                 <Button 
                   variant="secondary"
                   className={`h-8 flex items-center cursor-pointer ring-0 justify-center gap-2 ${
-                    activeTab === 'cards' ? 'bg-red-700 text-white' : 'bg-gray-200'
-                  } hover:bg-red-500`}
+                    activeTab === 'cards' ? 'bg-primary-PARI-Red text-white' : 'bg-gray-200'
+                  } hover:bg-primary-PARI-Red/80`}
                   onClick={() => setActiveTab('cards')}
                 >
                   Category
@@ -220,8 +220,8 @@ export function FilterMenu({ isOpen, onClose }: FilterMenuProps) {
                 <Button 
                   variant="secondary"
                   className={`h-8 flex items-center cursor-pointer ring-0 justify-center gap-2 ${
-                    activeTab === 'filters' ? 'bg-red-700 text-white' : 'bg-gray-200'
-                  } hover:bg-red-500`}
+                    activeTab === 'filters' ? 'bg-primary-PARI-Red text-white' : 'bg-gray-200'
+                  } hover:bg-primary-PARI-Red/80`}
                   onClick={() => setActiveTab('filters')}
                 >
                   Filter
@@ -231,7 +231,7 @@ export function FilterMenu({ isOpen, onClose }: FilterMenuProps) {
           </div>
 
           {/* Scrollable Content */}
-          <div className="flex-1 overflow-y-auto h-full p-4 scrollbar-thin scrollbar-thumb-red-600 scrollbar-track-gray-100">
+          <div className="flex-1 overflow-y-auto h-full p-4 scrollbar-thin scrollbar-thumb-primary-PARI-Red scrollbar-track-gray-100">
             {activeTab === 'filters' ? (
               <FilterOptionsView />
             ) : (
@@ -241,7 +241,7 @@ export function FilterMenu({ isOpen, onClose }: FilterMenuProps) {
                     key={category.id}
                     className={`group relative overflow-hidden rounded-lg h-[164px] shadow-sm hover:shadow-md transition-shadow duration-300 cursor-pointer ${
                       selectedOptions.some(opt => opt.id === category.id.toString()) 
-                        ? ' ring-1 ring-red-600' 
+                        ? ' ring-1 ring-primary-PARI-Red' 
                         : ''
                     }`}
                     onClick={() => handleOptionSelect({
@@ -256,7 +256,7 @@ export function FilterMenu({ isOpen, onClose }: FilterMenuProps) {
                     <div 
                       className={`p-4 text-white flex flex-col justify-end items-center h-full gradient-overlay ${
                         selectedOptions.some(opt => opt.id === category.id.toString())
-                          ? 'bg-gradient-to-t h-full from-red-700 via-red-700/90 to-transparent'
+                          ? 'bg-gradient-to-t h-full from-primary-PARI-Red via-primary-PARI-Red/90 to-transparent'
                           : ''
                       }`}
                     >
@@ -278,14 +278,14 @@ export function FilterMenu({ isOpen, onClose }: FilterMenuProps) {
           {/* Fixed Footer */}
           {(selectedOptions.length > 0 || hasActiveFilters()) && (
             <div className="p-4 border-t dark:bg-popover bg-popover">
-              <div className="flex items-center justify-center text-red-600 mb-3">
+              <div className="flex items-center justify-center text-primary-PARI-Red mb-3">
                 <span className="text-lg font-medium">
                   {activeTab === 'cards' ? `Filters ${selectedOptions.length}` : 'Active Filters'}
                 </span>
               </div>
               <Button 
                 variant="secondary"
-                className="w-full bg-red-700 ring-0 text-white hover:bg-red-500 px-8 py-4 text-lg font-semibold"
+                className="w-full bg-primary-PARI-Red ring-0 text-white hover:bg-primary-PARI-Red/80 px-8 py-4 text-lg font-semibold"
                 onClick={handleConfirmSelection}
               >
                 Confirm Selection
