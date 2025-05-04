@@ -74,7 +74,7 @@ export function Header() {
               <Button 
                 variant="outline" 
                 size="icon"
-                className="hover:bg-accent dark:bg-popover bg-popover items-center justify-center p-2"
+                className="hover:bg-accent rounded-full dark:bg-popover bg-popover items-center justify-center p-2"
               >
                 <Search className="h-[1.2rem] w-[1.2rem] cursor-pointer text-primary-PARI-Red" />
                 <span className="sr-only">Search</span>

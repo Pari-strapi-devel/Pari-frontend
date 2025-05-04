@@ -271,15 +271,15 @@ export function AudioVideoCard() {
   const featuredStory = mediaStories[0]
 
   return (
-    <div className="max-w-[1232px] relative border-t-1 border-[#D9D9D9] dark:border-[#444444] lg:px-0 px-4 mx-auto md:py-20 py-10 ">
-      <div className="flex justify-between items-center mb-8">
+    <div className=" relative border-t-1 border-[#D9D9D9] dark:border-[#444444] lg:px-0 px-4 mx-auto md:py-20 py-10 ">
+      <div className="flex md:justify-between max-w-[1232px] mx-auto sm:items-center flex-col sm:flex-row gap-5 mb-8">
         <div className="flex items-center gap-2">
           {featuredStory.type === 'audio' ? (
             <Headphones className="h-7 w-7 text-primary-PARI-Red" />
           ) : (
             <CirclePlay className="h-6 w-6 text-primary-PARI-Red" />
           )}
-          <h2 className="text-13px font-noto-sans uppercase text-grey-300 leading-[100%] tracking-[-0.02em] font-semibold">
+          <h2 className="text-[13px] font-noto-sans uppercase text-grey-300 leading-[100%] tracking-[-0.02em] font-semibold">
             {featuredStory.headtitle}
           </h2>
         </div>
@@ -288,7 +288,7 @@ export function AudioVideoCard() {
           <Link href="/audio-video">
             <Button 
               variant="secondary" 
-              className="text-sm h-[36px] ring-[2px] rounded-[48px] text-primary-PARI-Red group"
+              className="text-sm h-[36px]  ml-1 sm:ml-0  ring-[2px] rounded-[48px] text-primary-PARI-Red group"
             >
               {featuredStory.sub_title}
               <ChevronRight className="h-4 w-4 ml-1" />
@@ -298,14 +298,14 @@ export function AudioVideoCard() {
       </div>
 
       {/* Featured Story */}
-      <div className="md:mb-6 mb-12 ">
+      <div className="md:mb-6 max-w-[1232px] mx-auto mb-12 ">
         <AudioVideoBigCard 
           {...featuredStory}
         />
       </div>
       
       <div className="relative overflow-hidden">
-      <div className="hidden md:flex items-center justify-end pb-5 gap-4">
+      <div className="hidden md:flex items-center max-w-[1232px] mx-auto justify-end pb-5 gap-3">
             <Button
               variant="outline"
               size="icon"
@@ -324,9 +324,9 @@ export function AudioVideoCard() {
               <ChevronRight className="h-5 w-5" />
             </Button>
           </div>
-        <div ref={sliderRef} className="keen-slider max-w-[1232px] mx-auto relative !overflow-visible">
+        <div ref={sliderRef} className="keen-slider max-w-[1232px] mx-auto !overflow-visible">
           {mediaStories.slice(1).map((story: MediaStory) => (
-            <div key={story.id} className="keen-slider__slide">
+            <div key={story.id} className="keen-slider__slide   my-2 hover:scale-103 transition-transform duration-300">
               <StoryCard
                 title={story.title}
                 description={story.description}

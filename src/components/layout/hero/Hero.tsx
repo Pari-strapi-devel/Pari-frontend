@@ -210,7 +210,7 @@ export function Hero() {
       setLoaded(true)
     },
     slides: {
-      perView: 1.3,
+      perView: 1.1,
       spacing: 24,
     },
     breakpoints: {
@@ -291,7 +291,7 @@ export function Hero() {
 
           <div className='relative max-w-[1232px] h-fit mb-8 mx-auto'>
             {/* Modified navigation buttons container */}
-            <div className={`absolute right-10 top-[-60px] hidden md:block items-center !gap-6 z-10 ${language === 'ur' ? 'left-10 right-auto flex-row-reverse' : ''}`}>
+            <div className={`absolute right-10 top-[-78px] hidden md:block items-center !gap-3 z-10 ${language === 'ur' ? 'left-10 right-auto flex-row-reverse' : ''}`}>
               <Button
                 variant="outline"
                 size="icon"

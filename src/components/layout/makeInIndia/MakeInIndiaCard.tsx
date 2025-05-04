@@ -101,7 +101,7 @@ export function MakeInIndiaCard() {
         slides: { perView: 1.5, spacing: 32 },
       },
       '(min-width: 768px)': {
-        slides: { perView: 2, spacing: 32 },
+        slides: { perView: 1.5, spacing: 32 },
       },
       '(min-width: 1024px)': {
         slides: { perView: 2.5, spacing: 32 },
@@ -278,16 +278,16 @@ export function MakeInIndiaCard() {
           <div className='flex items-center justify-between'>
             <div className='flex items-center gap-2'>
               <Newspaper className="h-6 w-7 text-primary-PARI-Red" />
-              <h2 className="text-[13px] font-noto-sans uppercase text-gray-400 leading-[100%] letter-spacing-[-2%] font-semibold">
+              <h2 className="text-[13px] font-noto-sans uppercase text-grey-300 leading-[100%] letter-spacing-[-2%] font-semibold">
                 {strap}
               </h2>
             </div>
           </div>
           <div className="flex justify-between items-end">
-            <h4 className="font-noto-sans text-[36px] font-bold leading-[122%] tracking-[-0.04em]">
+            <h4 className="font-noto-sans sm:text-[40px] md:text-[48px] lg:text-[56px] text-[32px] font-bold leading-[122%] tracking-[-0.04em]">
               {sectionTitle}
             </h4>
-            <div className="hidden md:flex items-end gap-4">
+            <div className="hidden md:flex items-end gap-3">
               <Button
                 variant="outline"
                 size="icon"
@@ -315,7 +315,7 @@ export function MakeInIndiaCard() {
           {features.map((feature, index) => (
             <div 
               key={`${feature.href}-${index}`} 
-              className="keen-slider__slide min-h-[400px] min-w-[360px]"
+              className="keen-slider__slide min-h-[400px] min-w-[360px]  my-2 hover:scale-103 transition-transform duration-300 "
             >
               <BentoCard
                 features={[{ title: feature.category[0] }]}
@@ -332,7 +332,7 @@ export function MakeInIndiaCard() {
                   <div>
                     <div className="flex items-center gap-2">
                       {feature.category.map((cat, idx) => (
-                        <span key={idx} className="text-xs font-medium text-white bg-red-700 px-2 py-1 rounded-full">
+                        <span key={idx} className="text-xs font-medium text-white bg-primary-PARI-Red px-2 py-1 rounded-full">
                           {cat}
                         </span>
                       ))}

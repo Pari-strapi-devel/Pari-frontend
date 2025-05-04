@@ -40,7 +40,7 @@ export function StoryCard({
 }: StoryCardProps) {
   return (
     <Link href={`/stories/${slug || ''}`}>
-      <article className="group rounded-[16px] bg-white dark:bg-popover  transition-all duration-300 border border-border shadow-[0px_1px_2px_0px_#00000014]">
+      <article className="group rounded-[16px]  bg-white dark:bg-background hover:rounded-[16px] transition-all duration-300 border border-border ">
         <div className="relative h-[180px] w-full overflow-hidden rounded-t-2xl">
         <div className="absolute top-3 left-3 flex flex-wrap  gap-2 z-50 ">
           {(categories && categories.length > 0) && (

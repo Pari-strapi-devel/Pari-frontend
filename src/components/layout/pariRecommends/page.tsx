@@ -116,7 +116,7 @@ export default function StoriesPage() {
   const [sliderRef, instanceRef] = useKeenSlider({
     initial: 0,
     slides: {
-      perView: 1.1,
+      perView: 1.2,
       spacing: 16,
     },
     breakpoints: {
@@ -320,26 +320,26 @@ export default function StoriesPage() {
         <div className="flex justify-between sm:flex-row  flex-col sm:items-center gap-5 mb-4">
           <div className='flex flex-row items-center gap-2'>
             <Sparkle className="h-6 w-6 text-primary-PARI-Red" />
-            <h2 className="text-13px font-noto-sans  uppercase text-grey-300 line-clamp-1 leading-[100%] letter-spacing-[-2%] font-semibold">
+            <h2 className="text-[13px] font-noto-sans  uppercase text-grey-300 line-clamp-1 leading-[100%] letter-spacing-[-2%] font-semibold">
               {stories[0]?.headtitle}
             </h2>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-6">
             <Button
               variant="secondary"
-              className="text-sm h-[36px] ring-[2px] rounded-[48px] text-red-700"
+              className="text-sm h-[36px] ml-1 sm:ml-0 ring-[2px] rounded-[48px] text-primary-PARI-Red"
               onClick={() => setShowAll(!showAll)}
             >
               {showAll ? 'Show less' : stories[0]?.sub_title || 'See all'}
               <ChevronRight className="h-4 w-4" />
             </Button>
             
-            <div className="hidden md:flex items-center gap-4">
+            <div className="hidden md:flex items-center  gap-3">
               <Button
                 variant="outline"
                 size="icon"
                 onClick={() => instanceRef.current?.prev()}
-                className="bg-white dark:bg-popover hover:bg-red-700 text-red-700 hover:text-white rounded-full cursor-pointer w-10 h-10"
+                className="bg-white dark:bg-popover hover:bg-primary-PARI-Red text-primary-PARI-Red hover:text-white rounded-full cursor-pointer w-10 h-10"
               >
                 <ChevronLeft className="h-5 w-5" />
               </Button>
@@ -348,7 +348,7 @@ export default function StoriesPage() {
                 variant="outline"
                 size="icon"
                 onClick={() => instanceRef.current?.next()}
-                className="bg-white dark:bg-popover hover:bg-red-700 text-red-700 hover:text-white rounded-full cursor-pointer w-10 h-10"
+                className="bg-white dark:bg-popover hover:bg-primary-PARI-Red text-primary-PARI-Red hover:text-white rounded-full cursor-pointer w-10 h-10"
               >
                 <ChevronRight className="h-5 w-5" />
               </Button>
@@ -358,11 +358,11 @@ export default function StoriesPage() {
       </div>
 
       <div className="relative ">
-        <div ref={sliderRef} className="keen-slider overflow-visible">
+        <div ref={sliderRef} className="keen-slider max-w-[1232px] mx-auto relative !overflow-visible ">
           {visibleStories.map((story, index) => (
             <div 
               key={`${story.slug}-${index}-${currentLocale}`}
-              className="keen-slider__slide min-h-[500px]"
+              className="keen-slider__slide min-h-[500px] my-2 hover:scale-103 transition-transform duration-300 "
             >
               <StoryCard
                 {...story}
@@ -385,7 +385,7 @@ export default function StoriesPage() {
                 key={idx}
                 onClick={() => instanceRef.current?.moveToIdx(idx)}
                 className={`h-2 w-2 rounded-full transition-colors ${
-                  currentSlide === idx ? 'bg-red-600' : 'bg-gray-300'
+                  currentSlide === idx ? 'bg-primary-PARI-Red' : 'bg-grey-300'
                 }`}
                 aria-label={`Go to slide ${idx + 1}`}
               />

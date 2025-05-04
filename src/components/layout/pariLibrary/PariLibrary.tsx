@@ -123,15 +123,15 @@ export function PariLibrary() {
       setLoaded(true)
     },
     slides: {
-      perView: 1.2,
+      perView: 1.1,
       spacing: 16,
     },
     breakpoints: {
       '(min-width: 640px)': {
-        slides: { perView: 2.2, spacing: 20 },
+        slides: { perView: 1.5, spacing: 20 },
       },
       '(min-width: 768px)': {
-        slides: { perView: 2.5, spacing: 24 },
+        slides: { perView: 1.5, spacing: 24 },
       },
       '(min-width: 1024px)': {
         slides: { perView: 2, spacing: 24 },
@@ -153,15 +153,15 @@ export function PariLibrary() {
   return (
     <div className="overflow-hidden h-fit py-10 px-4 sm:py-20">
       <div className="px-2">
-        <div className="flex md:justify-between max-w-[1232px] flex-col sm:flex-row mx-auto sm:items-end mb-4">
+        <div className=" flex md:justify-between max-w-[1232px] flex-col sm:flex-row mx-auto sm:items-end mb-4">
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2">
               <BookOpen className="h-6 w-6 text-primary-PARI-Red" />
-              <h2 className="text-13px font-noto-sans uppercase text-gray-400 leading-[100%] tracking-[-0.02em] font-semibold">
+              <h2 className="text-[13px] font-noto-sans uppercase text-grey-300 leading-[100%] tracking-[-0.02em] font-semibold">
                 {libraryData[0]?.sub_title}
               </h2>
             </div>
-            <h3 className="font-noto-sans md:text-[56px] text-[40px] font-bold leading-[122%] tracking-[-0.04em]">
+            <h3 className="font-noto-sans md:text-[56px] text-[32px] font-bold leading-[122%] tracking-[-0.04em]">
               {libraryData[0]?.headtitle}
             </h3>
             <p className="font-noto-sans max-w-[32.375rem] text-[16px] text-discreet-text font-normal leading-[170%] tracking-[-0.01em] ">
@@ -169,7 +169,7 @@ export function PariLibrary() {
             </p>
           </div>
           
-          <div className="flex items-center h-full sm:pt-0 pt-6 gap-4">
+          <div className="flex items-center h-full sm:pt-0 pt-6 gap-8">
             <Button 
               variant="secondary" 
               className="text-sm h-[36px] ring-[2px] rounded-[48px] text-primary-PARI-Red"
@@ -179,7 +179,7 @@ export function PariLibrary() {
             </Button>
             
             {/* Add navigation buttons similar to other components */}
-            <div className="hidden md:flex items-center gap-4">
+            <div className="hidden md:flex items-center gap-3">
               <Button
                 variant="outline"
                 size="icon"

@@ -162,10 +162,10 @@ export function WeekOnCard() {
     },
     breakpoints: {
       '(min-width: 640px)': {
-        slides: { perView: 2.2, spacing: 16 },
+        slides: { perView: 1.5, spacing: 16 },
       },
       '(min-width: 768px)': {
-        slides: { perView: 2.5, spacing: 24 },
+        slides: { perView: 1.5, spacing: 24 },
       },
       '(min-width: 1024px)': {
         slides: { perView: 2, spacing: 24 },
@@ -332,12 +332,20 @@ export function WeekOnCard() {
   return (
     <section className="py-10 md:py-12 px-4 relative overflow-hidden">
       <div className="max-w-[1232px] mx-auto">
-        <div className="flex justify-between items-center">
+        <div className="fflex justify-between sm:flex-row  flex-col sm:items-center gap-5 mb-6">
           <WeekOnHeader 
             header={header}
             title={thisWeekData?.ThisWeek_On_Pari_Title || "This Week on PARI"}
          
           />
+
+<Button 
+                variant="secondary" 
+                className="text-sm h-[36px] ml-1 flex md:hidden ring-[2px] rounded-[48px] text-primary-PARI-Red mr-4"
+              >
+                {seeAllStories || "See all stories"}
+                <ChevronRight className="h-4 w-4 ml-1" />
+              </Button>
           
         
         </div>
@@ -347,7 +355,7 @@ export function WeekOnCard() {
             <Link href="/showcase" >
               <Button 
                 variant="secondary" 
-                className="text-sm h-[36px] ring-[2px] rounded-[48px] text-primary-PARI-Red mr-4"
+                className="text-sm h-[36px] md:flex hidden ring-[2px] rounded-[48px] text-primary-PARI-Red mr-4"
               >
                 {seeAllStories || "See all stories"}
                 <ChevronRight className="h-4 w-4 ml-1" />

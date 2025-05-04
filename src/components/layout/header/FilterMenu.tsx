@@ -203,14 +203,14 @@ export function FilterMenu({ isOpen, onClose }: FilterMenuProps) {
                 variant="ghost"
                 size="icon"
                 onClick={onClose}
-                className="hover:bg-accent cursor-pointer"
+                className="hover:bg-primary-PARI-Red/40  rounded-full cursor-pointer"
               >
-                <X className="h-6 w-6 text-primary-PARI-Red" />
+                <X className="h-6 w-6 text-primary-PARI-Red hover:text-white" />
               </Button>
               <div className='flex flex-row space-x-2'>
                 <Button 
                   variant="secondary"
-                  className={`h-8 flex items-center cursor-pointer ring-0 justify-center gap-2 ${
+                  className={`h-8 flex items-center rounded-full cursor-pointer ring-0 justify-center gap-2 ${
                     activeTab === 'cards' ? 'bg-primary-PARI-Red text-white' : 'bg-gray-200'
                   } hover:bg-primary-PARI-Red/80`}
                   onClick={() => setActiveTab('cards')}
@@ -219,7 +219,7 @@ export function FilterMenu({ isOpen, onClose }: FilterMenuProps) {
                 </Button>
                 <Button 
                   variant="secondary"
-                  className={`h-8 flex items-center cursor-pointer ring-0 justify-center gap-2 ${
+                  className={`h-8 flex items-center rounded-full cursor-pointer ring-0 justify-center gap-2 ${
                     activeTab === 'filters' ? 'bg-primary-PARI-Red text-white' : 'bg-gray-200'
                   } hover:bg-primary-PARI-Red/80`}
                   onClick={() => setActiveTab('filters')}
@@ -254,7 +254,7 @@ export function FilterMenu({ isOpen, onClose }: FilterMenuProps) {
                     
                    
                     <div 
-                      className={`p-4 text-white flex flex-col justify-end items-center h-full gradient-overlay ${
+                      className={`p-4 text-white flex flex-col justify-end items-center   h-full gradient-overlay ${
                         selectedOptions.some(opt => opt.id === category.id.toString())
                           ? 'bg-gradient-to-t h-full from-primary-PARI-Red via-primary-PARI-Red/90 to-transparent'
                           : ''
@@ -266,8 +266,7 @@ export function FilterMenu({ isOpen, onClose }: FilterMenuProps) {
                           backgroundImage: `url(${category.imageUrl})`
                         }}
                       />
-                      <h3 className="font-semibold text-center">{category.title}</h3>
-                      {/* <p className="text-sm text-white/80 mt-1">{category.description}</p> */}
+                      <h3 className="font-noto text-xs font-medium leading-[160%] mb-3 tracking-[-0.03em] text-center">{category.title}</h3>
                     </div>
                   </div>
                 ))}
@@ -279,17 +278,20 @@ export function FilterMenu({ isOpen, onClose }: FilterMenuProps) {
           {(selectedOptions.length > 0 || hasActiveFilters()) && (
             <div className="p-4 border-t dark:bg-popover bg-popover">
               <div className="flex items-center justify-center text-primary-PARI-Red mb-3">
-                <span className="text-lg font-medium">
-                  {activeTab === 'cards' ? `Filters ${selectedOptions.length}` : 'Active Filters'}
+                <span className="font-noto text-base font-medium leading-[160%] tracking-[-0.03em]">
+                  {activeTab === 'cards' ? `${selectedOptions.length} Filters Selected` : 'Active Filters'}
                 </span>
               </div>
+              <div className='flex justify-center'>
               <Button 
                 variant="secondary"
-                className="w-full bg-primary-PARI-Red ring-0 text-white hover:bg-primary-PARI-Red/80 px-8 py-4 text-lg font-semibold"
+                className="w-[356px] h-[48px] bg-primary-PARI-Red rounded-[48px] ring-0 text-white hover:bg-primary-PARI-Red/80 px-7 py-3.5 text-[16px] font-semibold"
                 onClick={handleConfirmSelection}
               >
                 Confirm Selection
               </Button>
+              </div>
+            
             </div>
           )}
         </div>
