@@ -131,7 +131,9 @@ export function AudioVideoBigCard({
               {location && <span>{location}</span>}
               {location && date && <span>•</span>}
               {date && <span>{date}</span>}
-              <ArrowRight className="h-5 w-5" />
+              <span className="group-hover:translate-x-1 transition-transform duration-300">
+                <ArrowRight className="h-5 w-5" />
+              </span>
             </div>
           </div>
         </div>

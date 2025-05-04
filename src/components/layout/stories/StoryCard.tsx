@@ -40,7 +40,7 @@ export function StoryCard({
 }: StoryCardProps) {
   return (
     <Link href={`/stories/${slug || ''}`}>
-      <article className="group rounded-[16px]  bg-white dark:bg-background hover:rounded-[16px] transition-all duration-300 border border-border ">
+      <article className="group rounded-[16px]  m-2 sm:hover:scale-103 transition-transform duration-300 bg-white dark:bg-background hover:rounded-[16px] border border-border ">
         <div className="relative h-[180px] w-full overflow-hidden rounded-t-2xl">
         <div className="absolute top-3 left-3 flex flex-wrap  gap-2 z-50 ">
           {(categories && categories.length > 0) && (
@@ -113,7 +113,9 @@ export function StoryCard({
               <div className="flex gap-1 justify-around items-center text-primary-PARI-Red font-noto-sans text-[14px] font-medium leading-[160%] tracking-[-0.03em]">
                 <p>{location}</p>•
                 <p>{date}</p>
-                <span className="text-xl "> <ArrowRight className="h-5 w-5" /></span>
+                <span className="text-xl group-hover:translate-x-1 transition-transform duration-300"> 
+                  <ArrowRight className="h-5 w-5" />
+                </span>
               </div>
             </div>
           </div>

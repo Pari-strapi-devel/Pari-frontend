@@ -355,7 +355,9 @@ export function Hero() {
                         <div className={`transform translate-y-4 flex items-center pt-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 ease-out ${language === 'ur' ? 'flex-row-reverse' : ''}`}>
                           <span className={`flex items-center gap-2 py-2 text-primary-PARI-Red ${language === 'ur' ? 'flex-row-reverse' : ''}`}>
                             <span className='text-[14px] font-noto-sans font-medium leading-[160%] tracking-[-0.03em]'>{info.ButtonText}</span>
-                            <ArrowRight className="h-5 w-5" />
+                            <span className="group-hover:translate-x-1 transition-transform duration-300">
+                              <ArrowRight className="h-5 w-5" />
+                            </span>
                           </span>
                         </div>
                       </div>

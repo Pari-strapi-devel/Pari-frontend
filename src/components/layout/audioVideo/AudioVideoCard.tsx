@@ -66,7 +66,7 @@ export function AudioVideoCard() {
     },
     slides: {
       perView: 1.2,
-      spacing: 16,
+      spacing: 10,
     },
     breakpoints: {
       '(min-width: 640px)': {
@@ -207,7 +207,7 @@ export function AudioVideoCard() {
                 )
               : [],
             location: (articleData.location?.data?.attributes?.district && articleData.location?.data?.attributes?.state) 
-              ? `${articleData.location.data.attributes.district}, ` //${articleData.location.data.attributes.state}
+              ? `${articleData.location.data.attributes.district} ` //${articleData.location.data.attributes.state}
               : articleData.location_auto_suggestion || 'India',
             date: articleData.Original_published_date
               ? new Date(articleData.Original_published_date).toLocaleDateString('en-US', {
@@ -326,7 +326,7 @@ export function AudioVideoCard() {
           </div>
         <div ref={sliderRef} className="keen-slider max-w-[1232px] mx-auto !overflow-visible">
           {mediaStories.slice(1).map((story: MediaStory) => (
-            <div key={story.id} className="keen-slider__slide   my-2 hover:scale-103 transition-transform duration-300">
+            <div key={story.id} className="keen-slider__slide  ">
               <StoryCard
                 title={story.title}
                 description={story.description}

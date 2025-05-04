@@ -117,7 +117,7 @@ export default function StoriesPage() {
     initial: 0,
     slides: {
       perView: 1.2,
-      spacing: 16,
+      spacing: 10,
     },
     breakpoints: {
       '(min-width: 640px)': {
@@ -127,7 +127,7 @@ export default function StoriesPage() {
         slides: { perView: 2.5, spacing: 24 },
       },
       '(min-width: 1024px)': {
-        slides: { perView: 2, spacing: 24 },
+        slides: { perView: 3, spacing: 24 },
       },
       '(min-width: 1280px)': {
         slides: { perView: 4, spacing: 24 },
@@ -315,8 +315,8 @@ export default function StoriesPage() {
   const visibleStories = showAll ? stories : stories.slice(0, 4)
 
   return (
-    <div className='max-w-[1232px] border-t-1 border-[#D9D9D9] dark:border-[#444444] lg:px-0 md:pt-12 pt-10 px-4 mx-auto'>
-      <div className="pb-4 ">
+    <div className='max-w-[1232px] relative overflow-hidden border-t-1 border-[#D9D9D9] dark:border-[#444444] lg:px-0 md:pt-12 pt-10 px-4 mx-auto'>
+      <div className="pb-4 relative z-10">
         <div className="flex justify-between sm:flex-row  flex-col sm:items-center gap-5 mb-4">
           <div className='flex flex-row items-center gap-2'>
             <Sparkle className="h-6 w-6 text-primary-PARI-Red" />
@@ -357,12 +357,12 @@ export default function StoriesPage() {
         </div>
       </div>
 
-      <div className="relative ">
+      <div className="relative overflow-hinden ">
         <div ref={sliderRef} className="keen-slider max-w-[1232px] mx-auto relative !overflow-visible ">
           {visibleStories.map((story, index) => (
             <div 
               key={`${story.slug}-${index}-${currentLocale}`}
-              className="keen-slider__slide min-h-[500px] my-2 hover:scale-103 transition-transform duration-300 "
+              className="keen-slider__slide min-h-[500px] "
             >
               <StoryCard
                 {...story}

@@ -131,7 +131,7 @@ export function PariLibrary() {
         slides: { perView: 1.5, spacing: 20 },
       },
       '(min-width: 768px)': {
-        slides: { perView: 1.5, spacing: 24 },
+        slides: { perView: 2.5, spacing: 24 },
       },
       '(min-width: 1024px)': {
         slides: { perView: 2, spacing: 24 },

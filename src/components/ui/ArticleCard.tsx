@@ -91,7 +91,9 @@ export function ArticleCard({
                 {location && date && '•'}
                 {date && <p>{date}</p>}
                 {readMore && <p>{readMore}</p>}
-                <ArrowRight className="h-5 gap-2 w-5" />
+                <span className="group-hover:translate-x-1 transition-transform duration-300">
+                  <ArrowRight className="h-5 gap-2 w-5" />
+                </span>
               </div>
             </div>
           </div>

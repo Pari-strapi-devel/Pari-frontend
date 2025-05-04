@@ -277,7 +277,7 @@ export function WeekOnCard() {
               slug: articleData.slug || '',
               authors,
               location: articleData.location?.data?.attributes
-                ? `${articleData.location.data.attributes.district}, ` //${articleData.location.data.attributes.state}
+                ? `${articleData.location.data.attributes.district} ` //${articleData.location.data.attributes.state}
                 : articleData.location_auto_suggestion || 'India',
               date: articleData.Original_published_date
                 ? new Date(articleData.Original_published_date).toLocaleDateString('en-US', {

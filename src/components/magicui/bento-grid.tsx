@@ -60,7 +60,7 @@ const BentoCard = ({
   <div
     key={name}
     className={cn(
-      "group relative col-span-1 md:col-span-3 flex flex-col justify-between sm:min-h-[150px] min-h-[160px] overflow-hidden opacity-90 cursor-pointer rounded-2xl bg-[linear-gradient(180deg,rgba(0,0,0,0)_36.67%,#000000_70%)]",
+      "group relative col-span-1 md:col-span-3 w-full scale-100   hover:scale-103 transition-transform duration-300 flex flex-col justify-between sm:min-h-[150px] min-h-[160px] overflow-hidden opacity-90 cursor-pointer rounded-2xl bg-[linear-gradient(180deg,rgba(0,0,0,0)_36.67%,#000000_70%)]",
       
       "shadow-[0px_1px_2px_0px_#00000014] z-50",
       className
@@ -97,8 +97,8 @@ const BentoCard = ({
     </div>
 
     {/* Content wrapper with gradient */}
-    <div className="relative flex flex-col justify-end h-full z-10">
-      <div className="px-6 pb-6">
+    <div className="relative flex flex-col w-full justify-end h-full z-10">
+      <div className="px-6 pb-6 w-full">
         <h3 className="text-xl font-semibold text-white line-clamp-1 mb-2">
           {title || name}
         </h3>
@@ -118,7 +118,9 @@ const BentoCard = ({
               {location && <p>{location}</p>}
               {location && date && <span>•</span>}
               {date && <p>{date}</p>}
-              <ArrowRightIcon className="h-5 w-5" />
+              <span className="group-hover:translate-x-1 transition-transform duration-300">
+                <ArrowRightIcon className="h-5 w-5" />
+              </span>
             </div>
           )}
         </div>

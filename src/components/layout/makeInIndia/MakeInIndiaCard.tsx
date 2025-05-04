@@ -94,20 +94,20 @@ export function MakeInIndiaCard() {
     initial: 0,
     slides: {
       perView: 1,
-      spacing: 24,
+      spacing: 12,
     },
     breakpoints: {
       '(min-width: 640px)': {
-        slides: { perView: 1.5, spacing: 32 },
+        slides: { perView: 1.5, spacing: 10 },
       },
       '(min-width: 768px)': {
-        slides: { perView: 1.5, spacing: 32 },
+        slides: { perView: 1.5, spacing: 10 },
       },
       '(min-width: 1024px)': {
-        slides: { perView: 2.5, spacing: 32 },
+        slides: { perView: 2.5, spacing: 10 },
       },
       '(min-width: 1280px)': {
-        slides: { perView: 3, spacing: 32 },
+        slides: { perView: 3, spacing: 10 },
       },
     },
     slideChanged(slider) {
@@ -315,7 +315,7 @@ export function MakeInIndiaCard() {
           {features.map((feature, index) => (
             <div 
               key={`${feature.href}-${index}`} 
-              className="keen-slider__slide min-h-[400px] min-w-[360px]  my-2 hover:scale-103 transition-transform duration-300 "
+              className="keen-slider__slide min-h-[400px] md:p-3 max-w-full min-w-[360px]  "
             >
               <BentoCard
                 features={[{ title: feature.category[0] }]}
