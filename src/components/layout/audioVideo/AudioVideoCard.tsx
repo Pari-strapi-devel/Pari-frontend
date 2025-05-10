@@ -192,7 +192,7 @@ export function AudioVideoCard() {
             imageUrl: articleData.Cover_image?.data?.attributes?.url
               ? `${BASE_URL}${articleData.Cover_image.data.attributes.url}`
               : '/images/categories/default.jpg',
-            type: 'video',
+            type: 'video/audio',
             duration: '00:00',
             categories: Array.isArray(articleData.categories?.data) 
               ? articleData.categories.data.map(
@@ -337,6 +337,7 @@ export function AudioVideoCard() {
                 location={story.location}
                 date={story.date}
                 videoUrl={story.type === 'video' ? 'true' : undefined}
+                audioUrl={story.type === 'audio' ? 'true' : undefined}
                 localizations={story.localizations}
                 className="h-full mx-2"
               />

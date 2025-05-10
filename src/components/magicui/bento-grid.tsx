@@ -60,7 +60,7 @@ const BentoCard = ({
   <div
     key={name}
     className={cn(
-      "group relative col-span-1 md:col-span-3 w-full scale-100   hover:scale-103 transition-transform duration-300 flex flex-col justify-between sm:min-h-[150px] min-h-[160px] overflow-hidden opacity-90 cursor-pointer rounded-2xl bg-[linear-gradient(180deg,rgba(0,0,0,0)_36.67%,#000000_70%)]",
+      "group relative col-span-1 md:col-span-3 w-full scale-100   sm:hover:scale-103 transition-transform duration-300 flex flex-col justify-between sm:min-h-[150px] min-h-[160px] overflow-hidden opacity-90 cursor-pointer rounded-2xl bg-[linear-gradient(180deg,rgba(0,0,0,0)_36.67%,#000000_70%)]",
       
       "shadow-[0px_1px_2px_0px_#00000014] z-50",
       className

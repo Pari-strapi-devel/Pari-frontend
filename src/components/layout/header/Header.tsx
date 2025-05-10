@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Search, Menu, X } from "lucide-react"
 import Image from 'next/image'
 import { useFilterStore } from '@/store/filterStore'
+import Link from 'next/link'
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -50,7 +51,9 @@ export function Header() {
                 )}
                 <span className="sr-only">Toggle menu</span>
               </Button>
-              <div className="flex items-center">
+              <div  className="flex items-center">
+          
+                <Link href="/">
                 <h3 className="sm:w-[180px] text-[13px] gap-2 flex items-center font-bold text-foreground">
                   <Image 
                     src="/pari-logo.png" 
@@ -61,6 +64,7 @@ export function Header() {
                   /> 
                   <p className='hidden sm:block'>People&apos;s Archive of Rural India</p>
                 </h3>
+                </Link>
               </div>
             </div>
 

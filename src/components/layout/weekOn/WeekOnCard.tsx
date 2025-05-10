@@ -338,7 +338,7 @@ export function WeekOnCard() {
             title={thisWeekData?.ThisWeek_On_Pari_Title || "This Week on PARI"}
          
           />
-
+          <Link href="/articles">
 <Button 
                 variant="secondary" 
                 className="text-sm h-[36px] ml-1 flex md:hidden ring-[2px] rounded-[48px] text-primary-PARI-Red mr-4"
@@ -346,13 +346,14 @@ export function WeekOnCard() {
                 {seeAllStories || "See all stories"}
                 <ChevronRight className="h-4 w-4 ml-1" />
               </Button>
+          </Link>
           
         
         </div>
         
         <div className="relative mt-4">
           <div className="absolute right-0 top-[-60px]  flex items-center gap-4 z-10">
-            <Link href="/showcase" >
+            <Link href="/articles" >
               <Button 
                 variant="secondary" 
                 className="text-sm h-[36px] md:flex hidden ring-[2px] rounded-[48px] text-primary-PARI-Red mr-4"

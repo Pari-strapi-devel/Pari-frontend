@@ -1,12 +1,11 @@
 
-import {  useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from "@/components/ui/button"
 import { X } from "lucide-react"
 import { CategoryCard, FilterOption } from './Category'
-
+import { FilterOptionsView } from './FilterOptionsView'
 import { useCategories } from './Category'
-
 
 interface FilterMenuProps {
   isOpen: boolean;
@@ -20,6 +19,7 @@ interface FilterState {
   status?: 'published' | 'draft' | 'archived';
   authorName?: string;
   place?: string;
+  location?: string;
   dateRanges?: string[];
   contentTypes?: string[];
 }
@@ -36,7 +36,14 @@ export function FilterMenu({ isOpen, onClose }: FilterMenuProps) {
   });
   const { categories } = useCategories()
   
-
+  // Reset filters when menu is opened
+  useEffect(() => {
+    if (isOpen) {
+      // Don't reset filters when opening to allow for multiple filter selection
+      // Just keep the current state
+    }
+  }, [isOpen]);
+  
   const handleOptionSelect = (option: FilterOption) => {
     setSelectedOptions(currentOptions => {
       const isSelected = currentOptions.some(opt => opt.id === option.id)
@@ -58,134 +65,82 @@ export function FilterMenu({ isOpen, onClose }: FilterMenuProps) {
   };
 
   const handleConfirmSelection = () => {
+    // Get existing query parameters
+    const url = new URL(window.location.href);
+    const params = new URLSearchParams(url.search);
+    
     if (activeTab === 'cards' && selectedOptions.length > 0) {
-      const paths = selectedOptions.map(opt => opt.path).join(',')
-      router.push(`/filter?types=${paths}`)
-      onClose()
+      // Get existing types if any
+      const existingTypes = params.get('types')?.split(',') || [];
+      const newTypes = selectedOptions.map(opt => opt.path);
+      
+      // Combine existing and new types, removing duplicates
+      const allTypes = [...new Set([...existingTypes, ...newTypes])];
+      
+      // Update the URL
+      params.set('types', allTypes.join(','));
+      router.push(`/articles?${params.toString()}`);
+      onClose();
     } else if (activeTab === 'filters' && hasActiveFilters()) {
-      const queryParams = new URLSearchParams();
+      // Handle author filter
+      if (filters.authorName) {
+        params.set('author', filters.authorName);
+      }
       
-      if (filters.authorName) queryParams.append('author', filters.authorName);
-      if (filters.place) queryParams.append('place', filters.place);
-      if (filters.dateRanges?.length) queryParams.append('dates', filters.dateRanges.join(','));
-      if (filters.contentTypes?.length) queryParams.append('content', filters.contentTypes.join(','));
+      // Handle place filter
+      if (filters.place) {
+        params.set('location', filters.place);
+      }
       
-      router.push(`/filter?${queryParams.toString()}`);
-      onClose()
+      // Handle date ranges
+      if (filters.dateRanges?.length) {
+        params.set('dates', filters.dateRanges.join(','));
+      }
+      
+      // Handle content types
+      if (filters.contentTypes?.length) {
+        params.set('content', filters.contentTypes.join(','));
+      }
+      
+      router.push(`/articles?${params.toString()}`);
+      onClose();
     }
   }
 
-  // Modify FilterOptionsView to accept and update filters directly
-  const FilterOptionsView = () => {
-    const handleDateRangeChange = (range: string) => {
-      setFilters(prev => {
-        const ranges = prev.dateRanges || [];
-        if (ranges.includes(range)) {
-          return { ...prev, dateRanges: ranges.filter(r => r !== range) };
-        } else {
-          return { ...prev, dateRanges: [...ranges, range] };
-        }
-      });
-    };
+  // Handler functions for FilterOptionsView
+  const handleDateRangeChange = (range: string) => {
+    setFilters(prev => {
+      const ranges = prev.dateRanges || [];
+      if (ranges.includes(range)) {
+        return { ...prev, dateRanges: ranges.filter(r => r !== range) };
+      } else {
+        return { ...prev, dateRanges: [...ranges, range] };
+      }
+    });
+  };
 
-    const handleContentTypeChange = (type: string) => {
-      setFilters(prev => {
-        const types = prev.contentTypes || [];
-        if (types.includes(type)) {
-          return { ...prev, contentTypes: types.filter(t => t !== type) };
-        } else {
-          return { ...prev, contentTypes: [...types, type] };
-        }
-      });
-    };
-
-    return (
-      <div className="p-4 space-y-6 bg-background dark:bg-background">
-        <h2 className="text-xl font-semibold mb-4">Choose filters to apply</h2>
-        
-        {/* Author Name */}
-        <div className="space-y-2">
-          <label htmlFor="authorName" className="block text-sm font-medium">Author name</label>
-          <input
-            id="authorName"
-            type="text"
-            placeholder="Enter a name of author"
-            className="w-full p-4 border h-[52px] rounded-[48px] shadow-md dark:bg-popover bg-popover focus:outline-none focus:ring-2 focus:ring-red-600"
-          
-            
-          
-          />
-        </div>
-
-        {/* Place */}
-        <div className="space-y-2">
-          <label htmlFor="place" className="block text-sm font-medium">Place</label>
-          <input
-            id="place"
-            type="text"
-            placeholder="Enter a name of place"
-            className="w-full p-4 border h-[52px] rounded-[48px] shadow-md dark:bg-popover bg-popover focus:outline-none focus:ring-2 focus:ring-red-600"
-          
-          />
-        </div>
-
-        {/* Date Range */}
-        <div className="space-y-2">
-          <label className="block text-sm font-medium">Date Range</label>
-          <div className="space-y-2 border rounded-md shadow-lg hover:shadow-md dark:bg-popover bg-popover transition-shadow">
-            {[
-              { id: 'date-range-7', value: '7days', label: 'Past 7 days' },
-              { id: 'date-range-14', value: '14days', label: 'Past 14 days' },
-              { id: 'date-range-30', value: '30days', label: 'Past 30 days' },
-              { id: 'date-range-365', value: '1year', label: 'Past 1 year' }
-            ].map((range) => (
-              <label 
-                key={range.id}
-                className={`flex items-center space-x-3 cursor-pointer hover:bg-accent/50 p-4 transition-colors ${
-                  range.id !== 'date-range-365' ? 'border-b-2' : ''
-                }`}
-              >
-                <input
-                  type="checkbox"
-                  checked={filters.dateRanges?.includes(range.value)}
-                  onChange={() => handleDateRangeChange(range.value)}
-                  className="w-6 h-6 rounded border-gray-900 accent-red-600 cursor-pointer"
-                />
-                <span>{range.label}</span>
-              </label>
-            ))}
-          </div>
-        </div>
-
-        {/* Content Type */}
-        <div className="space-y-2">
-          <label className="block text-sm font-medium">Content type</label>
-          <div className="space-y-2 border rounded-md shadow-lg dark:bg-popover bg-popover hover:shadow-md transition-shadow">
-            {[
-              { id: 'content-type-editorial', value: 'Editorials', label: 'Editorials' },
-              { id: 'content-type-video', value: 'Video Articles', label: 'Video Articles' },
-              { id: 'content-type-audio', value: 'Audio Articles', label: 'Audio Articles' },
-              { id: 'content-type-student', value: 'Student Articles', label: 'Student Articles' }
-            ].map((type) => (
-              <label 
-                key={type.id}
-                className={`flex items-center space-x-3 cursor-pointer hover:bg-accent/50 p-4 transition-colors ${
-                  type.id !== 'content-type-student' ? 'border-b-2' : ''
-                }`}
-              >
-                <input
-                  type="checkbox"
-                  checked={filters.contentTypes?.includes(type.value)}
-                  onChange={() => handleContentTypeChange(type.value)}
-                  className="w-6 h-6 rounded border-gray-900 accent-red-600 cursor-pointer"
-                />
-                <span>{type.label}</span>
-              </label>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
+  const handleContentTypeChange = (type: string) => {
+    setFilters(prev => {
+      const types = prev.contentTypes || [];
+      if (types.includes(type)) {
+        return { ...prev, contentTypes: types.filter(t => t !== type) };
+      } else {
+        return { ...prev, contentTypes: [...types, type] };
+      }
+    });
+  };
+  
+  const handleAuthorChange = (value: string) => {
+    setFilters(prev => ({ ...prev, authorName: value }));
+  };
+  
+  const handlePlaceChange = (value: string) => {
+    console.log('FilterMenu: handlePlaceChange called with', value);
+    setFilters(prev => {
+      const newFilters = { ...prev, place: value, location: value };
+      console.log('New filters state:', newFilters);
+      return newFilters;
+    });
   };
 
   return (
@@ -233,7 +188,13 @@ export function FilterMenu({ isOpen, onClose }: FilterMenuProps) {
           {/* Scrollable Content */}
           <div className="flex-1 overflow-y-auto h-full p-4 scrollbar-thin scrollbar-thumb-primary-PARI-Red scrollbar-track-gray-100">
             {activeTab === 'filters' ? (
-              <FilterOptionsView />
+              <FilterOptionsView 
+                filters={filters}
+                handleDateRangeChange={handleDateRangeChange}
+                handleContentTypeChange={handleContentTypeChange}
+                handleAuthorChange={handleAuthorChange}
+                handlePlaceChange={handlePlaceChange}
+              />
             ) : (
               <div className="grid grid-cols-2 gap-4">
                 {categories.map((category: CategoryCard) => (
@@ -251,10 +212,8 @@ export function FilterMenu({ isOpen, onClose }: FilterMenuProps) {
                       img: category.imageUrl
                     })}
                   >
-                    
-                   
                     <div 
-                      className={`p-4 text-white flex flex-col justify-end items-center   h-full gradient-overlay ${
+                      className={`p-4 text-white flex flex-col justify-end items-center h-full gradient-overlay ${
                         selectedOptions.some(opt => opt.id === category.id.toString())
                           ? 'bg-gradient-to-t h-full from-primary-PARI-Red via-primary-PARI-Red/90 to-transparent'
                           : ''
@@ -291,7 +250,6 @@ export function FilterMenu({ isOpen, onClose }: FilterMenuProps) {
                 Confirm Selection
               </Button>
               </div>
-            
             </div>
           )}
         </div>

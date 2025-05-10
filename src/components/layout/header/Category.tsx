@@ -57,10 +57,7 @@ export const useCategories = () => {
     const fetchCategories = async () => {
       try {
         const url = `${BASE_URL}api/categories?populate=*`;
-        console.log('Fetching categories from:', url);
-
         const response = await fetch(url);
-        console.log('Response status:', response.status);
 
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -68,21 +65,11 @@ export const useCategories = () => {
 
         const data = await response.json();
         
-        // Log the entire response structure
-        console.log('Complete API Response:', JSON.stringify(data, null, 2));
-
         if (!data || !data.data || !Array.isArray(data.data)) {
           throw new Error('Invalid API response structure');
         }
 
         const formattedCategories = data.data.map((category: CategoryApiResponse['data'][0]) => {
-          // Log individual category data
-          console.log('Processing category:', {
-            id: category.id,
-            title: category.attributes.Title,
-            imageData: category.attributes.category_image
-          });
-
           let imageUrl = "/images/categories/default.jpg";
           
           if (category.attributes.category_image?.data?.attributes?.url) {
@@ -90,12 +77,6 @@ export const useCategories = () => {
             imageUrl = rawUrl.startsWith('http') 
               ? rawUrl 
               : `${IMAGE_URL}${rawUrl.startsWith('/') ? rawUrl.slice(1) : rawUrl}`;
-            
-            console.log('Category Image Details:', {
-              title: category.attributes.Title,
-              rawUrl,
-              finalImageUrl: imageUrl
-            });
           }
 
           return {
@@ -107,10 +88,8 @@ export const useCategories = () => {
           };
         });
 
-        console.log('Final formatted categories:', formattedCategories);
         setCategories(formattedCategories);
       } catch (err) {
-        console.error('Error fetching categories:', err);
         setError(err instanceof Error ? err.message : 'Failed to fetch categories');
       } finally {
         setLoading(false);

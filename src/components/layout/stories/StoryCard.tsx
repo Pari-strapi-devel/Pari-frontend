@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import {  ArrowRight, Play, } from 'lucide-react'
+import {  ArrowRight, Play, Headphones } from 'lucide-react'
 // import { CategoryList } from '@/components/ui/category'
 
 interface StoryCardProps {
@@ -15,6 +15,7 @@ interface StoryCardProps {
   location?: string
   date?: string
   videoUrl?: string
+  audioUrl?: string
   duration?: string
   localizations?: Array<{
     locale: string
@@ -35,6 +36,7 @@ export function StoryCard({
   location,
   date,
   videoUrl,
+  audioUrl,
   duration,
   localizations
 }: StoryCardProps) {
@@ -42,7 +44,7 @@ export function StoryCard({
     <Link href={`/stories/${slug || ''}`}>
       <article className="group rounded-[16px]  m-2 sm:hover:scale-103 transition-transform duration-300 bg-white dark:bg-background hover:rounded-[16px] border border-border ">
         <div className="relative h-[180px] w-full overflow-hidden rounded-t-2xl">
-        <div className="absolute top-3 left-3 flex flex-wrap  gap-2 z-50 ">
+        <div className="absolute top-3 left-3 flex flex-wrap  gap-2 z-10 ">
           {(categories && categories.length > 0) && (
               <>
                 <span 
@@ -73,7 +75,20 @@ export function StoryCard({
             <div className="absolute inset-0 bg-black/30 flex items-center justify-center group-hover:bg-black/40 transition-colors">
               <div className="flex flex-col items-center gap-2">
                 <div className="w-12 h-12 rounded-full bg-primary-PARI-Red hover:bg-red-500 flex items-center justify-center">
-                  <Play className="w-6 h-6 text-white ml-1" />
+                  <Play className="w-6 h-6 text-white " />
+                </div>
+                {duration && (
+                  <span className="text-white text-sm font-medium bg-black/50 px-2 py-1 rounded">
+                    {duration}
+                  </span>
+                )}
+              </div>
+            </div>
+          ) || audioUrl && (
+            <div className="absolute inset-0 bg-black/30 flex items-center justify-center group-hover:bg-black/40 transition-colors">
+              <div className="flex flex-col items-center gap-2">
+                <div className="w-12 h-12 rounded-full bg-primary-PARI-Red hover:bg-red-500 flex items-center justify-center">
+                  <Headphones className="w-6 h-6 text-white " />
                 </div>
                 {duration && (
                   <span className="text-white text-sm font-medium bg-black/50 px-2 py-1 rounded">
@@ -111,9 +126,9 @@ export function StoryCard({
               </div>
 
               <div className="flex gap-1 justify-around items-center text-primary-PARI-Red font-noto-sans text-[14px] font-medium leading-[160%] tracking-[-0.03em]">
-                <p>{location}</p>•
-                <p>{date}</p>
-                <span className="text-xl group-hover:translate-x-1 transition-transform duration-300"> 
+                <p className="flex-shrink-0 line-clamp-1" >{location}</p>•
+                <p className="flex-shrink-0">{date}</p>
+                <span className="text-xl group-hover:translate-x-1  transition-transform duration-300"> 
                   <ArrowRight className="h-5 w-5" />
                 </span>
               </div>

@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button'
 import qs from 'qs'
 import axios from 'axios'
 import { BASE_URL } from '@/config'
+import Link from 'next/link';
 
 interface Story {
   sub_title: string;
@@ -324,7 +325,8 @@ export default function StoriesPage() {
               {stories[0]?.headtitle}
             </h2>
           </div>
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-8">
+            <Link href="/articles">
             <Button
               variant="secondary"
               className="text-sm h-[36px] ml-1 sm:ml-0 ring-[2px] rounded-[48px] text-primary-PARI-Red"
@@ -333,6 +335,7 @@ export default function StoriesPage() {
               {showAll ? 'Show less' : stories[0]?.sub_title || 'See all'}
               <ChevronRight className="h-4 w-4" />
             </Button>
+            </Link>
             
             <div className="hidden md:flex items-center  gap-3">
               <Button

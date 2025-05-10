@@ -89,7 +89,7 @@ export function Navigation() {
           </NavigationMenuTrigger>
           <NavigationMenuContent>
             <div className="grid gap-3 p-4 w-[400px] max-md:w-full">
-              <Link href="/courses" legacyBehavior passHref>
+              <Link href="/courses"  passHref>
                 <NavigationMenuLink className="cursor-pointer p-2 hover:bg-accent/30 rounded transition-colors duration-150">
                   Courses
                 </NavigationMenuLink>
