@@ -192,7 +192,7 @@ export function FilterOptionsView({
           value={filters.authorName || ''}
           onChange={(e) => handleAuthorChange(e.target.value)}
           placeholder="Enter a name of author"
-          className="w-full p-4 border h-[52px] rounded-[48px] shadow-md dark:bg-popover bg-popover focus:outline-none focus:ring-1 focus:ring-primary-PARI-Red"
+          className="w-full p-4 border h-[52px] rounded-[8px] shadow-sm dark:bg-popover bg-popover focus:outline-none focus:ring-1 focus:ring-primary-PARI-Red"
         />
         
         {/* Author suggestions */}
@@ -234,7 +234,7 @@ export function FilterOptionsView({
             handlePlaceChange(newValue);
           }}
           placeholder="Enter a name of place"
-          className="w-full p-4 border h-[52px] rounded-[48px] shadow-md dark:bg-popover bg-popover focus:outline-none focus:ring-1 focus:ring-primary-PARI-Red"
+          className="w-full p-4 border h-[52px] rounded-[8px] shadow-sm dark:bg-popover bg-popover focus:outline-none focus:ring-1 focus:ring-primary-PARI-Red"
         />
         
         {/* Place suggestions - simplified for debugging */}
@@ -265,7 +265,7 @@ export function FilterOptionsView({
       {/* Date Range */}
       <div className="space-y-2">
         <label className="block text-sm font-medium">Date Range</label>
-        <div className="space-y-2 border rounded-md shadow-lg hover:shadow-md dark:bg-popover bg-popover transition-shadow">
+        <div className="space-y-2 border rounded-md shadow-sm hover:shadow-md dark:bg-popover bg-popover transition-shadow">
           {[
             { id: 'date-range-7', value: '7days', label: 'Past 7 days' },
             { id: 'date-range-14', value: '14days', label: 'Past 14 days' },
@@ -282,7 +282,7 @@ export function FilterOptionsView({
                 type="checkbox"
                 checked={filters.dateRanges?.includes(range.value)}
                 onChange={() => handleDateRangeChange(range.value)}
-                className="w-6 h-6 rounded border-gray-900 accent-red-600 cursor-pointer"
+                className="w-6 h-6 rounded border-grey-300 primary-PARI-Red cursor-pointer"
               />
               <span>{range.label}</span>
             </label>
@@ -293,7 +293,7 @@ export function FilterOptionsView({
       {/* Content Type */}
       <div className="space-y-2">
         <label className="block text-sm font-medium">Content type</label>
-        <div className="space-y-2 border rounded-md shadow-lg dark:bg-popover bg-popover hover:shadow-md transition-shadow">
+        <div className="space-y-2 border rounded-md shadow-sm dark:bg-popover bg-popover hover:shadow-md transition-shadow">
           {[
             { id: 'content-type-editorial', value: 'Editorials', label: 'Editorials' },
             { id: 'content-type-video', value: 'Video Articles', label: 'Video Articles' },
@@ -310,7 +310,7 @@ export function FilterOptionsView({
                 type="checkbox"
                 checked={filters.contentTypes?.includes(type.value)}
                 onChange={() => handleContentTypeChange(type.value)}
-                className="w-6 h-6 rounded border-gray-900 accent-red-600 cursor-pointer"
+                className="w-6 h-6 rounded border-gray-900 primary-PARI-Red cursor-pointer"
               />
               <span>{type.label}</span>
             </label>

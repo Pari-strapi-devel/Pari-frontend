@@ -19,12 +19,12 @@ export function ThemeToggle() {
   }
 
   return (
-    <div className="relative">
+    <div className="relative flex items-center">
       <Button 
-        variant="outline" 
+        variant="secondary" 
         size="icon"
         onClick={toggleTheme}
-        className=" hover:bg-primary-PARI-Red/20  rounded-full cursor-pointer hover:text-primary-PARI-Red text-primary-PARI-Red"
+        className=" hover:bg-primary-PARI-Red hover:text-white w-[32px] h-[32px] rounded-full cursor-pointer  text-primary-PARI-Red"
       >
         <Sun className="absolute h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
         <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />

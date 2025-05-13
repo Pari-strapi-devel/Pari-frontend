@@ -232,7 +232,7 @@ export function WeekOnCard() {
         setSeeAllStories(seeAllStories || "See all stories");
         
 
-     console.log('Week Data:', seeAllStories);
+       
         // Update header icon handling
         const iconUrl = weekData?.ThisWeek_On_Pari_Icon?.data?.attributes?.url;
         if (iconUrl) {

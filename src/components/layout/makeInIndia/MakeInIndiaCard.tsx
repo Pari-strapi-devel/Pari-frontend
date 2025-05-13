@@ -178,13 +178,13 @@ export function MakeInIndiaCard() {
         const sections = response.data.data.attributes.pari_movable_sections[0];
         
         if (!sections) {
-          console.log('No sections found in response');
+         
           return;
         }
-
+        
         setSectionTitle(sections.title || '');
         setStrap(sections.sub_title || '');
-
+        
         const allArticles = [
           ...(sections.article_with_lang_selection_1 || []),
           ...(sections.article_with_lang_selection_2 || []),
@@ -210,8 +210,7 @@ export function MakeInIndiaCard() {
                   slug: loc.slug
                 }))
               : []; 
-          console.log(articleData.localizations , 'localizations'); // Added debug log
-           
+         
           // Define grid positions based on index
           const gridPositions = [
             "lg:col-start-1 lg:col-end-2 lg:row-start-1 lg:row-end-3",
@@ -272,7 +271,7 @@ export function MakeInIndiaCard() {
   }
  
   return (
-    <div className="sm:pb-16 pb-10 px-4 overflow-hidden dark:border-gray-800">
+    <div className="sm:pb-16 pb-10 px-4 overflow-hidden dark:border-border">
       <div className="max-w-[1232px] mx-auto">
         <div className="flex flex-col gap-2 pb-4 mb-4">
           <div className='flex items-center justify-between'>

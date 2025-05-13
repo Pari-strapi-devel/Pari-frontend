@@ -153,7 +153,7 @@ export function AudioVideoCard() {
         const response = await axios.get<ApiResponse>(`${BASE_URL}api/home-page?${queryString}`)
         
         const sections = response.data.data.attributes.pari_movable_sections[0];
-        console.log('Sections data:', sections);
+       
         
         const allArticles = [
           ...(sections.article_with_lang_selection_1 || []),
@@ -271,7 +271,7 @@ export function AudioVideoCard() {
   const featuredStory = mediaStories[0]
 
   return (
-    <div className=" relative border-t-1 border-[#D9D9D9] dark:border-[#444444] lg:px-0 px-4 mx-auto md:py-20 py-10 ">
+    <div className=" relative border-t-1 max-w-[1232px] border-[#D9D9D9] dark:border-[#444444] lg:px-0 px-4 mx-auto md:py-20 py-10 ">
       <div className="flex md:justify-between max-w-[1232px] mx-auto sm:items-center flex-col sm:flex-row gap-5 mb-8">
         <div className="flex items-center gap-2">
           {featuredStory.type === 'audio' ? (

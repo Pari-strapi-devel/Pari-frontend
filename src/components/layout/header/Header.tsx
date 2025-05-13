@@ -11,6 +11,7 @@ import Link from 'next/link'
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [isSearchExpanded, setIsSearchExpanded] = useState(false)
   const isFilterOpen = useFilterStore((state) => state.isOpen)
   const setIsFilterOpen = useFilterStore((state) => state.setIsOpen)
 
@@ -33,15 +34,15 @@ export function Header() {
 
   return (
     <>
-      <header className={`border-b border-border dark:bg-popover bg-popover relative ${isFilterOpen ? 'z-30' : 'z-50'}`}>
-        <div className="container mx-auto f top-0 px-4">
-          <nav className="flex items-center justify-between h-16">
+      <header className={`border-b border-border dark:bg-popover h-[88px] flex bg-popover relative ${isFilterOpen ? 'z-30' : 'z-50'}`}>
+        <div className="container mx-auto  top-0 px-4 max-w-[1282px]">
+          <nav className="flex items-center justify-between  h-full">
             {/* Left side with logo and mobile menu */}
-            <div className="flex items-center space-x-2">
+            <div className={`flex gap-2 items-center space-x-2 ${isSearchExpanded ? 'hidden md:flex' : 'flex'}`}>
               <Button
-                variant="outline"
+                variant="secondary"
                 size="icon"
-                className="md:hidden"
+                className="md:hidden rounded-full h-[32px] w-[32px] dark:hover:bg-primary-PARI-Red dark:bg-popover bg-popover items-center justify-center p-2  text-primary-PARI-Red"
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
               >
                 {isMenuOpen ? (
@@ -51,8 +52,7 @@ export function Header() {
                 )}
                 <span className="sr-only">Toggle menu</span>
               </Button>
-              <div  className="flex items-center">
-          
+              <div className="flex items-center">
                 <Link href="/">
                 <h3 className="sm:w-[180px] text-[13px] gap-2 flex items-center font-bold text-foreground">
                   <Image 
@@ -68,21 +68,45 @@ export function Header() {
               </div>
             </div>
 
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-8">
-              <Navigation />
-            </div>
+            {/* Desktop Navigation or Search Input */}
+            {isSearchExpanded ? (
+              <div className={`flex-1 ${isSearchExpanded ? 'w-full absolute left-0 right-0 px-4 md:relative md:px-0 md:mx-4' : 'mx-4'}`}>
+                <div className="flex items-center w-full bg-background dark:bg-background rounded-full border border-input">
+                  <input 
+                    type="text" 
+                    placeholder="Search for anything..." 
+                    className="flex-1  border-none focus:outline-none px-4 py-2 h-[48px]"
+                    autoFocus
+                  />
+                  <Button 
+                    variant="ghost" 
+                    size="icon"
+                    className="rounded-full"
+                    onClick={() => setIsSearchExpanded(false)}
+                  >
+                    <X className="h-[2rem] w-[2rem] text-primary-PARI-Red" />
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="hidden md:flex items-center space-x-8">
+                <Navigation />
+              </div>
+            )}
 
             {/* Right Side Actions */}
-            <div className={`flex items-center space-x-2 md:space-x-4 ${isMenuOpen ? 'md:flex hidden' : 'flex'}`}>
-              <Button 
-                variant="outline" 
-                size="icon"
-                className="hover:bg-accent rounded-full dark:bg-popover bg-popover items-center justify-center p-2"
-              >
-                <Search className="h-[1.2rem] w-[1.2rem] cursor-pointer text-primary-PARI-Red" />
-                <span className="sr-only">Search</span>
-              </Button>
+            <div className={`flex items-center  justify-center space-x-2 md:space-x-4 ${isSearchExpanded ? 'hidden md:flex' : 'flex'} ${isMenuOpen ? 'md:flex hidden' : 'flex'}`}>
+              {!isSearchExpanded && (
+                <Button 
+                  variant="secondary" 
+                  size="icon"
+                  className="rounded-full h-[32px] w-[32px]  dark:hover:bg-primary-PARI-Red dark:bg-popover bg-popover items-center justify-center p-2 text-primary-PARI-Red"
+                  onClick={() => setIsSearchExpanded(true)}
+                >
+                  <Search className="h-[1.2rem] w-[1.2rem] cursor-pointer" />
+                  <span className="sr-only">Search</span>
+                </Button>
+              )}
               
               <div className="flex items-center space-x-2">
                 <Button 
@@ -98,8 +122,7 @@ export function Header() {
 
                 <Button 
                   variant="secondary" 
-                  className="rounded-2xl ju
-                   items-center hidden md:flex cursor-pointer w-[73px] h-[32px]"
+                  className="rounded-2xl items-center hidden md:flex cursor-pointer w-[73px] h-[32px]"
                 >
                   Donate
                 </Button>
@@ -112,11 +135,11 @@ export function Header() {
 
         {/* Mobile Menu Slider */}
         <div 
-          className={`fixed top-0 left-0 h-full w-full max-w-[350px] bg-background border-r border-border transform transition-transform duration-300 ease-in-out z-[60] md:hidden ${
+          className={`fixed top-0 left-0 h-full w-full max-w-[395px]   bg-background border-r border-border transform transition-transform duration-300 ease-in-out z-[60] md:hidden ${
             isMenuOpen ? 'translate-x-0' : '-translate-x-full'
           }`}
         >
-          <div className="flex flex-col h-full">
+          <div className="flex flex-col  h-full">
             {/* Mobile Menu Header */}
             <div className="p-4 border-b border-border">
               <div className="flex items-center justify-between">
@@ -133,14 +156,14 @@ export function Header() {
                   onClick={() => setIsMenuOpen(false)}
                   className="md:hidden"
                 >
-                  <X className="h-5 w-5" />
+                  <X className="h-7 w-7 text-primary-PARI-Red" />
                 </Button>
               </div>
             </div>
 
             {/* Mobile Navigation */}
             <div className="flex-1 overflow-y-auto p-4">
-              <Navigation />
+              <Navigation onLinkClick={() => setIsMenuOpen(false)} />
             </div>
           </div>
         </div>

@@ -296,13 +296,12 @@ export default function ArticlesContent() {
           categories?: { slug: { $in: string[] } };
           Authors?: { author_name: { Name: { $containsi: string } } };
           Original_published_date?: { $gte: string };
-          location?: {
-            data: { attributes: { name: { $containsi: string } } }
-          };
+          location?: { name: { $containsi: string }} | { district: { $containsi: string }} | { state: { $containsi: string }};
           location_auto_suggestion?: { $containsi: string };
           type?: { $eq: string };
           is_student_article?: { $eq: boolean };
         } = { $and: [] }
+        
         console.log('Starting to build filters with params:', { types, author, location, dates, content });
         
         // Category filters (from types parameter)
@@ -332,21 +331,12 @@ export default function ArticlesContent() {
         
         // Place filter
         if (location) {
-          console.log('Adding location filter for:', location);
-          
-          // Use the same structure as the author filter
-          filters.location = {
-            data: {
-              attributes: {
-                name: {
-                  $containsi: location
-                }
-              }
-            }
-          };
-          
-          console.log('Location filter using author-like structure:', filters.location);
-          setFilterTitle(`Place: ${location}`);
+          filters.$or = [
+            { 'location.data.attributes.name': { $containsi: location } },
+            { 'location.data.attributes.district': { $containsi: location } },
+            { 'location.data.attributes.state': { $containsi: location } },
+            { location_auto_suggestion: { $containsi: location } }
+          ];
         }
         
         // Date range filter
@@ -354,6 +344,8 @@ export default function ArticlesContent() {
           const dateRanges = dates.split(',')
           const today = new Date()
           let oldestDate = new Date()
+          
+          console.log('Processing date ranges:', dateRanges);
           
           // Find the oldest date in the selected ranges
           dateRanges.forEach(range => {
@@ -379,6 +371,7 @@ export default function ArticlesContent() {
           filters.Original_published_date = {
             $gte: oldestDate.toISOString()
           }
+          console.log('Added date filter:', filters.Original_published_date);
           setFilterTitle(`Date: Past ${dateRanges.join(', ')}`)
         }
         
@@ -386,6 +379,8 @@ export default function ArticlesContent() {
         if (content) {
           const contentTypes = content.split(',')
           const contentFilters: Array<{ type?: { $eq: string }; is_student_article?: { $eq: boolean } }> = []
+          
+          console.log('Processing content types:', contentTypes);
           
           contentTypes.forEach(type => {
             if (type === 'Editorials') {
@@ -407,6 +402,7 @@ export default function ArticlesContent() {
             } else {
               filters.$or = contentFilters;
             }
+            console.log('Added content filters:', filters.$or);
           }
           
           setFilterTitle(`Content: ${contentTypes.join(', ')}`)
@@ -416,6 +412,7 @@ export default function ArticlesContent() {
         if ([types, author, location, dates, content].filter(Boolean).length > 1) {
           setFilterTitle('Multiple Filters Applied');
         }
+        
         // Build the query
         const query = {
           populate: {
@@ -448,8 +445,9 @@ export default function ArticlesContent() {
         console.log('Query string sent to API:', queryString);
         
         try {
+          console.log('Sending request to API...');
           const response = await axios.get(`${BASE_URL}api/articles?${queryString}`);
-          console.log('API response data:', response.data);
+          console.log('API response received');
           console.log('Number of articles returned:', response.data.data.length);
           
           // Debug: Check if any articles were returned
@@ -520,9 +518,18 @@ export default function ArticlesContent() {
             ) || []
             
             // Format location
-            const location = attributes.location?.data?.attributes?.district || 
-                            attributes.location_auto_suggestion ||
-                            'India'
+         
+            const location = attributes.location?.data?.attributes?.name;
+            if (location) {
+              filters.$and.push({
+                $or: [
+                  { 'location.data.attributes.name': { $containsi: location } },
+                  { 'location.data.attributes.district': { $containsi: location } },
+                  { 'location.data.attributes.state': { $containsi: location } },
+                  { location_auto_suggestion: { $containsi: location } }
+                ]
+              });
+            }
             
             // Format date
             const date = attributes.Original_published_date
@@ -547,7 +554,7 @@ export default function ArticlesContent() {
               categories,
               authors,
               localizations,
-              location,
+              location: location,
               date,
               videoUrl: articleType.includes('video') ? 'true' : undefined,
               audioUrl: articleType.includes('audio') ? 'true' : undefined,
