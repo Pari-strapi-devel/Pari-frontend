@@ -45,6 +45,10 @@ export function FilterOptionsView({
   const [isLoadingPlaceSuggestions, setIsLoadingPlaceSuggestions] = useState(false);
   const placeSuggestionsRef = useRef<HTMLDivElement>(null);
 
+  // Add a state to track if a selection has been made
+  const [authorSelectionMade, setAuthorSelectionMade] = useState(false);
+  const [placeSelectionMade, setPlaceSelectionMade] = useState(false);
+
   // Handle clicks outside suggestions
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -64,7 +68,8 @@ export function FilterOptionsView({
   // Fetch author suggestions
   useEffect(() => {
     const fetchAuthorSuggestions = async () => {
-      if (!filters.authorName || filters.authorName.length < 1) {
+      // Don't fetch if a selection has been made
+      if (authorSelectionMade || !filters.authorName || filters.authorName.length < 1) {
         setAuthorSuggestions([]);
         setShowAuthorSuggestions(false);
         return;
@@ -97,7 +102,12 @@ export function FilterOptionsView({
           });
         });
         
-        setAuthorSuggestions(suggestions);
+        // Remove duplicates by name
+        const uniqueSuggestions = Array.from(
+          new Map(suggestions.map((item: AuthorSuggestion) => [item.name.toLowerCase(), item])).values()
+        );
+        
+        setAuthorSuggestions(uniqueSuggestions as AuthorSuggestion[]);
       } catch (error) {
         console.error('Error fetching author suggestions:', error);
         setAuthorSuggestions([]);
@@ -109,28 +119,81 @@ export function FilterOptionsView({
     const debounceTimer = setTimeout(() => {
       if (filters.authorName && filters.authorName.length >= 1) {
         fetchAuthorSuggestions();
+      } else {
+        // Clear suggestions when input is empty
+        setAuthorSuggestions([]);
+        setShowAuthorSuggestions(false);
       }
     }, 300);
     
     return () => clearTimeout(debounceTimer);
-  }, [filters.authorName]);
+  }, [filters.authorName, authorSelectionMade]);
 
   // Handle author selection
   const handleAuthorSelect = (name: string) => {
     handleAuthorChange(name);
     setShowAuthorSuggestions(false);
+    setAuthorSuggestions([]);
+    setAuthorSelectionMade(true); // Mark that a selection has been made
   };
   
   // Handle place selection
   const handlePlaceSelect = (name: string) => {
     handlePlaceChange(name);
     setShowPlaceSuggestions(false);
+    setPlaceSuggestions([]);
+    setPlaceSelectionMade(true); // Mark that a selection has been made
+  };
+
+  // Reset selection state when input changes
+  useEffect(() => {
+    if (!filters.authorName) {
+      setAuthorSelectionMade(false);
+    }
+  }, [filters.authorName]);
+
+  useEffect(() => {
+    if (!filters.location) {
+      setPlaceSelectionMade(false);
+    }
+  }, [filters.location]);
+
+  // Modify the input handlers to only show suggestions when typing
+  const handleAuthorInputFocus = () => {
+    // Only show suggestions if actively typing, not on initial focus
+    if (filters.authorName && filters.authorName.length >= 1 && authorSuggestions.length > 0) {
+      setShowAuthorSuggestions(true);
+    }
+  };
+
+  const handlePlaceInputFocus = () => {
+    // Only show suggestions if actively typing, not on initial focus
+    if (filters.location && filters.location.length >= 1 && placeSuggestions.length > 0) {
+      setShowPlaceSuggestions(true);
+    }
+  };
+
+  // Add blur handlers to inputs
+  const handleAuthorInputBlur = () => {
+    // Use setTimeout to allow click events on suggestions to fire first
+    setTimeout(() => {
+      setShowAuthorSuggestions(false);
+    }, 200);
+  };
+  
+
+  const handlePlaceInputBlur = () => {
+    // Use setTimeout to allow click events on suggestions to fire first
+    setTimeout(() => {
+      setShowPlaceSuggestions(false);
+    }, 200);
   };
 
   // Fetch place suggestions
   useEffect(() => {
     const fetchPlaceSuggestions = async () => {
-      if (!filters.location || filters.location.length < 1) {
+      // Don't fetch if a selection has been made
+      if (placeSelectionMade || !filters.location || filters.location.length < 1) {
         setPlaceSuggestions([]);
         setShowPlaceSuggestions(false);
         return;
@@ -161,7 +224,7 @@ export function FilterOptionsView({
           name: item.attributes.name
         }));
         
-        setPlaceSuggestions(suggestions);
+        setPlaceSuggestions(suggestions as LocationSuggestion[]);
       } catch (error) {
         console.error('Error fetching place suggestions:', error);
         setPlaceSuggestions([]);
@@ -173,11 +236,15 @@ export function FilterOptionsView({
     const debounceTimer = setTimeout(() => {
       if (filters.location && filters.location.length >= 1) {
         fetchPlaceSuggestions();
+      } else {
+        // Clear suggestions when input is empty
+        setPlaceSuggestions([]);
+        setShowPlaceSuggestions(false);
       }
     }, 300);
     
     return () => clearTimeout(debounceTimer);
-  }, [filters.location]);
+  }, [filters.location, placeSelectionMade]);
 
   return (
     <div className="p-4 space-y-6 bg-background dark:bg-background">
@@ -191,23 +258,25 @@ export function FilterOptionsView({
           type="text"
           value={filters.authorName || ''}
           onChange={(e) => handleAuthorChange(e.target.value)}
+          onFocus={handleAuthorInputFocus}
+          onBlur={handleAuthorInputBlur}
           placeholder="Enter a name of author"
           className="w-full p-4 border h-[52px] rounded-[8px] shadow-sm dark:bg-popover bg-popover focus:outline-none focus:ring-1 focus:ring-primary-PARI-Red"
         />
         
         {/* Author suggestions */}
-        {(showAuthorSuggestions && filters.authorName && filters.authorName.length >= 1) && (
+        {(showAuthorSuggestions && filters.authorName && filters.authorName.length >= 1 && authorSuggestions.length > 0) && (
           <div 
             ref={authorSuggestionsRef}
-            className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 shadow-lg rounded-md border border-gray-200 dark:border-gray-700"
+            className="absolute z-10 w-full mt-1 bg-popover shadow-lg rounded-md border border-border dark:border-border"
           >
             {isLoadingAuthorSuggestions ? (
-              <div className="p-3 text-center text-gray-500">Loading...</div>
+              <div className="p-3 text-center text-discreet-text">Loading...</div>
             ) : authorSuggestions.length > 0 ? (
               authorSuggestions.map((suggestion) => (
                 <div
                   key={suggestion.id}
-                  className="p-3 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
+                  className="p-3 hover:bg-background border-b border-border cursor-pointer"
                   onClick={() => handleAuthorSelect(suggestion.name)}
                 >
                   {suggestion.name}
@@ -228,28 +297,29 @@ export function FilterOptionsView({
           type="text"
           value={filters.location || ''}
           onChange={(e) => {
-            // Directly call the handler with the new value
             const newValue = e.target.value;
-            console.log('Changing location to:', newValue); // Debug log
+            console.log('Changing location to:', newValue);
             handlePlaceChange(newValue);
           }}
+          onFocus={handlePlaceInputFocus}
+          onBlur={handlePlaceInputBlur}
           placeholder="Enter a name of place"
           className="w-full p-4 border h-[52px] rounded-[8px] shadow-sm dark:bg-popover bg-popover focus:outline-none focus:ring-1 focus:ring-primary-PARI-Red"
         />
         
-        {/* Place suggestions - simplified for debugging */}
-        {showPlaceSuggestions && filters.location && filters.location.length >= 1 && (
+        {/* Place suggestions */}
+        {(showPlaceSuggestions && filters.location && filters.location.length >= 1 && placeSuggestions.length > 0) && (
           <div 
             ref={placeSuggestionsRef}
-            className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 shadow-lg rounded-md border border-gray-200 dark:border-gray-700"
+            className="absolute z-10 w-full bg-popover shadow-lg rounded-md border border-border dark:border-border"
           >
             {isLoadingPlaceSuggestions ? (
-              <div className="p-3 text-center text-gray-500">Loading...</div>
+              <div className="p-3 text-center text-discreet-text">Loading...</div>
             ) : placeSuggestions.length > 0 ? (
               placeSuggestions.map((suggestion) => (
                 <div
                   key={suggestion.id}
-                  className="p-3 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
+                  className="p-3 hover:bg-background border-b border-border cursor-pointer"
                   onClick={() => handlePlaceSelect(suggestion.name)}
                 >
                   {suggestion.name}
@@ -265,7 +335,7 @@ export function FilterOptionsView({
       {/* Date Range */}
       <div className="space-y-2">
         <label className="block text-sm font-medium">Date Range</label>
-        <div className="space-y-2 border rounded-md shadow-sm hover:shadow-md dark:bg-popover bg-popover transition-shadow">
+        <div className=" border rounded-md shadow-sm hover:shadow-md dark:bg-popover bg-popover transition-shadow">
           {[
             { id: 'date-range-7', value: '7days', label: 'Past 7 days' },
             { id: 'date-range-14', value: '14days', label: 'Past 14 days' },
@@ -278,12 +348,14 @@ export function FilterOptionsView({
                 range.id !== 'date-range-365' ? 'border-b-2' : ''
               }`}
             >
-              <input
-                type="checkbox"
-                checked={filters.dateRanges?.includes(range.value)}
-                onChange={() => handleDateRangeChange(range.value)}
-                className="w-6 h-6 rounded border-grey-300 primary-PARI-Red cursor-pointer"
-              />
+            <input
+              type="checkbox"
+              checked={filters.dateRanges?.includes(range.value)}
+              onChange={() => handleDateRangeChange(range.value)}
+              className="w-6 h-6 rounded border border-border  bg-background appearance-none checked:bg-primary-PARI-Red checked:border-transparent relative cursor-pointer
+              after:content-['✓'] font-bold after:absolute checked:text-white after:top-1/2 after:left-1/2 after:-translate-x-1/2 after:-translate-y-1/2 after:opacity-0 checked:after:opacity-100"
+            />
+
               <span>{range.label}</span>
             </label>
           ))}
@@ -293,7 +365,7 @@ export function FilterOptionsView({
       {/* Content Type */}
       <div className="space-y-2">
         <label className="block text-sm font-medium">Content type</label>
-        <div className="space-y-2 border rounded-md shadow-sm dark:bg-popover bg-popover hover:shadow-md transition-shadow">
+        <div className=" border rounded-md shadow-sm dark:bg-popover bg-popover hover:shadow-md transition-shadow">
           {[
             { id: 'content-type-editorial', value: 'Editorials', label: 'Editorials' },
             { id: 'content-type-video', value: 'Video Articles', label: 'Video Articles' },
@@ -310,7 +382,8 @@ export function FilterOptionsView({
                 type="checkbox"
                 checked={filters.contentTypes?.includes(type.value)}
                 onChange={() => handleContentTypeChange(type.value)}
-                className="w-6 h-6 rounded border-gray-900 primary-PARI-Red cursor-pointer"
+                className="w-6 h-6 rounded border border-border bg-background appearance-none checked:bg-primary-PARI-Red checked:border-transparent relative cursor-pointer
+                after:content-['✓'] font-bold after:absolute  checked:text-white after:top-1/2 after:left-1/2 after:-translate-x-1/2 after:-translate-y-1/2 after:opacity-0 checked:after:opacity-100"
               />
               <span>{type.label}</span>
             </label>

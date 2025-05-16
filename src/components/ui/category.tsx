@@ -20,8 +20,8 @@ export function Category({
       className={cn(
         "inline-block items-center px-2 py-1 ring-1 text-xs rounded-full w-fit h-[23px] mb-2 cursor-pointer transition-colors",
         selected 
-          ? "bg-red-700 text-white ring-red-700" 
-          : "ring-red-700 text-red-700 hover:bg-red-700 hover:text-white",
+          ? "bg-primary-PARI-Red text-white ring-primary-PARI-Red" 
+          : "ring-primary-PARI-Red text-primary-PARI-Red hover:bg-primary-PARI-Red hover:text-white",
         className
       )}
       onClick={onClick}
@@ -42,7 +42,7 @@ export function CategoryList({ categories, className }: CategoryListProps) {
       {(categories && categories.length > 0) && (
         <>
           <Category name={categories[0]} />
-          {categories.length > 2 && (
+          {categories.length > 1 && (
             <Category name={`+${categories.length - 1}`} />
           )}
         </>

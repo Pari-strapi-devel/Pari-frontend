@@ -101,10 +101,10 @@ export function StoryCard({
         </div>
         {/* <CategoryList categories={categories && categories.length > 0 ? categories : []}></CategoryList> */}
 
-        <div className="py-6   flex  justify-around flex-col px-4">
+        <div className="py-6   flex min-h-[180px] items-start bg-popover rounded-b-[16px] justify-between flex-col px-4">
           
 
-          <h3 className="font-noto-sans line-clamp-1 text-[18px] font-semibold leading-[136%] tracking-[-0.04em]  text-foreground ">
+          <h3 className="font-noto-sans flex h-[50px] text-[18px] font-semibold leading-[136%] tracking-[-0.04em]  text-foreground  !line-clamp-2">
             {title}
           </h3>
 

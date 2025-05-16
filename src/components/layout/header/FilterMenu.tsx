@@ -132,6 +132,11 @@ export function FilterMenu({ isOpen, onClose }: FilterMenuProps) {
   
   const handleAuthorChange = (value: string) => {
     setFilters(prev => ({ ...prev, authorName: value }));
+    // If a full author name is selected (not just typing), prevent further suggestions
+    if (value && !value.endsWith(' ')) {
+      // This is likely a complete selection
+      console.log('Complete author selected:', value);
+    }
   };
   
   const handlePlaceChange = (value: string) => {
@@ -141,6 +146,11 @@ export function FilterMenu({ isOpen, onClose }: FilterMenuProps) {
       console.log('New filters state:', newFilters);
       return newFilters;
     });
+    // If a full place name is selected (not just typing), prevent further suggestions
+    if (value && !value.endsWith(' ')) {
+      // This is likely a complete selection
+      console.log('Complete place selected:', value);
+    }
   };
 
   return (
@@ -166,7 +176,7 @@ export function FilterMenu({ isOpen, onClose }: FilterMenuProps) {
                 <Button 
                   variant="secondary"
                   className={`h-8 flex items-center rounded-full cursor-pointer ring-0 justify-center gap-2 ${
-                    activeTab === 'cards' ? 'bg-primary-PARI-Red text-white' : 'bg-gray-200'
+                    activeTab === 'cards' ? 'bg-primary-PARI-Red text-white' : 'ring-1 ring-primary-PARI-Red'
                   } hover:bg-primary-PARI-Red/80`}
                   onClick={() => setActiveTab('cards')}
                 >
@@ -175,7 +185,7 @@ export function FilterMenu({ isOpen, onClose }: FilterMenuProps) {
                 <Button 
                   variant="secondary"
                   className={`h-8 flex items-center rounded-full cursor-pointer ring-0 justify-center gap-2 ${
-                    activeTab === 'filters' ? 'bg-primary-PARI-Red text-white' : 'bg-gray-200'
+                    activeTab === 'filters' ? 'bg-primary-PARI-Red text-white' : 'ring-1 ring-primary-PARI-Red'
                   } hover:bg-primary-PARI-Red/80`}
                   onClick={() => setActiveTab('filters')}
                 >
@@ -202,7 +212,7 @@ export function FilterMenu({ isOpen, onClose }: FilterMenuProps) {
                     key={category.id}
                     className={`group relative overflow-hidden rounded-lg h-[164px] shadow-sm hover:shadow-md transition-shadow duration-300 cursor-pointer ${
                       selectedOptions.some(opt => opt.id === category.id.toString()) 
-                        ? ' ring-1 ring-primary-PARI-Red' 
+                        ? ' ring-2 ring-primary-PARI-Red ' 
                         : ''
                     }`}
                     onClick={() => handleOptionSelect({
@@ -213,10 +223,10 @@ export function FilterMenu({ isOpen, onClose }: FilterMenuProps) {
                     })}
                   >
                     <div 
-                      className={`p-4 text-white flex flex-col justify-end items-center h-full gradient-overlay ${
+                      className={`p-4 text-white flex flex-col justify-end items-center h-full  ${
                         selectedOptions.some(opt => opt.id === category.id.toString())
-                          ? 'bg-gradient-to-t h-full from-primary-PARI-Red via-primary-PARI-Red/90 to-transparent'
-                          : ''
+                          ? 'bg-gradient-to-t h-full from-primary-PARI-Red  via-primary-PARI-Red/40 to-transparent'
+                          : 'gradient-overlay'
                       }`}
                     >
                       <div 

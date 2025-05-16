@@ -121,10 +121,8 @@ export function Hero() {
         const week_days = response.data?.data?.attributes?.week_days
         const months = response.data?.data?.attributes?.Months
 
-        // Debug logs
-        console.log('Raw Months Data:', months)
-        console.log('Raw Week Days Data:', week_days)
-
+       
+    
         // Set the state with the actual objects
         setMonths(months || {})
         setWeekDays(week_days || {})
@@ -325,8 +323,8 @@ export function Hero() {
                     href={info.url}
                     className="keen-slider__slide bg-none cursor-pointer block"
                   >
-                    <div className="flex flex-col rounded-lg h-[320px] sm:h-[350px] md:h-[456px] dark:bg-popover duration-200 relative group">
-                      <div className="relative aspect-[16/9] min-h-[130px] w-full overflow-hidden rounded-lg">
+                    <div className="flex flex-col rounded-lg h-[400px]  md:h-[456px] dark:bg-popover duration-200 relative group">
+                      <div className="relative aspect-[16/9] min-h-[170px] w-full overflow-hidden rounded-lg">
                         <Image
                           src={info.image.data.attributes.url}
                           alt={info.title}

@@ -10,7 +10,7 @@ import {
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu"
 import Image from 'next/image'
-import { ChevronDown, ChevronRight, BookOpen, Users, Handshake, Video, Headphones, Camera } from "lucide-react"
+import { ChevronDown, ChevronRight, Users, Handshake, Video, Headphones, Mailbox, HandCoins, ScrollText, ImageIcon } from "lucide-react"
 import Link from "next/link"
 
 interface NavigationProps {
@@ -63,7 +63,7 @@ export function Navigation({ onLinkClick }: NavigationProps = {}) {
                       <span className="font-medium">Audio stories</span>
                     </LinkWithClose>
                     <LinkWithClose href="/articles?content=Photo+Articles" className="flex items-center gap-3 p-6 hover:bg-gray-100 dark:hover:bg-background">
-                      <Camera className="h-5 w-5 text-primary-PARI-Red" />
+                      <ImageIcon className="h-5 w-5 text-primary-PARI-Red" />
                       <span className="font-medium">Photo stories</span>
                     </LinkWithClose>
                   </div>
@@ -155,11 +155,11 @@ export function Navigation({ onLinkClick }: NavigationProps = {}) {
                       <span className="font-medium">Our Team</span>
                     </LinkWithClose>
                     <LinkWithClose href="/contributors" className="flex items-center gap-3 p-6 hover:bg-gray-100 dark:hover:bg-background border-b border-border">
-                      <Handshake className="h-5 w-5 text-primary-PARI-Red" />
+                      <HandCoins className="h-5 w-5 text-primary-PARI-Red" />
                       <span className="font-medium">Contributors</span>
                     </LinkWithClose>
                     <LinkWithClose href="/acknowledgements" className="flex items-center gap-3 p-6 hover:bg-gray-100 dark:hover:bg-background">
-                      <BookOpen className="h-5 w-5 text-primary-PARI-Red" />
+                      <ScrollText className="h-5 w-5 text-primary-PARI-Red" />
                       <span className="font-medium">Acknowledgements</span>
                     </LinkWithClose>
                   </div>
@@ -199,7 +199,7 @@ export function Navigation({ onLinkClick }: NavigationProps = {}) {
                     <div className="pt-6 border-t border-border dark:border-border">
                       <LinkWithClose href="/contact-us" className="flex items-center gap-3 mb-2">
                         <div className="w-6 h-6 flex items-center justify-center text-primary-PARI-Red">
-                          <BookOpen className="h-6 w-6" />
+                          <Mailbox className="h-6 w-6" />
                         </div>
                         <span className="font-medium text-lg">Contact us</span>
                       </LinkWithClose>
@@ -263,7 +263,7 @@ export function Navigation({ onLinkClick }: NavigationProps = {}) {
                 <span className="font-medium">Audio stories</span>
               </LinkWithClose>
               <LinkWithClose href="/photo-stories" className="flex items-center gap-3 p-4 hover:bg-gray-100 dark:hover:bg-background border-b border-border">
-                <Camera className="h-5 w-5 text-primary-PARI-Red" />
+                <ImageIcon className="h-5 w-5 text-primary-PARI-Red" />
                 <span className="font-medium">Photo stories</span>
               </LinkWithClose>
             </div>
@@ -300,26 +300,26 @@ export function Navigation({ onLinkClick }: NavigationProps = {}) {
           {isMobileItemExpanded('get-involved') && (
              <div className="grid grid-cols-1 py-3 px-4 gap-2">
            <div className="w-full bg-white dark:bg-popover  border-border pr-4">
-             <div className="mb-4">
-               <LinkWithClose href="/contribute" className="flex items-center gap-3 mb-2">
+             <div className="mb-4 px-4 ">
+               <LinkWithClose href="/contribute" className="flex items-center gap-3  mb-2">
                  <div className="w-6 h-6 flex items-center justify-center text-primary-PARI-Red">
                    <Handshake className="h-6 w-6" />
                  </div>
                  <span className="font-medium text-lg">Contribute to PARI</span>
                </LinkWithClose>
-               <p className="text-sm text-discreet-text dark:text-discreet-text ml-9">
+               <p className="text-sm text-discreet-text line-clamp-2 dark:text-discreet-text ml-9">
                  India&apos;s largest archive needs everyone to participate to make journalism better.
                </p>
              </div>
              
-             <div className="py-4 border-y border-border dark:border-border">
-               <LinkWithClose href="/contact-us" className="flex items-center gap-3 mb-2">
+             <div className="p-4 border-y border-border dark:border-border">
+               <LinkWithClose href="/contact-us" className="flex items-center gap-3  mb-2">
                  <div className="w-6 h-6 flex items-center justify-center text-primary-PARI-Red">
-                   <BookOpen className="h-6 w-6" />
+                   <Mailbox className="h-6 w-6" />
                  </div>
                  <span className="font-medium text-lg">Contact us</span>
                </LinkWithClose>
-               <p className="text-sm text-discreet-text dark:text-discreet-text ml-9">
+               <p className="text-sm text-discreet-text line-clamp-2 dark:text-discreet-text ml-9">
                  We&lsquo;d love to hear from you. To reach the PARI team, please write to us.
                </p>
              </div>
@@ -355,16 +355,16 @@ export function Navigation({ onLinkClick }: NavigationProps = {}) {
        
         <div className="grid grid-cols-1 py-3 px-4 gap-2">
         <div className="w-full bg-white pr-4 dark:bg-popover border-border">
-          <LinkWithClose href="/team" className="flex items-center gap-3 p-6 hover:bg-gray-100 dark:hover:bg-background border-b border-border">
+          <LinkWithClose href="/team" className="flex items-center gap-3 p-4 hover:bg-gray-100 dark:hover:bg-background border-b border-border">
             <Users className="h-5 w-5 text-primary-PARI-Red" />
             <span className="font-medium">Our Team</span>
           </LinkWithClose>
-          <LinkWithClose href="/contributors" className="flex items-center gap-3 p-6 hover:bg-gray-100 dark:hover:bg-background border-b border-border">
-            <Handshake className="h-5 w-5 text-primary-PARI-Red" />
+          <LinkWithClose href="/contributors" className="flex items-center gap-3 p-4 hover:bg-gray-100 dark:hover:bg-background border-b border-border">
+            <HandCoins className="h-5 w-5 text-primary-PARI-Red" />
             <span className="font-medium">Contributors</span>
           </LinkWithClose>
-          <LinkWithClose href="/acknowledgements" className="flex items-center gap-3 p-6 hover:bg-gray-100 dark:hover:bg-background border-b border-border">
-            <BookOpen className="h-5 w-5 text-primary-PARI-Red" />
+          <LinkWithClose href="/acknowledgements" className="flex items-center gap-3 p-4 hover:bg-gray-100 dark:hover:bg-background border-b border-border">
+            <ScrollText className="h-5 w-5 text-primary-PARI-Red" />
             <span className="font-medium">Acknowledgements</span>
           </LinkWithClose>
         </div>

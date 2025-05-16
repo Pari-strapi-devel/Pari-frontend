@@ -133,13 +133,47 @@ export default function ArticlesContent() {
     content?: string[];
   }>({})
 
+  // Add pagination state
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  
+  // Responsive page size - 6 for mobile, 20 for desktop
+  const [pageSize, setPageSize] = useState(20)
+  
+  // Update page size based on screen width
+  useEffect(() => {
+    const handleResize = () => {
+      const isMobile = window.innerWidth < 640;
+      setPageSize(isMobile ? 6 : 20);
+    };
+    
+    // Set initial value
+    handleResize();
+    
+    // Add event listener
+    window.addEventListener('resize', handleResize);
+    
+    // Clean up
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+  
+  // Log page size changes for debugging
+  useEffect(() => {
+    console.log('Current page size:', pageSize);
+  }, [pageSize]);
+  
   // Get filter parameters from URL
   const types = searchParams?.get('types') || null
   const author = searchParams?.get('author') || null
   const location = searchParams?.get('location') || null
   const dates = searchParams?.get('dates') || null
   const content = searchParams?.get('content') || null
-
+  
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [types, author, location, dates, content])
+  
   // Check if any filters are applied
   const hasActiveFilters = types || author || location || dates || content
 
@@ -165,7 +199,9 @@ export default function ArticlesContent() {
 
   // Function to clear all filters
   const clearFilters = () => {
+    // Remove filters from sessionStorage
     sessionStorage.removeItem('articleFilters')
+    // Navigate to articles page without query params
     router.push('/articles')
   }
 
@@ -248,7 +284,28 @@ export default function ArticlesContent() {
 
   // Preserve filters on page reload
   useEffect(() => {
-    // This effect only runs on initial mount
+    // This effect runs only once when the component mounts
+    
+    // Check if this is a page refresh/reload
+    const isPageRefresh = performance.navigation ? 
+      performance.navigation.type === 1 : // For older browsers
+      window.performance.getEntriesByType('navigation')
+        .some((nav) => (nav as PerformanceNavigationTiming).type === 'reload');
+    
+    if (isPageRefresh) {
+      console.log('Page was refreshed - clearing filters');
+      // Clear filters from sessionStorage
+      sessionStorage.removeItem('articleFilters');
+      
+      // Redirect to articles page without query params if we have query params
+      if (window.location.search) {
+        router.replace('/articles');
+      }
+    }
+  }, [router]);
+
+  useEffect(() => {
+    // This effect runs when filter params change
     const hasFilters = types || author || location || dates || content;
     
     if (hasFilters) {
@@ -256,33 +313,10 @@ export default function ArticlesContent() {
       const filters = { types, author, location, dates, content };
       sessionStorage.setItem('articleFilters', JSON.stringify(filters));
     } else {
-      // If we don't have filters in the URL but have them in sessionStorage, restore them
-      const storedFilters = sessionStorage.getItem('articleFilters');
-      
-      if (storedFilters) {
-        try {
-          const parsedFilters = JSON.parse(storedFilters);
-          
-          // Build new URL with stored filters
-          const params = new URLSearchParams();
-          if (parsedFilters.types) params.set('types', parsedFilters.types);
-          if (parsedFilters.author) params.set('author', parsedFilters.author);
-          if (parsedFilters.location) params.set('location', parsedFilters.location);
-          if (parsedFilters.dates) params.set('dates', parsedFilters.dates);
-          if (parsedFilters.content) params.set('content', parsedFilters.content);
-          
-          // Only redirect if we have filters to restore
-          if (params.toString()) {
-            // Use router.push instead of window.location for better Next.js integration
-            router.push(`/articles?${params.toString()}`);
-          }
-        } catch (error) {
-          console.error('Error restoring filters:', error);
-          sessionStorage.removeItem('articleFilters');
-        }
-      }
+      // If we don't have filters in the URL, clear sessionStorage
+      sessionStorage.removeItem('articleFilters');
     }
-  }, [types, author, location, dates, content, router]); // Include all dependencies
+  }, [types, author, location, dates, content]); // Include all dependencies
 
   useEffect(() => {
     const fetchFilteredStories = async () => {
@@ -296,7 +330,7 @@ export default function ArticlesContent() {
           categories?: { slug: { $in: string[] } };
           Authors?: { author_name: { Name: { $containsi: string } } };
           Original_published_date?: { $gte: string };
-          location?: { name: { $containsi: string }} | { district: { $containsi: string }} | { state: { $containsi: string }};
+          location?: { name: { $containsi: string } };
           location_auto_suggestion?: { $containsi: string };
           type?: { $eq: string };
           is_student_article?: { $eq: boolean };
@@ -331,12 +365,7 @@ export default function ArticlesContent() {
         
         // Place filter
         if (location) {
-          filters.$or = [
-            { 'location.data.attributes.name': { $containsi: location } },
-            { 'location.data.attributes.district': { $containsi: location } },
-            { 'location.data.attributes.state': { $containsi: location } },
-            { location_auto_suggestion: { $containsi: location } }
-          ];
+          filters.location = { name: { $containsi: location } }
         }
         
         // Date range filter
@@ -413,7 +442,7 @@ export default function ArticlesContent() {
           setFilterTitle('Multiple Filters Applied');
         }
         
-        // Build the query
+        // Build the query with pagination and sorting by date
         const query = {
           populate: {
             Cover_image: {
@@ -436,7 +465,12 @@ export default function ArticlesContent() {
               fields: ['locale', 'title', 'strap', 'slug']
             }
           },
-          filters
+          filters,
+          pagination: {
+            page: currentPage,
+            pageSize: pageSize
+          },
+          sort: ['Original_published_date:desc'] // Sort by publication date, newest first
         };
         
         // Log the final query for debugging
@@ -449,6 +483,11 @@ export default function ArticlesContent() {
           const response = await axios.get(`${BASE_URL}api/articles?${queryString}`);
           console.log('API response received');
           console.log('Number of articles returned:', response.data.data.length);
+          
+          // Set total pages from pagination metadata
+          if (response.data.meta && response.data.meta.pagination) {
+            setTotalPages(response.data.meta.pagination.pageCount || 1);
+          }
           
           // Debug: Check if any articles were returned
           if (response.data.data.length === 0) {
@@ -554,7 +593,7 @@ export default function ArticlesContent() {
               categories,
               authors,
               localizations,
-              location: location,
+              location: attributes.location?.data?.attributes?.name || attributes.location_auto_suggestion || 'India',
               date,
               videoUrl: articleType.includes('video') ? 'true' : undefined,
               audioUrl: articleType.includes('audio') ? 'true' : undefined,
@@ -581,14 +620,124 @@ export default function ArticlesContent() {
     }
     
     fetchFilteredStories()
-  }, [types, author, location, dates, content])
+  }, [types, author, location, dates, content, currentPage, pageSize])
   
+  // Add page change handler
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo(0, 0);
+  }
+
+  // Add pagination UI component
+  const Pagination = () => {
+    if (totalPages <= 1) return null;
+    
+    // Show fewer pages on mobile
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
+    const maxVisiblePages = isMobile ? 4 : 9;
+    const startPage = Math.max(1, Math.min(currentPage - Math.floor(maxVisiblePages / 2), totalPages - maxVisiblePages + 1));
+    const endPage = Math.min(startPage + maxVisiblePages - 1, totalPages);
+    
+    // Create array of visible page numbers
+    const visiblePages = Array.from(
+      { length: endPage - startPage + 1 },
+      (_, i) => startPage + i
+    );
+    
+    // Function to handle "+" button clicks
+    const handlePrevSet = () => {
+      const prevPage = Math.max(1, startPage - 5);
+      handlePageChange(prevPage);
+    };
+    
+    const handleNextSet = () => {
+      const nextPage = Math.min(endPage + 5, totalPages);
+      handlePageChange(nextPage);
+    };
+    
+    return (
+      <div className="flex flex-col items-center mt-8">
+        {/* Main pagination row */}
+        <div className="flex flex-wrap justify-center gap-2">
+          {/* Previous button */}
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
+            disabled={currentPage === 1}
+            className="text-primary-PARI-Red rounded-2xl mr-2"
+          >
+            Prev
+          </Button>
+          
+          {/* Page numbers - hide some on very small screens */}
+          <div className="flex flex-wrap justify-center gap-2">
+            {visiblePages.map((page) => (
+              <Button
+                key={page}
+                variant={currentPage === page ? "default" : "secondary"}
+                size="sm"
+                onClick={() => handlePageChange(page)}
+                className={currentPage === page ? "bg-primary-PARI-Red text-white rounded-2xl" : "text-primary-PARI-Red rounded-2xl"}
+              >
+                {page}
+              </Button>
+            ))}
+          </div>
+          
+          {/* Next button */}
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
+            disabled={currentPage === totalPages}
+            className="text-primary-PARI-Red rounded-2xl ml-2"
+          >
+            Next
+          </Button>
+        </div>
+        
+        {/* Jump buttons row */}
+        <div className="flex justify-center  gap-2 mt-4">
+          {/* Jump to previous set */}
+          {startPage > 1 && (
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={handlePrevSet}
+              className="text-primary-PARI-Red rounded-2xl "
+            >
+              Prev 5
+            </Button>
+          )}
+          
+          {/* Jump to next set */}
+          {endPage < totalPages && (
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={handleNextSet}
+              className="text-primary-PARI-Red rounded-2xl ml-2"
+            >
+              Next 5
+            </Button>
+          )}
+        </div>
+        
+        {/* Total pages display */}
+        <div className="mt-2 text-md font-medium text-foreground">
+          Page {currentPage} of {totalPages}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
       
       <main className="max-w-[1232px] mx-auto px-4 py-8">
-        <div className="mb-8">
+        <div className="mb-8 pl-3">
           <div className="flex items-center justify-between mb-4">
             <h1 className="text-3xl ml-3 font-bold">Articles</h1>
             {hasActiveFilters && (
@@ -614,7 +763,7 @@ export default function ArticlesContent() {
           )}
             <div className="flex flex-wrap gap-2 mb-4">
               {activeFilters.types?.map(type => (
-                <div key={`type-${type}`} className="flex items-center ring-1 text-primary-PARI-Red ring-primary-PARI-Red bg-gray-100 dark:bg-gray-800 rounded-full px-3 py-1">
+                <div key={`type-${type}`} className="flex items-center ring-1 text-primary-PARI-Red ring-primary-PARI-Red bg-background  rounded-full px-3 py-1">
                   <span className="text-sm mr-2"> {type}</span>
                   <Button
                     variant="ghost"
@@ -628,7 +777,7 @@ export default function ArticlesContent() {
               ))}
               
               {activeFilters.author && (
-                <div className="flex items-center  ring-1 text-primary-PARI-Red ring-primary-PARI-Red bg-gray-100 dark:bg-gray-800 rounded-full px-3 py-1">
+                <div className="flex items-center  ring-1 text-primary-PARI-Red ring-primary-PARI-Red bg-background  rounded-full px-3 py-1">
                   <span className="text-sm mr-2">{activeFilters.author}</span>
                   <Button
                     variant="ghost"
@@ -642,7 +791,7 @@ export default function ArticlesContent() {
               )}
               
               {activeFilters.location && (
-                <div className="flex items-center  ring-1 text-primary-PARI-Red ring-primary-PARI-Red bg-gray-100 dark:bg-gray-800 rounded-full px-3 py-1">
+                <div className="flex items-center  ring-1 text-primary-PARI-Red ring-primary-PARI-Red bg-background  rounded-full px-3 py-1">
                   <span className="text-sm mr-2"> {activeFilters.location.join(', ')}</span>
                   <Button
                     variant="ghost"
@@ -656,7 +805,7 @@ export default function ArticlesContent() {
               )}
               
               {activeFilters.dates?.map(dateRange => (
-                <div key={`date-${dateRange}`} className="flex items-center  ring-1 text-primary-PARI-Red ring-primary-PARI-Red bg-gray-100 dark:bg-gray-800 rounded-full px-3 py-1">
+                <div key={`date-${dateRange}`} className="flex items-center  ring-1 text-primary-PARI-Red ring-primary-PARI-Red bg-background  rounded-full px-3 py-1">
                   <span className="text-sm mr-2">Date: {getDateRangeDisplay(dateRange)}</span>
                   <Button
                     variant="ghost"
@@ -670,7 +819,7 @@ export default function ArticlesContent() {
               ))}
               
               {activeFilters.content?.map(contentType => (
-                <div key={`content-${contentType}`} className="flex items-center  ring-1 text-primary-PARI-Red ring-primary-PARI-Red bg-gray-100 dark:bg-gray-800 rounded-full px-3 py-1">
+                <div key={`content-${contentType}`} className="flex items-center  ring-1 text-primary-PARI-Red ring-primary-PARI-Red bg-background  rounded-full px-3 py-1">
                   <span className="text-sm mr-2">Content: {getContentTypeDisplay(contentType)}</span>
                   <Button
                     variant="ghost"
@@ -690,7 +839,7 @@ export default function ArticlesContent() {
             <p>Loading articles...</p>
           </div>
         ) : stories.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {stories.map((story: Story) => (
               <StoryCard
                 key={story.id}
@@ -726,6 +875,8 @@ export default function ArticlesContent() {
             )}
           </div>
         )}
+        
+        <Pagination />
       </main>
     </div>
   )
