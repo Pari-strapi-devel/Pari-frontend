@@ -1,0 +1,166 @@
+# 'use client'
+
+# import { useState, useEffect } from 'react'
+# import { useSearchParams } from 'next/navigation'
+# import * as algoliasearch from 'algoliasearch/lite'
+# import { BASE_URL } from '@/config'
+# import { Header } from '@/components/layout/header/Header'
+# import { StoryCard } from '@/components/layout/stories/StoryCard'
+# const ALGOLIA_CONFIG = {
+#   appId: '',
+#   apiKey: '',
+#   indexName: 'articles'  // Updated to use a valid index name
+# }
+# // Initialize Algolia client
+# const client = algoliasearch.default(ALGOLIA_CONFIG.appId, ALGOLIA_CONFIG.apiKey)
+# const index = client.initIndex(ALGOLIA_CONFIG.indexName)
+
+# interface SearchResult {
+#   id: number;
+#   title: string;
+#   imageUrl: string;
+#   slug: string;
+#   categories: string[];
+#   authors: string[];
+#   location: string;
+#   date: string;
+#   type: string;
+# }
+
+# interface SearchHit {
+#   objectID?: string;
+#   id?: number;
+#   Title?: string;
+#   imageUrl?: string;
+#   slug?: string;
+#   categories?: string[];
+#   authors?: string[];
+#   location?: string;
+#   Original_published_date?: string;
+#   type?: string;
+# }
+
+# function SearchContent() {
+#   const searchParams = useSearchParams()
+#   const query = searchParams?.get('q') || ''
+  
+#   const [results, setResults] = useState<SearchResult[]>([])
+#   const [isLoading, setIsLoading] = useState<boolean>(true)
+
+#   useEffect(() => {
+#     const fetchSearchResults = async () => {
+#       if (!query) {
+#         setResults([])
+#         setIsLoading(false)
+#         return
+#       }
+
+#       try {
+#         setIsLoading(true)
+        
+#         const { hits } = await index.search(query, {
+#           hitsPerPage: 50,
+#         })
+        
+#         const formattedResults = hits.map((hit: SearchHit) => ({
+#           id: hit.objectID || hit.id,
+#           title: hit.Title || '',
+#           imageUrl: hit.imageUrl || `${BASE_URL}images/categories/default.jpg`,
+#           slug: hit.slug || '',
+#           categories: hit.categories || [],
+#           authors: hit.authors || ['PARI'],
+#           location: hit.location || 'India',
+#           date: hit.Original_published_date 
+#             ? new Date(hit.Original_published_date).toLocaleDateString('en-US', {
+#                 month: 'short',
+#                 day: '2-digit',
+#                 year: 'numeric'
+#               })
+#             : '',
+#           type: hit.type || 'article',
+#         }))
+        
+#         setResults(formattedResults.map(result => ({
+#           ...result,
+#           id: typeof result.id === 'string' ? parseInt(result.id) : (result.id || 0)
+#         })))
+#       } catch (error) {
+#         console.error('Error fetching search results from Algolia:', error)
+#         setResults([])
+#       } finally {
+#         setIsLoading(false)
+#       }
+#     }
+    
+#     fetchSearchResults()
+#   }, [query])
+
+#   return (
+#     <div className="min-h-screen bg-background">
+#       <Header />
+#       <main className="max-w-[1232px] mx-auto px-4 py-8">
+#         <div className="mb-8">
+#           <h1 className="text-3xl font-bold mb-2">Search Results</h1>
+#           <p className="text-muted-foreground">
+#             {query.length ? `Showing results for "${query}"` : 'Enter a search term in the header to find articles'}
+#           </p>
+#         </div>
+        
+#         {isLoading ? (
+#           <div className="flex justify-center items-center min-h-[400px]">
+#             <p>Searching...</p>
+#           </div>
+#         ) : results.length > 0 ? (
+#           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+#             {results.map((result) => (
+#               <StoryCard
+#                 key={result.id}
+#                 title={result.title}
+#                 imageUrl={result.imageUrl}
+#                 categories={result.categories}
+#                 authors={result.authors.join(', ')}
+#                 slug={result.slug}
+#                 location={result.location}
+#                 date={result.date}
+#                 videoUrl={result.type === 'video' ? 'true' : undefined}
+#                 audioUrl={result.type === 'audio' ? 'true' : undefined}
+#               />
+#             ))}
+#           </div>
+#         ) : (
+#           <div className="flex flex-col items-center justify-center min-h-[400px]">
+#             <h2 className="text-2xl font-semibold mb-4">No results found</h2>
+#             <p className="text-gray-600 text-center max-w-md">
+#               We couldn&apos;t find any articles matching your search term.
+#               Try using different keywords or browse our categories.
+#             </p>
+#           </div>
+#         )}
+#       </main>
+#     </div>
+#   )
+# }
+
+# // 👇 Import Suspense only once — here at the bottom
+# import { Suspense } from 'react'
+
+# export default function SearchPage() {
+#   return (
+#     <Suspense fallback={
+#       <div className="min-h-screen bg-background">
+#         <Header />
+#         <main className="max-w-[1232px] mx-auto px-4 py-8">
+#           <div className="mb-8">
+#             <h1 className="text-3xl font-bold mb-2">Search Results</h1>
+#             <p className="text-muted-foreground">Loading search results...</p>
+#           </div>
+#           <div className="flex justify-center items-center min-h-[400px]">
+#             <p>Searching...</p>
+#           </div>
+#         </main>
+#       </div>
+#     }>
+#       <SearchContent />
+#     </Suspense>
+#   )
+# }

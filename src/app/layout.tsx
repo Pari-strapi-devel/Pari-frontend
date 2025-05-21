@@ -25,7 +25,9 @@ interface RootLayoutProps {
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head />
+     <head>
+      <meta name="algolia-site-verification"  content="F5CD6E39238D1785" />
+     </head>
       <body 
         className={`${notoSans.className} font-noto antialiased`}
         suppressHydrationWarning
