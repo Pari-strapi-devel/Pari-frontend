@@ -2,12 +2,15 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import qs from 'qs';
 import { BASE_URL } from '@/config';
+import { Calendar } from 'lucide-react';
+import { languages } from '@/data/languages';
 
 interface FilterState {
   authorName?: string;
   location?: string;
   dateRanges?: string[];
   contentTypes?: string[];
+  languages?: string[];
 }
 
 interface FilterOptionsViewProps {
@@ -16,6 +19,7 @@ interface FilterOptionsViewProps {
   handleContentTypeChange: (type: string) => void;
   handleAuthorChange: (value: string) => void;
   handlePlaceChange: (value: string) => void;
+  handleLanguageChange: (language: string) => void;
 }
 
 interface AuthorSuggestion {
@@ -33,7 +37,8 @@ export function FilterOptionsView({
   handleDateRangeChange,
   handleContentTypeChange,
   handleAuthorChange,
-  handlePlaceChange
+  handlePlaceChange,
+  handleLanguageChange
 }: FilterOptionsViewProps) {
   const [authorSuggestions, setAuthorSuggestions] = useState<AuthorSuggestion[]>([]);
   const [showAuthorSuggestions, setShowAuthorSuggestions] = useState(false);
@@ -335,30 +340,66 @@ export function FilterOptionsView({
       {/* Date Range */}
       <div className="space-y-2">
         <label className="block text-sm font-medium">Date Range</label>
-        <div className=" border rounded-md shadow-sm hover:shadow-md dark:bg-popover bg-popover transition-shadow">
-          {[
-            { id: 'date-range-7', value: '7days', label: 'Past 7 days' },
-            { id: 'date-range-14', value: '14days', label: 'Past 14 days' },
-            { id: 'date-range-30', value: '30days', label: 'Past 30 days' },
-            { id: 'date-range-365', value: '1year', label: 'Past 1 year' }
-          ].map((range) => (
-            <label 
-              key={range.id}
-              className={`flex items-center space-x-3 cursor-pointer hover:bg-accent/50 p-4 transition-colors ${
-                range.id !== 'date-range-365' ? 'border-b-2' : ''
-              }`}
-            >
-            <input
-              type="checkbox"
-              checked={filters.dateRanges?.includes(range.value)}
-              onChange={() => handleDateRangeChange(range.value)}
-              className="w-6 h-6 rounded border border-border  bg-background appearance-none checked:bg-primary-PARI-Red checked:border-transparent relative cursor-pointer
-              after:content-['✓'] font-bold after:absolute checked:text-white after:top-1/2 after:left-1/2 after:-translate-x-1/2 after:-translate-y-1/2 after:opacity-0 checked:after:opacity-100"
-            />
-
-              <span>{range.label}</span>
-            </label>
-          ))}
+        <div className="flex flex-col gap-4">
+          {/* Start Date */}
+          <div className="flex flex-col gap-2">
+            <label className="text-sm text-discreet-text">From:</label>
+            <div className="relative">
+              <input
+                type="date"
+                placeholder="Start date"
+                className={`w-full p-2 pl-10 border rounded-md h-[52px] shadow-sm dark:bg-popover bg-popover focus:outline-none focus:ring-1 cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute ${
+                  filters.dateRanges?.some(r => r.startsWith('start:')) 
+                    ? 'ring-primary-PARI-Red border-primary-PARI-Red' 
+                    : 'focus:ring-primary-PARI-Red'
+                }`}
+                value={filters.dateRanges?.find(r => r.startsWith('start:'))?.replace('start:', '') || ''}
+                onChange={(e) => {
+                  const startDate = e.target.value;
+                  if (startDate) {
+                    handleDateRangeChange(`start:${startDate}`);
+                  }
+                }}
+                onClick={(e) => {
+                  // Ensure the calendar opens by focusing the input
+                  (e.target as HTMLInputElement).showPicker();
+                }}
+              />
+              <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                <Calendar className="h-5 w-5 text-primary-PARI-Red" />
+              </div>
+            </div>
+          </div>
+          
+          {/* End Date */}
+          <div className="flex flex-col gap-2">
+            <label className="text-sm text-discreet-text">To:</label>
+            <div className="relative">
+              <input
+                type="date"
+                placeholder="End date"
+                className={`w-full p-2 pl-10 border rounded-md h-[52px] shadow-sm dark:bg-popover bg-popover focus:outline-none focus:ring-1 cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute ${
+                  filters.dateRanges?.some(r => r.startsWith('end:')) 
+                    ? 'ring-primary-PARI-Red border-primary-PARI-Red' 
+                    : 'focus:ring-primary-PARI-Red'
+                }`}
+                value={filters.dateRanges?.find(r => r.startsWith('end:'))?.replace('end:', '') || ''}
+                onChange={(e) => {
+                  const endDate = e.target.value;
+                  if (endDate) {
+                    handleDateRangeChange(`end:${endDate}`);
+                  }
+                }}
+                onClick={(e) => {
+                  // Ensure the calendar opens by focusing the input
+                  (e.target as HTMLInputElement).showPicker();
+                }}
+              />
+              <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                <Calendar className="h-5 w-5 text-primary-PARI-Red" />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -386,6 +427,31 @@ export function FilterOptionsView({
                 after:content-['✓'] font-bold after:absolute  checked:text-white after:top-1/2 after:left-1/2 after:-translate-x-1/2 after:-translate-y-1/2 after:opacity-0 checked:after:opacity-100"
               />
               <span>{type.label}</span>
+            </label>
+          ))}
+        </div>
+      </div>
+
+      {/* Language */}
+      <div className="space-y-2">
+        <label className="block text-sm font-medium">Language</label>
+        <div className="border rounded-md shadow-sm dark:bg-popover bg-popover hover:shadow-md transition-shadow max-h-[300px] overflow-y-auto">
+          {languages.map((language) => (
+            <label 
+              key={`language-${language.code}`}
+              className="flex items-center space-x-3 cursor-pointer hover:bg-accent/50 p-4 transition-colors border-b-2 last:border-b-0"
+            >
+              <input
+                type="checkbox"
+                checked={filters.languages?.includes(language.code)}
+                onChange={() => handleLanguageChange(language.code)}
+                className="w-6 h-6 rounded border border-border bg-background appearance-none checked:bg-primary-PARI-Red checked:border-transparent relative cursor-pointer
+                after:content-['✓'] font-bold after:absolute checked:text-white after:top-1/2 after:left-1/2 after:-translate-x-1/2 after:-translate-y-1/2 after:opacity-0 checked:after:opacity-100"
+              />
+              <div className="flex items-center">
+                <span>{language.name}</span>
+                {/* <span className="ml-2 text-xs text-discreet-text">({language.displayCode.en})</span> */}
+              </div>
             </label>
           ))}
         </div>

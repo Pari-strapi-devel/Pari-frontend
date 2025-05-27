@@ -2,7 +2,7 @@
 
 import { useState, useEffect, ReactNode } from 'react'
 import Image from 'next/image'
-import Link from 'next/link'
+
 import { ArrowRight, ChevronLeft, ChevronRight, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useKeenSlider } from 'keen-slider/react'
@@ -12,16 +12,14 @@ import { BASE_URL } from '@/config'
 import { useLocale } from '@/lib/locale'
 import qs from 'qs'
 import {  Category,  } from '../../ui/category';
+import { stripHtmlTags } from '@/utils/text'
+
 
 export const getTextDirection = (langCode: string) => {
   const rtlLanguages = ['ur'];
   return rtlLanguages.includes(langCode) ? 'rtl' : 'ltr';
 };
 
-const stripHtmlTags = (html: string) => {
-  if (!html) return '';
-  return html.replace(/<[^>]*>/g, '');
-};
 const defaultCategories = ["The Platform", "Languages", "The Archive", "Donations", "PARI Education"];
 
 export interface PariInformation {
@@ -297,7 +295,7 @@ export function Hero() {
                   e.stopPropagation()
                   instanceRef.current?.prev()
                 }}
-                className="pointer-events-auto mr-4 bg-white dark:bg-popover hover:bg-primary-PARI-Red text-primary-PARI-Red hover:text-white rounded-full cursor-pointer w-10 h-10"
+                className="pointer-events-auto mr-4  bg-white dark:bg-popover hover:bg-primary-PARI-Red text-primary-PARI-Red hover:text-white rounded-full cursor-pointer w-10 h-10"
               >
                 <ChevronLeft className="h-10 w-10" />
               </Button>
@@ -316,18 +314,18 @@ export function Hero() {
             </div>
 
             <div className={`!overflow-hidden keen-slider relative max-w-[1232px] md:px-10 px-6 h-fit mx-auto`}>
-              <div ref={sliderRef} className="keen-slider !overflow-visible relative">
+              <div ref={sliderRef} className="keen-slider !overflow-visible pb-2 relative">
                 {pariInfo.map((info, index) => (
-                  <Link
+                  <a
                     key={info.id || index}
-                    href={info.url}
+                    href={info.url || '#'} // Add fallback to prevent null href
                     className="keen-slider__slide bg-none cursor-pointer block"
                   >
                     <div className="flex flex-col rounded-lg h-[400px]  md:h-[456px] dark:bg-popover duration-200 relative group">
                       <div className="relative aspect-[16/9] min-h-[170px] w-full overflow-hidden rounded-lg">
                         <Image
                           src={info.image.data.attributes.url}
-                          alt={info.title}
+                          alt={info.title || "PARI featured content"} // Add fallback alt text
                           fill
                           priority
                           className="object-cover rounded-lg transition-transform duration-400 group-hover:scale-110 scale-102"
@@ -360,7 +358,7 @@ export function Hero() {
                         </div>
                       </div>
                     </div>
-                  </Link>
+                  </a>
                 ))}
               </div>
 
@@ -374,7 +372,7 @@ export function Hero() {
                       }}
                       aria-label={`Go to slide ${idx + 1}`}
                       className={`h-1.5 sm:h-2 w-1.5 sm:w-2 rounded-full transition-colors ${
-                        currentSlide === idx ? 'bg-primary-PARI-Red' : 'bg-grey3'
+                        currentSlide === idx ? 'bg-primary-PARI-Red' : 'bg-grey-300'
                       }`}
                     />
                   ))}

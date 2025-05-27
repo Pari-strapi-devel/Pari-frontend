@@ -35,7 +35,8 @@
 }
 
 .dark {
-  --background: #181818; /* darksurface0 */
+  /* --background: #181818; darksurface0 */
+  --background: #202020; 
   --foreground: #F4F4F4; /* lightsurface0 */
   --card: #202020; /* darksurface1 */
   --card-foreground: #F4F4F4; /* lightsurface0 */

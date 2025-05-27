@@ -9,12 +9,7 @@ import 'keen-slider/keen-slider.min.css'
 import axios from 'axios'
 import { BASE_URL } from '@/config'
 import { useLocale } from '@/lib/locale'
-
-// Add helper function to strip HTML tags
-const stripHtmlTags = (html: string) => {
-  if (!html) return '';
-  return html.replace(/<[^>]*>/g, '');
-};
+import { stripHtmlTags } from '@/utils/text'
 
 interface PariLibraryData {
   headtitle: string;

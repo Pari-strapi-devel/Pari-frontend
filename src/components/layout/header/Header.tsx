@@ -178,7 +178,7 @@ export function Header() {
 
   return (
     <>
-      <header className={`border-b border-border dark:bg-popover h-[88px] flex bg-popover relative ${isFilterOpen ? 'z-30' : 'z-50'}`}>
+      <header className={`border-b border-border dark:bg-background h-[88px] flex bg-popover relative ${isFilterOpen ? 'z-30' : 'z-50'}`}>
         <div className="container mx-auto  top-0 px-4 max-w-[1282px]">
           <nav className="flex items-center justify-between  h-full">
             {/* Left side with logo and mobile menu */}
@@ -186,7 +186,7 @@ export function Header() {
               <Button
                 variant="secondary"
                 size="icon"
-                className="md:hidden rounded-full h-[32px] w-[32px] dark:hover:bg-primary-PARI-Red dark:bg-popover bg-popover items-center justify-center p-2  text-primary-PARI-Red"
+                className="md:hidden rounded-full h-[32px] w-[32px] dark:hover:bg-primary-PARI-Red dark:bg-background bg-popover items-center justify-center p-2  text-primary-PARI-Red"
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
               >
                 {isMenuOpen ? (
@@ -224,7 +224,7 @@ export function Header() {
             {/* Desktop Navigation or Search Input */}
             {isSearchExpanded ? (
               <div className={`flex-1 ${isSearchExpanded ? 'w-full absolute left-0 right-0 px-4 md:relative md:px-0 md:mx-4' : 'mx-4'}`}>
-                <form onSubmit={handleSearch} className="flex items-center w-full bg-background dark:bg-background rounded-full border pr-2 md:pr-3  border-input">
+                <form onSubmit={handleSearch} className="flex items-center w-full bg-background dark:bg-popover rounded-full border pr-2 md:pr-3  border-input">
                   <input 
                     type="text" 
                     placeholder="Search for anything..." 
@@ -282,7 +282,7 @@ export function Header() {
                 <Button 
                   variant="secondary" 
                   size="icon"
-                  className="rounded-full h-[32px] w-[32px]  dark:hover:bg-primary-PARI-Red dark:bg-popover bg-popover items-center justify-center p-2 text-primary-PARI-Red"
+                  className="rounded-full h-[32px] w-[32px]  dark:hover:bg-primary-PARI-Red dark:bg-background bg-popover items-center justify-center p-2 text-primary-PARI-Red"
                   onClick={() => setIsSearchExpanded(true)}
                 >
                   <Search className="h-[1.2rem] w-[1.2rem] cursor-pointer" />
@@ -293,7 +293,7 @@ export function Header() {
               <div className="flex items-center md:space-x-2">
                 <Button 
                   variant="secondary" 
-                  className="rounded-2xl w-[73px] cursor-pointer h-[32px] flex items-center gap-1"
+                  className="rounded-2xl w-[73px] cursor-pointer dark:hover:bg-primary-PARI-Red dark:bg-background bg-popover h-[32px] flex items-center gap-1"
                   onClick={() => setIsFilterOpen(true)}
                 >
                   {isFilterOpen ? (
@@ -304,7 +304,7 @@ export function Header() {
 
                 <Button 
                   variant="secondary" 
-                  className="rounded-2xl items-center hidden md:flex cursor-pointer w-[73px] h-[32px]"
+                  className="rounded-2xl items-center hidden md:flex dark:hover:bg-primary-PARI-Red dark:bg-background bg-popover cursor-pointer w-[73px] h-[32px]"
                 >
                   Donate
                 </Button>

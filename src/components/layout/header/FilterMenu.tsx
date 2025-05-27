@@ -7,6 +7,7 @@ import { CategoryCard, FilterOption } from './Category'
 import { FilterOptionsView } from './FilterOptionsView'
 import { useCategories } from './Category'
 
+
 interface FilterMenuProps {
   isOpen: boolean;
   onClose: () => void;
@@ -22,6 +23,7 @@ interface FilterState {
   location?: string;
   dateRanges?: string[];
   contentTypes?: string[];
+  languages?: string[];
 }
 
 export function FilterMenu({ isOpen, onClose }: FilterMenuProps) {
@@ -32,7 +34,8 @@ export function FilterMenu({ isOpen, onClose }: FilterMenuProps) {
     authorName: '',
     place: '',
     dateRanges: [],
-    contentTypes: []
+    contentTypes: [],
+    languages: []
   });
   const { categories } = useCategories()
   
@@ -60,8 +63,9 @@ export function FilterMenu({ isOpen, onClose }: FilterMenuProps) {
     const hasPlace = Boolean(filters.place?.trim());
     const hasDateRanges = (filters.dateRanges?.length ?? 0) > 0;
     const hasContentTypes = (filters.contentTypes?.length ?? 0) > 0;
+    const hasLanguages = (filters.languages?.length ?? 0) > 0;
 
-    return hasAuthor || hasPlace || hasDateRanges || hasContentTypes;
+    return hasAuthor || hasPlace || hasDateRanges || hasContentTypes || hasLanguages;
   };
 
   const handleConfirmSelection = () => {
@@ -102,6 +106,11 @@ export function FilterMenu({ isOpen, onClose }: FilterMenuProps) {
         params.set('content', filters.contentTypes.join(','));
       }
       
+      // Handle language filters
+      if (filters.languages?.length) {
+        params.set('languages', filters.languages.join(','));
+      }
+      
       router.push(`/articles?${params.toString()}`);
       onClose();
     }
@@ -111,10 +120,21 @@ export function FilterMenu({ isOpen, onClose }: FilterMenuProps) {
   const handleDateRangeChange = (range: string) => {
     setFilters(prev => {
       const ranges = prev.dateRanges || [];
-      if (ranges.includes(range)) {
-        return { ...prev, dateRanges: ranges.filter(r => r !== range) };
+      
+      // Check if this is a start or end date
+      if (range.startsWith('start:')) {
+        // Remove any existing start date
+        const filteredRanges = ranges.filter(r => !r.startsWith('start:'));
+        return { ...prev, dateRanges: [...filteredRanges, range] };
+      } else if (range.startsWith('end:')) {
+        // Remove any existing end date
+        const filteredRanges = ranges.filter(r => !r.startsWith('end:'));
+        return { ...prev, dateRanges: [...filteredRanges, range] };
       } else {
-        return { ...prev, dateRanges: [...ranges, range] };
+        // For other range types (legacy support)
+        // Remove any existing start/end dates
+        const filteredRanges = ranges.filter(r => !r.startsWith('start:') && !r.startsWith('end:'));
+        return { ...prev, dateRanges: [...filteredRanges, range] };
       }
     });
   };
@@ -151,6 +171,17 @@ export function FilterMenu({ isOpen, onClose }: FilterMenuProps) {
       // This is likely a complete selection
       console.log('Complete place selected:', value);
     }
+  };
+
+  const handleLanguageChange = (language: string) => {
+    setFilters(prev => {
+      const languages = prev.languages || [];
+      if (languages.includes(language)) {
+        return { ...prev, languages: languages.filter(l => l !== language) };
+      } else {
+        return { ...prev, languages: [...languages, language] };
+      }
+    });
   };
 
   return (
@@ -204,6 +235,7 @@ export function FilterMenu({ isOpen, onClose }: FilterMenuProps) {
                 handleContentTypeChange={handleContentTypeChange}
                 handleAuthorChange={handleAuthorChange}
                 handlePlaceChange={handlePlaceChange}
+                handleLanguageChange={handleLanguageChange}
               />
             ) : (
               <div className="grid grid-cols-2 gap-4">

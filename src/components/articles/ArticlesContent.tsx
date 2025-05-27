@@ -1,17 +1,24 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import axios from 'axios'
 import qs from 'qs'
 import { StoryCard } from '@/components/layout/stories/StoryCard'
 import { Header } from '@/components/layout/header/Header'
 import { BASE_URL } from '@/config'
-import { X, Filter } from 'lucide-react'
+import { X, Filter, ChevronLeft, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { languages as languagesList } from '@/data/languages';
+import { useLocale } from '@/lib/locale'
+import { LanguageToggle } from '@/components/layout/header/LanguageToggle'
 
+// Import the getTextDirection function or define it here
+export function getTextDirection(locale: string) {
+  return ['ar', 'ur'].includes(locale) ? 'rtl' : 'ltr';
+}
 
-interface Story {
+export interface Story {
   audioUrl: string | undefined
   videoUrl: string | undefined
   id: number;
@@ -25,9 +32,10 @@ interface Story {
   location: string;
   date: string;
   type: string; 
+  isStudentArticle: boolean;
 }
 
-interface AuthorData {
+export interface AuthorData {
   attributes?: {
     author_name?: {
       data?: {
@@ -46,11 +54,11 @@ interface AuthorData {
   };
 }
 
-interface AuthorsWrapper {
+export interface AuthorsWrapper {
   data?: AuthorData[];
 }
 
-interface ArticleAttributes {
+export interface ArticleAttributes {
   location_auto_suggestion: string | undefined
   Title: string;
   Strap?: string;
@@ -58,6 +66,7 @@ interface ArticleAttributes {
   slug: string;
   Original_published_date?: string;
   type?: string;
+  is_student_article?: boolean;
   Cover_image?: {
     data?: {
       attributes?: {
@@ -100,12 +109,12 @@ interface ArticleAttributes {
   }>;
 }
 
-interface ArticleData {
+export interface ArticleData {
   id: number;
   attributes: ArticleAttributes;
 }
 
-interface LocalizationData {
+export interface LocalizationData {
   attributes?: {
     locale: string;
     title: string;
@@ -121,6 +130,8 @@ interface LocalizationData {
 export default function ArticlesContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
+  const { language: currentLocale } = useLocale()
+  const textDirection = getTextDirection(currentLocale)
  
   const [stories, setStories] = useState<Story[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -131,6 +142,7 @@ export default function ArticlesContent() {
     dates?: string[];
     type?: string[];
     content?: string[];
+    languages?: string[];
   }>({})
 
   // Add pagination state
@@ -168,14 +180,15 @@ export default function ArticlesContent() {
   const location = searchParams?.get('location') || null
   const dates = searchParams?.get('dates') || null
   const content = searchParams?.get('content') || null
+  const languages = searchParams?.get('languages') || null
   
   // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1)
-  }, [types, author, location, dates, content])
+  }, [types, author, location, dates, content, languages])
   
   // Check if any filters are applied
-  const hasActiveFilters = types || author || location || dates || content
+  const hasActiveFilters = types || author || location || dates || content || languages
 
   // Parse and set active filters for display
   useEffect(() => {
@@ -186,6 +199,7 @@ export default function ArticlesContent() {
       dates?: string[];
       type?: string[];
       content?: string[];
+      languages?: string[];
     } = {};
 
     if (types) filters.types = types.split(',');
@@ -193,9 +207,10 @@ export default function ArticlesContent() {
     if (location) filters.location = location.split(',');
     if (dates) filters.dates = dates.split(',');
     if (content) filters.content = content.split(',');
+    if (languages) filters.languages = languages.split(',');
 
     setActiveFilters(filters);
-  }, [types, author, location, dates, content]);
+  }, [types, author, location, dates, content, languages]);
 
   // Function to clear all filters
   const clearFilters = () => {
@@ -229,6 +244,9 @@ export default function ArticlesContent() {
       } else {
         params.delete('dates');
       }
+      
+      // Reset to page 1 when changing filters
+      setCurrentPage(1);
     } else if (filterType === 'content' && value) {
       // For content type filters, remove just the specific content type
       const currentContent = params.get('content')?.split(',') || [];
@@ -239,6 +257,19 @@ export default function ArticlesContent() {
       } else {
         params.delete('content');
       }
+    } else if (filterType === 'languages' && value) {
+      // For language filters, remove just the specific language
+      const currentLanguages = params.get('languages')?.split(',') || [];
+      const updatedLanguages = currentLanguages.filter(l => l !== value);
+      
+      if (updatedLanguages.length > 0) {
+        params.set('languages', updatedLanguages.join(','));
+      } else {
+        params.delete('languages');
+      }
+      
+      // Reset to page 1 when changing filters
+      setCurrentPage(1);
     } else {
       // For other filters, remove the entire filter
       params.delete(filterType);
@@ -262,6 +293,26 @@ export default function ArticlesContent() {
 
   // Get display name for date range
   const getDateRangeDisplay = (range: string) => {
+    if (range.startsWith('start:')) {
+      const dateStr = range.replace('start:', '');
+      if (dateStr) {
+        const date = new Date(dateStr);
+        return `From: ${date.toLocaleDateString()}`;
+      }
+    } else if (range.startsWith('end:')) {
+      const dateStr = range.replace('end:', '');
+      if (dateStr) {
+        const date = new Date(dateStr);
+        return `To: ${date.toLocaleDateString()}`;
+      }
+    } else if (range.startsWith('date:')) {
+      const dateStr = range.replace('date:', '');
+      if (dateStr) {
+        const date = new Date(dateStr);
+        return date.toLocaleDateString();
+      }
+    }
+    
     switch (range) {
       case '7days': return 'Past 7 days';
       case '14days': return 'Past 14 days';
@@ -329,14 +380,14 @@ export default function ArticlesContent() {
           $or?: Array<Record<string, unknown>>
           categories?: { slug: { $in: string[] } };
           Authors?: { author_name: { Name: { $containsi: string } } };
-          Original_published_date?: { $gte: string };
+          Original_published_date?: { $gte?: string; $lte?: string };
           location?: { name: { $containsi: string } };
           location_auto_suggestion?: { $containsi: string };
           type?: { $eq: string };
           is_student_article?: { $eq: boolean };
         } = { $and: [] }
         
-        console.log('Starting to build filters with params:', { types, author, location, dates, content });
+        console.log('Starting to build filters with params:', { types, author, location, dates, content, languages });
         
         // Category filters (from types parameter)
         if (types) {
@@ -370,38 +421,81 @@ export default function ArticlesContent() {
         
         // Date range filter
         if (dates) {
-          const dateRanges = dates.split(',')
-          const today = new Date()
-          let oldestDate = new Date()
+          const dateRanges = dates.split(',');
+          const today = new Date();
+          let startDate: Date | null = null;
+          let endDate: Date | null = null;
           
           console.log('Processing date ranges:', dateRanges);
           
-          // Find the oldest date in the selected ranges
+          // Process date ranges
           dateRanges.forEach(range => {
-            if (range === '7days') {
-              const date = new Date()
-              date.setDate(today.getDate() - 7)
-              if (date < oldestDate) oldestDate = date
+            if (range.startsWith('start:')) {
+              // Handle start date
+              const dateStr = range.replace('start:', '');
+              if (dateStr) {
+                startDate = new Date(dateStr);
+                // Set to start of day
+                startDate.setHours(0, 0, 0, 0);
+              }
+            } else if (range.startsWith('date:')) {
+              // Handle date range
+              const dateStr = range.replace('date:', '');
+              if (dateStr) {
+                startDate = new Date(dateStr);
+              }
+            } else if (range.startsWith('end:')) {
+              // Handle end date
+              const dateStr = range.replace('end:', '');
+              if (dateStr) {
+                endDate = new Date(dateStr);
+                // Set to end of day
+                endDate.setHours(23, 59, 59, 999);
+              }
+            } else if (range === '7days') {
+              // Handle predefined ranges for backward compatibility
+              const date = new Date();
+              date.setDate(today.getDate() - 7);
+              if (!startDate || date < startDate) startDate = date;
             } else if (range === '14days') {
-              const date = new Date()
-              date.setDate(today.getDate() - 14)
-              if (date < oldestDate) oldestDate = date
+              const date = new Date();
+              date.setDate(today.getDate() - 14);
+              if (!startDate || date < startDate) startDate = date;
             } else if (range === '30days') {
-              const date = new Date()
-              date.setDate(today.getDate() - 30)
-              if (date < oldestDate) oldestDate = date
+              const date = new Date();
+              date.setDate(today.getDate() - 30);
+              if (!startDate || date < startDate) startDate = date;
             } else if (range === '1year') {
-              const date = new Date()
-              date.setFullYear(today.getFullYear() - 1)
-              if (date < oldestDate) oldestDate = date
+              const date = new Date();
+              date.setFullYear(today.getFullYear() - 1);
+              if (!startDate || date < startDate) startDate = date;
             }
-          })
+          });
           
-          filters.Original_published_date = {
-            $gte: oldestDate.toISOString()
+          // Build date filter
+          if (startDate && endDate) {
+            // Between start and end dates
+            filters.Original_published_date = {
+              $gte: (startDate as Date).toISOString(),
+              $lte: (endDate as Date).toISOString()
+            };
+            console.log('Added date range filter:', filters.Original_published_date);
+            setFilterTitle(`Date: ${(startDate as Date).toLocaleDateString()} - ${(endDate as Date).toLocaleDateString()}`);
+          } else if (startDate) {
+            // Only start date (from this date onwards)
+            filters.Original_published_date = {
+              $gte: (startDate as Date).toISOString()
+            };
+            console.log('Added start date filter:', filters.Original_published_date);
+            setFilterTitle(`Date: From ${(startDate as Date).toLocaleDateString()}`);
+          } else if (endDate) {
+            // Only end date (until this date)
+            filters.Original_published_date = {
+              $lte: (endDate as Date).toISOString()
+            };
+            console.log('Added end date filter:', filters.Original_published_date);
+            setFilterTitle(`Date: Until ${(endDate as Date).toLocaleDateString()}`);
           }
-          console.log('Added date filter:', filters.Original_published_date);
-          setFilterTitle(`Date: Past ${dateRanges.join(', ')}`)
         }
         
         // Content type filter
@@ -437,8 +531,34 @@ export default function ArticlesContent() {
           setFilterTitle(`Content: ${contentTypes.join(', ')}`)
         }
         
+        // Language filter
+        if (languages) {
+          const languageCodes = languages.split(',');
+          
+          // For Strapi, we need to modify our approach for language filtering
+          // Instead of using $or with locale, we'll set the locale parameter directly
+          // but we'll need to make multiple requests if multiple languages are selected
+          
+          // We'll handle this in the query construction, not in the filters
+          // So remove any existing language filter logic from the filters object
+          if (filters.$and) {
+            filters.$and = filters.$and.filter(condition => 
+              !condition.$or || !Array.isArray(condition.$or) || !condition.$or.some((item: Record<string, unknown>) => 'locale' in item)
+            );
+          }
+          
+          // Get language names for display
+          const languageNames = languageCodes.map(code => {
+            const language = languagesList.find(lang => lang.code === code);
+            return language ? language.name : code;
+          });
+          
+          console.log('Language filter will be applied:', languageCodes);
+          setFilterTitle(`Language: ${languageNames.join(', ')}`);
+        }
+
         // If multiple filters are applied, set a combined title
-        if ([types, author, location, dates, content].filter(Boolean).length > 1) {
+        if ([types, author, location, dates, content, languages].filter(Boolean).length > 1) {
           setFilterTitle('Multiple Filters Applied');
         }
         
@@ -463,57 +583,73 @@ export default function ArticlesContent() {
             },
             localizations: {
               fields: ['locale', 'title', 'strap', 'slug']
-            }
+            },
+            type: true,
+            is_student_article: true
           },
           filters,
           pagination: {
             page: currentPage,
             pageSize: pageSize
           },
-          sort: ['Original_published_date:desc'] // Sort by publication date, newest first
+          sort: ['Original_published_date:desc']
         };
-        
-        // Log the final query for debugging
+
+        // Add detailed logging to help debug
         console.log('Final query structure:', JSON.stringify(query, null, 2));
-        const queryString = qs.stringify(query, { encodeValuesOnly: true });
-        console.log('Query string sent to API:', queryString);
-        
+
         try {
           console.log('Sending request to API...');
-          const response = await axios.get(`${BASE_URL}api/articles?${queryString}`);
-          console.log('API response received');
-          console.log('Number of articles returned:', response.data.data.length);
           
-          // Set total pages from pagination metadata
-          if (response.data.meta && response.data.meta.pagination) {
-            setTotalPages(response.data.meta.pagination.pageCount || 1);
-          }
+          let allResults: ArticleData[] = [];
           
-          // Debug: Check if any articles were returned
-          if (response.data.data.length === 0) {
-            console.log('No articles found with the current filters');
-            console.log('Current filters:', JSON.stringify(filters, null, 2));
+          if (languages) {
+            // If language filter is applied, make a request for each language
+            const languageCodes = languages.split(',');
+            console.log('Making separate requests for languages:', languageCodes);
             
-            // If location filter is active, try a test query without it
-            if (location) {
-              console.log('Testing query without location filter to check data exists');
-              const testQuery = { ...query };
-              // Remove location filter from test query
-              if (testQuery.filters) {
-                delete testQuery.filters.$or;
+            // Make a request for each language
+            const requests = languageCodes.map(async (langCode) => {
+              const langQuery = { ...query, locale: langCode };
+              const queryString = qs.stringify(langQuery, { encodeValuesOnly: true });
+              console.log(`Query string for ${langCode}:`, queryString);
+              
+              const response = await axios.get(`${BASE_URL}api/articles?${queryString}`);
+              return response.data;
+            });
+            
+            // Wait for all requests to complete
+            const responses = await Promise.all(requests);
+            
+            // Combine the results
+            responses.forEach(response => {
+              if (response.data && Array.isArray(response.data)) {
+                allResults = [...allResults, ...response.data];
               }
-              const testQueryString = qs.stringify(testQuery, { encodeValuesOnly: true });
-              try {
-                const testResponse = await axios.get(`${BASE_URL}api/articles?${testQueryString}`);
-                console.log('Test query without location returned:', testResponse.data.data.length, 'articles');
-              } catch (error) {
-                console.error('Test query failed:', error);
-              }
+            });
+            
+            // Set total pages based on the combined results
+            const totalItems = allResults.length;
+            setTotalPages(Math.ceil(totalItems / pageSize));
+          } else {
+            // If no language filter, make a single request with the current locale
+            const queryWithLocale = { ...query, locale: currentLocale };
+            const queryString = qs.stringify(queryWithLocale, { encodeValuesOnly: true });
+            console.log('Query string sent to API:', queryString);
+            
+            const response = await axios.get(`${BASE_URL}api/articles?${queryString}`);
+            allResults = response.data.data;
+            
+            // Set total pages from pagination metadata
+            if (response.data.meta && response.data.meta.pagination) {
+              setTotalPages(response.data.meta.pagination.pageCount || 1);
             }
           }
           
+          console.log('Number of articles returned:', allResults.length);
+          
           // Format the stories
-          const formattedStories = response.data.data.map((item: ArticleData) => {
+          const formattedStories = allResults.map((item) => {
             const attributes = item.attributes
             
             // Extract localizations if they exist
@@ -597,11 +733,15 @@ export default function ArticlesContent() {
               date,
               videoUrl: articleType.includes('video') ? 'true' : undefined,
               audioUrl: articleType.includes('audio') ? 'true' : undefined,
-              type: articleType
+              type: articleType,
+              isStudentArticle: attributes.is_student_article
             }
           })
           
-          setStories(formattedStories)
+          setStories(formattedStories.map(story => ({
+            ...story,
+            isStudentArticle: !!story.isStudentArticle
+          })))
         } catch (error) {
           console.error('API request failed:', error);
           if (axios.isAxiosError(error)) {
@@ -620,7 +760,7 @@ export default function ArticlesContent() {
     }
     
     fetchFilteredStories()
-  }, [types, author, location, dates, content, currentPage, pageSize])
+  }, [types, author, location, dates, content, languages, currentPage, pageSize, currentLocale])
   
   // Add page change handler
   const handlePageChange = (page: number) => {
@@ -645,20 +785,20 @@ export default function ArticlesContent() {
     );
     
     // Function to handle "+" button clicks
-    const handlePrevSet = () => {
-      const prevPage = Math.max(1, startPage - 5);
-      handlePageChange(prevPage);
-    };
+    // const handleNextSet = () => {
+    //   const nextPage = Math.min(totalPages, currentPage + 5);
+    //   handlePageChange(nextPage);
+    // };
     
-    const handleNextSet = () => {
-      const nextPage = Math.min(endPage + 5, totalPages);
-      handlePageChange(nextPage);
-    };
+    // Function to handle "-" button clicks
+    // const handlePrevSet = () => {
+    //   const prevPage = Math.max(1, currentPage - 5);
+    //   handlePageChange(prevPage);
+    // };
     
     return (
-      <div className="flex flex-col items-center mt-8">
-        {/* Main pagination row */}
-        <div className="flex flex-wrap justify-center gap-2">
+      <div className="mt-8">
+        <div className={`flex items-center justify-center gap-2 ${currentLocale === 'ur' ? 'flex-row-reverse' : ''}`}>
           {/* Previous button */}
           <Button
             variant="secondary"
@@ -667,11 +807,11 @@ export default function ArticlesContent() {
             disabled={currentPage === 1}
             className="text-primary-PARI-Red rounded-2xl mr-2"
           >
-            Prev
+            <ChevronLeft className="h-4 w-4" />
           </Button>
           
           {/* Page numbers - hide some on very small screens */}
-          <div className="flex flex-wrap justify-center gap-2">
+          <div className={`flex flex-wrap justify-center gap-2 ${currentLocale === 'ur' ? 'flex-row-reverse' : ''}`}>
             {visiblePages.map((page) => (
               <Button
                 key={page}
@@ -693,40 +833,8 @@ export default function ArticlesContent() {
             disabled={currentPage === totalPages}
             className="text-primary-PARI-Red rounded-2xl ml-2"
           >
-            Next
+            <ChevronRight className="h-4 w-4" />
           </Button>
-        </div>
-        
-        {/* Jump buttons row */}
-        <div className="flex justify-center  gap-2 mt-4">
-          {/* Jump to previous set */}
-          {startPage > 1 && (
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={handlePrevSet}
-              className="text-primary-PARI-Red rounded-2xl "
-            >
-              Prev 5
-            </Button>
-          )}
-          
-          {/* Jump to next set */}
-          {endPage < totalPages && (
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={handleNextSet}
-              className="text-primary-PARI-Red rounded-2xl ml-2"
-            >
-              Next 5
-            </Button>
-          )}
-        </div>
-        
-        {/* Total pages display */}
-        <div className="mt-2 text-md font-medium text-foreground">
-          Page {currentPage} of {totalPages}
         </div>
       </div>
     );
@@ -736,16 +844,19 @@ export default function ArticlesContent() {
     <div className="min-h-screen bg-background">
       <Header />
       
-      <main className="max-w-[1232px] mx-auto px-4 py-8">
+      <main className="max-w-[1232px] mx-auto px-4 py-8" dir={textDirection}>
+        {/* Add LanguageToggle */}
+        <LanguageToggle />
+        
         <div className="mb-8 pl-3">
-          <div className="flex items-center justify-between mb-4">
+          <div className={`flex items-center justify-between mb-4 ${currentLocale === 'ur' ? 'flex-row-reverse' : ''}`}>
             <h1 className="text-3xl ml-3 font-bold">Articles</h1>
             {hasActiveFilters && (
               <Button
-                variant="outline"
+                variant="secondary"
                 size="sm"
                 onClick={clearFilters}
-                className="text-primary-PARI-Red rounded-[48px] hover:bg-primary-PARI-Red hover:text-white border-primary-PARI-Red "
+                className="text-primary-PARI-Red rounded-[48px] hover:bg-primary-PARI-Red hover:text-white border-primary-PARI-Red"
               >
                 Clear All Filters
               </Button>
@@ -754,17 +865,17 @@ export default function ArticlesContent() {
           
           {/* Active filters display */}
           {hasActiveFilters && (
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
+            <div className={`flex items-center justify-between mb-4 ${currentLocale === 'ur' ? 'flex-row-reverse' : ''}`}>
+              <div className={`flex items-center gap-2 ${currentLocale === 'ur' ? 'flex-row-reverse' : ''}`}>
                 <Filter className="h-5 w-5 text-primary-PARI-Red" />
                 <h2 className="text-lg font-semibold">Active Filters: </h2>
               </div>
             </div>
           )}
-            <div className="flex flex-wrap gap-2 mb-4">
+            <div className={`flex flex-wrap gap-2 mb-6 ${currentLocale === 'ur' ? 'flex-row-reverse' : ''}`}>
               {activeFilters.types?.map(type => (
-                <div key={`type-${type}`} className="flex items-center ring-1 text-primary-PARI-Red ring-primary-PARI-Red bg-background  rounded-full px-3 py-1">
-                  <span className="text-sm mr-2"> {type}</span>
+                <div key={`type-${type}`} className={`flex items-center ring-1 text-primary-PARI-Red ring-primary-PARI-Red bg-background rounded-full px-3 py-1 ${currentLocale === 'ur' ? 'flex-row-reverse' : ''}`}>
+                  <span className="text-sm mr-2">Category: {type}</span>
                   <Button
                     variant="ghost"
                     size="icon"
@@ -804,19 +915,36 @@ export default function ArticlesContent() {
                 </div>
               )}
               
-              {activeFilters.dates?.map(dateRange => (
-                <div key={`date-${dateRange}`} className="flex items-center  ring-1 text-primary-PARI-Red ring-primary-PARI-Red bg-background  rounded-full px-3 py-1">
-                  <span className="text-sm mr-2">Date: {getDateRangeDisplay(dateRange)}</span>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => clearFilter('dates', dateRange)}
-                    className="h-5 w-5 p-0 rounded-full hover:bg-primary-PARI-Red/20"
-                  >
-                    <X className="h-3 w-3 text-primary-PARI-Red" />
-                  </Button>
-                </div>
-              ))}
+              {activeFilters.dates?.map(dateRange => {
+                // Format date for display
+                let displayText = '';
+                
+                if (dateRange.startsWith('start:')) {
+                  const dateStr = dateRange.replace('start:', '');
+                  const date = new Date(dateStr);
+                  displayText = `From: ${date.toLocaleDateString()}`;
+                } else if (dateRange.startsWith('end:')) {
+                  const dateStr = dateRange.replace('end:', '');
+                  const date = new Date(dateStr);
+                  displayText = `To: ${date.toLocaleDateString()}`;
+                } else {
+                  displayText = getDateRangeDisplay(dateRange);
+                }
+                
+                return (
+                  <div key={`date-${dateRange}`} className="flex items-center ring-1 text-primary-PARI-Red ring-primary-PARI-Red bg-background rounded-full px-3 py-1">
+                    <span className="text-sm mr-2">{displayText}</span>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => clearFilter('dates', dateRange)}
+                      className="h-5 w-5 p-0 rounded-full hover:bg-primary-PARI-Red/20"
+                    >
+                      <X className="h-3 w-3 text-primary-PARI-Red" />
+                    </Button>
+                  </div>
+                );
+              })}
               
               {activeFilters.content?.map(contentType => (
                 <div key={`content-${contentType}`} className="flex items-center  ring-1 text-primary-PARI-Red ring-primary-PARI-Red bg-background  rounded-full px-3 py-1">
@@ -831,6 +959,23 @@ export default function ArticlesContent() {
                   </Button>
                 </div>
               ))}
+              
+              {activeFilters.languages?.map(lang => {
+                const language = languagesList.find((l) => l.code === lang);
+                return (
+                  <div key={`language-${lang}`} className="flex items-center ring-1 text-primary-PARI-Red ring-primary-PARI-Red bg-background rounded-full px-3 py-1">
+                    <span className="text-sm mr-2">Language: {language?.name || lang}</span>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => clearFilter('languages', lang)}
+                      className="h-5 w-5 p-0 rounded-full hover:bg-primary-PARI-Red/20"
+                    >
+                      <X className="h-3 w-3 text-primary-PARI-Red" />
+                    </Button>
+                  </div>
+                );
+              })}
             </div>
         </div>
         
@@ -839,12 +984,11 @@ export default function ArticlesContent() {
             <p>Loading articles...</p>
           </div>
         ) : stories.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 ${currentLocale === 'ur' ? 'rtl' : 'ltr'}`}>
             {stories.map((story: Story) => (
               <StoryCard
                 key={story.id}
                 title={story.title}
-                // description={story.description}
                 authors={Array.isArray(story.authors) ? story.authors.join(', ') : story.authors}
                 imageUrl={story.imageUrl}
                 categories={story.categories}
@@ -854,6 +998,8 @@ export default function ArticlesContent() {
                 localizations={story.localizations}
                 videoUrl={story.type === 'video' ? 'true' : undefined}
                 audioUrl={story.type === 'audio' ? 'true' : undefined}
+                isStudentArticle={story.isStudentArticle}
+                className={currentLocale === 'ur' ? 'text-right' : 'text-left'}
               />
             ))}
           </div>

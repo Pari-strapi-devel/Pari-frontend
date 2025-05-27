@@ -285,7 +285,7 @@ export function AudioVideoCard() {
         </div>
         <div className="flex items-center gap-4">
          
-          <Link href="/audio-video">
+          <Link href="articles?content=Video+Articles">
             <Button 
               variant="secondary" 
               className="text-sm h-[36px]  ml-1 sm:ml-0  ring-[2px] rounded-[48px] text-primary-PARI-Red group"

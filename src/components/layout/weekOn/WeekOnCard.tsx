@@ -49,6 +49,7 @@ interface Localization {
 interface Article {
   data: {
     attributes: {
+      type: string;
       Authors: Author[];
       categories: {
         data: CategoryData[];
@@ -67,6 +68,13 @@ interface Article {
         }
       };
       Cover_image: {
+        data: {
+          attributes: {
+            url: string;
+          }
+        }
+      };
+      mobilecover: {
         data: {
           attributes: {
             url: string;
@@ -118,10 +126,12 @@ interface ApiResponse {
 }
 
 interface FormattedArticle {
+  type: string;
   id: number;
   title: string;
   description: string;
   imageUrl: string;
+  mobileImageUrl: string;
   categories: Category[];
   slug: string;
   authors: string[];
@@ -196,6 +206,7 @@ export function WeekOnCard() {
                     article: {
                       populate: {
                         Cover_image: true,
+                        mobilecover: true,
                         Authors: {
                           populate: {
                             author_name: {
@@ -231,7 +242,7 @@ export function WeekOnCard() {
         });
         setSeeAllStories(seeAllStories || "See all stories");
         
-
+     console.log('thisWeekData:', weekData);
        
         // Update header icon handling
         const iconUrl = weekData?.ThisWeek_On_Pari_Icon?.data?.attributes?.url;
@@ -242,6 +253,7 @@ export function WeekOnCard() {
         }
 
         const articleArray = weekData?.article_with_lang_selection_1 || [];
+        
 
         const articles = (Array.isArray(articleArray) ? articleArray : [])
           .map((item: ArticleWithLangSelection): FormattedArticle | null => {
@@ -273,6 +285,11 @@ export function WeekOnCard() {
                   ? articleData.Cover_image.data.attributes.url
                   : `${BASE_URL}${articleData.Cover_image.data.attributes.url}`
                 : '/images/categories/category-img.png',
+              mobileImageUrl: articleData.mobilecover?.data?.attributes?.url
+                ? articleData.mobilecover.data.attributes.url.startsWith('http')
+                  ? articleData.mobilecover.data.attributes.url
+                  : `${BASE_URL}${articleData.mobilecover.data.attributes.url}`
+                : '/images/categories/category-img.png',
               categories,
               slug: articleData.slug || '',
               authors,
@@ -281,11 +298,12 @@ export function WeekOnCard() {
                 : articleData.location_auto_suggestion || 'India',
               date: articleData.Original_published_date
                 ? new Date(articleData.Original_published_date).toLocaleDateString('en-US', {
-                    month: 'short',
-                    day: '2-digit',
-                    year: 'numeric'
-                  })
+                  month: 'short',
+                  day: '2-digit',
+                  year: 'numeric'
+                })
                 : '',
+              type: articleData.type || ''
             }
           })
           .filter((article): article is FormattedArticle => article !== null);
@@ -296,11 +314,13 @@ export function WeekOnCard() {
             title: 'No articles available',
             description: 'Please check back later',
             imageUrl: '/images/categories/category-img.png',
+            mobileImageUrl: '/images/categories/category-img.png',
             categories: [],
             slug: '',
             authors: ['PARI'],
             location: 'India',
             date: new Date().toISOString(),
+            type: ''
           }]);
         } else {
           setArticles(articles);
@@ -356,10 +376,10 @@ export function WeekOnCard() {
             <Link href="/articles" >
               <Button 
                 variant="secondary" 
-                className="text-sm h-[36px] md:flex hidden ring-[2px] rounded-[48px] text-primary-PARI-Red mr-4"
+                className="text-sm h-[36px] md:flex hidden ring-[2px] rounded-[48px]  mr-4"
               >
                 {seeAllStories || "See all stories"}
-                <ChevronRight className="h-4 w-4 ml-1" />
+                <ChevronRight className="h-5 w-5 ml-1" />
               </Button>
             </Link>
             <div className=" gap-4 hidden md:flex">
@@ -391,17 +411,21 @@ export function WeekOnCard() {
           </div>
           
           <div ref={sliderRef} className="keen-slider !overflow-visible">
-            {articles.map((article) => (
+            {articles.map((story) => (
               <ArticleCard
-                key={article.id}
-                title={article.title}
-                description={article.description}
-                imageUrl={article.imageUrl}
-                categories={article.categories?.map(cat => cat.Title) || []}
-                slug={article.slug}
-                authors={article.authors}
-                location={article.location}
-                date={article.date}
+                videoUrl={story.type.toLowerCase() === 'video' ? 'true' : undefined}
+                audioUrl={story.type.toLowerCase() === 'audio' ? 'true' : undefined}
+           
+                key={story.id}
+                title={story.title}
+                description={story.description}
+                imageUrl={story.imageUrl}
+                mobileImageUrl={story.mobileImageUrl}
+                categories={story.categories?.map(cat => cat.Title) || []}
+                slug={story.slug}
+                authors={story.authors}
+                location={story.location}
+                date={story.date}
                 className="keen-slider__slide !min-h-[500px]"
               />
             ))}

@@ -1,11 +1,12 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight, Play, Headphones } from 'lucide-react'
 
 interface ArticleCardProps {
   title: string
   description: string
   imageUrl: string
+  mobileImageUrl?: string;
   categories: string[]
   slug: string
   authors: string[]
@@ -13,34 +14,80 @@ interface ArticleCardProps {
   location?: string
   date?: string
   className?: string
+  videoUrl?: string
+  audioUrl?: string
+  duration?: string
 }
 
 export function ArticleCard({
   title,
   description,
   imageUrl,
+  mobileImageUrl,
   categories,
   slug,
   authors,
   location,
   date,
   readMore,
-  className
+  className,
+  videoUrl,
+  audioUrl,
+  duration
 }: ArticleCardProps) {
   return (
     <Link 
       href={`/articles/${slug}`}
       className={className}
     >
-      <article className="group rounded-lg  overflow-hidden sm:pt-8 hover:rounded-xl hover:shadow-xl transition-discrete-00 transition-all duration-300 h-full">
+      <article className="group rounded-lg  overflow-hidden sm:pt-8 hover:rounded-xl transition-discrete-00 transition-all duration-300 h-full">
         <div className="relative h-[376px] w-100% overflow-hidden rounded-2xl" style={{ boxShadow: '0px 1px 4px 0px #00000047' }}>
           <Image
             src={imageUrl}
             alt={title}
             fill
-            className="object-cover transition-transform scale-102 rounded-xl duration-300 group-hover:scale-108"
+            className=" transition-transform sm:block scale-102 rounded-xl duration-300 group-hover:scale-108"
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           />
+          <Image
+            src={mobileImageUrl || imageUrl}
+            alt={title}
+            fill
+            className=" object-cover object-top bg-center sm:hidden flex  rounded-xl "
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          />
+          
+          {/* Video overlay if videoUrl exists */}
+          {videoUrl && (
+            <div className="absolute top-2.5 right-3 flex items-center justify-center transition-colors">
+              <div className="flex flex-col items-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-primary-PARI-Red hover:bg-primary-PARI-Red/80 flex items-center justify-center">
+                  <Play className="w-4 h-4 text-white" />
+                </div>
+                {duration && (
+                  <span className="text-white text-sm font-medium bg-black/50 px-2 py-1 rounded">
+                    {duration}
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
+          
+          {/* Audio overlay if audioUrl exists */}
+          {audioUrl && !videoUrl && (
+            <div className="absolute top-2.5 right-3 flex items-center justify-center transition-colors">
+              <div className="flex flex-col items-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-primary-PARI-Red hover:bg-primary-PARI-Red/80 flex items-center justify-center">
+                  <Headphones className="w-4 h-4 text-white" />
+                </div>
+                {duration && (
+                  <span className="text-white text-sm font-medium bg-black/50 px-2 py-1 rounded">
+                    {duration}
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
         </div>
         <div>
         <div className="py-5 px-1 rounded-2xl">

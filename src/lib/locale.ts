@@ -20,7 +20,7 @@ export function useLocale() {
     const searchParams = new URLSearchParams(searchparams?.toString() || '')
     searchParams.set('locale', locale)
     const newPathName = pathname || '/'
-    router.push(newPathName + '?' + searchParams.toString(), { })
+    router.push(newPathName + '?' + searchParams.toString())
   }, [router, pathname, searchparams])
 
   return {

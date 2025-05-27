@@ -24,6 +24,7 @@ interface StoryCardProps {
     slug: string
   }>
   className?: string
+  isStudentArticle?: boolean
 }
 
 export function StoryCard({
@@ -72,10 +73,10 @@ export function StoryCard({
           
           {/* Video overlay if videoUrl exists */}
           {videoUrl && (
-            <div className="absolute inset-0 bg-black/30 flex items-center justify-center group-hover:bg-black/40 transition-colors">
+            <div className="absolute top-2.5 right-3 flex items-center justify-center  transition-colors">
               <div className="flex flex-col items-center gap-2">
-                <div className="w-12 h-12 rounded-full bg-primary-PARI-Red hover:bg-red-500 flex items-center justify-center">
-                  <Play className="w-6 h-6 text-white " />
+                <div className="w-8 h-8 rounded-full  bg-primary-PARI-Red  hover:bg-primary-PARI-Red/80 flex items-center justify-center">
+                  <Play className="w-4 h-4 text-white " />
                 </div>
                 {duration && (
                   <span className="text-white text-sm font-medium bg-black/50 px-2 py-1 rounded">
@@ -85,10 +86,10 @@ export function StoryCard({
               </div>
             </div>
           ) || audioUrl && (
-            <div className="absolute inset-0 bg-black/30 flex items-center justify-center group-hover:bg-black/40 transition-colors">
+            <div className="absolute top-2.5 right-3 flex items-center justify-center  transition-colors">
               <div className="flex flex-col items-center gap-2">
-                <div className="w-12 h-12 rounded-full bg-primary-PARI-Red hover:bg-red-500 flex items-center justify-center">
-                  <Headphones className="w-6 h-6 text-white " />
+                <div className="w-8 h-8 rounded-full bg-primary-PARI-Red hover:bg-primary-PARI-Red/80 flex items-center justify-center">
+                  <Headphones className="w-4 h-4 text-white " />
                 </div>
                 {duration && (
                   <span className="text-white text-sm font-medium bg-black/50 px-2 py-1 rounded">

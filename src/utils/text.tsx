@@ -15,3 +15,15 @@ export const highlightMatch = (text: string, query: string): JSX.Element => {
     </>
   );
 };
+
+export const stripHtmlTags = (html: string) => {
+  if (!html) return '';
+  
+  // First remove HTML tags
+  const withoutTags = html.replace(/<[^>]*>/g, '');
+  
+  // Then decode HTML entities
+  const textarea = document.createElement('textarea');
+  textarea.innerHTML = withoutTags;
+  return textarea.value;
+};

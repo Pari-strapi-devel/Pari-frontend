@@ -1,4 +1,4 @@
-import { ArrowRightIcon } from "@radix-ui/react-icons";
+import { ArrowRightIcon, Headphones, Play, } from "lucide-react";
 import { ComponentPropsWithoutRef, ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
@@ -28,6 +28,10 @@ interface BentoCardProps extends ComponentPropsWithoutRef<"div"> {
   location?: string;
   date?: string;
   title?: string;
+  type?: string;
+  videoUrl?: string;
+  audioUrl?: string;
+  duration?: string;
 }
 
 const BentoGrid = ({ children, className, ...props }: BentoGridProps) => {
@@ -55,28 +59,32 @@ const BentoCard = ({
   location,
   date,
   title,
+
+  videoUrl,
+  audioUrl,
+  duration,
   ...props
 }: BentoCardProps) => (
   <div
     key={name}
     className={cn(
-      "group relative col-span-1 md:col-span-3 w-full scale-100   sm:hover:scale-103 transition-transform duration-300 flex flex-col justify-between sm:min-h-[150px] min-h-[160px] overflow-hidden opacity-90 cursor-pointer rounded-2xl bg-[linear-gradient(180deg,rgba(0,0,0,0)_36.67%,#000000_70%)]",
+      "group relative col-span-1 md:col-span-3 w-full scale-100 hover:dark:border-border  sm:hover:scale-103 transition-transform duration-300 flex flex-col justify-between sm:min-h-[150px] min-h-[160px] overflow-hidden opacity-90 cursor-pointer rounded-2xl bg-[linear-gradient(180deg,rgba(0,0,0,0)_36.67%,#000000_70%)]",
       
-      "shadow-[0px_1px_2px_0px_#00000014] z-50",
+      "shadow-[0px_1px_2px_0px_#00000014] z-50 hover:border-border border border-border",
       className
     )}
     {...props}
   >
     {/* Background */}
-    <div className="absolute inset-0 w-full h-full object-cover transition-transform scale-102 shadow-lg rounded-xl duration-300 group-hover:scale-108" style={{ background: "linear-gradient(180deg, rgba(0, 0, 0, 0) 36.67%, #000000 70%)" }}>
+    <div className="absolute inset-0 w-full h-full object-cover hover:p-3 transition-transform shadow-lg rounded-xl duration-300 group-hover:scale-108" style={{ background: "linear-gradient(180deg, rgba(0, 0, 0, 0) 36.67%, #000000 70%)" }}>
       {background}
     </div>
     <div className="absolute inset-0 w-full h-full" style={{ background: "linear-gradient(180deg, rgba(0, 0, 0, 0) 36.67%, #000000 70%)" }}>
    
     </div>
-
+    <div className="relative h-[180px] w-full overflow-hidden rounded-t-2xl">
     {/* Categories */}
-    <div className="absolute top-3 left-3 flex flex-wrap gap-2 z-50">
+    <div className="absolute top-3 left-3 flex flex-wrap  gap-2 z-10 ">
       {(category && category.length > 0) && (
         <>
           <span className="inline-block px-2 py-1 bg-white text-primary-PARI-Red hover:bg-primary-PARI-Red hover:text-white text-xs rounded-full w-fit h-[24px] mb-2">
@@ -95,6 +103,35 @@ const BentoCard = ({
         </>
       )}
     </div>
+      {/* Video overlay if videoUrl exists */}
+      {videoUrl && (
+            <div className="absolute top-2.5 right-3 flex items-center justify-center  transition-colors">
+              <div className="flex flex-col items-center gap-2">
+                <div className="w-8 h-8 rounded-full  bg-primary-PARI-Red  hover:bg-primary-PARI-Red/80 flex items-center justify-center">
+                  <Play className="w-4 h-4 text-white " />
+                </div>
+                {duration && (
+                  <span className="text-white text-sm font-medium bg-black/50 px-2 py-1 rounded">
+                    {duration}
+                  </span>
+                )}
+              </div>
+            </div>
+          ) || audioUrl && (
+            <div className="absolute top-2.5 right-3 flex items-center justify-center  transition-colors">
+              <div className="flex flex-col items-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-primary-PARI-Red hover:bg-primary-PARI-Red/80 flex items-center justify-center">
+                  <Headphones className="w-4 h-4 text-white " />
+                </div>
+                {duration && (
+                  <span className="text-white text-sm font-medium bg-black/50 px-2 py-1 rounded">
+                    {duration}
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
 
     {/* Content wrapper with gradient */}
     <div className="relative flex flex-col w-full justify-end h-full z-10">

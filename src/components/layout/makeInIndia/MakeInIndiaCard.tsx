@@ -24,6 +24,7 @@ export interface Article {
     Original_published_date: string;
     slug: string;
     location_auto_suggestion: string;
+    type: string;
     Cover_image: {
       data: {
         attributes: {
@@ -80,6 +81,9 @@ export function MakeInIndiaCard() {
     localizations: Array<{ locale: string; title: string; strap: string; slug: string }>;
     location: string;
     date: string;
+    type: string;
+    videoUrl?: string;
+    audioUrl?: string;
     authors: string[];  // Add authors to the state type
     background: JSX.Element;
     className: string;
@@ -136,6 +140,7 @@ export function MakeInIndiaCard() {
                 'Original_published_date',
                 'slug',
                 'location_auto_suggestion',
+                'type',
               ],
               populate: {
                 location: { fields: ['name', 'district', 'state'] },
@@ -238,6 +243,9 @@ export function MakeInIndiaCard() {
                     year: 'numeric'
                   })
                 : '',
+            type: articleData.type?.toLowerCase() || '',
+            videoUrl: articleData.type?.toLowerCase() === 'video' ? 'true' : undefined,
+            audioUrl: articleData.type?.toLowerCase() === 'audio' ? 'true' : undefined,
             background: (
               <Image 
                 src={`${BASE_URL}${articleData.Cover_image?.data?.attributes?.url}`} 

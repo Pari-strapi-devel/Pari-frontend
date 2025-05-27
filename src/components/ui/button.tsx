@@ -14,9 +14,9 @@ const buttonVariants = cva(
         destructive:
           "bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20",
         outline:
-          "border border-input bg-background shadow-xs hover:bg-accent hover:text-accent-foreground",
+          "border border-input bg-[#444444] shadow-xs hover:bg-primary-PARI-Red dark:hover:bg-primary-PARI-Red hover:text-accent-foreground",
         secondary:
-          "bg-lghtsurface2 text-primary-PARI-Red shadow-xs hover:ring-primary-PARI-Red ring-1 hover:text-white hover:bg-primary-PARI-Red",
+          "bg-lghtsurface2 text-primary-PARI-Red shadow-xs hover:dark:bg-primary-PARI-Red hover:ring-primary-PARI-Red ring-primary-PARI-Red ring-1 hover:text-white hover:bg-primary-PARI-Red ",
         ghost: " ",
         link: "text-primary  ",
       },

@@ -44,11 +44,11 @@ export function Navigation({ onLinkClick }: NavigationProps = {}) {
     <>
       {/* Desktop Navigation */}
       <div className="hidden md:block">
-        <NavigationMenu className="w-full dark:bg-popover bg-popover">
+        <NavigationMenu className="w-full dark:bg-background bg-popover">
           <NavigationMenuList className="w-full">
             {/* Stories */}
             <NavigationMenuItem>
-              <NavigationMenuTrigger className="dark:bg-popover bg-popover text-foreground transition-colors duration-150 font-medium">
+              <NavigationMenuTrigger className="dark:bg-background bg-popover text-foreground transition-colors duration-150 font-medium">
                 Stories
               </NavigationMenuTrigger>
               <NavigationMenuContent className="w-[500px] h-[250px] p-5 rounded-lg overflow-hidden">
@@ -85,7 +85,7 @@ export function Navigation({ onLinkClick }: NavigationProps = {}) {
 
             {/* Resources */}
             <NavigationMenuItem>
-              <NavigationMenuTrigger className="dark:bg-popover bg-popover text-foreground transition-colors duration-150 font-medium">
+              <NavigationMenuTrigger className="dark:bg-background bg-popover text-foreground transition-colors duration-150 font-medium">
                 Resources
               </NavigationMenuTrigger>
               <NavigationMenuContent className="!w-[800px] h-[250px] p-5">
@@ -144,7 +144,7 @@ export function Navigation({ onLinkClick }: NavigationProps = {}) {
 
             {/* About */}
             <NavigationMenuItem>
-              <NavigationMenuTrigger className="dark:bg-popover bg-popover transition-colors duration-150 font-medium text-foreground">
+              <NavigationMenuTrigger className="dark:bg-background bg-popover transition-colors duration-150 font-medium text-foreground">
                 About
               </NavigationMenuTrigger>
               <NavigationMenuContent className="w-[500px] h-[250px] p-5 rounded-lg overflow-hidden">
@@ -178,7 +178,7 @@ export function Navigation({ onLinkClick }: NavigationProps = {}) {
 
             {/* Get Involved */}
             <NavigationMenuItem className="w-full">
-              <NavigationMenuTrigger className="w-full text-foreground    dark:bg-popover bg-popover transition-colors duration-150 font-medium">
+              <NavigationMenuTrigger className="w-full text-foreground    dark:bg-background bg-popover transition-colors duration-150 font-medium">
                 Get Involved
               </NavigationMenuTrigger>
               <NavigationMenuContent className=" p-5  h-[250px] rounded-[16px] overflow-hidden">
