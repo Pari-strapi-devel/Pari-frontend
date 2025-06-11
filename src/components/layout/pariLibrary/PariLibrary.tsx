@@ -138,11 +138,7 @@ export function PariLibrary() {
   })
 
   if (isLoading) {
-    return (
-      <div className="flex justify-center items-center min-h-[400px]">
-        Loading...
-      </div>
-    )
+    return null
   }
 
   return (
@@ -200,7 +196,7 @@ export function PariLibrary() {
           <div ref={sliderRef} className="keen-slider max-w-[1232px] mx-auto relative !overflow-visible">
             {libraryData.map((article, index) => (
               <ArticleCard
-                key={`${article.slug}-${index}`}
+                key={`$ {slug}-${index}`}
                 {...article}
                 className="keen-slider__slide !min-h-[500px]"
               />

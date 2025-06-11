@@ -13,13 +13,17 @@ import { useLocale } from '@/lib/locale'
 import { useKeenSlider } from 'keen-slider/react'
 import 'keen-slider/keen-slider.min.css'
 import { StoryCard } from '@/components/layout/stories/StoryCard'
+import { LocalizationData } from '@/components/layout/stories/StoryCard'
+import { languages as languagesList } from '@/data/languages';
 
 interface MediaStory {
+  availableLanguages: { code: string; name: string; slug: string }[] | undefined
   headtitle:  string;
   sub_title: string;
   localizations: Array<{
     locale: string;
     title: string;
+    name: string;
     strap: string;
     slug: string;
   }>;
@@ -33,6 +37,7 @@ interface MediaStory {
   authors: string[];
   location: string;
   date: string;
+  currentLocale: string;
 }
 
 interface ApiResponse {
@@ -53,7 +58,7 @@ export function AudioVideoCard() {
   const [mediaStories, setMediaStories] = useState<MediaStory[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const { language } = useLocale()
+  const { language: targetLocale } = useLocale()
   const [currentSlide, setCurrentSlide] = useState(0)
   const [isLoaded, setIsLoaded] = useState(false)
   const [sliderRef, instanceRef] = useKeenSlider({
@@ -146,7 +151,7 @@ export function AudioVideoCard() {
               },
             },
           },
-          locale: language, // Add the current language to the query
+          locale: targetLocale, // Add the current language to the query
         }
 
         const queryString = qs.stringify(query, { encodeValuesOnly: true })
@@ -172,17 +177,49 @@ export function AudioVideoCard() {
           
           const localizationsData = Array.isArray(articleData.localizations) 
             ? articleData.localizations 
-            : (articleData.localizations as { data: Array<{ locale: string; title: string; strap: string; slug: string }> })?.data || [];
+            : (articleData.localizations as { data: Array<LocalizationData> })?.data || [];
 
           const localizations = localizationsData.map(
-            (loc: { locale: string; title: string; strap: string; slug: string }) => ({
-              locale: loc.locale,
-              title: loc.title,
-              strap: loc.strap,
-              slug: loc.slug
+            (loc: {
+              attributes?: { locale: string; title: string; strap: string; slug: string };
+              locale?: string;
+              title?: string;
+              strap?: string;
+              slug?: string;
+            }) => ({
+              locale: loc.attributes?.locale || loc.locale || '',
+              title: loc.attributes?.title || loc.title || '',
+              name: loc.attributes?.title || loc.title || '',
+              strap: loc.attributes?.strap || loc.strap || '',
+              slug: loc.attributes?.slug || loc.slug || ''
             })
           );
+
+          // Get available languages from localizations
+          const availableLanguages = localizations.map((loc: { locale:  string; slug: string; }) => {
+            const langCode = loc.locale;
+            const language = languagesList.find(lang => lang.code === langCode);
+            return {
+              code: langCode,
+              name: language ? language.name : langCode,
+              slug: loc.slug
+            };
+          });
           
+          // Add current language if not in localizations
+          const hasCurrentLocale = availableLanguages.some((lang: { code: string; }) => lang.code === targetLocale);
+          if (!hasCurrentLocale) {
+            const currentLanguage = languagesList.find(lang => lang.code === targetLocale);
+            if (currentLanguage) {
+              availableLanguages.unshift({
+                code: targetLocale,
+                name: currentLanguage.name,
+                slug: articleData.slug
+              });
+            }
+          }
+
+
           return {
             id: item.id,
             headtitle: sections.title,
@@ -217,6 +254,8 @@ export function AudioVideoCard() {
                 })
               : '',
             authors,
+            availableLanguages,
+            currentLocale: targetLocale
           }
         })
 
@@ -244,7 +283,7 @@ export function AudioVideoCard() {
     }
 
     fetchAudioVideoStories()
-  }, [language]) // Only depend on language changes
+  }, [targetLocale]) // Only depend on language changes
 
   if (isLoading) {
     return (
@@ -329,7 +368,7 @@ export function AudioVideoCard() {
             <div key={story.id} className="keen-slider__slide  ">
               <StoryCard
                 title={story.title}
-                description={story.description}
+                // description={story.description}
                 authors={story.authors.join(', ')}
                 imageUrl={story.imageUrl}
                 categories={story.categories}
@@ -339,7 +378,9 @@ export function AudioVideoCard() {
                 videoUrl={story.type === 'video' ? 'true' : undefined}
                 audioUrl={story.type === 'audio' ? 'true' : undefined}
                 localizations={story.localizations}
-                className="h-full mx-2"
+                availableLanguages={story.availableLanguages}
+                currentLocale={story.currentLocale}
+                className="h-full "
               />
             </div>
           ))}

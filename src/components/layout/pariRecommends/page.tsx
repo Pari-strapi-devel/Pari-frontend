@@ -5,16 +5,19 @@ import { useState, useEffect } from "react";
 import { useLocale } from "@/lib/locale";
 import { useSearchParams } from "next/navigation";
 import { StoryCard } from "@/components/layout/stories/StoryCard";
-import { cn } from "@/lib/utils";
+import { languages as languagesList } from "@/data/languages";
 import "keen-slider/keen-slider.min.css";
-import { Sparkle, ChevronRight, ChevronLeft } from "lucide-react";
+import { Sparkle, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
+
 import qs from "qs";
 import axios from "axios";
 import { BASE_URL } from "@/config";
-import Link from "next/link";
+
 
 interface Story {
+  availableLanguages: { code: string; name: string; slug: string; }[] | undefined;
   sub_title: string;
   localizations:
     | { locale: string; title: string; strap: string; slug: string }[]
@@ -116,7 +119,7 @@ export interface ArticleWithLangSelection {
 export default function StoriesPage() {
   const [stories, setStories] = useState<Story[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const { language: currentLocale } = useLocale();
+  const { language: currentLocale,  isLocaleSet } = useLocale();
   const searchParams = useSearchParams();
 
   // Add slider states
@@ -167,8 +170,12 @@ export default function StoriesPage() {
       try {
         setIsLoading(true);
 
+        // Get locale from URL if present
+
+        const targetLocale = currentLocale;
+
         const query = {
-          locale: "all",
+          locale: "all", // Get all locales
           populate: {
             fields: ["seeallStories"],
             pari_movable_sections: {
@@ -227,16 +234,15 @@ export default function StoriesPage() {
           `${BASE_URL}api/home-page?${queryString}`
         );
 
-        type dataElementType = {
-          attributes: {
-            locale: string;
-            pari_movable_sections: {
-              Title: string;
-              see_all_button: string;
-              article_with_lang_selection_1: ArticleWithLangSelection[];
-            }[];
-          };
-        };
+        // Show content from all languages regardless of the selected language
+        const filteredData = response?.data?.data || [];
+
+        // Process the filtered data
+        if (filteredData.length === 0) {
+          setStories([]);
+          setIsLoading(false);
+          return;
+        }
 
         const currentLangData: {
           attributes: {
@@ -248,26 +254,73 @@ export default function StoriesPage() {
               article_with_lang_selection_1: ArticleWithLangSelection[];
             }[];
           };
-        } = (response?.data?.data || []).find((element: dataElementType) => {
-          return element?.attributes?.locale === currentLocale;
-        });
-
-        const section = currentLangData?.attributes?.pari_movable_sections?.[0];
-        section.article_with_lang_selection_1 = [];
-
-        (response?.data?.data || []).forEach(
-          (element: dataElementType, index: number) => {
-            element?.attributes?.pari_movable_sections?.[0]?.article_with_lang_selection_1?.forEach(
-              (article, i: number) => {
-                if (i == index) {
-                  section.article_with_lang_selection_1.push(article);
-                }
-              }
-            );
+        } = filteredData.find(
+          (element: {
+            attributes: {
+              locale: string;
+              pari_movable_sections: {
+                Title: string;
+                see_all_button: string;
+                article_with_lang_selection_1: ArticleWithLangSelection[];
+              }[];
+            };
+          }) => {
+            return element?.attributes?.locale === targetLocale;
           }
         );
 
-        console.log(section);
+        const section = currentLangData?.attributes?.pari_movable_sections?.[0];
+        
+
+        if (!isLocaleSet) {
+          
+          const article_with_lang_selection_1: ArticleWithLangSelection[] = [];
+          // Assuming 'en' is the locale code for English
+          // If the target language is English, keep the staggered/mixed language logic
+          (response?.data?.data || []).forEach(
+            (
+              element: {
+                attributes: {
+                  locale: string;
+                  pari_movable_sections: {
+                    Title: string;
+                    see_all_button: string;
+                    article_with_lang_selection_1: ArticleWithLangSelection[];
+                  }[];
+                };
+              },
+              index: number
+            ) => {
+              element?.attributes?.pari_movable_sections?.[0]?.article_with_lang_selection_1?.forEach(
+                (article, i: number) => {
+                  
+                  if (i == index) {
+                    console.log('======')
+                    console.log(i, index)
+                    console.log('======')
+                    article_with_lang_selection_1.push(article);
+                  }
+                }
+              );
+            }
+            
+          );
+          section.article_with_lang_selection_1 = article_with_lang_selection_1;
+        } else {
+          
+          // If the target language is NOT English, show recommendations ONLY for that language
+          // We need to find the specific element in response.data.data that matches the targetLocale
+          const specificLangElement = (response?.data?.data || []).find(
+            (element: { attributes: { locale: string } }) =>
+              element?.attributes?.locale === targetLocale
+          );
+
+          if (specificLangElement) {
+            // If the element for the targetLocale is found, add all its articles
+            section.article_with_lang_selection_1 = specificLangElement.attributes.pari_movable_sections?.[0]?.article_with_lang_selection_1 || [];
+          }
+        }
+
 
         if (!section) {
           setStories([]);
@@ -323,34 +376,50 @@ export default function StoriesPage() {
               langs = ["Available in 6 languages"];
             }
 
-            // First, ensure localizations is an array
+            // Extract localizations data
             const localizationsData = Array.isArray(articleData.localizations)
               ? articleData.localizations
-              : (
-                  articleData.localizations as {
-                    data: Array<{
-                      locale: string;
-                      title: string;
-                      strap: string;
-                      slug: string;
-                    }>;
-                  }
-                )?.data || [];
+              : (articleData.localizations as { data: Array<{ locale: string; title: string; strap: string; slug: string }> })?.data || [];
 
-            // Then map over the array
+            // Map to consistent format with proper typing
             const localizations = localizationsData.map(
               (loc: {
-                locale: string;
-                title: string;
-                strap: string;
-                slug: string;
+                attributes?: { locale: string; title: string; strap: string; slug: string };
+                locale?: string;
+                title?: string;
+                strap?: string;
+                slug?: string;
               }) => ({
-                locale: loc.locale,
-                title: loc.title,
-                strap: loc.strap,
-                slug: loc.slug,
+                locale: loc.attributes?.locale || loc.locale || '',
+                title: loc.attributes?.title || loc.title || '',
+                strap: loc.attributes?.strap || loc.strap || '',
+                slug: loc.attributes?.slug || loc.slug || ''
               })
             );
+            
+            // Get available languages from localizations
+            const availableLanguages = localizations.map((loc: { locale:  string; slug: string; }) => {
+              const langCode = loc.locale;
+              const language = languagesList.find(lang => lang.code === langCode);
+              return {
+                code: langCode,
+                name: language ? language.name : langCode,
+                slug: loc.slug
+              };
+            });
+            
+            // Add current language if not in localizations
+            const hasCurrentLocale = availableLanguages.some((lang: { code: string; }) => lang.code === currentLocale);
+            if (!hasCurrentLocale) {
+              const currentLanguage = languagesList.find(lang => lang.code === currentLocale);
+              if (currentLanguage) {
+                availableLanguages.unshift({
+                  code: currentLocale,
+                  name: currentLanguage.name,
+                  slug: articleData.slug
+                });
+              }
+            }
 
             return {
               headtitle: section?.Title,
@@ -383,8 +452,16 @@ export default function StoriesPage() {
                   })
                 : "",
               type: articleData.type?.toLowerCase() || "",
-              videoUrl: articleData.type?.toLowerCase() === 'video' ? 'true' : undefined,
-              audioUrl: articleData.type?.toLowerCase() === 'audio' ? 'true' : undefined,
+              videoUrl:
+                articleData.type?.toLowerCase() === "video"
+                  ? "true"
+                  : undefined,
+              audioUrl:
+                articleData.type?.toLowerCase() === "audio"
+                  ? "true"
+                  : undefined,
+              availableLanguages,
+              currentLocale: targetLocale
             };
           });
 
@@ -412,25 +489,28 @@ export default function StoriesPage() {
   return (
     <div className=" relative overflow-hidden   ">
       <div className="pb-4 max-w-[1232px] border-t-1 lg:px-0  px-4  border-[#D9D9D9] dark:border-[#444444] md:pt-12 pt-10 mx-auto relative z-10">
-        <div className="flex justify-between sm:flex-row  flex-col sm:items-center gap-5 mb-4">
+        <div className="flex justify-between sm:flex-row flex-col sm:items-center gap-5 mb-4">
           <div className="flex flex-row items-center gap-2">
             <Sparkle className="h-6 w-6 text-primary-PARI-Red" />
-            <h2 className="text-[13px] font-noto-sans  uppercase text-grey-300 line-clamp-1 leading-[100%] letter-spacing-[-2%] font-semibold">
+            <h2 className="text-[13px] font-noto-sans uppercase text-grey-300 line-clamp-1 leading-[100%] letter-spacing-[-2%] font-semibold">
               {stories[0]?.headtitle}
             </h2>
           </div>
-          <div className="flex items-center gap-8">
+          
+          <div className="flex items-center gap-3">
+            {/* Add See All Stories button */}
             <Link href="/articles">
-              <Button
-                variant="secondary"
-                className="text-sm h-[36px] ml-1 sm:ml-0 ring-[2px] rounded-[48px] text-primary-PARI-Red"
+              <Button 
+                variant="secondary" 
+                className="text-sm h-[36px] md:flex hidden ring-[2px] rounded-[48px] text-primary-PARI-Red"
               >
                 {stories[0]?.sub_title || "See all stories"}
-                <ChevronRight className="h-4 w-4" />
+                <ChevronRight className="h-5 w-5 ml-1" />
               </Button>
             </Link>
-
-            <div className="hidden md:flex items-center  gap-3">
+            
+            {/* Navigation buttons */}
+            <div className="hidden md:flex items-center gap-3">
               <Button
                 variant="outline"
                 size="icon"
@@ -471,11 +551,11 @@ export default function StoriesPage() {
                     ? story.authors.join(", ")
                     : story.authors
                 }
-                className={cn(
-                  "h-full",
-                  "group relative flex flex-col justify-between overflow-hidden rounded-2xl",
-                  "bg-[linear-gradient(180deg,rgba(0,0,0,0)_36.67%,#000000_70%)]"
-                )}
+                localizations={story.localizations}
+                slug={story.slug}
+                availableLanguages={story.availableLanguages}
+                currentLocale={currentLocale}
+                className="h-full"
               />
             </div>
           ))}

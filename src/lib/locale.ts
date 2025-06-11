@@ -16,6 +16,8 @@ export function useLocale() {
     return 'en'
   }, [searchparams])
 
+
+
   const setLanguage = useCallback((locale: string) => {
     const searchParams = new URLSearchParams(searchparams?.toString() || '')
     searchParams.set('locale', locale)
@@ -23,8 +25,10 @@ export function useLocale() {
     router.push(newPathName + '?' + searchParams.toString())
   }, [router, pathname, searchparams])
 
+
   return {
     language,
-    setLanguage
+    setLanguage,
+    isLocaleSet: !!searchparams?.get('locale')
   }
 }

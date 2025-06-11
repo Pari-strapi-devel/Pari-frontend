@@ -14,7 +14,15 @@ import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useKeenSlider } from 'keen-slider/react';
 import 'keen-slider/keen-slider.min.css';
-// Remove any imports of Carousel if they exist
+import { languages as languagesList } from '@/data/languages';
+
+import { Globe } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export interface Article {
   id: string;
@@ -79,12 +87,13 @@ export function MakeInIndiaCard() {
     href: string;
     cta: string;
     localizations: Array<{ locale: string; title: string; strap: string; slug: string }>;
+    availableLanguages: Array<{ code: string; name: string; slug: string }>;
     location: string;
     date: string;
     type: string;
     videoUrl?: string;
     audioUrl?: string;
-    authors: string[];  // Add authors to the state type
+    authors: string[];
     background: JSX.Element;
     className: string;
   }[]>([]);
@@ -93,7 +102,9 @@ export function MakeInIndiaCard() {
   const [isLoading, setIsLoading] = useState(true);
   const [, setCurrentSlide] = useState(0);
   const [, setLoaded] = useState(false);
-  
+  const [openDropdownId, setOpenDropdownId] = useState<string | number | null>(null);
+  const { language: currentLocale } = useLocale();
+
   const [sliderRef, instanceRef] = useKeenSlider({
     initial: 0,
     slides: {
@@ -122,7 +133,10 @@ export function MakeInIndiaCard() {
     },
   });
 
-
+  function handleArticleLanguageSelect(slug: string): void {
+    if (!slug) return;
+    window.location.href = `https://ruralindiaonline.org/article/${slug}`;
+  }
 
   useEffect(() => {
     const fetchMakeInIndiaData = async () => {
@@ -207,15 +221,50 @@ export function MakeInIndiaCard() {
                 return name && typeof name === 'string' && name.trim().length > 0 ? name : 'PARI';
               })
             : ['PARI'];
-            const localizations = Array.isArray(articleData.localizations.data) 
-              ? articleData.localizations.data.map((loc: { locale: string; title: string; strap: string; slug: string }) => ({
-                  locale: loc.locale,
-                  title: loc.title,
-                  strap: loc.strap,
-                  slug: loc.slug
-                }))
-              : []; 
-         
+            const localizationsData = Array.isArray(articleData.localizations?.data) 
+              ? articleData.localizations.data
+              : [];
+
+          // Map to consistent format with proper typing
+          const localizations = localizationsData.map(
+            (loc: {
+              attributes?: { locale: string; title: string; strap: string; slug: string };
+              locale?: string;
+              title?: string;
+              strap?: string;
+              slug?: string;
+            }) => ({
+              locale: loc.attributes?.locale || loc.locale || '',
+              title: loc.attributes?.title || loc.title || '',
+              strap: loc.attributes?.strap || loc.strap || '',
+              slug: loc.attributes?.slug || loc.slug || ''
+            })
+          );
+          
+          // Get available languages from localizations
+          const availableLanguages = localizations.map((loc: { locale:  string; slug: string; }) => {
+            const langCode = loc.locale;
+            const language = languagesList.find(lang => lang.code === langCode);
+            return {
+              code: langCode,
+              name: language ? language.name : langCode,
+              slug: loc.slug
+            };
+          });
+          
+          // Add current language if not in localizations
+          const currentLanguageExists = availableLanguages.some((lang: { code: string; }) => lang.code === currentLocale);
+          if (!currentLanguageExists) {
+            const currentLanguage = languagesList.find(lang => lang.code === currentLocale);
+            if (currentLanguage) {
+              availableLanguages.unshift({
+                code: currentLocale,
+                name: currentLanguage.name,
+                slug: articleData.slug
+              });
+            }
+          }
+
           // Define grid positions based on index
           const gridPositions = [
             "lg:col-start-1 lg:col-end-2 lg:row-start-1 lg:row-end-3",
@@ -232,9 +281,10 @@ export function MakeInIndiaCard() {
             strap: articleData.sub_title,
             authors,
             description: articleData.Strap,
-            href: `/stories/${articleData.slug}`,
+            href: `${articleData.slug}`,
             cta: "Read more",
-            localizations,  // This is already correctly formatted
+            localizations,
+            availableLanguages,
             location,
             date: articleData.Original_published_date
                 ? new Date(articleData.Original_published_date).toLocaleDateString('en-US', {
@@ -320,8 +370,9 @@ export function MakeInIndiaCard() {
       <div className="relative max-w-[1234px] mx-auto">
         <div ref={sliderRef} className="keen-slider !overflow-visible">
           {features.map((feature, index) => (
-            <div 
+            <Link 
               key={`${feature.href}-${index}`} 
+              href={`https://ruralindiaonline.org/article/${feature.href}`}
               className="keen-slider__slide min-h-[400px] md:p-3 max-w-full min-w-[360px]  "
             >
               <BentoCard
@@ -329,9 +380,9 @@ export function MakeInIndiaCard() {
                 {...feature}
                 className={cn(
                   "h-[520px] w-full",
-                  "group relative col-span-1 md:col-span-3 flex flex-col justify-between overflow-hidden opacity-90 cursor-pointer rounded-2xl",
+                  " relative col-span-1 md:col-span-3 flex flex-col justify-between overflow-hidden cursor-pointer rounded-2xl",
                   "bg-[linear-gradient(180deg,rgba(0,0,0,0)_36.67%,#000000_70%)]",
-                  feature.className
+                  
                 )}
               >
                 {feature.background}
@@ -361,23 +412,48 @@ export function MakeInIndiaCard() {
                       {feature.location && feature.date && <span>•</span>}
                       {feature.date && <span>{feature.date}</span>}
                     </div>
-                    {feature.localizations && feature.localizations.length > 0 && (
+                    {feature.availableLanguages && feature.availableLanguages.length > 0 && (
                       <div className="text-sm text-gray-300">
                         <div className="flex items-center gap-2">
-                          <span>Available in {feature.localizations.length} languages</span>
-                          <div className="relative flex gap-1">
-                            {/* Replace Carousel with a simple div */}
-                            <div className="w-fit flex gap-1">
-                              {feature.localizations.map((loc, idx) => (
-                                <Link 
-                                  key={`${loc.locale}-${idx}`}
-                                  href={`/stories/${loc.slug}`}
-                                  className="px-2 py-1 text-xs bg-gray-800 rounded-full hover:bg-gray-700 transition-colors"
-                                >
-                                  {loc.locale}
-                                </Link>
-                              ))}
-                            </div>
+                          <span>Available in {feature.availableLanguages.length} languages</span>
+                          <div className="z-10">
+                            <DropdownMenu 
+                              open={openDropdownId === index}
+                              onOpenChange={(open) => setOpenDropdownId(open ? index : null)}
+                            >
+                              <DropdownMenuTrigger asChild>
+                                <button className="rounded-full ml-2 backdrop-blur-sm cursor-pointer">
+                                  <Globe className="h-4 w-4 text-primary-PARI-Red" />
+                                </button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="center" className="w-[250px] p-2 z-50">
+                                <div className="p-2 border-b">
+                                  <h3 className="text-xs font-medium">This story is available in {feature.availableLanguages.length} languages</h3>
+                                </div>
+                                <div className="grid grid-cols-2 gap-1 p-1">
+                                  {feature.availableLanguages.map((language) => (
+                                    <DropdownMenuItem
+                                      key={`lang-${language.code}-${language.slug}`}
+                                      className={`flex items-center cursor-pointer p-2 text-xs ${
+                                        currentLocale === language.code 
+                                          ? 'bg-primary-PARI-Red/10 text-primary-PARI-Red font-medium' 
+                                          : 'hover:bg-accent/50'
+                                      }`}
+                                      onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        handleArticleLanguageSelect(language.slug);
+                                      }}
+                                    >
+                                      <span>{language.name}</span>
+                                      {currentLocale === language.code && (
+                                        <span className="ml-auto">•</span>
+                                      )}
+                                    </DropdownMenuItem>
+                                  ))}
+                                </div>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
                           </div>
                         </div>
                       </div>
@@ -385,7 +461,7 @@ export function MakeInIndiaCard() {
                   </div>
                 </div>
               </BentoCard>
-            </div>
+            </Link>
           ))}
         </div>
       </div>

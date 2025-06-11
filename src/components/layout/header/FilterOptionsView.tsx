@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import qs from 'qs';
 import { BASE_URL } from '@/config';
-import { Calendar } from 'lucide-react';
+import { Calendar, X } from 'lucide-react';
 import { languages } from '@/data/languages';
 
 interface FilterState {
@@ -251,6 +251,28 @@ export function FilterOptionsView({
     return () => clearTimeout(debounceTimer);
   }, [filters.location, placeSelectionMade]);
 
+  // Clear input handlers
+  const handleClearAuthor = () => {
+    handleAuthorChange('');
+    setAuthorSelectionMade(false);
+    setShowAuthorSuggestions(false);
+  };
+
+  const handleClearPlace = () => {
+    handlePlaceChange('');
+    setPlaceSelectionMade(false);
+    setShowPlaceSuggestions(false);
+  };
+
+  // Date clear handlers
+  const handleClearStartDate = () => {
+    handleDateRangeChange('start:');
+  };
+
+  const handleClearEndDate = () => {
+    handleDateRangeChange('end:');
+  };
+
   return (
     <div className="p-4 space-y-6 bg-background dark:bg-background">
       <h2 className="text-xl font-semibold mb-4">Choose filters to apply</h2>
@@ -258,16 +280,26 @@ export function FilterOptionsView({
       {/* Author Name */}
       <div className="space-y-2 relative">
         <label htmlFor="authorName" className="block text-sm font-medium">Author name</label>
-        <input
-          id="authorName"
-          type="text"
-          value={filters.authorName || ''}
-          onChange={(e) => handleAuthorChange(e.target.value)}
-          onFocus={handleAuthorInputFocus}
-          onBlur={handleAuthorInputBlur}
-          placeholder="Enter a name of author"
-          className="w-full p-4 border h-[52px] rounded-[8px] shadow-sm dark:bg-popover bg-popover focus:outline-none focus:ring-1 focus:ring-primary-PARI-Red"
-        />
+        <div className="relative">
+          <input
+            id="authorName"
+            type="text"
+            value={filters.authorName || ''}
+            onChange={(e) => handleAuthorChange(e.target.value)}
+            onFocus={handleAuthorInputFocus}
+            onBlur={handleAuthorInputBlur}
+            placeholder="Enter a name of author"
+            className="w-full p-4 border h-[52px] rounded-[8px] shadow-sm dark:bg-popover bg-popover focus:outline-none focus:ring-1 focus:ring-primary-PARI-Red pr-10"
+          />
+          {filters.authorName && (
+            <button 
+              onClick={handleClearAuthor}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-primary-PARI-Red"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          )}
+        </div>
         
         {/* Author suggestions */}
         {(showAuthorSuggestions && filters.authorName && filters.authorName.length >= 1 && authorSuggestions.length > 0) && (
@@ -297,20 +329,30 @@ export function FilterOptionsView({
       {/* Place */}
       <div className="space-y-2 relative">
         <label htmlFor="location" className="block text-sm font-medium">Place</label>
-        <input
-          id="location"
-          type="text"
-          value={filters.location || ''}
-          onChange={(e) => {
-            const newValue = e.target.value;
-            console.log('Changing location to:', newValue);
-            handlePlaceChange(newValue);
-          }}
-          onFocus={handlePlaceInputFocus}
-          onBlur={handlePlaceInputBlur}
-          placeholder="Enter a name of place"
-          className="w-full p-4 border h-[52px] rounded-[8px] shadow-sm dark:bg-popover bg-popover focus:outline-none focus:ring-1 focus:ring-primary-PARI-Red"
-        />
+        <div className="relative">
+          <input
+            id="location"
+            type="text"
+            value={filters.location || ''}
+            onChange={(e) => {
+              const newValue = e.target.value;
+              console.log('Changing location to:', newValue);
+              handlePlaceChange(newValue);
+            }}
+            onFocus={handlePlaceInputFocus}
+            onBlur={handlePlaceInputBlur}
+            placeholder="Enter a name of place"
+            className="w-full p-4 border h-[52px] rounded-[8px] shadow-sm dark:bg-popover bg-popover focus:outline-none focus:ring-1 focus:ring-primary-PARI-Red pr-10"
+          />
+          {filters.location && (
+            <button 
+              onClick={handleClearPlace}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-primary-PARI-Red"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          )}
+        </div>
         
         {/* Place suggestions */}
         {(showPlaceSuggestions && filters.location && filters.location.length >= 1 && placeSuggestions.length > 0) && (
@@ -368,6 +410,14 @@ export function FilterOptionsView({
               <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                 <Calendar className="h-5 w-5 text-primary-PARI-Red" />
               </div>
+              {filters.dateRanges?.some(r => r.startsWith('start:')) && (
+                <button 
+                  onClick={handleClearStartDate}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-primary-PARI-Red"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              )}
             </div>
           </div>
           
@@ -398,6 +448,14 @@ export function FilterOptionsView({
               <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                 <Calendar className="h-5 w-5 text-primary-PARI-Red" />
               </div>
+              {filters.dateRanges?.some(r => r.startsWith('end:')) && (
+                <button 
+                  onClick={handleClearEndDate}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-primary-PARI-Red"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              )}
             </div>
           </div>
         </div>

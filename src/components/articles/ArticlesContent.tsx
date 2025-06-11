@@ -13,6 +13,7 @@ import { languages as languagesList } from '@/data/languages';
 import { useLocale } from '@/lib/locale'
 import { LanguageToggle } from '@/components/layout/header/LanguageToggle'
 
+
 // Import the getTextDirection function or define it here
 export function getTextDirection(locale: string) {
   return ['ar', 'ur'].includes(locale) ? 'rtl' : 'ltr';
@@ -33,6 +34,7 @@ export interface Story {
   date: string;
   type: string; 
   isStudentArticle: boolean;
+  availableLanguages?: string[]; // Add this property
 }
 
 export interface AuthorData {
@@ -66,7 +68,7 @@ export interface ArticleAttributes {
   slug: string;
   Original_published_date?: string;
   type?: string;
-  is_student_article?: boolean;
+  is_student?: boolean;
   Cover_image?: {
     data?: {
       attributes?: {
@@ -234,16 +236,9 @@ export default function ArticlesContent() {
       } else {
         params.delete('types');
       }
-    } else if (filterType === 'dates' && value) {
-      // For date filters, remove just the specific date range
-      const currentDates = params.get('dates')?.split(',') || [];
-      const updatedDates = currentDates.filter(d => d !== value);
-      
-      if (updatedDates.length > 0) {
-        params.set('dates', updatedDates.join(','));
-      } else {
-        params.delete('dates');
-      }
+    } else if (filterType === 'dates') {
+      // For date filters, remove all date filters at once
+      params.delete('dates');
       
       // Reset to page 1 when changing filters
       setCurrentPage(1);
@@ -323,13 +318,18 @@ export default function ArticlesContent() {
   }
 
   // Get display name for content type
-  const getContentTypeDisplay = (type: string) => {
-    switch (type) {
-      case 'Editorials': return 'Editorials';
-      case 'Video Articles': return 'Video Articles';
-      case 'Audio Articles': return 'Audio Articles';
-      case 'Student Articles': return 'Student Articles';
-      default: return type;
+  const getContentTypeDisplay = (contentType: string): string => {
+    switch (contentType) {
+      case 'Editorials':
+        return 'Editorials';
+      case 'Video Articles':
+        return 'Video Articles';
+      case 'Audio Articles':
+        return 'Audio Articles';
+      case 'Student Articles':
+        return 'Student Articles';
+      default:
+        return contentType;
     }
   }
 
@@ -384,7 +384,7 @@ export default function ArticlesContent() {
           location?: { name: { $containsi: string } };
           location_auto_suggestion?: { $containsi: string };
           type?: { $eq: string };
-          is_student_article?: { $eq: boolean };
+          is_student?: { $eq: boolean };
         } = { $and: [] }
         
         console.log('Starting to build filters with params:', { types, author, location, dates, content, languages });
@@ -397,8 +397,8 @@ export default function ArticlesContent() {
               $in: categorySlugs
             }
           }
-          console.log('Added category filter:', filters.categories);
-          setFilterTitle(`Category: ${categorySlugs.join(', ')}`)
+     
+          setFilterTitle(`${categorySlugs.join(', ')}`)
         }
         
         // Author filter
@@ -501,7 +501,7 @@ export default function ArticlesContent() {
         // Content type filter
         if (content) {
           const contentTypes = content.split(',')
-          const contentFilters: Array<{ type?: { $eq: string }; is_student_article?: { $eq: boolean } }> = []
+          const contentFilters: Array<Record<string, unknown>> = []
           
           console.log('Processing content types:', contentTypes);
           
@@ -513,18 +513,13 @@ export default function ArticlesContent() {
             } else if (type === 'Audio Articles') {
               contentFilters.push({ type: { $eq: 'audio' } })
             } else if (type === 'Student Articles') {
-              contentFilters.push({ is_student_article: { $eq: true } })
+              contentFilters.push({ is_student: { $eq: true } })
             }
           })
           
           if (contentFilters.length > 0) {
-            // If filters.$or already exists, add contentFilters to it
-            // Otherwise, create a new $or array with contentFilters
-            if (filters.$or) {
-              filters.$or = [...filters.$or, ...contentFilters];
-            } else {
-              filters.$or = contentFilters;
-            }
+            // If we have content filters, add them as an $or condition
+            filters.$or = contentFilters;
             console.log('Added content filters:', filters.$or);
           }
           
@@ -535,18 +530,6 @@ export default function ArticlesContent() {
         if (languages) {
           const languageCodes = languages.split(',');
           
-          // For Strapi, we need to modify our approach for language filtering
-          // Instead of using $or with locale, we'll set the locale parameter directly
-          // but we'll need to make multiple requests if multiple languages are selected
-          
-          // We'll handle this in the query construction, not in the filters
-          // So remove any existing language filter logic from the filters object
-          if (filters.$and) {
-            filters.$and = filters.$and.filter(condition => 
-              !condition.$or || !Array.isArray(condition.$or) || !condition.$or.some((item: Record<string, unknown>) => 'locale' in item)
-            );
-          }
-          
           // Get language names for display
           const languageNames = languageCodes.map(code => {
             const language = languagesList.find(lang => lang.code === code);
@@ -555,6 +538,9 @@ export default function ArticlesContent() {
           
           console.log('Language filter will be applied:', languageCodes);
           setFilterTitle(`Language: ${languageNames.join(', ')}`);
+        } else {
+          // If no language filter specified, default to current locale
+          console.log('No language filter, using current locale:', currentLocale);
         }
 
         // If multiple filters are applied, set a combined title
@@ -585,7 +571,7 @@ export default function ArticlesContent() {
               fields: ['locale', 'title', 'strap', 'slug']
             },
             type: true,
-            is_student_article: true
+            is_student: true
           },
           filters,
           pagination: {
@@ -610,23 +596,28 @@ export default function ArticlesContent() {
             
             // Make a request for each language
             const requests = languageCodes.map(async (langCode) => {
+              // Check if the language code is valid before making the request
+              // Some languages like Bhojpuri might have custom handling
               const langQuery = { ...query, locale: langCode };
               const queryString = qs.stringify(langQuery, { encodeValuesOnly: true });
               console.log(`Query string for ${langCode}:`, queryString);
               
-              const response = await axios.get(`${BASE_URL}api/articles?${queryString}`);
-              return response.data;
+              try {
+                const response = await axios.get(`${BASE_URL}api/articles?${queryString}`);
+                console.log(`Response for ${langCode}:`, response.data?.data?.length || 0, 'articles');
+                return response.data;
+              } catch (error) {
+                console.error(`Error fetching articles for language ${langCode}:`, error);
+                return { data: [] };
+              }
             });
             
             // Wait for all requests to complete
             const responses = await Promise.all(requests);
             
-            // Combine the results
-            responses.forEach(response => {
-              if (response.data && Array.isArray(response.data)) {
-                allResults = [...allResults, ...response.data];
-              }
-            });
+            // Combine results from all languages
+            allResults = responses.flatMap(response => response.data || []);
+            console.log('Combined results from all languages:', allResults.length);
             
             // Set total pages based on the combined results
             const totalItems = allResults.length;
@@ -648,63 +639,61 @@ export default function ArticlesContent() {
           
           console.log('Number of articles returned:', allResults.length);
           
-          // Format the stories
-          const formattedStories = allResults.map((item) => {
-            const attributes = item.attributes
-            
-            // Extract localizations if they exist
-            const localizationsData = Array.isArray(attributes.localizations) 
-            ? attributes.localizations 
-            : (attributes.localizations?.data || []);
-
-            const localizations = localizationsData.map(
-              (loc: LocalizationData) => ({
-                locale: loc.attributes?.locale || loc.locale || '',
-                title: loc.attributes?.title || loc.title || '',
-                strap: loc.attributes?.strap || loc.strap || '',
-                slug: loc.attributes?.slug || loc.slug || ''
-              })
-            );
+          // Format the results
+          const formattedStories = allResults.map((item: ArticleData) => {
+            const attributes = item.attributes;
             
             // Extract authors
-            let authors: string[] = ['PARI'];
+            const authors = attributes.Authors
+              ? 'data' in attributes.Authors
+                ? attributes.Authors.data?.map(
+                    (author: AuthorData) => 
+                      author.attributes?.author_name?.data?.attributes?.Name || 'PARI'
+                  ) || ['PARI']
+                : (attributes.Authors as AuthorData[]).map(
+                    (author: AuthorData) => 
+                      author.author_name?.data?.attributes?.Name || 'PARI'
+                  )
+              : ['PARI'];
             
-            // Handle different Authors data structures
-            const authorsData = attributes.Authors;
-            if (authorsData) {
-              if ('data' in authorsData && Array.isArray(authorsData.data)) {
-                // Handle case where Authors is { data: [...] }
-                authors = authorsData.data.map(author => {
-                  const name = author?.attributes?.author_name?.data?.attributes?.Name;
-                  return name && typeof name === 'string' && name.trim().length > 0 ? name : 'PARI';
-                });
-              } else if (Array.isArray(authorsData)) {
-                // Handle case where Authors is an array directly
-                authors = authorsData.map(author => {
-                  const name = author?.author_name?.data?.attributes?.Name;
-                  return name && typeof name === 'string' && name.trim().length > 0 ? name : 'PARI';
-                });
-              }
+            // Extract localizations
+            const localizations = attributes.localizations
+              ? 'data' in attributes.localizations
+                ? attributes.localizations.data?.map(
+                    (loc: LocalizationData) => ({
+                      locale: loc.attributes?.locale || '',
+                      title: loc.attributes?.title || '',
+                      strap: loc.attributes?.strap || '',
+                      slug: loc.attributes?.slug || ''
+                    })
+                  ) || []
+                : (attributes.localizations as LocalizationData[]).map(
+                    (loc: LocalizationData) => ({
+                      locale: loc.locale || '',
+                      title: loc.title || '',
+                      strap: loc.strap || '',
+                      slug: loc.slug || ''
+                    })
+                  )
+              : [];
+            
+            // Determine article type
+            let articleType = attributes.type || 'article';
+            if (attributes.is_student) {
+              articleType = 'student';
             }
+            
+            // Extract available languages
+            const availableLanguages = localizations.map((loc: { locale: string }) => {
+              const langCode = loc.locale;
+              const language = languagesList.find(lang => lang.code === langCode);
+              return language ? language.name : langCode;
+            });
             
             // Extract categories
             const categories = attributes.categories?.data?.map(
               (cat: { attributes: { Title: string } }) => cat.attributes.Title
-            ) || []
-            
-            // Format location
-         
-            const location = attributes.location?.data?.attributes?.name;
-            if (location) {
-              filters.$and.push({
-                $or: [
-                  { 'location.data.attributes.name': { $containsi: location } },
-                  { 'location.data.attributes.district': { $containsi: location } },
-                  { 'location.data.attributes.state': { $containsi: location } },
-                  { location_auto_suggestion: { $containsi: location } }
-                ]
-              });
-            }
+            ) || [];
             
             // Format date
             const date = attributes.Original_published_date
@@ -713,15 +702,11 @@ export default function ArticlesContent() {
                   day: '2-digit',
                   year: 'numeric'
                 })
-              : ''
-            
-            // Explicitly check the Type field and set content type flags
-            const articleType = attributes.type?.toLowerCase() || '';
+              : '';
 
             return {
               id: item.id,
               title: attributes.Title,
-              // description: attributes.Strap || attributes.strap || '',
               imageUrl: attributes.Cover_image?.data?.attributes?.url
                 ? `${BASE_URL}${attributes.Cover_image.data.attributes.url}`
                 : '/images/categories/default.jpg',
@@ -731,17 +716,15 @@ export default function ArticlesContent() {
               localizations,
               location: attributes.location?.data?.attributes?.name || attributes.location_auto_suggestion || 'India',
               date,
-              videoUrl: articleType.includes('video') ? 'true' : undefined,
-              audioUrl: articleType.includes('audio') ? 'true' : undefined,
+              videoUrl: articleType === 'video' ? 'true' : undefined,
+              audioUrl: articleType === 'audio' ? 'true' : undefined,
               type: articleType,
-              isStudentArticle: attributes.is_student_article
+              isStudentArticle: Boolean(attributes.is_student),
+              availableLanguages: availableLanguages.length > 0 ? availableLanguages : [languagesList.find(lang => lang.code === currentLocale)?.name || 'English']
             }
-          })
-          
-          setStories(formattedStories.map(story => ({
-            ...story,
-            isStudentArticle: !!story.isStudentArticle
-          })))
+          });
+
+          setStories(formattedStories);
         } catch (error) {
           console.error('API request failed:', error);
           if (axios.isAxiosError(error)) {
@@ -785,20 +768,32 @@ export default function ArticlesContent() {
     );
     
     // Function to handle "+" button clicks
-    // const handleNextSet = () => {
-    //   const nextPage = Math.min(totalPages, currentPage + 5);
-    //   handlePageChange(nextPage);
-    // };
+    const handleNextSet = () => {
+      const nextPage = Math.min(totalPages, currentPage + 5);
+      handlePageChange(nextPage);
+    };
     
     // Function to handle "-" button clicks
-    // const handlePrevSet = () => {
-    //   const prevPage = Math.max(1, currentPage - 5);
-    //   handlePageChange(prevPage);
-    // };
+    const handlePrevSet = () => {
+      const prevPage = Math.max(1, currentPage - 5);
+      handlePageChange(prevPage);
+    };
     
     return (
       <div className="mt-8">
         <div className={`flex items-center justify-center gap-2 ${currentLocale === 'ur' ? 'flex-row-reverse' : ''}`}>
+              
+          {/* Jump back 5 pages button */}
+          {currentPage > 5 && (
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={handlePrevSet}
+              className="text-primary-PARI-Red rounded-2xl"
+            >
+              Prev 5
+            </Button>
+          )}
           {/* Previous button */}
           <Button
             variant="secondary"
@@ -809,6 +804,7 @@ export default function ArticlesContent() {
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
+    
           
           {/* Page numbers - hide some on very small screens */}
           <div className={`flex flex-wrap justify-center gap-2 ${currentLocale === 'ur' ? 'flex-row-reverse' : ''}`}>
@@ -825,6 +821,8 @@ export default function ArticlesContent() {
             ))}
           </div>
           
+        
+          
           {/* Next button */}
           <Button
             variant="secondary"
@@ -835,10 +833,28 @@ export default function ArticlesContent() {
           >
             <ChevronRight className="h-4 w-4" />
           </Button>
+          
+          {/* Jump forward 5 pages button */}
+          {currentPage + 5 <= totalPages && (
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={handleNextSet}
+              className="text-primary-PARI-Red rounded-2xl"
+            >
+              Next 5
+            </Button>
+          )}
         </div>
       </div>
     );
   };
+
+  // Add state for tracking which article's dropdown is open
+
+  
+  // Function to handle language selection for an article
+  // Remove this unused function
 
   return (
     <div className="min-h-screen bg-background">
@@ -875,7 +891,7 @@ export default function ArticlesContent() {
             <div className={`flex flex-wrap gap-2 mb-6 ${currentLocale === 'ur' ? 'flex-row-reverse' : ''}`}>
               {activeFilters.types?.map(type => (
                 <div key={`type-${type}`} className={`flex items-center ring-1 text-primary-PARI-Red ring-primary-PARI-Red bg-background rounded-full px-3 py-1 ${currentLocale === 'ur' ? 'flex-row-reverse' : ''}`}>
-                  <span className="text-sm mr-2">Category: {type}</span>
+                  <span className="text-sm mr-2"> {type}</span>
                   <Button
                     variant="ghost"
                     size="icon"
@@ -915,36 +931,41 @@ export default function ArticlesContent() {
                 </div>
               )}
               
-              {activeFilters.dates?.map(dateRange => {
-                // Format date for display
-                let displayText = '';
-                
-                if (dateRange.startsWith('start:')) {
-                  const dateStr = dateRange.replace('start:', '');
-                  const date = new Date(dateStr);
-                  displayText = `From: ${date.toLocaleDateString()}`;
-                } else if (dateRange.startsWith('end:')) {
-                  const dateStr = dateRange.replace('end:', '');
-                  const date = new Date(dateStr);
-                  displayText = `To: ${date.toLocaleDateString()}`;
-                } else {
-                  displayText = getDateRangeDisplay(dateRange);
-                }
-                
-                return (
-                  <div key={`date-${dateRange}`} className="flex items-center ring-1 text-primary-PARI-Red ring-primary-PARI-Red bg-background rounded-full px-3 py-1">
-                    <span className="text-sm mr-2">{displayText}</span>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => clearFilter('dates', dateRange)}
-                      className="h-5 w-5 p-0 rounded-full hover:bg-primary-PARI-Red/20"
-                    >
-                      <X className="h-3 w-3 text-primary-PARI-Red" />
-                    </Button>
-                  </div>
-                );
-              })}
+              {/* Date filters - show start and end dates in a single chip */}
+              {activeFilters.dates && activeFilters.dates.length > 0 && (
+                <div className="flex items-center ring-1 text-primary-PARI-Red ring-primary-PARI-Red bg-background rounded-full px-3 py-1">
+                  <span className="text-sm mr-2">
+                    {(() => {
+                      const startDateStr = activeFilters.dates.find(d => d.startsWith('start:'))?.replace('start:', '');
+                      const endDateStr = activeFilters.dates.find(d => d.startsWith('end:'))?.replace('end:', '');
+                      
+                      if (startDateStr && endDateStr) {
+                        const startDate = new Date(startDateStr);
+                        const endDate = new Date(endDateStr);
+                        return `Date: ${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`;
+                      } else if (startDateStr) {
+                        const startDate = new Date(startDateStr);
+                        return `Date: From ${startDate.toLocaleDateString()}`;
+                      } else if (endDateStr) {
+                        const endDate = new Date(endDateStr);
+                        return `Date:  ${endDate.toLocaleDateString()}`;
+                      } else {
+                        // For predefined ranges
+                        const rangeDisplay = activeFilters.dates.map(range => getDateRangeDisplay(range)).join(', ');
+                        return `Date: ${rangeDisplay}`;
+                      }
+                    })()}
+                  </span>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => clearFilter('dates')}
+                    className="h-5 w-5 p-0 rounded-full hover:bg-primary-PARI-Red/20"
+                  >
+                    <X className="h-3 w-3 text-primary-PARI-Red" />
+                  </Button>
+                </div>
+              )}
               
               {activeFilters.content?.map(contentType => (
                 <div key={`content-${contentType}`} className="flex items-center  ring-1 text-primary-PARI-Red ring-primary-PARI-Red bg-background  rounded-full px-3 py-1">
@@ -985,23 +1006,52 @@ export default function ArticlesContent() {
           </div>
         ) : stories.length > 0 ? (
           <div className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 ${currentLocale === 'ur' ? 'rtl' : 'ltr'}`}>
-            {stories.map((story: Story) => (
-              <StoryCard
-                key={story.id}
-                title={story.title}
-                authors={Array.isArray(story.authors) ? story.authors.join(', ') : story.authors}
-                imageUrl={story.imageUrl}
-                categories={story.categories}
-                slug={story.slug}
-                location={story.location}
-                date={story.date}
-                localizations={story.localizations}
-                videoUrl={story.type === 'video' ? 'true' : undefined}
-                audioUrl={story.type === 'audio' ? 'true' : undefined}
-                isStudentArticle={story.isStudentArticle}
-                className={currentLocale === 'ur' ? 'text-right' : 'text-left'}
-              />
-            ))}
+            {stories.map((story: Story) => {
+              // Get available languages from localizations
+              const availableLanguages = story.localizations?.map(loc => {
+                const langCode = loc.locale;
+                const language = languagesList.find(lang => lang.code === langCode);
+                return {
+                  code: langCode,
+                  name: language?.name || langCode,
+                  slug: loc.slug
+                };
+              }) || [];
+              
+              // Add current language if not in localizations
+              const hasCurrentLocale = availableLanguages.some(lang => lang.code === currentLocale);
+              if (!hasCurrentLocale && story.slug) {
+                const currentLanguage = languagesList.find(lang => lang.code === currentLocale);
+                if (currentLanguage) {
+                  availableLanguages.unshift({
+                    code: currentLocale,
+                    name: currentLanguage.name,
+                    slug: story.slug
+                  });
+                }
+              }
+              
+              return (
+                <div key={story.id} className="relative">
+                  <StoryCard
+                    title={story.title}
+                    authors={Array.isArray(story.authors) ? story.authors.join(', ') : story.authors}
+                    imageUrl={story.imageUrl}
+                    categories={story.categories}
+                    slug={story.slug}
+                    localizations={story.localizations}
+                    location={story.location}
+                    date={story.date}
+                    videoUrl={story.videoUrl}
+                    audioUrl={story.audioUrl}
+                    isStudentArticle={story.isStudentArticle}
+                    className={currentLocale === 'ur' ? 'text-right' : 'text-left'}
+                    availableLanguages={availableLanguages}
+                    currentLocale={currentLocale}
+                  />
+                </div>
+              );
+            })}
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center min-h-[400px]">

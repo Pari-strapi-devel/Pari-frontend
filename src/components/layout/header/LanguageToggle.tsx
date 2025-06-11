@@ -75,7 +75,7 @@ export function LanguageToggle() {
   };
 
   const getDisplayCode = (code: string) => {
-    const language = languages.find(lang => lang.code === code);
+    const language = languages.find((lang: Language) => lang.code === code);
     return language ? (
       <div className="flex items-center gap-2">
         <span>{language.displayCode.en}</span>

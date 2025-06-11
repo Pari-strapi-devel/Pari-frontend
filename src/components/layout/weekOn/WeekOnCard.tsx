@@ -284,12 +284,12 @@ export function WeekOnCard() {
                 ? articleData.Cover_image.data.attributes.url.startsWith('http')
                   ? articleData.Cover_image.data.attributes.url
                   : `${BASE_URL}${articleData.Cover_image.data.attributes.url}`
-                : '/images/categories/category-img.png',
+                : '',
               mobileImageUrl: articleData.mobilecover?.data?.attributes?.url
                 ? articleData.mobilecover.data.attributes.url.startsWith('http')
                   ? articleData.mobilecover.data.attributes.url
                   : `${BASE_URL}${articleData.mobilecover.data.attributes.url}`
-                : '/images/categories/category-img.png',
+                : '',
               categories,
               slug: articleData.slug || '',
               authors,
@@ -313,8 +313,8 @@ export function WeekOnCard() {
             id: 1,
             title: 'No articles available',
             description: 'Please check back later',
-            imageUrl: '/images/categories/category-img.png',
-            mobileImageUrl: '/images/categories/category-img.png',
+            imageUrl: '',
+            mobileImageUrl: '',
             categories: [],
             slug: '',
             authors: ['PARI'],

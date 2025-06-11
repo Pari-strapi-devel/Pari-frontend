@@ -121,6 +121,15 @@ export function FilterMenu({ isOpen, onClose }: FilterMenuProps) {
     setFilters(prev => {
       const ranges = prev.dateRanges || [];
       
+      // If the range is empty, it means we're clearing that type of date
+      if (range === 'start:' || range === 'end:') {
+        // Remove any existing start or end date based on which one is being cleared
+        const filteredRanges = range === 'start:' 
+          ? ranges.filter(r => !r.startsWith('start:'))
+          : ranges.filter(r => !r.startsWith('end:'));
+        return { ...prev, dateRanges: filteredRanges };
+      }
+      
       // Check if this is a start or end date
       if (range.startsWith('start:')) {
         // Remove any existing start date
@@ -172,6 +181,8 @@ export function FilterMenu({ isOpen, onClose }: FilterMenuProps) {
       console.log('Complete place selected:', value);
     }
   };
+
+
 
   const handleLanguageChange = (language: string) => {
     setFilters(prev => {

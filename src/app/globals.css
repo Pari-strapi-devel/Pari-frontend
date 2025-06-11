@@ -29,7 +29,7 @@
   --radius: 0.625rem;
   --grey-300: #828282;
   --borderline:#DDDDDD;
-
+  --student-blue: #2F80ED;
   --primary-PARI-Red: #B82929;
   --discreet-text: #333333;
 }
@@ -59,7 +59,7 @@
   --grey-300: #828282;
   --discreet-text: #969696;
   --borderline:#373737;
-
+  --student-blue: #2F80ED;
 }
 
 @theme inline {
@@ -103,6 +103,7 @@
   --color-primary-PARI-Red: var(--primary-PARI-Red);
   --color-discreet-text: var(--discreet-text);
   --color-borderline: var(--borderline);
+  --color-student-blue: var(--student-blue);
 }
 
 @layer base {

@@ -74,7 +74,7 @@ export const languages: Language[] = [
     name: 'বাংলা' 
   },
   { 
-    code: 'bh', 
+    code: 'bho', 
     displayCode: { en: 'BH', native: 'भो' }, 
     name: 'भोजपुरी' 
   },
