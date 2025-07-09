@@ -288,7 +288,7 @@ export function FilterOptionsView({
             onChange={(e) => handleAuthorChange(e.target.value)}
             onFocus={handleAuthorInputFocus}
             onBlur={handleAuthorInputBlur}
-            placeholder="Enter a name of author"
+            placeholder="Enter name of an author or a photographer"
             className="w-full p-4 border h-[52px] rounded-[8px] shadow-sm dark:bg-popover bg-popover focus:outline-none focus:ring-1 focus:ring-primary-PARI-Red pr-10"
           />
           {filters.authorName && (
@@ -328,7 +328,7 @@ export function FilterOptionsView({
 
       {/* Place */}
       <div className="space-y-2 relative">
-        <label htmlFor="location" className="block text-sm font-medium">Place</label>
+        <label htmlFor="location" className="block text-sm font-medium">Location</label>
         <div className="relative">
           <input
             id="location"
@@ -341,7 +341,7 @@ export function FilterOptionsView({
             }}
             onFocus={handlePlaceInputFocus}
             onBlur={handlePlaceInputBlur}
-            placeholder="Enter a name of place"
+            placeholder="Enter name of a state/district/block"
             className="w-full p-4 border h-[52px] rounded-[8px] shadow-sm dark:bg-popover bg-popover focus:outline-none focus:ring-1 focus:ring-primary-PARI-Red pr-10"
           />
           {filters.location && (
@@ -389,7 +389,7 @@ export function FilterOptionsView({
             <div className="relative">
               <input
                 type="date"
-                placeholder="Start date"
+                placeholder="dd-mm-yyyy"
                 className={`w-full p-2 pl-10 border rounded-md h-[52px] shadow-sm dark:bg-popover bg-popover focus:outline-none focus:ring-1 cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute ${
                   filters.dateRanges?.some(r => r.startsWith('start:')) 
                     ? 'ring-primary-PARI-Red border-primary-PARI-Red' 
@@ -427,7 +427,7 @@ export function FilterOptionsView({
             <div className="relative">
               <input
                 type="date"
-                placeholder="End date"
+                placeholder="dd-mm-yyyy"
                 className={`w-full p-2 pl-10 border rounded-md h-[52px] shadow-sm dark:bg-popover bg-popover focus:outline-none focus:ring-1 cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute ${
                   filters.dateRanges?.some(r => r.startsWith('end:')) 
                     ? 'ring-primary-PARI-Red border-primary-PARI-Red' 
@@ -464,17 +464,20 @@ export function FilterOptionsView({
       {/* Content Type */}
       <div className="space-y-2">
         <label className="block text-sm font-medium">Content type</label>
-        <div className=" border rounded-md shadow-sm dark:bg-popover bg-popover hover:shadow-md transition-shadow">
+        <div className="border rounded-md shadow-sm dark:bg-popover bg-popover hover:shadow-md transition-shadow">
           {[
-            { id: 'content-type-editorial', value: 'Editorials', label: 'Editorials' },
-            { id: 'content-type-video', value: 'Video Articles', label: 'Video Articles' },
-            { id: 'content-type-audio', value: 'Audio Articles', label: 'Audio Articles' },
-            { id: 'content-type-student', value: 'Student Articles', label: 'Student Articles' }
+            { id: 'content-type-all', value: 'All Stories', label: 'All stories' },
+            { id: 'content-type-video', value: 'Video Articles', label: 'Video stories' },
+            { id: 'content-type-audio', value: 'Audio Articles', label: 'Audio stories' },
+            { id: 'content-type-photo', value: 'Photo Articles', label: 'Photo stories' },
+            { id: 'content-type-student', value: 'Student Articles', label: 'Student stories' },
+            { id: 'content-type-library', value: 'Library', label: 'Library' },
+            { id: 'content-type-faces', value: 'FACES', label: 'FACES' }
           ].map((type) => (
             <label 
               key={type.id}
               className={`flex items-center space-x-3 cursor-pointer hover:bg-accent/50 p-4 transition-colors ${
-                type.id !== 'content-type-student' ? 'border-b-2' : ''
+                type.id !== 'content-type-faces' ? 'border-b-2' : ''
               }`}
             >
               <input
@@ -482,7 +485,7 @@ export function FilterOptionsView({
                 checked={filters.contentTypes?.includes(type.value)}
                 onChange={() => handleContentTypeChange(type.value)}
                 className="w-6 h-6 rounded border border-border bg-background appearance-none checked:bg-primary-PARI-Red checked:border-transparent relative cursor-pointer
-                after:content-['✓'] font-bold after:absolute  checked:text-white after:top-1/2 after:left-1/2 after:-translate-x-1/2 after:-translate-y-1/2 after:opacity-0 checked:after:opacity-100"
+                after:content-['✓'] font-bold after:absolute checked:text-white after:top-1/2 after:left-1/2 after:-translate-x-1/2 after:-translate-y-1/2 after:opacity-0 checked:after:opacity-100"
               />
               <span>{type.label}</span>
             </label>
@@ -507,7 +510,7 @@ export function FilterOptionsView({
                 after:content-['✓'] font-bold after:absolute checked:text-white after:top-1/2 after:left-1/2 after:-translate-x-1/2 after:-translate-y-1/2 after:opacity-0 checked:after:opacity-100"
               />
               <div className="flex items-center">
-                <span>{language.name}</span>
+                <span>{language.names[0]}  {language.names[1]}</span>
                 {/* <span className="ml-2 text-xs text-discreet-text">({language.displayCode.en})</span> */}
               </div>
             </label>

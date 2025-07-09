@@ -13,6 +13,7 @@ import { useLocale } from '@/lib/locale'
 import qs from 'qs'
 import {  Category,  } from '../../ui/category';
 import { stripHtmlTags } from '@/utils/text'
+import { LanguageToggle } from '@/components/layout/header/LanguageToggle'
 
 
 export const getTextDirection = (langCode: string) => {
@@ -20,7 +21,23 @@ export const getTextDirection = (langCode: string) => {
   return rtlLanguages.includes(langCode) ? 'rtl' : 'ltr';
 };
 
-const defaultCategories = ["The Platform", "Languages", "The Archive", "Donations", "PARI Education"];
+// Replace the single defaultCategories array with a map of languages to category arrays
+const defaultCategoriesMap = {
+  en: ["The Platform", "Languages", "The Archive", "Donations", "PARI Education"],
+  hi: ["प्लेटफॉर्म", "भाषाएँ", "आर्काइव", "दान", "पारी शिक्षा"],
+  ur: ["پلیٹ فارم", "زبانیں", "آرکائیو", "عطیات", "پاری تعلیم"],
+ or: ["ପ୍ଲାଟଫର୍ମ", "ଭାଷା", "ଆର୍କାଇଭ୍", "ଦାନ", "ପାରି ଶିକ୍ଷା"],
+  bn: ["প্ল্যাটফর্ম", "ভাষা", "আর্কাইভ", "অনুদান", "পারি শিক্ষা"],
+  mr: ["प्लॅ�फॉर्म", "भाषा", "संग्रहालय", "देणगी", "पारी शिक्षण"]
+};
+
+// Default to English if language not found
+const defaultCategories = (langCode: string) => {
+  if (langCode in defaultCategoriesMap) {
+    return defaultCategoriesMap[langCode as keyof typeof defaultCategoriesMap];
+  }
+  return defaultCategoriesMap.en;
+};
 
 export interface PariInformation {
   categories: string[];
@@ -55,6 +72,12 @@ export function Hero() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const { language } = useLocale()
+ 
+
+  // Add this function to handle language change
+  // const handleLanguageChange = (langCode: string) => {
+  //   setLanguage(langCode)
+  // }
 
   const getCurrentDate = (monthsObj: Record<string, string>, weekDaysObj: Record<string, string>) => {
     if (!monthsObj || !weekDaysObj) return '';
@@ -165,7 +188,7 @@ export function Hero() {
 
           return {
             ...info,
-            categories: defaultCategories,
+            categories: defaultCategories(language),
             description: stripHtmlTags(localizedContent?.description || info.description),
             title: localizedContent?.title || info.title,
             heading: welcomeTitle || "Welcome to PARI",
@@ -242,17 +265,22 @@ export function Hero() {
           font-notoSans rounded-[12px] bg-popover sm:w-[90%] max-w-[1232px] mx-auto'>
           <div className={` p-6 sm:p-6 md:p-8 lg:p-10 relative ${language === 'ur' ? 'flex flex-col ' : ''}`}>
             <div className={`flex justify-between ${language === 'ur' ? 'flex-row-reverse' : ''}`}>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleDismiss}
-              className="z-20 w-fit cursor-pointer hover:text-primary-PARI-Red transition-all duration-200 text-primary-PARI-Red rounded-full flex items-center gap-2 py-6 group"
-            >
-              <div className={`hover:bg-primary-PARI-Red h-8 w-8 rounded-full flex items-center justify-center hover:text-white ${language === 'ur' ? 'sm:flex-row-reverse' : ''}`}>
-                <X className="h-6 w-6 hover:bg-primary-PARI-Red cursor-pointer transition-transform duration-200" />
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleDismiss}
+                className="z-20 w-fit cursor-pointer hover:text-primary-PARI-Red transition-all duration-200 text-primary-PARI-Red rounded-full flex items-center gap-2 py-6 group"
+              >
+                <div className={`hover:bg-primary-PARI-Red h-8 w-8 rounded-full flex items-center justify-center hover:text-white ${language === 'ur' ? 'sm:flex-row-reverse' : ''}`}>
+                  <X className="h-6 w-6 hover:bg-primary-PARI-Red cursor-pointer transition-transform duration-200" />
+                </div>
+                <span className="text-sm font-medium">Dismiss</span>
+              </Button>
+              
+              {/* Add language toggle here */}
+              <div className="z-20">
+                <LanguageToggle />
               </div>
-              <span className="text-sm font-medium">Dismiss</span>
-            </Button>
             </div>
            
 

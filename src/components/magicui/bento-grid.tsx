@@ -1,5 +1,5 @@
 import { ArrowRightIcon, ChevronDown,  Headphones, Play } from "lucide-react";
-import { ComponentPropsWithoutRef, ReactNode, useState } from "react";
+import { ComponentPropsWithoutRef, ReactNode,  } from "react";
 import { cn } from "@/lib/utils";
 import { 
   DropdownMenu, 
@@ -8,6 +8,7 @@ import {
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
 import { useLocale } from "@/lib/locale";
+import { Button } from "@/components/ui/button";
 
 interface Category {
   title: string;
@@ -37,6 +38,7 @@ interface BentoCardProps extends ComponentPropsWithoutRef<"div"> {
   videoUrl?: string;
   audioUrl?: string;
   duration?: string;
+  isStudentArticle?: boolean;
 }
 
 const BentoGrid = ({ children, className, ...props }: BentoGridProps) => {
@@ -67,9 +69,10 @@ const BentoCard = ({
   videoUrl,
   audioUrl,
   duration,
+  isStudentArticle = false,
   ...props
 }: BentoCardProps) => {
-  const [openDropdown, setOpenDropdown] = useState(false);
+
   const { language: currentLocale } = useLocale();
 
   const handleArticleLanguageSelect = (slug: string) => {
@@ -237,47 +240,54 @@ const BentoCard = ({
           <div className="flex flex-col font-noto-sans text-sm">
             {Array.isArray(availableLanguages) && availableLanguages.length > 0 && (
               <div className="font-noto-sans text-[14px] leading-[160%] tracking-[-0.03em] text-white flex items-center gap-1">
-                <span>Available in {availableLanguages.length} languages</span>
-                <div className="z-10">
-                  <DropdownMenu 
-                    open={openDropdown}
-                    onOpenChange={setOpenDropdown}
+                {/* <span>Available in {availableLanguages.length} languages</span> */}
+                <div className="absolute  top-[154px]  left-23 z-20 transform -translate-1/2">
+                   <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className={`flex items-center gap-2 h-[36px] ring-black/10 outline-0 rounded-[48px] bg-black/40 dark:bg-background/80 backdrop-blur-sm cursor-pointer
+                  ${isStudentArticle 
+                    ? 'text-student-blue hover:bg-student-blue hover:text-white' 
+                    : 'text-primary-PARI-Red hover:bg-primary-PARI-Red hover:text-white'}`}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <span>{availableLanguages.length} Languages</span>
+          
+                <ChevronDown className="h-3 w-3 mt-[1px]" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="center" className="w-[250px] p-2">
+              <div className="p-2 border-b">
+                <h3 className="text-xs font-medium">This story is available in {availableLanguages.length} languages</h3>
+              </div>
+              <div className="grid grid-cols-2 gap-1 p-1">
+                {availableLanguages.map((language) => (
+                  <DropdownMenuItem
+                    key={`lang-${language.code}-${language.slug}`}
+                    className={`flex items-center cursor-pointer p-2 text-xs ${
+                      currentLocale === language.code 
+                        ? isStudentArticle
+                          ? 'bg-student-blue/10 text-student-blue font-medium'
+                          : 'bg-primary-PARI-Red/10 text-primary-PARI-Red font-medium'
+                        : 'hover:bg-accent/50'
+                    }`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleArticleLanguageSelect(language.slug);
+                    }}
                   >
-                    <DropdownMenuTrigger asChild>
-                      <button className="rounded-full ml-2 pt-[4px] backdrop-blur-sm cursor-pointer">
-                        <ChevronDown className="h-5 w-5  text-primary-PARI-Red" />
-                      </button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="center" className="w-[250px] p-2 z-50">
-                      <div className="p-2 border-b">
-                        <h3 className="text-xs font-medium">
-                          This story is available in {availableLanguages.length} languages
-                        </h3>
-                      </div>
-                      <div className="grid grid-cols-2 gap-1 p-1">
-                        {availableLanguages.map((lang) => (
-                          <DropdownMenuItem
-                            key={`lang-${lang.code}-${lang.slug}`}
-                            className={`flex items-center cursor-pointer p-2 text-xs ${
-                              currentLocale === lang.code 
-                                ? 'bg-primary-PARI-Red/10 text-primary-PARI-Red font-medium' 
-                                : 'hover:bg-accent/50'
-                            }`}
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              handleArticleLanguageSelect(lang.slug);
-                            }}
-                          >
-                            <span>{lang.name}</span>
-                            {currentLocale === lang.code && (
-                              <span className="ml-auto">•</span>
-                            )}
-                          </DropdownMenuItem>
-                        ))}
-                      </div>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                    <span>{language.name}</span>
+                    {currentLocale === language.code && (
+                      <span className="ml-auto">•</span>
+                    )}
+                  </DropdownMenuItem>
+                ))}
+              </div>
+            </DropdownMenuContent>
+          </DropdownMenu>
                 </div>
               </div>
             )}

@@ -1,5 +1,6 @@
+"use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from "@/components/ui/button"
 import { X } from "lucide-react"
@@ -195,6 +196,17 @@ export function FilterMenu({ isOpen, onClose }: FilterMenuProps) {
     });
   };
 
+  function clearFilters(): void {
+    setFilters({
+      authorName: '',
+      place: '',
+      dateRanges: [],
+      contentTypes: [],
+      languages: [],
+      category: []
+    });
+  }
+
   return (
     <>
       <div 
@@ -293,6 +305,16 @@ export function FilterMenu({ isOpen, onClose }: FilterMenuProps) {
                 <span className="font-noto text-base font-medium leading-[160%] tracking-[-0.03em]">
                   {activeTab === 'cards' ? `${selectedOptions.length} Filters Selected` : 'Active Filters'}
                 </span>
+                {activeTab === 'filters' && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={clearFilters}
+                    className="h-5 w-5 p-0 rounded-full hover:bg-primary-PARI-Red/20 ml-2"
+                  >
+                    <X className="h-3 w-3 text-primary-PARI-Red" />
+                  </Button>
+                )}
               </div>
               <div className='flex justify-center'>
               <Button 

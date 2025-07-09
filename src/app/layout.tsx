@@ -4,6 +4,7 @@ import './globals.css'
 import { Footer } from '@/components/layout/footer/Footer'
 import { Suspense } from 'react'
 import { Noto_Sans } from 'next/font/google';
+import { Header } from '@/components/layout/header/Header'
 
 const notoSans = Noto_Sans({ subsets: ['latin', 'devanagari'] });
 
@@ -39,6 +40,15 @@ export default function RootLayout({ children }: RootLayoutProps) {
           disableTransitionOnChange
           storageKey="theme"
         >
+          <Suspense fallback={
+            <div className="h-[88px] bg-white dark:bg-background border-b border-border">
+              <div className="container mx-auto px-4 max-w-[1282px] h-full flex items-center justify-center">
+                Loading header...
+              </div>
+            </div>
+          }>
+            <Header />
+          </Suspense>
           {children}
           <Suspense fallback={
             <div className="bg-white dark:bg-popover text-card-foreground px-5 py-8 sm:py-12 md:py-16">

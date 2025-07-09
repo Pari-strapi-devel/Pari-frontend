@@ -195,6 +195,33 @@ export function StoryCard({
           {isStudentArticle ? (
             <div className="py-6 flex min-h-[180px] bg-popover items-start rounded-b-[16px] justify-between 
             flex-col px-4">
+               {videoUrl ? (
+              <div className="absolute top-2.5 right-3 flex items-center justify-center transition-colors">
+                <div className="flex flex-col items-center gap-2">
+                  <div className={`w-8 h-8 rounded-full ${isStudentArticle ? 'bg-student-blue hover:bg-student-blue/80' : 'bg-primary-PARI-Red hover:bg-primary-PARI-Red/80'} flex items-center justify-center`}>
+                    <Play className="w-4 h-4 text-white" />
+                  </div>
+                  {duration && (
+                    <span className="text-white text-sm font-medium bg-black/50 px-2 py-1 rounded">
+                      {duration}
+                    </span>
+                  )}
+                </div>
+              </div>
+            ) : audioUrl ? (
+              <div className="absolute top-2.5 right-3 flex items-center justify-center transition-colors">
+                <div className="flex flex-col items-center gap-2">
+                  <div className={`w-8 h-8 rounded-full ${isStudentArticle ? 'bg-student-blue hover:bg-student-blue/80' : 'bg-primary-PARI-Red hover:bg-primary-PARI-Red/80'} flex items-center justify-center`}>
+                    <Headphones className="w-4 h-4 text-white" />
+                  </div>
+                  {duration && (
+                    <span className="text-white text-sm font-medium bg-black/50 px-2 py-1 rounded">
+                      {duration}
+                    </span>
+                  )}
+                </div>
+              </div>
+            ) : null}
               <h3 className="font-noto-sans flex h-[50px] text-[18px] font-semibold leading-[136%] tracking-[-0.04em] text-foreground !line-clamp-2">
                 {title}
               </h3>
@@ -210,7 +237,7 @@ export function StoryCard({
                   <div className='flex flex-col'>
                     <div className="font-noto-sans text-[14px] font-normal leading-[150%] tracking-[-0.03em] text-foreground flex items-center gap-1">
                       <span className="flex items-center gap-1">
-                        Available in {localizations?.length} languages
+                        {/* Available in {localizations?.length} languages */}
                         {/* Language dropdown */}
                         {availableLanguages && availableLanguages.length > 1 && (
                           <div className="z-10">
@@ -220,7 +247,7 @@ export function StoryCard({
                             >
                               <DropdownMenuTrigger asChild>
                                 <div className="rounded-full ml-2 backdrop-blur-sm cursor-pointer">
-                                  <ChevronDown className="h-6 w-6 mt-[3px] text-student-blue" />
+                                  {/* <ChevronDown className="h-6 w-6 mt-[3px] text-student-blue" /> */}
                                 </div>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="center" className="w-[250px] p-2">
@@ -360,7 +387,7 @@ export function StoryCard({
                 size="sm" 
                 className={`flex items-center gap-2 h-[36px] rounded-[48px] bg-white/80 dark:bg-background/80 backdrop-blur-sm cursor-pointer
                   ${isStudentArticle 
-                    ? 'text-student-blue hover:bg-student-blue hover:text-white' 
+                    ? 'text-student-blue hover:bg-student-blue hover:dark:bg-student-blue hover:text-white' 
                     : 'text-primary-PARI-Red hover:bg-primary-PARI-Red hover:text-white'}`}
                 onClick={(e) => e.stopPropagation()}
               >

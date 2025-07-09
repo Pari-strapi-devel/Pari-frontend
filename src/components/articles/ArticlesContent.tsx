@@ -5,7 +5,7 @@ import { useSearchParams, useRouter } from 'next/navigation'
 import axios from 'axios'
 import qs from 'qs'
 import { StoryCard } from '@/components/layout/stories/StoryCard'
-import { Header } from '@/components/layout/header/Header'
+
 import { BASE_URL } from '@/config'
 import { X, Filter, ChevronLeft, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -46,8 +46,22 @@ export interface AuthorData {
         };
       };
     };
+    author_role?: {
+      data?: {
+        attributes?: {
+          Name: string;
+        };
+      };
+    };
   };
   author_name?: {
+    data?: {
+      attributes?: {
+        Name: string;
+      };
+    };
+  };
+  author_role?: {
     data?: {
       attributes?: {
         Name: string;
@@ -320,14 +334,20 @@ export default function ArticlesContent() {
   // Get display name for content type
   const getContentTypeDisplay = (contentType: string): string => {
     switch (contentType) {
-      case 'Editorials':
-        return 'Editorials';
+      case"all stories":
+        return 'All Stories';
       case 'Video Articles':
         return 'Video Articles';
       case 'Audio Articles':
         return 'Audio Articles';
       case 'Student Articles':
         return 'Student Articles';
+        case 'Photo Articles':
+        return 'Photo Articles';
+        case 'Library':
+        return 'Library';
+        case 'FACES':
+        return 'FACES';
       default:
         return contentType;
     }
@@ -338,10 +358,8 @@ export default function ArticlesContent() {
     // This effect runs only once when the component mounts
     
     // Check if this is a page refresh/reload
-    const isPageRefresh = performance.navigation ? 
-      performance.navigation.type === 1 : // For older browsers
-      window.performance.getEntriesByType('navigation')
-        .some((nav) => (nav as PerformanceNavigationTiming).type === 'reload');
+    const isPageRefresh = window.performance.getEntriesByType('navigation')
+      .some((nav) => (nav as PerformanceNavigationTiming).type === 'reload');
     
     if (isPageRefresh) {
       console.log('Page was refreshed - clearing filters');
@@ -857,8 +875,7 @@ export default function ArticlesContent() {
   // Remove this unused function
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
+    <div className="min-h-screen">
       
       <main className="max-w-[1232px] mx-auto px-4 py-8" dir={textDirection}>
         {/* Add LanguageToggle */}

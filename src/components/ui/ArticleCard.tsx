@@ -39,7 +39,7 @@ export function ArticleCard({
 }: ArticleCardProps) {
   return (
     <Link 
-      href={`${slug}`}
+      href={`https://ruralindiaonline.org/article/${slug}`}
       className={className}
     >
       <article className="group rounded-lg  overflow-hidden sm:pt-8 hover:rounded-xl transition-discrete-00 transition-all duration-300 h-full">

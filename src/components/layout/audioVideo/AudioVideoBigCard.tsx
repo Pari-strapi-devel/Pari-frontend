@@ -3,10 +3,11 @@
 import React from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ArrowRight, Globe, Headphones, Play, } from 'lucide-react'
+import { ArrowRight, ChevronDown, Headphones, Play, } from 'lucide-react'
 import { DropdownMenu, DropdownMenuTrigger } from '@radix-ui/react-dropdown-menu'
 import { DropdownMenuContent } from '@/components/ui/dropdown-menu'
 import { DropdownMenuItem } from '@/components/ui/dropdown-menu'
+import { Button } from '@/components/ui/button'
 import { languages as languagesList } from '@/data/languages';
 
 interface AudioVideoBigCardProps {
@@ -33,6 +34,7 @@ interface AudioVideoBigCardProps {
     slug: string;
   }>
   currentLocale?: string
+  isStudentArticle?: boolean
 }
 
 export function AudioVideoBigCard({
@@ -48,9 +50,10 @@ export function AudioVideoBigCard({
   date,
   authors,
   availableLanguages,
-  currentLocale = 'en'
+  currentLocale = 'en',
+  isStudentArticle = false
 }: AudioVideoBigCardProps) {
-  const [openDropdownId, setOpenDropdownId] = React.useState<boolean>(false);
+
   function handleArticleLanguageSelect(slug: string): void {
     if (!slug) return;
     window.location.href = `https://ruralindiaonline.org/article/${slug}`;
@@ -81,9 +84,10 @@ export function AudioVideoBigCard({
         {/* Left side - Image */}
         <div className="relative h-[376px] rounded-2xl  md:h-full w-full shadow-lg overflow-hidden">
           <Image
-            src={imageUrl}
+            src={imageUrl} 
             alt={title}
             fill
+            priority
             className="object-cover transition-transform scale-102 duration-300 group-hover:scale-108"
             sizes="(max-width: 768px) 100vw, 50vw"
           />
@@ -233,57 +237,61 @@ export function AudioVideoBigCard({
             </p>
 
             <div className="font-noto-sans text-[14px] font-normal leading-[150%] tracking-[-0.03em] text-foreground flex items-center gap-1">
-                <span className="flex items-center gap-1">
-                Available in {displayLanguages.length} languages
+              {/* <span className="flex items-center gap-1">
+                Available in {availableLanguages?.length || 1} languages
+              </span> */}
                 {/* Language dropdown */}
-                {displayLanguages && displayLanguages.length > 0 && (
-                  <div className=" z-10">
-                    <DropdownMenu 
-                      open={openDropdownId}
-                      onOpenChange={(open) => setOpenDropdownId(open)}
-                    >
-                      <DropdownMenuTrigger asChild>
-                        <div
-                           
-                          className=" rounded-full ml-2  backdrop-blur-sm  "
-                        
-                        >
-                          <Globe className="h-4 w-4 mt-[3px] text-primary-PARI-Red" />
-                          
-                        </div>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="center" className="w-[250px] p-2">
-                        <div className="p-2 border-b">
-                          <h3 className="text-xs font-medium">This story is available in {displayLanguages.length} languages</h3>
-                        </div>
-                        <div className="grid grid-cols-2 gap-1 p-1">
-                          {displayLanguages.map(({ code: langCode, name: langName, slug: langSlug }) => (
-                            <DropdownMenuItem
-                              key={`lang-${langCode}-${langSlug}`}
-                              className={`flex items-center cursor-pointer p-2 text-xs ${
-                                currentLocale === langCode 
-                                  ? 'bg-primary-PARI-Red/10 text-primary-PARI-Red font-medium' 
-                                  : 'hover:bg-accent/50'
-                              }`}
-                              onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                handleArticleLanguageSelect(langSlug);
-                              }}
-                            >
-                              <span>{langName}</span>
-                              {currentLocale === langCode && (
-                                <span className="ml-auto">•</span>
-                              )}
-                            </DropdownMenuItem>
-                          ))}
-                        </div>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                        </div>
-                  )}
-                </span>
+                 {availableLanguages && availableLanguages.length > 1 && (
+        <div className="absolute md:top-120 top-[530px] md:left-[25%] left-[50%] z-20 transform -translate-1/2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className={`flex items-center gap-2 h-[36px] rounded-[48px] bg-white/80 dark:bg-background/80 backdrop-blur-sm cursor-pointer
+                  ${isStudentArticle 
+                    ? 'text-student-blue hover:bg-student-blue hover:text-white' 
+                    : 'text-primary-PARI-Red hover:bg-primary-PARI-Red hover:text-white'}`}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <span>{availableLanguages.length} Languages</span>
+          
+                <ChevronDown className="h-3 w-3 mt-[1px]" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="center" className="w-[250px] p-2">
+              <div className="p-2 border-b">
+                <h3 className="text-xs font-medium">This story is available in {availableLanguages.length} languages</h3>
               </div>
+              <div className="grid grid-cols-2 gap-1 p-1">
+                {availableLanguages.map((language) => (
+                  <DropdownMenuItem
+                    key={`lang-${language.code}-${language.slug}`}
+                    className={`flex items-center cursor-pointer p-2 text-xs ${
+                      currentLocale === language.code 
+                        ? isStudentArticle
+                          ? 'bg-student-blue/10 text-student-blue font-medium'
+                          : 'bg-primary-PARI-Red/10 text-primary-PARI-Red font-medium'
+                        : 'hover:bg-accent/50'
+                    }`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleArticleLanguageSelect(language.slug);
+                    }}
+                  >
+                    <span>{language.name}</span>
+                    {currentLocale === language.code && (
+                      <span className="ml-auto">•</span>
+                    )}
+                  </DropdownMenuItem>
+                ))}
+              </div>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      )}
+    </div>
 
             <div className="flex items-center gap-2 pt-1 text-primary-PARI-Red font-noto-sans text-[14px] font-medium leading-[160%] tracking-[-0.03em] mt-auto">
               {location && <span>{location}</span>}

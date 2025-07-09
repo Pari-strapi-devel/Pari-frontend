@@ -2,7 +2,6 @@
 @import "tailwindcss";
 
 @plugin "tailwindcss-animate";
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap');
 
 @custom-variant dark (&:is(.dark *));
 
@@ -148,4 +147,8 @@
   transition: filter 0.3s ease-in-out;
   pointer-events: none;
 }
+ .article-text strong
+{
+  color: red;
 
+}

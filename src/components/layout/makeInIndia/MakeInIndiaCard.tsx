@@ -209,7 +209,9 @@ export function MakeInIndiaCard() {
           ...(sections.article_with_lang_selection_2 || []),
         ];
 
-        const formattedFeatures = allArticles.map((item, index) => {
+        const formattedFeatures = allArticles
+          .filter((item) => item?.article?.data?.attributes) // Filter out items with null data
+          .map((item, index) => {
           const articleData = item.article.data.attributes;
           const categories = articleData.categories?.data?.map((cat: { attributes: { Title: string } }) => cat.attributes.Title) || [];
           const location = articleData.location?.data?.attributes?.district || articleData.location_auto_suggestion || 'India';
@@ -318,7 +320,7 @@ export function MakeInIndiaCard() {
     };
 
     fetchMakeInIndiaData();
-  }, [language]);
+  }, [language, currentLocale]);
 
   if (isLoading) {
     return (

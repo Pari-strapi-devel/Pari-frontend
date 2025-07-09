@@ -474,7 +474,7 @@ export default function StoriesPage() {
     };
 
     fetchStories();
-  }, [currentLocale, searchParams]);
+  }, [currentLocale, searchParams, isLocaleSet]);
 
   if (isLoading) {
     return (
