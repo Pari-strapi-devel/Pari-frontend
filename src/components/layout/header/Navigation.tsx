@@ -10,7 +10,7 @@ import {
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu"
 import Image from 'next/image'
-import { ChevronDown, ChevronRight, Users, Handshake, Video, Headphones, Mailbox, HandCoins, ScrollText, ImageIcon } from "lucide-react"
+import { ChevronDown, ChevronRight, Users, Handshake, Video, Headphones, Mailbox, HandCoins, ScrollText, ImageIcon, Hand, HeartHandshake } from "lucide-react"
 import Link from "next/link"
 import { BASE_URL } from '@/config'
 import { useLocale } from '@/lib/locale'
@@ -273,13 +273,14 @@ export function Navigation({ onLinkClick }: NavigationProps = {}) {
                     </LinkWithClose>
                   </div>
                   <div className="w-[192px] h-[210px] relative">
+                    <LinkWithClose href="/language-universe">
                     <Image
                       src="/images/categories/languages.png"
-                      alt="About PARI"
+                      alt="Language Universe"
                       fill
                       className="object-cover rounded-[8px]"
                     />
-                   
+                   </LinkWithClose>
                   </div>
                 </div>
               </NavigationMenuContent>
@@ -293,46 +294,46 @@ export function Navigation({ onLinkClick }: NavigationProps = {}) {
               <NavigationMenuContent className=" p-5  h-[250px] rounded-[16px] overflow-hidden">
                 <div className="flex">
                   <div className="w-[350px] bg-white dark:bg-popover  border-border pr-4">
-                    <div className="mb-5">
-                      <LinkWithClose href="/contribute" className="flex items-center gap-3 mb-2">
-                        <div className="w-6 h-6 flex items-center justify-center text-primary-PARI-Red">
-                          <Handshake className="h-6 w-6" />
+                    <div className=" p-3">
+                      <LinkWithClose href="/contact" className="flex items-center gap-3 m-1">
+                        <div className="w-5 h-5 flex items-center justify-center text-primary-PARI-Red">
+                          <Handshake className="h-5 w-5" />
                         </div>
-                        <span className="font-medium text-lg">{getHeaderItemByIndex(4)?.subheader[0]?.name || 'Contribute to PARI'}</span>
+                        <span className="font-medium ">{getHeaderItemByIndex(4)?.subheader[0]?.name || 'Contact us'}</span>
                       </LinkWithClose>
                       {/* <p className="text-sm text-discreet-text dark:text-discreet-text ml-9">
                         India&apos;s largest archive needs everyone to participate to make journalism better.
                       </p> */}
                     </div>
 
-                    <div className="py-3 border-t border-border dark:border-border">
-                      <LinkWithClose href="/contact-us" className="flex items-center gap-3 mb-2">
-                        <div className="w-6 h-6 flex items-center justify-center text-primary-PARI-Red">
-                          <Mailbox className="h-6 w-6" />
+                    <div className="p-3 border-t border-border dark:border-border">
+                      <LinkWithClose href="/donate" className="flex items-center gap-3 m-1">
+                        <div className="w-5 h-5 flex items-center justify-center text-primary-PARI-Red">
+                          <Mailbox className="h-5 w-5" />
                         </div>
-                        <span className="font-medium text-lg">{getHeaderItemByIndex(4)?.subheader[1]?.name || 'Contact us'}</span>
+                        <span className="font-medium ">{getHeaderItemByIndex(4)?.subheader[1]?.name || 'Contact us'}</span>
                       </LinkWithClose>
                       {/* <p className="text-sm text-discreet-text dark:text-discreet-text ml-9">
                         We&lsquo;d love to hear from you. To reach the PARI team, please write to us.
                       </p> */}
                     </div>
-                    <div className="py-3 border-t border-border dark:border-border">
-                      <LinkWithClose href="/intern" className="flex items-center gap-3 mb-2">
-                        <div className="w-6 h-6 flex items-center justify-center text-primary-PARI-Red">
-                          <Mailbox className="h-6 w-6" />
+                    <div className="p-3 border-t border-border dark:border-border">
+                      <LinkWithClose href="/intern" className="flex items-center gap-3 m-1">
+                        <div className="w-5 h-5 flex items-center justify-center text-primary-PARI-Red">
+                          <Hand className="h-5 w-5" />
                         </div>
-                        <span className="font-medium text-lg">{getHeaderItemByIndex(4)?.subheader[3]?.name || 'Contact us'}</span>
+                        <span className="font-medium ">{getHeaderItemByIndex(4)?.subheader[3]?.name || 'Contact us'}</span>
                       </LinkWithClose>
                       {/* <p className="text-sm text-discreet-text dark:text-discreet-text ml-9">
                         We&lsquo;d love to hear from you. To reach the PARI team, please write to us.
                       </p> */}
                     </div>
-                    <div className="py-3 border-t border-border dark:border-border">
-                      <LinkWithClose href="/volunteer" className="flex items-center gap-3 mb-2">
-                        <div className="w-6 h-6 flex items-center justify-center text-primary-PARI-Red">
-                          <Mailbox className="h-6 w-6" />
+                    <div className="p-3 border-t border-border dark:border-border">
+                      <LinkWithClose href="/volunteer" className="flex items-center gap-3 m-1">
+                        <div className="w-5 h-5 flex items-center justify-center text-primary-PARI-Red">
+                          <HeartHandshake className="h-5 w-5" />
                         </div>
-                        <span className="font-medium text-lg">{getHeaderItemByIndex(4)?.subheader[4]?.name || 'Contact us'}</span>
+                        <span className="font-medium ">{getHeaderItemByIndex(4)?.subheader[4]?.name || 'Contact us'}</span>
                       </LinkWithClose>
                       {/* <p className="text-sm text-discreet-text dark:text-discreet-text ml-9">
                         We&lsquo;d love to hear from you. To reach the PARI team, please write to us.
@@ -340,14 +341,15 @@ export function Navigation({ onLinkClick }: NavigationProps = {}) {
                     </div>
                   </div>
                   
-                  <div className="w-[200px] relative">
+                  <div className="w-[192px] mb-5 relative">
+                    <LinkWithClose href="/donate">
                     <Image
                       src="/images/categories/donations.png"
                       alt="Donations"
                       fill
                       className="object-cover  rounded-[8px]"
                     />
-                  
+                    </LinkWithClose>
                   </div>
                 </div>
               </NavigationMenuContent>
@@ -424,7 +426,7 @@ export function Navigation({ onLinkClick }: NavigationProps = {}) {
              <div className="grid grid-cols-1 py-3 px-4 gap-2">
            <div className="w-full bg-white dark:bg-popover  border-border pr-4">
              <div className="mb-4 px-4 ">
-               <LinkWithClose href="/contribute" className="flex items-center gap-3  mb-2">
+               <LinkWithClose href="/contact" className="flex items-center gap-3  mb-2">
                  <div className="w-6 h-6 flex items-center justify-center text-primary-PARI-Red">
                    <Handshake className="h-6 w-6" />
                  </div>
@@ -436,7 +438,7 @@ export function Navigation({ onLinkClick }: NavigationProps = {}) {
              </div>
 
              <div className="p-4 border-y border-border dark:border-border">
-               <LinkWithClose href="/contact-us" className="flex items-center gap-3  mb-2">
+               <LinkWithClose href="/donate" className="flex items-center gap-3  mb-2">
                  <div className="w-6 h-6 flex items-center justify-center text-primary-PARI-Red">
                    <Mailbox className="h-6 w-6" />
                  </div>
@@ -471,13 +473,14 @@ export function Navigation({ onLinkClick }: NavigationProps = {}) {
            </div>
            
            <div className="w-full h-[180px] border-border border-t mt-2 relative">
+            <LinkWithClose href="/donate">
             <Image
               src="/images/categories/pari.png"
               alt="Donations"
               fill
               className="object-cover rounded-[8px]"
             />
-           
+           </LinkWithClose>
           </div>
          </div>
           )}

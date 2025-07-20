@@ -302,7 +302,7 @@ export function Header() {
                   Filter
                 </Button>
 
-                <Link href="https://ruralindiaonline.org/en/pages/donate">
+                <Link href="/donate">
                   <Button 
                     variant="secondary" 
                     className="rounded-2xl items-center hidden md:flex dark:hover:bg-primary-PARI-Red dark:bg-background bg-popover cursor-pointer w-[73px] h-[32px]"
