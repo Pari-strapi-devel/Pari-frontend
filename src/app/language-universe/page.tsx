@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback, Suspense } from 'react'
+import Image from 'next/image'
 import axios from 'axios'
 import qs from 'qs'
 import { BASE_URL, IMAGE_URL } from '@/config'
@@ -281,9 +282,11 @@ function LanguageUniverseContent() {
               if (item.image?.data?.attributes?.url) {
                 return (
                   <div key={index} className="mb-10">
-                    <img
+                    <Image
                       src={`${IMAGE_URL}${item.image.data.attributes.url}`}
                       alt="Language Universe content"
+                      width={800}
+                      height={600}
                       className="w-full h-auto rounded-lg"
                     />
                   </div>
@@ -410,9 +413,11 @@ function LanguageUniverseContent() {
         <div className="mb-12">
           <div className="flex items-center gap-4 mb-8">
             <div className="w-16 h-16 rounded-full overflow-hidden">
-              <img
+              <Image
                 src="/images/P-Sainath.png"
                 alt="P Sainath"
+                width={64}
+                height={64}
                 className="w-full h-full object-cover"
               />
             </div>

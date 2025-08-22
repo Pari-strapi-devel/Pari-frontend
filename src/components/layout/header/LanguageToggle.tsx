@@ -63,11 +63,21 @@ export function LanguageToggle() {
   const [open, setOpen] = useState(false);
   const { language: selectedLanguage, setLanguage } = useLocale()
   const [isVisible, setIsVisible] = useState(true);
+  const [showAnimation, setShowAnimation] = useState(true);
   const isFilterOpen = useFilterStore((state) => state.isOpen);
 
   useEffect(() => {
     setIsVisible(!isFilterOpen);
   }, [isFilterOpen]);
+
+  useEffect(() => {
+    // Stop animation after 10 cycles (each cycle is 1s, so 10s total)
+    const timer = setTimeout(() => {
+      setShowAnimation(false);
+    }, 5000); // 10 seconds
+
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleLanguageSelect = (languageCode: string) => {
     setLanguage(languageCode);
@@ -91,9 +101,13 @@ export function LanguageToggle() {
     <div className="fixed bottom-4 sm:bottom-6 md:bottom-8  rounded-full lg:bottom-10 right-4 sm:right-6 md:right-8 lg:right-10 z-50">
       <DropdownMenu open={open} onOpenChange={setOpen} modal={false}>
         <DropdownMenuTrigger asChild>
-          <Button 
-            variant="ghost" 
-            className="relative h-[40px]  w-[80px] sm:h-[45px]  sm:w-[85px] md:h-[50px] md:w-[90px] lg:h-[61px] lg:w-[110px] active:outline-none gap-2 border-none rounded-full cursor-pointer bg-red-700 text-white hover:bg-red-600 hover:text-white backdrop-blur-3xl supports-[backdrop-filter]:bg-red-700 after:content-[''] after:absolute after:top-1/2 after:left-1/2 after:transform after:-translate-x-1/2 after:-translate-y-1/2 after:w-[80%] after:h-[105%] after:border-12 after:border-red-700 after:rounded-full after:animate-ping"
+          <Button
+            variant="ghost"
+            className={`relative h-[40px]  w-[80px] sm:h-[45px]  sm:w-[85px] md:h-[50px] md:w-[90px] lg:h-[61px] lg:w-[110px] active:outline-none gap-2 border-none rounded-full cursor-pointer bg-primary-PARI-Red text-white hover:bg-primary-PARI-Red/80 backdrop-blur-3xl supports-[backdrop-filter]:bg-primary-PARI-Red ${
+              showAnimation
+                ? "after:content-[''] after:absolute after:top-1/2 after:left-1/2 after:transform after:-translate-x-1/2 after:-translate-y-1/2 after:w-[80%] after:h-[105%] after:border-12 after:border-red-700 after:rounded-full after:animate-ping"
+                : ""
+            }`}
           >
             <div className="flex items-center justify-center w-full h-full rounded-full gap-1 sm:gap-2 font-semibold text-[10px] sm:text-xs">
               {getDisplayCode(selectedLanguage)}

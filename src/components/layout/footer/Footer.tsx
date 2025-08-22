@@ -8,6 +8,7 @@ import Image from 'next/image'
 import axios from 'axios'
 import { BASE_URL } from '@/config'
 import { useLocale } from '@/lib/locale'
+import { useNewsletterSubscription } from '@/hooks/useBrevo'
 
 
 interface FooterLink {
@@ -48,6 +49,10 @@ export function Footer() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const { language } = useLocale()
+
+  // Newsletter subscription state
+  const [email, setEmail] = useState('')
+  const { subscribe, isLoading: isSubscribing, isSuccess, error: subscriptionError, reset } = useNewsletterSubscription()
 
   useEffect(() => {
     let mounted = true;
@@ -101,6 +106,41 @@ export function Footer() {
     }
   }, [language])
 
+  // Handle newsletter subscription
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!email.trim()) return
+
+    console.log('##Rohit_Rocks## Footer Newsletter - Submitting subscription:', {
+      email: email.trim(),
+      timestamp: new Date().toISOString()
+    });
+
+    const result = await subscribe(email.trim())
+
+    console.log('##Rohit_Rocks## Footer Newsletter - Subscription result:', {
+      result,
+      isSuccess,
+      subscriptionError,
+      timestamp: new Date().toISOString()
+    });
+
+    if (isSuccess) {
+      console.log('##Rohit_Rocks## Footer Newsletter - Clearing email field');
+      setEmail('')
+    }
+  }
+
+  // Reset subscription status after 3 seconds
+  useEffect(() => {
+    if (isSuccess || subscriptionError) {
+      const timer = setTimeout(() => {
+        reset()
+      }, 3000)
+      return () => clearTimeout(timer)
+    }
+  }, [isSuccess, subscriptionError, reset])
+
   if (isLoading) return <div className="font-noto-sans text-[15px] text-[#4F4F4F] font-normal leading-[150%] tracking-[-0.03em]">Loading...</div>
   if (error) return <div className="font-noto-sans text-[15px] text-[#4F4F4F] font-normal leading-[150%] tracking-[-0.03em]">Error: {error}</div>
 
@@ -140,19 +180,40 @@ export function Footer() {
               <h4 className="font-noto-sans text-[16px] sm:text-[18px] font-semibold leading-[140%] tracking-[-0.04em] text-foreground pb-1 sm:pb-2">
                 {footerData?.data?.attributes?.sign_up_for_our_newsletter || 'Sign up for our newsletter'}
               </h4>
-              <div className="flex flex-col sm:flex-row gap-2">
-                <Input 
-                  type="email" 
-                  placeholder={footerData?.data?.attributes?.email_address || 'Enter your email'} 
+
+              {/* Success/Error Messages */}
+              {isSuccess && (
+                <div className="text-green-600 dark:text-green-400 text-sm font-medium">
+                  Successfully subscribed to newsletter!
+                </div>
+              )}
+              {subscriptionError && (
+                <div className="text-red-600 dark:text-red-400 text-sm font-medium">
+                  {subscriptionError}
+                </div>
+              )}
+
+              <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-2">
+                <Input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder={footerData?.data?.attributes?.email_address || 'Enter your email'}
                   className="h-8 sm:h-9 w-full bg-background rounded-full ring-none !ring-red-700 text-foreground text-sm"
+                  required
+                  disabled={isSubscribing}
                 />
-                <Button 
+                <Button
+                  type="submit"
                   variant="default"
-                  className="h-8 sm:h-9 w-full sm:w-auto min-w-[100px] bg-red-600 rounded-full text-white hover:bg-red-700 text-sm"
+                  disabled={isSubscribing || !email.trim()}
+                  className="h-8 sm:h-9 w-full sm:w-auto min-w-[100px] bg-red-600 rounded-full text-white hover:bg-red-700 text-sm disabled:opacity-50"
                 >
-                  <span>{footerData?.data?.attributes?.subscribe || 'Subscribe'}</span>
+                  <span>
+                    {isSubscribing ? 'Subscribing...' : (footerData?.data?.attributes?.subscribe || 'Subscribe')}
+                  </span>
                 </Button>
-              </div>
+              </form>
             </div>
           </div>
 

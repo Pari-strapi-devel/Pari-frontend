@@ -1,9 +1,68 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useEZForm } from '@/hooks/useEZForm';
+import { FormSuccessMessage, FormErrorMessage, FormLoadingSpinner } from '@/components/forms/EZFormWrapper';
+import { useInternBrevo } from '@/hooks/useBrevo';
 
 const InternPage = () => {
   const [currentStep, setCurrentStep] = useState(1);
+
+  // Brevo integration for intern applications
+  const { submitApplication: submitToBrevo } = useInternBrevo();
+
+  // EZForms hook for handling form submission
+  const { isSubmitting, isSuccess, error, submitForm } = useEZForm({
+    formName: 'Internship Application',
+    requiredFields: ['fullName', 'email', 'phone', 'collegeName', 'course', 'startDate', 'endDate'],
+    onSuccess: async () => {
+      console.log('##Rohit_Rocks## Intern Page - Form Success, submitting to Brevo:', {
+        email: formData.email,
+        fullName: formData.fullName,
+        hasPhone: !!formData.phone,
+        hasCollegeName: !!formData.collegeName,
+        hasCourse: !!formData.course,
+        timestamp: new Date().toISOString()
+      });
+
+      // Submit to Brevo for email automation
+      try {
+        console.log('##Rohit_Rocks## Intern Page - Calling submitToBrevo');
+        const brevoResult = await submitToBrevo(
+          formData.email,
+          formData.fullName,
+          formData.phone || undefined,
+          formData.collegeName || undefined,
+          formData.course || undefined
+        );
+        console.log('##Rohit_Rocks## Intern Page - Brevo submission result:', brevoResult);
+      } catch (error) {
+        console.error('##Rohit_Rocks## Intern Page - Brevo submission error:', error);
+        console.error('Brevo submission error:', error);
+      }
+
+      // Reset form and go back to step 1 on success
+      setCurrentStep(1);
+      setFormData({
+        fullName: '',
+        email: '',
+        phone: '',
+        collegeName: '',
+        course: '',
+        degree: '',
+        startDate: '',
+        endDate: '',
+        country: '',
+        state: '',
+        district: '',
+        contributions: [],
+        statementOfPurpose: null,
+        cvResume: null,
+        writingSamples: null
+      });
+    }
+  });
+
   const [formData, setFormData] = useState({
     // Step 1 - Personal Info
     fullName: '',
@@ -58,9 +117,19 @@ const InternPage = () => {
     }
   };
 
-  const handleSubmitApplication = () => {
-    console.log('Final form data:', formData);
-    // Handle final submission
+  const handleSubmitApplication = async () => {
+    // Prepare form data for submission (excluding file uploads for now)
+    const submissionData = {
+      ...formData,
+      // Convert file objects to file names for now
+      // In a real implementation, you'd upload files separately
+      statementOfPurpose: formData.statementOfPurpose?.name || null,
+      cvResume: formData.cvResume?.name || null,
+      writingSamples: formData.writingSamples?.name || null,
+      contributions: formData.contributions.join(', ')
+    };
+
+    await submitForm(submissionData);
   };
 
   return (
@@ -479,11 +548,35 @@ const InternPage = () => {
                   </div>
                 </div>
 
+                {/* Success Message */}
+                {isSuccess && (
+                  <FormSuccessMessage
+                    message="Thank you! Your internship application has been submitted successfully. We'll review it and get back to you soon."
+                    className="mb-4"
+                  />
+                )}
+
+                {/* Error Message */}
+                {error && (
+                  <FormErrorMessage
+                    error={error}
+                    className="mb-4"
+                  />
+                )}
+
                 <button
                   onClick={handleSubmitApplication}
-                  className="w-full bg-primary-PARI-Red text-white py-3 px-6 rounded-lg font-medium hover:bg-primary-PARI-Red/90 transition-colors duration-200"
+                  disabled={isSubmitting}
+                  className="w-full bg-primary-PARI-Red text-white py-3 px-6 rounded-lg font-medium hover:bg-primary-PARI-Red/90 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                 >
-                  Submit Application
+                  {isSubmitting ? (
+                    <>
+                      <FormLoadingSpinner className="mr-2" />
+                      Submitting Application...
+                    </>
+                  ) : (
+                    'Submit Application'
+                  )}
                 </button>
               </div>
             )}

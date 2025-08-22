@@ -2,15 +2,11 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { ArrowRight, Play, Headphones, ChevronDown, } from 'lucide-react'
+import { ArrowRight, Play, Headphones, ChevronDown, X } from 'lucide-react'
 import { Button } from "@/components/ui/button"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
+import { languages as languagesList } from '@/data/languages'
 
 export interface LocalizationData {
   attributes?: {
@@ -51,7 +47,6 @@ interface StoryCardProps {
     slug: string;
   }>
   currentLocale?: string
-  setLanguage?: (locale: string) => void
 }
 
 export function StoryCard({
@@ -66,19 +61,21 @@ export function StoryCard({
   videoUrl,
   audioUrl,
   duration,
-  localizations,
+  // localizations,
   className = '',
   isStudentArticle,
   availableLanguages,
-  currentLocale = 'en',
- 
+  currentLocale,
+
 }: StoryCardProps) {
-  const [openDropdownId, setOpenDropdownId] = useState<boolean>(false);
-  
-  const handleArticleLanguageSelect = (articleSlug: string) => {
-    // Navigate to the article in the selected language
-    window.location.href = `https://ruralindiaonline.org/article/${articleSlug}`;
-  }
+  const [isSheetOpen, setIsSheetOpen] = useState<boolean>(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+
 
  
   
@@ -189,8 +186,30 @@ export function StoryCard({
                 </div>
               </div>
             ) : null}
+
+            
           </div>
-         
+         {/* Language button if multiple languages available */}
+            {Array.isArray(availableLanguages) && availableLanguages.length > 0 && (
+              <div className="absolute z-30  left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className={`flex items-center gap-2 h-[36px] ring-0 outline-none rounded-[48px] bg-white/80 dark:bg-background/90 border-none cursor-pointer shadow-md
+                    ${isStudentArticle
+                      ? 'text-student-blue hover:bg-student-blue hover:text-white border-student-blue'
+                      : 'text-primary-PARI-Red hover:bg-primary-PARI-Red hover:text-white border-primary-PARI-Red/20'}`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setIsSheetOpen(!isSheetOpen);
+                  }}
+                >
+                  <span>{availableLanguages.length} Languages</span>
+                  <ChevronDown className="h-3 w-3 mt-[1px]" />
+                </Button>
+              </div>
+            )}
           {/* <CategoryList categories={categories && categories.length > 0 ? categories : []}></CategoryList> */}
           {isStudentArticle ? (
             <div className="py-6 flex min-h-[180px] bg-popover items-start rounded-b-[16px] justify-between 
@@ -237,52 +256,7 @@ export function StoryCard({
                   <div className='flex flex-col'>
                     <div className="font-noto-sans text-[14px] font-normal leading-[150%] tracking-[-0.03em] text-foreground flex items-center gap-1">
                       <span className="flex items-center gap-1">
-                        {/* Available in {localizations?.length} languages */}
-                        {/* Language dropdown */}
-                        {availableLanguages && availableLanguages.length > 1 && (
-                          <div className="z-10">
-                            <DropdownMenu 
-                              open={openDropdownId}
-                              onOpenChange={(open) => setOpenDropdownId(open)}
-                            >
-                              <DropdownMenuTrigger asChild>
-                                <div className="rounded-full ml-2 backdrop-blur-sm cursor-pointer">
-                                  {/* <ChevronDown className="h-6 w-6 mt-[3px] text-student-blue" /> */}
-                                </div>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="center" className="w-[250px] p-2">
-                                <div className="p-2 border-b">
-                                  <h3 className="text-xs font-medium">This story is available in {localizations?.length || 1} languages</h3>
-                                </div>
-                                <div className="grid grid-cols-2 gap-1 p-1">
-                                  {availableLanguages.map((language) => {
-                                    // Make sure we handle both string and object formats
-                                    const langCode = typeof language === 'string' ? language : language.code;
-                                    const langName = typeof language === 'string' ? language : language.name;
-                                    const langSlug = typeof language === 'string' ? slug : language.slug;
-                                    
-                                    return (
-                                      <DropdownMenuItem
-                                        key={`lang-${langCode}-${langSlug}`}
-                                        className={`flex items-center cursor-pointer p-2 text-xs ${
-                                          currentLocale === langCode 
-                                            ? 'bg-student-blue/10 text-student-blue font-medium' 
-                                            : 'hover:bg-accent/50'
-                                        }`}
-                                        onClick={() => langSlug && handleArticleLanguageSelect(langSlug)}
-                                      >
-                                        <span>{langName}</span>
-                                        {currentLocale === langCode && (
-                                          <span className="ml-auto">•</span>
-                                        )}
-                                      </DropdownMenuItem>
-                                    );
-                                  })}
-                                </div>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </div>
-                        )}
+
                       </span>
                     </div>
 
@@ -315,51 +289,7 @@ export function StoryCard({
                 <div className="flex items-center justify-between font-noto-sans text-sm text-foreground">
                   <div className='flex flex-col '>
                     <div className="font-noto-sans text-[14px] font-normal leading-[150%] tracking-[-0.03em] text-foreground flex items-center gap-1">
-                      {availableLanguages && availableLanguages.length > 1 ? (
-                        <div className="z-10">
-                          <DropdownMenu 
-                            open={openDropdownId}
-                            onOpenChange={(open) => setOpenDropdownId(open)}
-                          >
-                            <DropdownMenuTrigger asChild>
-                              <div className="flex items-center gap-1 cursor-pointer hover:text-primary-PARI-Red">
-                              
-                                {/* <span>Available in {availableLanguages.length} languages</span> */}
-                                {/* <ChevronDown className="h-5 w-5 text-primary-PARI-Red mt-[1px]" /> */}
-                              </div>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="center" className="w-[250px] p-2">
-                              <div className="p-2 border-b">
-                                <h3 className="text-xs font-medium">This story is available in {availableLanguages.length} languages</h3>
-                              </div>
-                              <div className="grid grid-cols-2 gap-1 p-1">
-                                {availableLanguages.map((language) => (
-                                  <DropdownMenuItem
-                                    key={`lang-${language.code}-${language.slug}`}
-                                    className={`flex items-center cursor-pointer p-2 text-xs ${
-                                      currentLocale === language.code 
-                                        ? 'bg-primary-PARI-Red/10 text-primary-PARI-Red font-medium' 
-                                        : 'hover:bg-accent/50'
-                                    }`}
-                                    onClick={(e) => {
-                                      e.preventDefault();
-                                      e.stopPropagation();
-                                      handleArticleLanguageSelect(language.slug);
-                                    }}
-                                  >
-                                    <span>{language.name}</span>
-                                    {currentLocale === language.code && (
-                                      <span className="ml-auto">•</span>
-                                    )}
-                                  </DropdownMenuItem>
-                                ))}
-                              </div>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </div>
-                      ) : (
-                        <span>Available in {localizations?.length || 1} language</span>
-                      )}
+                      {/* <span>Available in {availableLanguages?.length || localizations?.length || 1} language{(availableLanguages?.length || localizations?.length || 1) > 1 ? 's' : ''}</span> */}
                     </div>
 
                     <div className="flex gap-1 justify-start items-center text-primary-PARI-Red font-noto-sans text-[14px] font-medium leading-[160%] tracking-[-0.03em]">
@@ -377,56 +307,113 @@ export function StoryCard({
         </article>
       </Link>
       
-      {/* Add language dropdown outside the Link to prevent navigation when clicking dropdown */}
-      {availableLanguages && availableLanguages.length > 1 && (
-        <div className="absolute top-[180px] left-[50%] z-20 transform -translate-1/2">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className={`flex items-center gap-2 h-[36px] rounded-[48px] bg-white/80 dark:bg-background/80 backdrop-blur-sm cursor-pointer
-                  ${isStudentArticle 
-                    ? 'text-student-blue hover:bg-student-blue hover:dark:bg-student-blue hover:text-white' 
-                    : 'text-primary-PARI-Red hover:bg-primary-PARI-Red hover:text-white'}`}
-                onClick={(e) => e.stopPropagation()}
-              >
-                <span>{availableLanguages.length} Languages</span>
-          
-                <ChevronDown className="h-3 w-3 mt-[1px]" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="center" className="w-[250px] p-2">
-              <div className="p-2 border-b">
-                <h3 className="text-xs font-medium">This story is available in {availableLanguages.length} languages</h3>
+      {/* Language Bottom Sheet - Portal to Body */}
+      {mounted && isSheetOpen && createPortal(
+        <>
+          {/* Overlay */}
+          <div
+            className="fixed inset-0 bg-black/50 z-[9999] transition-opacity duration-300"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setIsSheetOpen(false);
+            }}
+          />
+
+          {/* Bottom Sheet */}
+          <div
+            className="fixed inset-x-0 bottom-0 md:inset-0 md:flex md:items-center md:justify-center z-[10000] transform transition-transform duration-300 flex ease-out"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setIsSheetOpen(false);
+            }}
+          >
+            <div
+              className="bg-white dark:bg-popover rounded-t-2xl md:rounded-2xl shadow-xl md:max-w-2xl w-full max-h-[80vh] overflow-hidden"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}
+            >
+              {/* Handle Bar */}
+              <div className="flex justify-center py-3">
+                <div className="w-12 h-1 bg-gray-300 dark:bg-gray-600 rounded-full"></div>
               </div>
-              <div className="grid grid-cols-2 gap-1 p-1">
-                {availableLanguages.map((language) => (
-                  <DropdownMenuItem
-                    key={`lang-${language.code}-${language.slug}`}
-                    className={`flex items-center cursor-pointer p-2 text-xs ${
-                      currentLocale === language.code 
-                        ? isStudentArticle
-                          ? 'bg-student-blue/10 text-student-blue font-medium'
-                          : 'bg-primary-PARI-Red/10 text-primary-PARI-Red font-medium'
-                        : 'hover:bg-accent/50'
-                    }`}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      handleArticleLanguageSelect(language.slug);
-                    }}
-                  >
-                    <span>{language.name}</span>
-                    {currentLocale === language.code && (
-                      <span className="ml-auto">•</span>
-                    )}
-                  </DropdownMenuItem>
-                ))}
+
+              {/* Header */}
+              <div className="flex items-center border-b-2  justify-between px-6 pb-4">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                    Available in {availableLanguages?.length || 0} languages
+                  </h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                    Select your preferred language
+                  </p>
+                </div>
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setIsSheetOpen(false);
+                  }}
+                  className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
+                >
+                  <X className="h-5 w-5 text-gray-500" />
+                </button>
               </div>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+
+              {/* Content - Language List */}
+              <div className="px-6 py-6 overflow-y-auto max-h-[60vh]">
+                <div className="grid grid-cols-2 gap-3">
+                  {/* Sort languages to put selected language first */}
+                  {[...(availableLanguages || [])].sort((a, b) => {
+                    if (a.code === currentLocale) return -1;
+                    if (b.code === currentLocale) return 1;
+                    return 0;
+                  }).map((language) => {
+                    const languageData = languagesList.find(lang => lang.code === language.code);
+                    return (
+                      <button
+                        key={`lang-${language.code}-${language.slug}`}
+                        className={`w-full text-left p-4 rounded-xl border transition-all duration-200 hover:scale-[1.01] ${
+                          currentLocale === language.code
+                            ? isStudentArticle
+                              ? 'bg-student-blue/10 text-student-blue border-student-blue shadow-sm'
+                              : 'bg-primary-PARI-Red/10 text-primary-PARI-Red border-primary-PARI-Red shadow-sm'
+                            : 'hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
+                        }`}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setIsSheetOpen(false);
+                          window.open(`https://ruralindiaonline.org/article/${language.slug}`, '_blank');
+                        }}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex  gap-2">
+                            <div className="text-base font-medium">
+                              {languageData ? languageData.names[0] : language.code.toUpperCase()}
+                            </div>
+                            {languageData && languageData.names[1] && (
+                              <div className="text-sm opacity-70">
+                                {languageData.names[1]}
+                              </div>
+                            )}
+                          </div>
+                          {currentLocale === language.code && (
+                            <div className={`w-3 h-3 rounded-full ${isStudentArticle ? 'bg-student-blue' : 'bg-primary-PARI-Red'}`}></div>
+                          )}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          </div>
+        </>,
+        document.body
       )}
     </div>
   )

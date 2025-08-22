@@ -16,13 +16,7 @@ import { useKeenSlider } from 'keen-slider/react';
 import 'keen-slider/keen-slider.min.css';
 import { languages as languagesList } from '@/data/languages';
 
-import { Globe } from 'lucide-react';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { Globe, X } from 'lucide-react';
 
 export interface Article {
   id: string;
@@ -102,7 +96,26 @@ export function MakeInIndiaCard() {
   const [isLoading, setIsLoading] = useState(true);
   const [, setCurrentSlide] = useState(0);
   const [, setLoaded] = useState(false);
-  const [openDropdownId, setOpenDropdownId] = useState<string | number | null>(null);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [selectedFeature, setSelectedFeature] = useState<{
+    category: string[];
+    name: string;
+    title: string;
+    strap: string;
+    description: string;
+    href: string;
+    cta: string;
+    localizations: Array<{ locale: string; title: string; strap: string; slug: string }>;
+    availableLanguages: Array<{ code: string; name: string; slug: string }>;
+    location: string;
+    date: string;
+    type: string;
+    videoUrl?: string;
+    audioUrl?: string;
+    authors: string[];
+    background: JSX.Element;
+    className: string;
+  } | null>(null);
   const { language: currentLocale } = useLocale();
 
   const [sliderRef, instanceRef] = useKeenSlider({
@@ -133,10 +146,7 @@ export function MakeInIndiaCard() {
     },
   });
 
-  function handleArticleLanguageSelect(slug: string): void {
-    if (!slug) return;
-    window.location.href = `https://ruralindiaonline.org/article/${slug}`;
-  }
+
 
   useEffect(() => {
     const fetchMakeInIndiaData = async () => {
@@ -383,7 +393,7 @@ export function MakeInIndiaCard() {
                 className={cn(
                   "h-[520px] w-full",
                   " relative col-span-1 md:col-span-3 flex flex-col justify-between overflow-hidden cursor-pointer rounded-2xl",
-                  "bg-[linear-gradient(180deg,rgba(0,0,0,0)_36.67%,#000000_70%)]",
+             
                   
                 )}
               >
@@ -418,45 +428,17 @@ export function MakeInIndiaCard() {
                       <div className="text-sm text-gray-300">
                         <div className="flex items-center gap-2">
                           <span>Available in {feature.availableLanguages.length} languages</span>
-                          <div className="z-10">
-                            <DropdownMenu 
-                              open={openDropdownId === index}
-                              onOpenChange={(open) => setOpenDropdownId(open ? index : null)}
-                            >
-                              <DropdownMenuTrigger asChild>
-                                <button className="rounded-full ml-2 backdrop-blur-sm cursor-pointer">
-                                  <Globe className="h-4 w-4 text-primary-PARI-Red" />
-                                </button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="center" className="w-[250px] p-2 z-50">
-                                <div className="p-2 border-b">
-                                  <h3 className="text-xs font-medium">This story is available in {feature.availableLanguages.length} languages</h3>
-                                </div>
-                                <div className="grid grid-cols-2 gap-1 p-1">
-                                  {feature.availableLanguages.map((language) => (
-                                    <DropdownMenuItem
-                                      key={`lang-${language.code}-${language.slug}`}
-                                      className={`flex items-center cursor-pointer p-2 text-xs ${
-                                        currentLocale === language.code 
-                                          ? 'bg-primary-PARI-Red/10 text-primary-PARI-Red font-medium' 
-                                          : 'hover:bg-accent/50'
-                                      }`}
-                                      onClick={(e) => {
-                                        e.preventDefault();
-                                        e.stopPropagation();
-                                        handleArticleLanguageSelect(language.slug);
-                                      }}
-                                    >
-                                      <span>{language.name}</span>
-                                      {currentLocale === language.code && (
-                                        <span className="ml-auto">•</span>
-                                      )}
-                                    </DropdownMenuItem>
-                                  ))}
-                                </div>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </div>
+                          <button
+                            className="rounded-full ml-2 backdrop-blur-sm cursor-pointer"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              setSelectedFeature(feature);
+                              setIsSheetOpen(true);
+                            }}
+                          >
+                            <Globe className="h-4 w-4 text-primary-PARI-Red" />
+                          </button>
                         </div>
                       </div>
                     )}
@@ -467,6 +449,88 @@ export function MakeInIndiaCard() {
           ))}
         </div>
       </div>
+
+      {/* Language Modal Dialog */}
+      {isSheetOpen && selectedFeature && (
+        <>
+          {/* Overlay */}
+          <div
+            className="fixed inset-0 bg-black/50 z-[100]"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setIsSheetOpen(false);
+              setSelectedFeature(null);
+            }}
+          />
+
+          {/* Language Modal - Full Body */}
+          <div className="fixed inset-0 flex items-end md:items-center justify-center z-[101] p-0 md:p-4">
+            <div className="bg-white dark:bg-popover rounded-t-lg md:rounded-lg shadow-xl w-full max-w-2xl mx-auto max-h-[80vh] overflow-hidden">
+              {/* Header */}
+              <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                    This story is available in {selectedFeature.availableLanguages?.length || 0} languages
+                  </h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                    Select your preferred language to read this story
+                  </p>
+                </div>
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setIsSheetOpen(false);
+                    setSelectedFeature(null);
+                  }}
+                  className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
+                >
+                  <X className="h-5 w-5 text-gray-500" />
+                </button>
+              </div>
+
+              {/* Content - 2 Column Grid Layout */}
+              <div className="p-6 overflow-y-auto max-h-[60vh]">
+                <div className="grid grid-cols-2 gap-3">
+                  {selectedFeature.availableLanguages?.map((language: { code: string; name: string; slug: string }) => {
+                    const languageData = languagesList.find(lang => lang.code === language.code);
+                    return (
+                      <button
+                        key={`lang-${language.code}-${language.slug}`}
+                        className={`w-full text-left p-4 rounded-lg border-2 transition-all duration-200 hover:scale-[1.02] ${
+                          currentLocale === language.code
+                            ? 'bg-primary-PARI-Red/10 text-primary-PARI-Red border-primary-PARI-Red shadow-md'
+                            : 'hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
+                        }`}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          window.open(`https://ruralindiaonline.org/article/${language.slug}`, '_blank');
+                        }}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1">
+                            <div className="text-base font-medium mb-1">
+                              {languageData ? languageData.names[0] : language.name}
+                            </div>
+                            <div className="text-sm opacity-70">
+                              {languageData ? languageData.names[1] : ''}
+                            </div>
+                          </div>
+                          {currentLocale === language.code && (
+                            <div className="w-3 h-3 rounded-full bg-primary-PARI-Red"></div>
+                          )}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }

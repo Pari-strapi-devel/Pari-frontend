@@ -109,7 +109,31 @@ function extractSectionTitle(content: string): string {
 
 // Function to determine icon type based on content - matching exact design mockup
 function getSectionIconType(title: string, index: number): string {
-  // Convert title to lowercase for easier matching
+  // Direct mapping for design titles to avoid repetition
+  const titleIconMap: { [key: string]: string } = {
+    'Introduction': 'FileText',
+    'Where PARI comes in': 'FileText',
+    'What\'s on PARI': 'FileText',
+    'Climate Change': 'Sun',
+    'Library': 'BookMarked',
+    'Farmer\'s Protests': 'Tractor',
+    'Faces of India': 'Smile',
+    'Livelihoods under lockdown': 'Lock',
+    'Stories on art, artists, artisans & crafts': 'Amphora',
+    'Grindmill songs project and Kutchi songs archive': 'AudioLines',
+    'Adivasi children\'s art': 'Brush',
+    'PARI series on women\'s health': 'Lightbulb',
+    'Visible work, invisible women': 'EyeOff',
+    'Freedom fighters\' gallery': 'Flag',
+    'PARI in classrooms': 'Building2'
+  }
+
+  // Check for exact title match first
+  if (titleIconMap[title]) {
+    return titleIconMap[title]
+  }
+
+  // Convert title to lowercase for keyword matching
   const lowerTitle = title.toLowerCase()
 
   // Match keywords to exact design icons from mockup
@@ -147,9 +171,9 @@ function getSectionIconType(title: string, index: number): string {
     return 'Heart'
   }
 
-  // Default icons based on index to ensure variety - using design-matching icons
-  const defaultIcons = ['FileText', 'BookMarked', 'Tractor', 'Heart', 'AudioLines', 'Lightbulb', 'EyeOff', 'Flag', 'Building2']
-  return defaultIcons[index % defaultIcons.length]
+  // Unique default icons based on index to ensure no repetition
+  const uniqueDefaultIcons = ['FileText', 'Sun', 'BookMarked', 'Tractor', 'Smile', 'Lock', 'Amphora', 'AudioLines', 'Brush', 'Lightbulb', 'EyeOff', 'Flag', 'Building2', 'Heart']
+  return uniqueDefaultIcons[index % uniqueDefaultIcons.length]
 }
 
 // Format section title to be more readable
@@ -394,10 +418,7 @@ function IntroductionPageContent() {
   if (isLoading) {
     return (
       <div className="flex flex-col md:flex-row min-h-screen max-w-[1232px] bg-white dark:bg-background">
-        <Sidebar
-          isOpen={isSidebarOpen}
-          onToggle={toggleSidebar}
-        />
+      
         <div className="flex-1 p-4 md:p-8">
           <div className="max-w-3xl mx-auto">
             <div className="animate-pulse">
@@ -426,10 +447,7 @@ function IntroductionPageContent() {
   if (error || !article) {
     return (
       <div className="flex flex-col md:flex-row min-h-screen max-w-[1232px] bg-white dark:bg-background">
-        <Sidebar
-          isOpen={isSidebarOpen}
-          onToggle={toggleSidebar}
-        />
+       
         <div className="flex-1 p-4 md:p-8">
           <div className="max-w-3xl mx-auto">
             <div className="text-center py-8">

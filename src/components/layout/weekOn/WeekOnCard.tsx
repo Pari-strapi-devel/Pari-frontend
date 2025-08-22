@@ -58,6 +58,7 @@ interface Article {
       Strap: string;
       Original_published_date: string;
       slug: string;
+      locale?: string;
       location_auto_suggestion: string;
       location: {
         data: {
@@ -80,6 +81,16 @@ interface Article {
             url: string;
           }
         }
+      };
+      localizations?: {
+        data: Array<{
+          attributes: {
+            locale: string;
+            slug: string;
+            title?: string;
+            strap?: string;
+          }
+        }>
       };
     }
   }
@@ -137,6 +148,10 @@ interface FormattedArticle {
   authors: string[];
   location: string;
   date: string;
+  availableLanguages: Array<{
+    code: string;
+    slug: string;
+  }>;
 }
 
 interface CategoryData {
@@ -216,7 +231,10 @@ export function WeekOnCard() {
                           }
                         },
                         categories: true,
-                        location: true
+                        location: true,
+                        localizations: {
+                          fields: ['locale', 'slug', 'title', 'strap']
+                        }
                       }
                     }
                   }
@@ -276,6 +294,26 @@ export function WeekOnCard() {
               Title: cat?.attributes?.Title || ''
             })) || [];
 
+            // Extract available languages from localizations
+            const availableLanguages = articleData.localizations?.data?.map((loc) => ({
+              code: loc.attributes.locale,
+              slug: loc.attributes.slug
+            })) || [];
+
+            // Add current article as a language option
+            if (articleData.slug) {
+              availableLanguages.push({
+                code: articleData.locale || 'en',
+                slug: articleData.slug
+              });
+            }
+
+            // Debug logging
+            if (availableLanguages.length > 1) {
+              console.log('Article with multiple languages:', articleData.Title);
+              console.log('Available languages:', availableLanguages);
+            }
+
             return {
               id: item.id || 0,
               title: articleData.Title || 'Untitled',
@@ -303,7 +341,8 @@ export function WeekOnCard() {
                   year: 'numeric'
                 })
                 : '',
-              type: articleData.type || ''
+              type: articleData.type || '',
+              availableLanguages
             }
           })
           .filter((article): article is FormattedArticle => article !== null);
@@ -320,7 +359,8 @@ export function WeekOnCard() {
             authors: ['PARI'],
             location: 'India',
             date: new Date().toISOString(),
-            type: ''
+            type: '',
+            availableLanguages: []
           }]);
         } else {
           setArticles(articles);
@@ -410,7 +450,7 @@ export function WeekOnCard() {
         
           </div>
           
-          <div ref={sliderRef} className="keen-slider !overflow-visible">
+          <div ref={sliderRef} className="keen-slider  !overflow-visible">
             {articles.map((story) => (
               <ArticleCard
                 videoUrl={story.type.toLowerCase() === 'video' ? 'true' : undefined}
@@ -426,7 +466,8 @@ export function WeekOnCard() {
                 authors={story.authors}
                 location={story.location}
                 date={story.date}
-                className="keen-slider__slide !min-h-[500px]"
+                availableLanguages={story.availableLanguages}
+                className="keen-slider__slide !min-h-[500px] !w-full"
               />
             ))}
           </div>

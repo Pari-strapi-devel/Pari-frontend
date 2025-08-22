@@ -99,11 +99,11 @@ interface DonationFormData {
   amount: string
   customAmount: string
   donationType: 'monthly' | 'yearly' | 'one-time'
-  paymentMethod: 'online' | 'cheque' | 'bank-transfer'
+  paymentMethod: 'online' | 'cheque' | 'bank-transfer' | 'upi'
   isIndianCitizen: boolean
 }
 
-const RAZORPAY_KEY = 'rzp_test_gKaW8JSJzAtu6l'
+const RAZORPAY_KEY = 'rzp_live_u0qTE80ANbAWR6'
 
 export default function DonatePage() {
   const [formData, setFormData] = useState<DonationFormData>({
@@ -115,7 +115,7 @@ export default function DonatePage() {
     amount: '500',
     customAmount: '',
     donationType: 'monthly',
-    paymentMethod: 'online',
+    paymentMethod: 'upi',
     isIndianCitizen: true
   })
 
@@ -207,6 +207,7 @@ export default function DonatePage() {
       key: RAZORPAY_KEY,
       amount: amount,
       currency: 'INR',
+      
       name: 'CounterMedia Trust',
       description: `${formData.donationType.charAt(0).toUpperCase() + formData.donationType.slice(1)} donation to PARI`,
       image: 'https://ruralindiaonline.org/favicon.ico',
@@ -234,7 +235,7 @@ export default function DonatePage() {
         upi: true,
         card: true,
         netbanking: true,
-        wallet: true
+        wallet: true,
       },
       modal: {
         ondismiss: function() {

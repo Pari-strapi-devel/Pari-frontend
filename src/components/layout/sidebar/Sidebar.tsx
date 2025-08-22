@@ -79,23 +79,12 @@ export function Sidebar({
         />
       )}
 
-      {/* Panel Toggle Button */}
-      {onToggle && !isOpen && (
-        <button
-          onClick={onToggle}
-          className="fixed top-36 left-96 z-50 p-2 rounded-lg bg-popover dark:bg-background border-gray-200 dark:border-gray-700  text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-200"
-        >
-          <PanelRightOpen className="w-5 h-5" />
-        </button>
-      )}
-
-      {/* Sidebar - Hide when there's other content */}
-      {isOpen && sections.length > 0 && (
+      {/* Sidebar Content or Toggle Button */}
+      {isOpen && sections.length > 0 ? (
         <div className="h-full w-full md:w-[280px] bg-popover dark:bg-background border border-border dark:border-border rounded-xl g z-40 hidden md:block relative">
           <div className="h-full overflow-y-auto py-6 px-5">
-            {/* Sidebar Header */}
+            {/* Sidebar Header with close button */}
             <div className="mb-2 px-1 flex items-center justify-between">
-            
               {onToggle && (
                 <button
                   onClick={onToggle}
@@ -118,10 +107,10 @@ export function Sidebar({
                   <li key={section.id}>
                     <button
                       onClick={() => scrollToSection?.(section.id)}
-                      className={`flex items-center w-full h-10 text-left px-2 p-1 rounded-xl transition-all duration-200 group relative ${
+                      className={`flex items-center w-full h-10 text-left px-2 p-1 rounded- transition-all duration-200 group relative ${
                         isActive
-                          ? 'text-primary-PARI-Red dark:text-red-300 font-semibold bg-red-50 dark:bg-red-900/20 shadow-sm border-l-4 border-primary-PARI-Red'
-                          : 'text-primary-PARI-Red dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100 hover:shadow-sm'
+                          ? 'text-primary-PARI-Red font-semibold border-l-4 border-primary-PARI-Red'
+                          : 'text-primary-PARI-Red dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-propover hover:text-gray-900 dark:hover:text-gray-100 cursor-pointer'
                       }`}
                     >
                       {showIcon && (
@@ -129,13 +118,15 @@ export function Sidebar({
                           <div className={`flex items-center justify-center w-8 h-8 rounded-full transition-colors ${
                             isActive
                               ? 'bg-red-100 dark:bg-red-900/30 text-primary-PARI-Red dark:text-primary-PARI-Red'
-                              : 'bg-gray-100 dark:bg-gray-800 text-grey-300 dark:text-gray-400 group-hover:bg-gray-200 dark:group-hover:bg-gray-700'
+                              : 'bg-background dark:bg-propover text-grey-300 dark:text- group-hover:bg-gray-200 dark:group-hover:bg-black/10'
                           }`}>
                             <IconComponent className="w-4 h-4" />
                           </div>
                         </div>
                       )}
-                      <span className="text-sm text-grey-300  font-medium leading-tight line-clamp-1 flex-1">{section.title}</span>
+                      <span className={`text-sm font-medium leading-tight line-clamp-1 flex-1 ${
+                        isActive ? 'text-primary-PARI-Red' : 'text-grey-300'
+                      }`}>{section.title}</span>
                     </button>
                   </li>
                 );
@@ -159,6 +150,18 @@ export function Sidebar({
           </nav>
         </div>
       </div>
+      ) : (
+        /* Toggle Button in sidebar position when closed */
+        onToggle && (
+          <div className="h-full w-full md:w-[280px] hidden md:flex items-start justify-start pt-6 px-5">
+            <button
+              onClick={onToggle}
+              className="p-2 rounded-lg bg-popover dark:bg-background border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-200"
+            >
+              <PanelRightOpen className="w-5 h-5" />
+            </button>
+          </div>
+        )
       )}
     </>
   )

@@ -1,10 +1,14 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useVolunteerBrevo } from '@/hooks/useBrevo';
 
 
 const VolunteerPage = () => {
   const [currentStep, setCurrentStep] = useState(1);
+
+  // Brevo integration for volunteer applications
+  const { submitApplication: submitToBrevo, isLoading: isSubmittingToBrevo, isSuccess, error } = useVolunteerBrevo();
   const [formData, setFormData] = useState({
     // Step 1 - Personal Info
     fullName: '',
@@ -50,9 +54,36 @@ const VolunteerPage = () => {
     }
   };
 
-  const handleSubmitProfile = () => {
+  const handleSubmitProfile = async () => {
     console.log('Final form data:', formData);
-    // Handle final submission
+
+    const skills = formData.contributions.join(', ') +
+      (formData.aboutYourself ? ` | About: ${formData.aboutYourself}` : '') +
+      (formData.whyVolunteer ? ` | Why: ${formData.whyVolunteer}` : '');
+
+    console.log('##Rohit_Rocks## Volunteer Page - Submitting to Brevo:', {
+      email: formData.email,
+      fullName: formData.fullName,
+      hasPhone: !!formData.phone,
+      skillsLength: skills.length,
+      contributions: formData.contributions,
+      timestamp: new Date().toISOString()
+    });
+
+    // Submit to Brevo for email automation
+    try {
+      console.log('##Rohit_Rocks## Volunteer Page - Calling submitToBrevo');
+      const brevoResult = await submitToBrevo(
+        formData.email,
+        formData.fullName,
+        formData.phone || undefined,
+        skills || undefined
+      );
+      console.log('##Rohit_Rocks## Volunteer Page - Brevo submission result:', brevoResult);
+    } catch (error) {
+      console.error('##Rohit_Rocks## Volunteer Page - Brevo submission error:', error);
+      console.error('Brevo submission error:', error);
+    }
   };
 
   return (
@@ -391,11 +422,24 @@ const VolunteerPage = () => {
                   </div>
                 </div>
 
+                {/* Success/Error Messages */}
+                {isSuccess && (
+                  <div className="mb-4 p-4 bg-green-100 dark:bg-green-900/20 border border-green-300 dark:border-green-700 rounded-md text-green-800 dark:text-green-200">
+                    Thank you for volunteering! We&apos;ll get back to you soon.
+                  </div>
+                )}
+                {error && (
+                  <div className="mb-4 p-4 bg-red-100 dark:bg-red-900/20 border border-red-300 dark:border-red-700 rounded-md text-red-800 dark:text-red-200">
+                    {error}
+                  </div>
+                )}
+
                 <button
                   onClick={handleSubmitProfile}
-                  className="w-full bg-primary-PARI-Red text-white py-3 px-6 rounded-lg font-medium hover:bg-primary-PARI-Red/90 transition-colors duration-200"
+                  disabled={isSubmittingToBrevo}
+                  className="w-full bg-primary-PARI-Red text-white py-3 px-6 rounded-lg font-medium hover:bg-primary-PARI-Red/90 transition-colors duration-200 disabled:opacity-50"
                 >
-                  Submit Profile
+                  {isSubmittingToBrevo ? 'Submitting...' : 'Submit Profile'}
                 </button>
               </div>
             )}

@@ -2,195 +2,173 @@
 
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
-import { X, Mail, } from 'lucide-react'
+
+import { X, Mail } from 'lucide-react'
 import { FaInstagram, FaXTwitter } from 'react-icons/fa6'
 
+interface PhotoFormat {
+  ext: string
+  url: string
+  hash: string
+  mime: string
+  name: string
+  path: string | null
+  size: number
+  width: number
+  height: number
+  sizeInBytes: number
+}
+
+interface PhotoAttributes {
+  name: string
+  alternativeText: string | null
+  caption: string | null
+  width: number
+  height: number
+  formats: {
+    large?: PhotoFormat
+    medium?: PhotoFormat
+    small?: PhotoFormat
+    thumbnail?: PhotoFormat
+  }
+  hash: string
+  ext: string
+  mime: string
+  size: number
+  url: string
+  previewUrl: string | null
+  provider: string
+  provider_metadata: unknown
+  createdAt: string
+  updatedAt: string
+}
+
+interface Photo {
+  data: {
+    id: number
+    attributes: PhotoAttributes
+  } | null
+}
 
 interface TeamMember {
   id: number
-  name: string
-  role: string
-  image?: string
-  bio?: string
-  email?: string
-  instagram?: string
-  twitter?: string
+  Name: string
+  Designation: string
+  Bio: string
+  Email: string
+  InstagramURL?: string
+  TwitterURL?: string
+  FacebookURL?: string
+  LinkedinURL?: string
+  CTA?: string
+  CTAurl?: string
+  Photo: Photo
 }
 
-// Team members data based on the design
-const teamMembers: TeamMember[] = [
-  {
-    id: 1,
-    name: "P. Sainath",
-    role: "Trustee & Founder Editor",
-    image: "/images/P-Sainath.png",
-    bio: "P. Sainath is Founding Trustee, CounterMedia Trust and Founder Editor, People's Archive of Rural India. He has been a rural reporter for decades and is the author of Everybody Loves a Good Drought and The Last Heroes - Foot Soldiers of Indian Freedom.",
-    email: "sainath@ruralindiaonline.org",
-    instagram: "@psainath_pari",
-    twitter: "@PSainath_org"
-  },
-  {
-    id: 2,
-    name: "Aayna",
-    role: "Reporter",
-    image: "",
-    bio: "Aayna is a dedicated reporter covering rural stories and social issues across India.",
-    email: "aayna@ruralindiaonline.org",
-    instagram: "@aayna_pari",
-    twitter: "@aayna_pari"
-  },
-  {
-    id: 3,
-    name: "Arya Jayan",
-    role: "Asst. Editor, Social Media",
-    image: "",
-    bio: "Arya Jayan manages social media content and assists in editorial work at PARI.",
-    email: "arya@ruralindiaonline.org",
-    instagram: "@arya_pari",
-    twitter: "@arya_pari"
-  },
-  {
-    id: 4,
-    name: "Aunshuparna Mustafi",
-    role: "Social Media Coordinator, Bangla",
-    image: "",
-    bio: "Aunshuparna coordinates social media content in Bengali language for PARI.",
-    email: "aunshuparna@ruralindiaonline.org",
-    instagram: "@aunshuparna_pari",
-    twitter: "@aunshuparna_pari"
-  },
-  {
-    id: 5,
-    name: "Binaifer Bharucha",
-    role: "Photo Editor",
-    image: "",
-    bio: "Binaifer is responsible for photo editing and visual content curation at PARI.",
-    email: "binaifer@ruralindiaonline.org",
-    instagram: "@binaifer_pari",
-    twitter: "@binaifer_pari"
-  },
-  {
-    id: 6,
-    name: "Devesh",
-    role: "Language Editor, Hindi",
-    image: "",
-    bio: "Devesh handles Hindi language content editing and translation work.",
-    email: "devesh@ruralindiaonline.org",
-    instagram: "@devesh_pari",
-    twitter: "@devesh_pari"
-  },
-  {
-    id: 7,
-    name: "Dipanjali Singh",
-    role: "Senior Assistant Editor",
-    image: "",
-    bio: "Dipanjali Singh works as a senior assistant editor, overseeing content quality and editorial processes.",
-    email: "dipanjali@ruralindiaonline.org",
-    instagram: "@dipanjali_pari",
-    twitter: "@dipanjali_pari"
-  },
-  {
-    id: 8,
-    name: "Jaideep Hardikar",
-    role: "Roving Special Correspondent",
-    image: "",
-    bio: "Jaideep is a roving special correspondent covering environmental and rural issues across India.",
-    email: "jaideep@ruralindiaonline.org",
-    instagram: "@jaideep_pari",
-    twitter: "@jaideep_pari"
-  },
-  {
-    id: 9,
-    name: "Joshua Bodhinetra",
-    role: "Senior Content Editor",
-    image: "",
-    bio: "Joshua works as a senior content editor, ensuring high-quality editorial standards.",
-    email: "joshua@ruralindiaonline.org",
-    instagram: "@joshua_pari",
-    twitter: "@joshua_pari"
-  },
-  {
-    id: 10,
-    name: "Jyoti Shinoli",
-    role: "Senior Reporter",
-    image: "",
-    bio: "Jyoti is a senior reporter specializing in rural and social issues reporting.",
-    email: "jyoti@ruralindiaonline.org",
-    instagram: "@jyoti_pari",
-    twitter: "@jyoti_pari"
-  },
-  {
-    id: 11,
-    name: "Kamaljit Kaur",
-    role: "Language Editor, Punjabi",
-    image: "",
-    bio: "Kamaljit handles Punjabi language content editing and translation work.",
-    email: "kamaljit@ruralindiaonline.org",
-    instagram: "@kamaljit_pari",
-    twitter: "@kamaljit_pari"
-  },
-  {
-    id: 12,
-    name: "Kanika Gupta",
-    role: "Special Projects Manager",
-    image: "",
-    bio: "Kanika manages special projects and initiatives at PARI.",
-    email: "kanika@ruralindiaonline.org",
-    instagram: "@kanika_pari",
-    twitter: "@kanika_pari"
-  },
-  {
-    id: 13,
-    name: "Keerthivasan",
-    role: "Social Media Coordinator, Tamil",
-    image: "",
-    bio: "Keerthivasan coordinates social media content in Tamil language for PARI.",
-    email: "keerthivasan@ruralindiaonline.org",
-    instagram: "@keerthivasan_pari",
-    twitter: "@keerthivasan_pari"
-  },
-  {
-    id: 14,
-    name: "M. Palani Kumar",
-    role: "Photo Journalist",
-    image: "",
-    bio: "M. Palani Kumar is a photo journalist documenting rural life and stories.",
-    email: "palani@ruralindiaonline.org",
-    instagram: "@palani_pari",
-    twitter: "@palani_pari"
-  },
-  {
-    id: 15,
-    name: "Medha Kale",
-    role: "Language Editor, Marathi",
-    image: "",
-    bio: "Medha handles Marathi language content editing and translation work.",
-    email: "medha@ruralindiaonline.org",
-    instagram: "@medha_pari",
-    twitter: "@medha_pari"
-  },
-  {
-    id: 16,
-    name: "Mohd. Qamar Tabrez",
-    role: "Language Editor, Urdu",
-    image: "",
-    bio: "Mohd. Qamar Tabrez handles Urdu language content editing and translation work.",
-    email: "qamar@ruralindiaonline.org",
-    instagram: "@qamar_pari",
-    twitter: "@qamar_pari"
+interface ApiResponse {
+  data: {
+    id: number
+    attributes: {
+      Title: string
+      TeamMember: TeamMember[]
+    }
   }
-]
+}
 
 export default function TeamsPage() {
   const [mounted, setMounted] = useState(false)
   const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null)
   const [isSliderOpen, setIsSliderOpen] = useState(false)
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([])
+  const [loading, setLoading] = useState(true)
+  const [imageErrors, setImageErrors] = useState<Set<number>>(new Set())
+  const [, setActiveSection] = useState<string>('')
 
   useEffect(() => {
     setMounted(true)
+    console.log('##rohiiiiii## Component mounted, starting to fetch team data...')
+    fetchTeamData()
   }, [])
 
+  // Scroll spy effect for team members
+  useEffect(() => {
+    if (teamMembers.length === 0) return
+
+    const handleScroll = () => {
+      const scrollPosition = window.scrollY + 100 // Offset for header
+
+      // Find the current section
+      let currentSection = ''
+      for (const member of teamMembers) {
+        const element = document.getElementById(`member-${member.id}`)
+        if (element) {
+          const elementTop = element.offsetTop
+          if (scrollPosition >= elementTop) {
+            currentSection = `member-${member.id}`
+          }
+        }
+      }
+
+      setActiveSection(currentSection)
+    }
+
+    // Throttle function to limit scroll event frequency
+    const throttle = (func: () => void, limit: number) => {
+      let inThrottle: boolean
+      return function() {
+        if (!inThrottle) {
+          func()
+          inThrottle = true
+          setTimeout(() => inThrottle = false, limit)
+        }
+      }
+    }
+
+    const throttledScroll = throttle(handleScroll, 100)
+    window.addEventListener('scroll', throttledScroll)
+
+    // Initial check
+    handleScroll()
+
+    return () => {
+      window.removeEventListener('scroll', throttledScroll)
+    }
+  }, [teamMembers])
+
+  const fetchTeamData = async () => {
+    try {
+      console.log('##rohiiiiii## Fetching team data from API...')
+      const response = await fetch('https://dev.ruralindiaonline.org/v1/api/page-our-team?populate=deep')
+      const data: ApiResponse = await response.json()
+      console.log('##rohiiiiii## API Response:', data)
+      console.log('##rohiiiiii## Team Members:', data.data.attributes.TeamMember)
+
+      // Log image data for each member
+      data.data.attributes.TeamMember.forEach((member, index) => {
+        console.log(`##rohiiiiii## Member ${index + 1} (${member.Name}):`, {
+          hasPhoto: !!member.Photo?.data,
+          photoData: member.Photo?.data?.attributes,
+          imageUrl: member.Photo?.data ? `https://dev.ruralindiaonline.org/v1${member.Photo.data.attributes.formats.medium?.url || member.Photo.data.attributes.url}` : 'No image'
+        })
+      })
+
+      setTeamMembers(data.data.attributes.TeamMember)
+      console.log('##rohiiiiii## Team members set successfully, count:', data.data.attributes.TeamMember.length)
+    } catch (error) {
+      console.error('##rohiiiiii## Error fetching team data:', error)
+    } finally {
+      setLoading(false)
+      console.log('##rohiiiiii## Loading finished')
+    }
+  }
+
+  const handleImageError = (memberId: number, imageUrl: string) => {
+    console.error(`##rohiiiiii## Image failed to load for member ID ${memberId}:`, imageUrl)
+    setImageErrors(prev => new Set(prev).add(memberId))
+  }
+
   const handleMemberClick = (member: TeamMember) => {
+    console.log('##Rohit_Rocks## Profile clicked, opening immediately:', member.Name)
     setSelectedMember(member)
     setIsSliderOpen(true)
   }
@@ -204,53 +182,83 @@ export default function TeamsPage() {
     return null
   }
 
+  if (loading) {
+    return (
+      <div className="bg-background min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-PARI-Red"></div>
+          <p className="mt-4 text-foreground">Loading team members...</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="bg-background min-h-screen">
-      <div className="max-w-7xl mx-auto px-6 py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         {/* Header Section */}
-        <div className="text-center mb-16">
-          <h1 className="text-5xl font-bold text-foreground mb-4">
+        <div className="text-center mb-8 sm:mb-12 lg:mb-16">
+          <h1 className="text-2xl sm:text-3xl lg:text-5xl font-bold text-foreground mb-2 sm:mb-4">
             Our Team
           </h1>
-          <p className="text-xl text-muted-foreground">
+          <p className="text-sm sm:text-base lg:text-xl text-muted-foreground px-4">
             PARI: A living journal, a breathing archive
           </p>
         </div>
 
         {/* Team Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
           {teamMembers.map((member) => (
             <div
               key={member.id}
-              className=" cursor-pointer  hover:opacity-80 transition-opacity duration-300"
+              className="cursor-pointer transition-all duration-300 hover:scale-105"
               onClick={() => handleMemberClick(member)}
             >
-              {/* Profile Image */}
-              <div className="flex flex-col  justify-center max-w-7xl h-64">
-              <div className=" w-full h-72 flex mx-auto mb-4 bg-gray-200 rounded-lg overflow-hidden">
-                {member.image ? (
-                  <Image
-                    src={member.image}
-                    alt={member.name}
-                    width={276}
-                    height={276}
-                    className="w-full h-full object-cover top-0"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                    <div className="w-16 h-16 bg-gray-300 rounded-full"></div>
-                  </div>
-                )}
+              {/* Profile Image with black background and rounded corners */}
+              <div className="w- sm:max-w-[248px] h-[200px] sm:h-[240px] lg:h-[268px] bg-black rounded-lg overflow-hidden mb-4 relative mx-auto">
+                {(() => {
+                  console.log(`##rohiiiiii## Checking image for ${member.Name}:`, {
+                    hasPhoto: !!member.Photo,
+                    hasPhotoData: !!member.Photo?.data,
+                    photoData: member.Photo?.data,
+                    hasImageError: imageErrors.has(member.id)
+                  })
+
+                  if (member.Photo?.data && !imageErrors.has(member.id)) {
+                    const imageUrl = `https://dev.ruralindiaonline.org/v1${member.Photo.data.attributes.formats.medium?.url || member.Photo.data.attributes.url}`
+                    console.log(`##rohiiiiii## Rendering image for ${member.Name}:`, imageUrl)
+                    return (
+                      <Image
+                        src={imageUrl}
+                        alt={member.Name}
+                        fill
+                        className="object-cover object-[center_10%] w-[500px]"
+                        onError={() => handleImageError(member.id, imageUrl)}
+                        onLoad={() => console.log(`##rohiiiiii## Image loaded successfully for ${member.Name}`)}
+                      />
+                    )
+                  } else {
+                    console.log(`##rohiiiiii## No image available for ${member.Name} or image failed to load`, {
+                      reason: !member.Photo?.data ? 'No photo data' : 'Image error occurred'
+                    })
+                    return (
+                      <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                        <div className="w-16 h-16 bg-gray-300 rounded-full"></div>
+                      </div>
+                    )
+                  }
+                })()}
               </div>
 
-              {/* Member Info */}
-              <h3 className="text-lg px-1 font-semibold text-foreground mb-1">
-                {member.name}
-              </h3>
-              <p className="text-sm px-1 text-muted-foreground">
-                {member.role}
-              </p>
-            </div>
+              {/* Member Info - positioned outside image with blue accent line */}
+              <div className="relative ">
+                <h3 className="text-sm sm:text-base font-semibold text-foreground mb-1 px-1">
+                  {member.Name}
+                </h3>
+                <p className="text-xs sm:text-sm text-muted-foreground px-1">
+                  {member.Designation}
+                </p>
+              </div>
             </div>
           ))}
         </div>
@@ -263,103 +271,111 @@ export default function TeamsPage() {
         </div>
       </div>
 
-      {/* Right Side Slider */}
+      {/* Modal */}
       {selectedMember && (
         <>
           {/* Overlay */}
           <div
-            className={`fixed inset-0  bg-opacity-10 z-40 transition-opacity duration-300 ${
+            className={`fixed inset-0 bg-black/10 bg-opacity-50 z-40 transition-opacity duration-300 ${
               isSliderOpen ? 'opacity-100' : 'opacity-0'
             }`}
             onClick={closeSlider}
           />
 
-          {/* Slider Panel */}
+          {/* Right Side Slider Panel */}
           <div
-            className={`fixed top-0 right-0 h-full w-full max-w-md bg-background z-50 transform transition-transform duration-300 ease-in-out ${
+            className={`fixed top-0 right-0 h-full w-full sm:w-96 bg-white dark:bg-background z-50 transition-transform duration-300 ease-in-out ${
               isSliderOpen ? 'translate-x-0' : 'translate-x-full'
-            }`}
+            } shadow-xl`}
           >
             {/* Close Button */}
             <button
               onClick={closeSlider}
-              className="px-7 py-4 rounded-full transition-colors"
+              className="absolute top-4 left-4 p-2  text-primary-PARI-Red rounded-full transition-colors"
             >
-              <X className="w-6 h-6 text-primary-PARI-Red" />
+              <X className="w-5 h-5 text-primary-PARI-Red" />
             </button>
 
             {/* Content */}
-            <div className="p-8 pt-20 h-full overflow-y-auto">
-              {/* Profile Image */}
-
-
-              <div className="w-full h-76 bg-black rounded-lg overflow-hidden mb-6">
-                {selectedMember.image ? (
-                  <Image
-                    src={selectedMember.image}
-                    alt={selectedMember.name}
-                    width={400}
-                    height={256}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-gray-800 flex items-center justify-center">
-                    <div className="w-24 h-24 bg-gray-600 rounded-full"></div>
+            <div className="flex flex-col h-full px-4  sm:px-6">
+              {/* Profile Image - Large and prominent */}
+              <div className="w-full max-w-[436px] h-[268px] sm:w-full sm:h-72 rounded-[8px] overflow-hidden mt-16 mb-8 relative mx-auto sm:mx-0">
+                {selectedMember.Photo?.data && !imageErrors.has(selectedMember.id) ? (() => {
+                  const imageUrl = `https://dev.ruralindiaonline.org/v1${selectedMember.Photo.data.attributes.formats.large?.url || selectedMember.Photo.data.attributes.url}`
+                  console.log(`##rohiiiiii## Rendering modal image for ${selectedMember.Name}:`, imageUrl)
+                  return (
+                    <Image
+                      src={imageUrl}
+                      alt={selectedMember.Name}
+                      fill
+                      className="object-cover  object-[center_5%] rounded-lg"
+                      onError={() => handleImageError(selectedMember.id, imageUrl)}
+                      onLoad={() => console.log(`##rohiiiiii## Modal image loaded successfully for ${selectedMember.Name}`)}
+                    />
+                  )
+                })() : (
+                  <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                    <div className="w-24 h-24 bg-gray-300 rounded-full"></div>
                   </div>
                 )}
               </div>
 
-              {/* Name and Role */}
-              <h2 className="text-2xl font-bold text-primary-PARI-Red mb-2">
-                {selectedMember.name}
-              </h2>
-              <p className="text-foreground text-sm font-semibold mb-4">
-                {selectedMember.role}
-              </p>
+              {/* Content Section */}
+              <div className="flex-1   pb-4 ">
 
-              {/* Bio */}
-              {selectedMember.bio && (
-                <p className="text-discreet-text text-sm mb-8 leading-relaxed">
-                  {selectedMember.bio}
+                {/* Name and Role */}
+                <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-primary-PARI-Red mb-2">
+                  {selectedMember.Name}
+                </h2>
+                <p className="text-foreground text-sm sm:text-base font-medium mb-6 sm:mb-8">
+                  {selectedMember.Designation}
                 </p>
-              )}
 
-              {/* Social Links */}
-              <div className="flex space-x-4 mb-8">
-                {selectedMember.email && (
-                  <a
-                    href={`mailto:${selectedMember.email}`}
-                    className="w-12 h-12 bg-black rounded-full flex items-center justify-center hover:bg-gray-800 transition-colors"
-                  >
-                    <Mail className="w-6 h-6 text-white" />
-                  </a>
+                {/* Bio */}
+                {selectedMember.Bio && (
+                  <div
+                    className="text-gray-600 dark:text-gray-300 text-sm sm:text-base mb-6 sm:mb-8 leading-relaxed"
+                    dangerouslySetInnerHTML={{ __html: selectedMember.Bio }}
+                  />
                 )}
-                {selectedMember.instagram && (
-                  <a
-                    href={`https://instagram.com/${selectedMember.instagram.replace('@', '')}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-12 h-12 bg-black rounded-full flex items-center justify-center hover:bg-gray-800 transition-colors"
-                  >
-                    <FaInstagram className="w-6 h-6 text-white" />
-                  </a>
-                )}
-                {selectedMember.twitter && (
-                  <a
-                    href={`https://twitter.com/${selectedMember.twitter.replace('@', '')}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-12 h-12 bg-black text-white rounded-full flex items-center justify-center hover:bg-gray-800 transition-colors"
-                  >
-                    <FaXTwitter className="w-6 h-6" />
-                  </a>
-                )}
+
+                {/* Social Links */}
+                <div className="flex space-x-3 sm:space-x-4 mb-8 sm:mb-12 justify-start">
+                  {selectedMember.Email && (
+                    <a
+                      href={`mailto:${selectedMember.Email}`}
+                      className="w-12 h-12 sm:w-12 sm:h-12 bg-black rounded-full flex items-center justify-center hover:bg-gray-800 transition-colors"
+                    >
+                      <Mail className="w-6 h-6 text-white" />
+                    </a>
+                  )}
+                  {selectedMember.InstagramURL && (
+                    <a
+                      href={selectedMember.InstagramURL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-12 h-12 bg-black rounded-full flex items-center justify-center hover:bg-gray-800 transition-colors"
+                    >
+                      <FaInstagram className="w-6 h-6 text-white" />
+                    </a>
+                  )}
+                  {selectedMember.TwitterURL && (
+                    <a
+                      href={selectedMember.TwitterURL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-12 h-12 bg-black text-white rounded-full flex items-center justify-center hover:bg-gray-800 transition-colors"
+                    >
+                      <FaXTwitter className="w-6 h-6" />
+                    </a>
+                  )}
+                </div>
+
+                {/* See Stories Button */}
+                <button className="w-full bg-primary-PARI-Red text-white py-3 rounded-full font-semibold hover:bg-red-700 transition-colors">
+                  See Stories
+                </button>
               </div>
-
-              {/* See Stories Button */}
-              <button className="w-full bg-primary-PARI-Red text-white py-4 rounded-full font-semibold hover:bg-red-700 transition-colors">
-                See Stories
-              </button>
             </div>
           </div>
         </>
@@ -367,3 +383,5 @@ export default function TeamsPage() {
     </div>
   )
 }
+
+
