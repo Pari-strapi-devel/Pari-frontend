@@ -4,9 +4,9 @@ import { useState, useEffect, useCallback } from 'react'
 import axios from 'axios'
 import Image from 'next/image'
 import { HiExternalLink } from 'react-icons/hi'
+import { API_BASE_URL } from '@/utils/constants'
 
-// Get API URL from environment variables
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://dev.ruralindiaonline.org'
+// Get API URL from centralized constants
 
 // Types for API response
 interface ApiPageResponse {
@@ -177,7 +177,7 @@ const getImageUrl = (imageData?: ApiAwardDetail['Image']): string => {
 
   const { attributes } = imageData.data
   const { formats, url } = attributes
-  const baseUrl = `${API_BASE_URL || 'https://dev.ruralindiaonline.org'}/v1`
+  const baseUrl = `${API_BASE_URL}/v1`
 
   // Prefer medium size, fallback to large, small, thumbnail, or original
   if (formats.medium?.url) {

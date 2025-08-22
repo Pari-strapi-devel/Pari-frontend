@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
+import { API_BASE_URL } from '@/utils/constants'
 
 import { X, Mail } from 'lucide-react'
 import { FaInstagram, FaXTwitter } from 'react-icons/fa6'
@@ -138,7 +139,7 @@ export default function TeamsPage() {
   const fetchTeamData = async () => {
     try {
       console.log('##rohiiiiii## Fetching team data from API...')
-      const response = await fetch('https://dev.ruralindiaonline.org/v1/api/page-our-team?populate=deep')
+      const response = await fetch(`${API_BASE_URL}/v1/api/page-our-team?populate=deep`)
       const data: ApiResponse = await response.json()
       console.log('##rohiiiiii## API Response:', data)
       console.log('##rohiiiiii## Team Members:', data.data.attributes.TeamMember)
@@ -148,7 +149,7 @@ export default function TeamsPage() {
         console.log(`##rohiiiiii## Member ${index + 1} (${member.Name}):`, {
           hasPhoto: !!member.Photo?.data,
           photoData: member.Photo?.data?.attributes,
-          imageUrl: member.Photo?.data ? `https://dev.ruralindiaonline.org/v1${member.Photo.data.attributes.formats.medium?.url || member.Photo.data.attributes.url}` : 'No image'
+          imageUrl: member.Photo?.data ? `${API_BASE_URL}/v1${member.Photo.data.attributes.formats.medium?.url || member.Photo.data.attributes.url}` : 'No image'
         })
       })
 
@@ -225,7 +226,7 @@ export default function TeamsPage() {
                   })
 
                   if (member.Photo?.data && !imageErrors.has(member.id)) {
-                    const imageUrl = `https://dev.ruralindiaonline.org/v1${member.Photo.data.attributes.formats.medium?.url || member.Photo.data.attributes.url}`
+                    const imageUrl = `${API_BASE_URL}/v1${member.Photo.data.attributes.formats.medium?.url || member.Photo.data.attributes.url}`
                     console.log(`##rohiiiiii## Rendering image for ${member.Name}:`, imageUrl)
                     return (
                       <Image
@@ -301,7 +302,7 @@ export default function TeamsPage() {
               {/* Profile Image - Large and prominent */}
               <div className="w-full max-w-[436px] h-[268px] sm:w-full sm:h-72 rounded-[8px] overflow-hidden mt-16 mb-8 relative mx-auto sm:mx-0">
                 {selectedMember.Photo?.data && !imageErrors.has(selectedMember.id) ? (() => {
-                  const imageUrl = `https://dev.ruralindiaonline.org/v1${selectedMember.Photo.data.attributes.formats.large?.url || selectedMember.Photo.data.attributes.url}`
+                  const imageUrl = `${API_BASE_URL}/v1${selectedMember.Photo.data.attributes.formats.large?.url || selectedMember.Photo.data.attributes.url}`
                   console.log(`##rohiiiiii## Rendering modal image for ${selectedMember.Name}:`, imageUrl)
                   return (
                     <Image

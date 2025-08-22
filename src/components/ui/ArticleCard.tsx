@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { useLocale } from '@/lib/locale'
 import { languages as languagesList } from '@/data/languages'
 import { useState } from 'react'
+import { API_BASE_URL } from '@/utils/constants'
 
 
 
@@ -63,7 +64,7 @@ export function ArticleCard({
   return (
     <>
     <Link
-      href={`https://ruralindiaonline.org/article/${slug}`}
+      href={`${API_BASE_URL}/article/${slug}`}
       className={className}
     >
       <article className="group relative rounded-lg overflow-hidden sm:pt-8 hover:rounded-xl transition-discrete-00 transition-all duration-300 h-full">
@@ -356,7 +357,7 @@ export function ArticleCard({
                         e.preventDefault();
                         e.stopPropagation();
                         setIsSheetOpen(false);
-                        window.open(`https://ruralindiaonline.org/article/${language.slug}`, '_blank');
+                        window.open(`${API_BASE_URL}/article/${language.slug}`, '_blank');
                       }}
                     >
                       <div className="flex items-center justify-between">

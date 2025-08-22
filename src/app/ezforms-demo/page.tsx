@@ -79,8 +79,8 @@ ezforms: {
             </h3>
             <p className="text-gray-600 dark:text-gray-300 mb-4">
               Forms submit to: <code className="bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded text-sm">
-                {process.env.NODE_ENV === 'development' 
-                  ? 'https://beta.ruralindiaonline.org/v1/api/ezforms/submit'
+                {process.env.NODE_ENV === 'development'
+                  ? `${process.env.NEXT_PUBLIC_API_URL || 'https://beta.ruralindiaonline.org'}/v1/api/ezforms/submit`
                   : 'Your Strapi URL/api/ezforms/submit'
                 }
               </code>

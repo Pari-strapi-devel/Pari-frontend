@@ -1,9 +1,8 @@
-// Base URL for API endpoints
-// Use environment variable if available, otherwise fallback to beta URL
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://beta.ruralindiaonline.org'
+import { API_BASE_URL } from '@/utils/constants';
 
-export const BASE_URL = `${API_BASE}/v1/`;
-export const IMAGE_URL = `${API_BASE}/v1/`;
+// Base URL for API endpoints
+export const BASE_URL = `${API_BASE_URL}/v1/`;
+export const IMAGE_URL = `${API_BASE_URL}/v1/`;
 
 // EZForms configuration
 export const EZFORMS_CONFIG = {

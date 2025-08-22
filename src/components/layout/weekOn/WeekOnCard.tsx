@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react'
 import { ArticleCard } from '@/components/ui/ArticleCard'
 import axios from 'axios'
 import { BASE_URL } from '@/config'
+import { API_BASE_URL } from '@/utils/constants'
 import qs from 'qs'
 import WeekOnHeader from './WeekOnHeader'
 import { useLocale } from '@/lib/locale'
@@ -267,7 +268,7 @@ export function WeekOnCard() {
         if (iconUrl) {
           setHeader(iconUrl.startsWith('http') ? iconUrl : `${BASE_URL}${iconUrl}`);
         } else {
-          setHeader('https://beta.ruralindiaonline.org/v1/uploads/stand_2aa0fa18b2.svg'); // Removed extra quotes
+          setHeader(`${API_BASE_URL}/v1/uploads/stand_2aa0fa18b2.svg`); // Removed extra quotes
         }
 
         const articleArray = weekData?.article_with_lang_selection_1 || [];
