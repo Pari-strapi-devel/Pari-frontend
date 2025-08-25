@@ -490,9 +490,9 @@ export function MakeInIndiaCard() {
                 </button>
               </div>
 
-              {/* Content - 2 Column Grid Layout */}
+              {/* Content - Single Column on Mobile, 2 Column on Desktop */}
               <div className="p-6 overflow-y-auto max-h-[60vh]">
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {selectedFeature.availableLanguages?.map((language: { code: string; name: string; slug: string }) => {
                     const languageData = languagesList.find(lang => lang.code === language.code);
                     return (

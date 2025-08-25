@@ -365,7 +365,7 @@ export function StoryCard({
 
               {/* Content - Language List */}
               <div className="px-6 py-6 overflow-y-auto max-h-[60vh]">
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {/* Sort languages to put selected language first */}
                   {[...(availableLanguages || [])].sort((a, b) => {
                     if (a.code === currentLocale) return -1;

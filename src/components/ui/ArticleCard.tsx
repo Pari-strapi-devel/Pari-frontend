@@ -117,10 +117,10 @@ export function ArticleCard({
               <Button
                 variant="outline"
                 size="sm"
-                className={`flex items-center gap-2 h-[36px] ring-0 outline-none rounded-[48px] bg-white dark:bg-background border cursor-pointer shadow-lg
+                className={`flex items-center gap-2 h-[36px] ring-0 outline-none rounded-[48px] bg-white/80 dark:bg-background border cursor-pointer shadow-lg
                   ${isStudentArticle
                     ? 'text-student-blue hover:bg-student-blue hover:text-white border-student-blue'
-                    : 'text-primary-PARI-Red hover:bg-primary-PARI-Red hover:text-white border-primary-PARI-Red/20'}`}
+                    : 'text-primary-PARI-Red hover:bg-primary-PARI-Red hover:text-white '}`}
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
@@ -335,7 +335,7 @@ export function ArticleCard({
 
             {/* Content - Language List */}
             <div className="px-6 py-6 overflow-y-auto max-h-[60vh]">
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {/* Sort languages to put selected language first */}
                 {[...availableLanguages].sort((a, b) => {
                   if (a.code === currentLocale) return -1;
