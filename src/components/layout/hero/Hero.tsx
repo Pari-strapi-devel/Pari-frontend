@@ -252,15 +252,25 @@ export function Hero() {
     setIsVisible(false)
   }
 
-  if (!isVisible) return null
   if (isLoading) return <div className="flex justify-center items-center min-h-[400px]">Loading...</div>
   if (error) return <div className="text-primary-PARI-Red text-center">{error}</div>
 
   // Add language selection handler
- 
+
   return (
     <div className="relative font-notoSans">
-      <section className="relative px-4 md:mt-[66px] mt-10 bg-background">
+      {/* Date moved outside section - always visible */}
+      <div className={`px-4 md:mt-[66px] mt-10 ${isVisible ? 'pb-4' : '-pb-1'} ${language === 'ur' ? 'text-right' : 'text-left'}`}>
+        <div className={`sm:w-[90%] max-w-[1232px] mx-auto px-6 ${isVisible ? 'py-2' : 'py-1'}`}>
+          <span className="text-[15px] font-noto-sans text-grey-300 font-[600] leading-none tracking-[-0.02em] align-middle uppercase">
+            { String(getCurrentDate(months as unknown as Record<string, string>, weekDays as unknown as Record<string, string>)) }
+          </span>
+        </div>
+      </div>
+
+      {/* Only hide the section when dismissed */}
+      {isVisible && (
+        <section className="relative px-4 bg-background">
         <div className='shadow-[0px_1px_6px_0px_rgba(0,0,0,0.12)]
           font-notoSans rounded-[12px] bg-popover sm:w-[90%] max-w-[1232px] mx-auto'>
           <div className={` p-6 sm:p-6 md:p-8 lg:p-10 relative ${language === 'ur' ? 'flex flex-col ' : ''}`}>
@@ -276,20 +286,17 @@ export function Hero() {
                 </div>
                 <span className="text-sm font-medium">Dismiss</span>
               </Button>
-              
+
               {/* Add language toggle here */}
               <div className="z-20">
                 <LanguageToggle />
               </div>
             </div>
-           
+
 
 
             <div className={`flex sm:justify-between flex-col sm:flex-row gap-4 pt-7 ${language === 'ur' ? 'sm:flex-row-reverse' : ''}`}>
               <div className={language === 'ur' ? 'text-right' : 'text-left'}>
-                <span className="text-[15px] font-noto-sans text-grey-300 font-[600] leading-none tracking-[-0.02em] align-middle uppercase">
-                  { String(getCurrentDate(months as unknown as Record<string, string>, weekDays as unknown as Record<string, string>)) }
-                </span>
                 <h2 className="text-[32px] font-noto-sans sm:text-[40px] md:text-[48px] lg:text-[56px] font-bold leading-[112%] tracking-[-0.04em] text-foreground">
                   {pariInfo[0]?.heading}
                   <br />
@@ -297,8 +304,8 @@ export function Hero() {
                 </h2>
               </div>
               {/* <div className="flex items-end">
-                <Button 
-                  variant="secondary" 
+                <Button
+                  variant="secondary"
                   className="h-[32px] cursor-pointer hover ring-primary-PARI-Red text-primary-PARI-Red flex items-center rounded-[48px] gap-1"
                   onClick={() => {
                     window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })
@@ -410,6 +417,7 @@ export function Hero() {
           </div>
         </div>
       </section>
+      )}
     </div>
   )
 }

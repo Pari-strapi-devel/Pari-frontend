@@ -57,6 +57,7 @@ export function ArticleCard({
 }: ArticleCardProps) {
   const { language: currentLocale } = useLocale();
   const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [categoryStartIndex, setCategoryStartIndex] = useState(0);
 
 
 
@@ -135,102 +136,63 @@ export function ArticleCard({
         <div>
         <div className="py-5 px-1 rounded-2xl">
           <div className="flex flex-wrap gap-2 sm:mb-4 items-center justify-between">
-            <div className="flex flex-wrap  mt-4 gap-2">
+            <div className="flex items-center mt-4 gap-2">
             {categories?.length > 0 && (
               <>
-                {/* First category */}
-                <span 
-                  className="inline-block items-center px-2 py-1 ring-1 hover:bg-primary-PARI-Red hover:text-white ring-primary-PARI-Red text-xs text-primary-PARI-Red rounded-full w-fit h-[23px] mb-2 cursor-pointer"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    
-                    // Get current URL and parameters
-                    const url = new URL(window.location.href);
-                    const params = new URLSearchParams(url.search);
-                    
-                    // Get existing types if any
-                    const existingTypes = params.get('types')?.split(',').filter(Boolean) || [];
-                    const slug = categorySlug[0] || categories[0].toLowerCase().replace(/\s+/g, '-');
-                    
-                    // Add the new category if it's not already included
-                    if (!existingTypes.includes(slug)) {
-                      existingTypes.push(slug);
-                    }
-                    
-                    // Update the URL
-                    params.set('types', existingTypes.join(','));
-                    
-                    // Navigate to the updated URL
-                    window.location.href = `/articles?${params.toString()}`;
-                  }}
-                >
-                  {categories[0]}
-                </span>
-                
-                {/* Second category if available */}
-                {categories.length > 1 && (
-                  <span 
-                    className="inline-block items-center px-2 py-1 ring-1 hover:bg-primary-PARI-Red hover:text-white ring-primary-PARI-Red text-xs text-primary-PARI-Red rounded-full w-fit h-[23px] mb-2 cursor-pointer"
+                {/* Show 2 categories at a time */}
+                {categories.slice(categoryStartIndex, categoryStartIndex + 2).map((category, index) => (
+                  <span
+                    key={`${categoryStartIndex}-${index}`}
+                    className="inline-block items-center px-2 py-1 ring-1 hover:bg-primary-PARI-Red hover:text-white ring-primary-PARI-Red text-xs text-primary-PARI-Red rounded-full w-fit h-[23px] mb-2 cursor-pointer animate-slide-in-left"
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      
+
                       // Get current URL and parameters
                       const url = new URL(window.location.href);
                       const params = new URLSearchParams(url.search);
-                      
+
                       // Get existing types if any
                       const existingTypes = params.get('types')?.split(',').filter(Boolean) || [];
-                      const slug = categorySlug[1] || categories[1].toLowerCase().replace(/\s+/g, '-');
-                      
+                      const actualIndex = categoryStartIndex + index;
+                      const slug = categorySlug[actualIndex] || category.toLowerCase().replace(/\s+/g, '-');
+
                       // Add the new category if it's not already included
                       if (!existingTypes.includes(slug)) {
                         existingTypes.push(slug);
                       }
-                      
+
                       // Update the URL
                       params.set('types', existingTypes.join(','));
-                      
+
                       // Navigate to the updated URL
                       window.location.href = `/articles?${params.toString()}`;
                     }}
                   >
-                    {categories[1]}
+                    {category}
                   </span>
-                )}
-                
-                {/* +X more categories if there are more than 2 */}
+                ))}
+
+                {/* Next/Reset button */}
                 {categories.length > 2 && (
-                  <span 
+                  <span
                     className="inline-block items-center px-2 py-1 ring-1 hover:bg-primary-PARI-Red hover:text-white ring-primary-PARI-Red text-xs text-primary-PARI-Red rounded-full w-fit h-[23px] mb-2 cursor-pointer"
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      
-                      // Get current URL and parameters
-                      const url = new URL(window.location.href);
-                      const params = new URLSearchParams(url.search);
-                      
-                      // Get existing types if any
-                      const existingTypes = params.get('types')?.split(',').filter(Boolean) || [];
-                      
-                      // Add all categories if they're not already included
-                      categories.forEach((category, index) => {
-                        const slug = categorySlug[index] || category.toLowerCase().replace(/\s+/g, '-');
-                        if (!existingTypes.includes(slug)) {
-                          existingTypes.push(slug);
-                        }
-                      });
-                      
-                      // Update the URL
-                      params.set('types', existingTypes.join(','));
-                      
-                      // Navigate to the updated URL
-                      window.location.href = `/articles?${params.toString()}`;
+                      if (categoryStartIndex + 2 >= categories.length) {
+                        // If at end, reset to beginning
+                        setCategoryStartIndex(0);
+                      } else {
+                        // Move to next pair
+                        setCategoryStartIndex(prev => prev + 2);
+                      }
                     }}
                   >
-                    +{categories.length - 2}
+                    {categoryStartIndex + 2 >= categories.length
+                      ? '-'
+                      : `+${categories.length - (categoryStartIndex + 2)}`
+                    }
                   </span>
                 )}
               </>

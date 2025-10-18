@@ -58,7 +58,7 @@ export interface BrevoResponse {
  * Check if Brevo is configured
  */
 export const isBrevoConfigured = (): boolean => {
-  const isConfigured = !!(BREVO_CONFIG.apiKey && BREVO_CONFIG.apiKey.startsWith('xkeysib-'));
+  const isConfigured = !!(BREVO_CONFIG.apiKey && (BREVO_CONFIG.apiKey.startsWith('xkeysib-') || BREVO_CONFIG.apiKey.startsWith('xsmtpsib-')));
   console.log('##Rohit_Rocks## Brevo Configuration Check:', {
     hasApiKey: !!BREVO_CONFIG.apiKey,
     apiKeyPrefix: BREVO_CONFIG.apiKey ? BREVO_CONFIG.apiKey.substring(0, 10) + '...' : 'null',
@@ -188,17 +188,44 @@ export const addBrevoContact = async (contact: BrevoContact): Promise<BrevoRespo
 /**
  * Subscribe to newsletter (footer form)
  */
-export const subscribeToNewsletter = async (email: string, name?: string): Promise<BrevoResponse> => {
+export const subscribeToNewsletter = async (
+  email: string,
+  name?: string,
+  phone?: string,
+  country?: string,
+  state?: string,
+  district?: string,
+  language?: string
+): Promise<BrevoResponse> => {
   console.log('##Rohit_Rocks## Newsletter Subscription:', {
     email,
     name,
+    phone,
+    country,
+    state,
+    district,
+    language,
     listIds: [BREVO_CONFIG.listIds.newsletter, BREVO_CONFIG.listIds.footer],
     timestamp: new Date().toISOString()
   });
 
+  // Split full name into first and last name for better Brevo compatibility
+  const nameParts = name?.trim().split(' ') || [];
+  const firstName = nameParts[0] || '';
+  const lastName = nameParts.slice(1).join(' ') || '';
+
   const contact: BrevoContact = {
     email,
-    attributes: name ? { NAME: name } : {},
+    attributes: {
+      ...(name && { NAME: name }),
+      ...(firstName && { FIRSTNAME: firstName }),
+      ...(lastName && { LASTNAME: lastName }),
+      ...(phone && { PHONE: phone }),
+      ...(country && { COUNTRY: country }),
+      ...(state && { STATE: state }),
+      ...(district && { DISTRICT: district }),
+      ...(language && { LANGUAGE: language }),
+    },
     listIds: [BREVO_CONFIG.listIds.newsletter, BREVO_CONFIG.listIds.footer],
   };
 
@@ -212,6 +239,39 @@ export const subscribeToNewsletter = async (email: string, name?: string): Promi
 /**
  * Add contact form submission to Brevo
  */
+/**
+ * Send contact form notification email
+ */
+export const sendContactFormEmail = async (
+  email: string,
+  name: string,
+  phone?: string,
+  message?: string
+): Promise<BrevoResponse> => {
+  // You can customize this template ID based on your Brevo email template
+  const templateId = 2; // Replace with your actual template ID
+
+  const emailData: BrevoEmailTemplate = {
+    templateId,
+    to: [
+      {
+        email: email,
+        name: name
+      }
+    ],
+    params: {
+      NAME: name,
+      FIRSTNAME: name.split(' ')[0] || '',
+      LASTNAME: name.split(' ').slice(1).join(' ') || '',
+      PHONE: phone || 'Not provided',
+      MESSAGE: message || 'No message provided',
+      EMAIL: email
+    }
+  };
+
+  return await sendBrevoEmail(emailData);
+};
+
 export const addContactFormSubmission = async (
   email: string,
   name: string,
@@ -227,11 +287,18 @@ export const addContactFormSubmission = async (
     timestamp: new Date().toISOString()
   });
 
+  // Split full name into first and last name for better Brevo compatibility
+  const nameParts = name.trim().split(' ');
+  const firstName = nameParts[0] || '';
+  const lastName = nameParts.slice(1).join(' ') || '';
+
   const contact: BrevoContact = {
     email,
     attributes: {
       NAME: name,
-      PHONE: phone,
+      FIRSTNAME: firstName,
+      LASTNAME: lastName,
+      PHONE: phone || '',
       LAST_MESSAGE: message?.substring(0, 250), // Limit message length
     },
     listIds: [BREVO_CONFIG.listIds.contact],
@@ -241,7 +308,50 @@ export const addContactFormSubmission = async (
   const result = await addBrevoContact(contact);
   console.log('##Rohit_Rocks## Contact Form Submission Result:', result);
 
+  // Also send a notification email with the contact details
+  try {
+    await sendContactFormEmail(email, name, phone, message);
+  } catch (emailError) {
+    console.error('##Rohit_Rocks## Failed to send contact form email:', emailError);
+    // Don't fail the whole process if email sending fails
+  }
+
   return result;
+};
+
+/**
+ * Send intern application notification email
+ */
+export const sendInternApplicationEmail = async (
+  email: string,
+  fullName: string,
+  phone?: string,
+  collegeName?: string,
+  course?: string
+): Promise<BrevoResponse> => {
+  // You can customize this template ID based on your Brevo email template
+  const templateId = 1; // Replace with your actual template ID
+
+  const emailData: BrevoEmailTemplate = {
+    templateId,
+    to: [
+      {
+        email: email,
+        name: fullName
+      }
+    ],
+    params: {
+      NAME: fullName,
+      FIRSTNAME: fullName.split(' ')[0] || '',
+      LASTNAME: fullName.split(' ').slice(1).join(' ') || '',
+      PHONE: phone || 'Not provided',
+      COLLEGE: collegeName || 'Not provided',
+      COURSE: course || 'Not provided',
+      EMAIL: email
+    }
+  };
+
+  return await sendBrevoEmail(emailData);
 };
 
 /**
@@ -258,19 +368,28 @@ export const addInternApplication = async (
     email,
     fullName,
     phone,
+    phoneType: typeof phone,
+    phoneLength: phone?.length || 0,
     collegeName,
     course,
     listId: BREVO_CONFIG.listIds.intern,
     timestamp: new Date().toISOString()
   });
 
+  // Split full name into first and last name for better Brevo compatibility
+  const nameParts = fullName.trim().split(' ');
+  const firstName = nameParts[0] || '';
+  const lastName = nameParts.slice(1).join(' ') || '';
+
   const contact: BrevoContact = {
     email,
     attributes: {
       NAME: fullName,
-      PHONE: phone,
-      COLLEGE: collegeName,
-      COURSE: course,
+      FIRSTNAME: firstName,
+      LASTNAME: lastName,
+      PHONE: phone || '',
+      COLLEGE: collegeName || '',
+      COURSE: course || '',
     },
     listIds: [BREVO_CONFIG.listIds.intern],
   };
@@ -279,12 +398,53 @@ export const addInternApplication = async (
   const result = await addBrevoContact(contact);
   console.log('##Rohit_Rocks## Intern Application Result:', result);
 
+  // Also send a notification email with the application details
+  try {
+    await sendInternApplicationEmail(email, fullName, phone, collegeName, course);
+  } catch (emailError) {
+    console.error('##Rohit_Rocks## Failed to send intern application email:', emailError);
+    // Don't fail the whole process if email sending fails
+  }
+
   return result;
 };
 
 /**
  * Add volunteer application to Brevo
  */
+/**
+ * Send volunteer application notification email
+ */
+export const sendVolunteerApplicationEmail = async (
+  email: string,
+  fullName: string,
+  phone?: string,
+  skills?: string
+): Promise<BrevoResponse> => {
+  // You can customize this template ID based on your Brevo email template
+  const templateId = 3; // Replace with your actual template ID
+
+  const emailData: BrevoEmailTemplate = {
+    templateId,
+    to: [
+      {
+        email: email,
+        name: fullName
+      }
+    ],
+    params: {
+      NAME: fullName,
+      FIRSTNAME: fullName.split(' ')[0] || '',
+      LASTNAME: fullName.split(' ').slice(1).join(' ') || '',
+      PHONE: phone || 'Not provided',
+      SKILLS: skills || 'Not provided',
+      EMAIL: email
+    }
+  };
+
+  return await sendBrevoEmail(emailData);
+};
+
 export const addVolunteerApplication = async (
   email: string,
   fullName: string,
@@ -300,11 +460,18 @@ export const addVolunteerApplication = async (
     timestamp: new Date().toISOString()
   });
 
+  // Split full name into first and last name for better Brevo compatibility
+  const nameParts = fullName.trim().split(' ');
+  const firstName = nameParts[0] || '';
+  const lastName = nameParts.slice(1).join(' ') || '';
+
   const contact: BrevoContact = {
     email,
     attributes: {
       NAME: fullName,
-      PHONE: phone,
+      FIRSTNAME: firstName,
+      LASTNAME: lastName,
+      PHONE: phone || '',
       SKILLS: skills?.substring(0, 250),
     },
     listIds: [BREVO_CONFIG.listIds.volunteer],
@@ -313,6 +480,101 @@ export const addVolunteerApplication = async (
   console.log('##Rohit_Rocks## Volunteer Application Contact Object:', contact);
   const result = await addBrevoContact(contact);
   console.log('##Rohit_Rocks## Volunteer Application Result:', result);
+
+  // Also send a notification email with the volunteer application details
+  try {
+    await sendVolunteerApplicationEmail(email, fullName, phone, skills);
+  } catch (emailError) {
+    console.error('##Rohit_Rocks## Failed to send volunteer application email:', emailError);
+    // Don't fail the whole process if email sending fails
+  }
+
+  return result;
+};
+
+/**
+ * Add donation form submission to Brevo
+ */
+export const addDonationSubmission = async (
+  email: string,
+  fullName: string,
+  phone?: string,
+  amount?: string,
+  donationType?: string
+): Promise<BrevoResponse> => {
+  console.log('##Rohit_Rocks## Donation Submission:', {
+    email,
+    fullName,
+    phone,
+    amount,
+    donationType,
+    listId: BREVO_CONFIG.listIds.donation,
+    timestamp: new Date().toISOString()
+  });
+
+  // Split full name into first and last name for better Brevo compatibility
+  const nameParts = fullName.trim().split(' ');
+  const firstName = nameParts[0] || '';
+  const lastName = nameParts.slice(1).join(' ') || '';
+
+  const contact: BrevoContact = {
+    email,
+    attributes: {
+      NAME: fullName,
+      FIRSTNAME: firstName,
+      LASTNAME: lastName,
+      PHONE: phone,
+      DONATION_AMOUNT: amount,
+      DONATION_TYPE: donationType,
+    },
+    listIds: [BREVO_CONFIG.listIds.donation],
+  };
+
+  console.log('##Rohit_Rocks## Donation Contact Object:', contact);
+  const result = await addBrevoContact(contact);
+  console.log('##Rohit_Rocks## Donation Result:', result);
+
+  return result;
+};
+
+/**
+ * Add contribute form submission to Brevo
+ */
+export const addContributeSubmission = async (
+  email: string,
+  fullName: string,
+  phone?: string,
+  organization?: string
+): Promise<BrevoResponse> => {
+  console.log('##Rohit_Rocks## Contribute Submission:', {
+    email,
+    fullName,
+    phone,
+    organization,
+    listId: BREVO_CONFIG.listIds.contribute,
+    timestamp: new Date().toISOString()
+  });
+
+  // Split full name into first and last name for better Brevo compatibility
+  const nameParts = fullName.trim().split(' ');
+  const firstName = nameParts[0] || '';
+  const lastName = nameParts.slice(1).join(' ') || '';
+
+  const contact: BrevoContact = {
+    email,
+    attributes: {
+      NAME: fullName,
+      FIRSTNAME: firstName,
+      LASTNAME: lastName,
+      PHONE: phone,
+      ORGANIZATION: organization,
+    },
+    listIds: [BREVO_CONFIG.listIds.contribute],
+  };
+
+  console.log('##Rohit_Rocks## Contribute Contact Object:', contact);
+  const result = await addBrevoContact(contact);
+  console.log('##Rohit_Rocks## Contribute Result:', result);
 
   return result;
 };

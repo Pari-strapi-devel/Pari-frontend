@@ -2,18 +2,56 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import Image from 'next/image'
 import axios from 'axios'
+import { FaXTwitter, FaFacebookF, FaInstagram, FaYoutube, FaLinkedinIn } from 'react-icons/fa6'
+
 import { BASE_URL } from '@/config'
 import { useLocale } from '@/lib/locale'
 import { useNewsletterSubscription } from '@/hooks/useBrevo'
+import { NewsletterBottomSheet } from '@/components/newsletter/NewsletterBottomSheet'
 
 
 interface FooterLink {
   link: string;
   name: string;
+  icon?: {
+    data: {
+      attributes: {
+        url: string;
+      };
+    };
+  };
+}
+
+interface SocialLink {
+  id: number;
+  attributes: {
+    name: string;
+    url: string;
+    icon: {
+      data: {
+        attributes: {
+          url: string;
+        };
+      };
+    };
+  };
+}
+
+interface PaymentIcon {
+  id: number;
+  attributes: {
+    name: string;
+    url: string;
+    icon: {
+      data: {
+        attributes: {
+          url: string;
+        };
+      };
+    };
+  };
 }
 
 interface FooterApiResponse {
@@ -28,12 +66,10 @@ interface FooterApiResponse {
         };
       };
       social_links: {
-        data: Array<{
-          attributes: {
-            name: string;
-            url: string;
-          };
-        }>;
+        data: SocialLink[];
+      };
+      payment_icons: {
+        data: PaymentIcon[];
       };
       title: string;
       description: string;
@@ -52,7 +88,32 @@ export function Footer() {
 
   // Newsletter subscription state
   const [email, setEmail] = useState('')
-  const { subscribe, isLoading: isSubscribing, isSuccess, error: subscriptionError, reset } = useNewsletterSubscription()
+  const { subscribe, isLoading: isSubscribing, isSuccess, error: subscribeError, reset } = useNewsletterSubscription()
+
+  // Newsletter bottom sheet state
+  const [isNewsletterSheetOpen, setIsNewsletterSheetOpen] = useState(false)
+
+  // Newsletter form submission handler
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!email.trim()) return
+
+    const result = await subscribe(email.trim())
+
+    if (result.success) {
+      setEmail('') // Clear form on success
+    }
+  }
+
+  // Auto-reset newsletter subscription status after 5 seconds
+  useEffect(() => {
+    if (isSuccess || subscribeError) {
+      const timer = setTimeout(() => {
+        reset()
+      }, 5000)
+      return () => clearTimeout(timer)
+    }
+  }, [isSuccess, subscribeError, reset])
 
   useEffect(() => {
     let mounted = true;
@@ -67,10 +128,28 @@ export function Footer() {
         const query = {
           populate: {
             footer_links: {
-              populate: true
+              populate: {
+                icon: {
+                  fields: ['url']
+                }
+              }
             },
             logo: {
               fields: ['url'],
+            },
+            social_links: {
+              populate: {
+                icon: {
+                  fields: ['url']
+                }
+              }
+            },
+            payment_icons: {
+              populate: {
+                icon: {
+                  fields: ['url']
+                }
+              }
             },
             menus: {
               fields: ['title', 'slug'],
@@ -87,8 +166,7 @@ export function Footer() {
         if (mounted) {
           setFooterData(response.data)
         }
-      } catch (error) {
-        console.error('Error fetching footer data:', error)
+      } catch {
         if (mounted) {
           setError('Failed to load footer data')
         }
@@ -106,52 +184,22 @@ export function Footer() {
     }
   }, [language])
 
-  // Handle newsletter subscription
-  const handleNewsletterSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!email.trim()) return
 
-    console.log('##Rohit_Rocks## Footer Newsletter - Submitting subscription:', {
-      email: email.trim(),
-      timestamp: new Date().toISOString()
-    });
-
-    const result = await subscribe(email.trim())
-
-    console.log('##Rohit_Rocks## Footer Newsletter - Subscription result:', {
-      result,
-      isSuccess,
-      subscriptionError,
-      timestamp: new Date().toISOString()
-    });
-
-    if (isSuccess) {
-      console.log('##Rohit_Rocks## Footer Newsletter - Clearing email field');
-      setEmail('')
-    }
-  }
-
-  // Reset subscription status after 3 seconds
-  useEffect(() => {
-    if (isSuccess || subscriptionError) {
-      const timer = setTimeout(() => {
-        reset()
-      }, 3000)
-      return () => clearTimeout(timer)
-    }
-  }, [isSuccess, subscriptionError, reset])
 
   if (isLoading) return <div className="font-noto-sans text-[15px] text-[#4F4F4F] font-normal leading-[150%] tracking-[-0.03em]">Loading...</div>
   if (error) return <div className="font-noto-sans text-[15px] text-[#4F4F4F] font-normal leading-[150%] tracking-[-0.03em]">Error: {error}</div>
 
   const logoUrl = footerData?.data?.attributes?.logo?.data?.attributes?.url
- 
+
   const footerLinks = footerData?.data?.attributes?.footer_links || []
+  const socialLinks = footerData?.data?.attributes?.social_links?.data || []
+  const paymentIcons = footerData?.data?.attributes?.payment_icons?.data || []
   const title = footerData?.data?.attributes?.title || 'Default title'
   const description = footerData?.data?.attributes?.description || 'Default description'
 
   return (
-    <footer className="bg-white dark:bg-popover text-card-foreground px-5 py-8 sm:py-12 md:py-16">
+    <>
+      <footer className="bg-white dark:bg-popover text-card-foreground px-5 py-8 sm:py-12 md:py-16">
       <div className="max-w-[1232px] mx-auto px-4">
         <div className="grid lg:grid-cols-3 grid-cols-1 gap-x-40">
           {/* First Column - Welcome & Newsletter */}
@@ -176,44 +224,41 @@ export function Footer() {
               </p>
             </div>
             
-            <div className="space-y-2 sm:space-y-3">
-              <h4 className="font-noto-sans text-[16px] sm:text-[18px] font-semibold leading-[140%] tracking-[-0.04em] text-foreground pb-1 sm:pb-2">
-                {footerData?.data?.attributes?.sign_up_for_our_newsletter || 'Sign up for our newsletter'}
-              </h4>
+            <div className="mt-4">
+              <div className="bg-transparent shadow-none p-0 max-w-none">
+                <h4 className="font-noto-sans text-[16px] font-bold leading-[130%] tracking-[-0.04em] text-foreground mb-4">
+                  {footerData?.data?.attributes?.sign_up_for_our_newsletter || 'Sign up for our newsletter'}
+                </h4>
 
-              {/* Success/Error Messages */}
-              {isSuccess && (
-                <div className="text-green-600 dark:text-green-400 text-sm font-medium">
-                  Successfully subscribed to newsletter!
-                </div>
-              )}
-              {subscriptionError && (
-                <div className="text-red-600 dark:text-red-400 text-sm font-medium">
-                  {subscriptionError}
-                </div>
-              )}
+                {isSuccess && (
+                  <div className="mb-4 p-3 bg-green-100 dark:bg-green-900/20 border border-green-300 dark:border-green-700 rounded-md text-green-800 dark:text-green-200 text-sm">
+                    Successfully subscribed to newsletter!
+                  </div>
+                )}
 
-              <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-2">
-                <Input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder={footerData?.data?.attributes?.email_address || 'Enter your email'}
-                  className="h-8 sm:h-9 w-full bg-background rounded-full ring-none !ring-red-700 text-foreground text-sm"
-                  required
-                  disabled={isSubscribing}
-                />
-                <Button
-                  type="submit"
-                  variant="default"
-                  disabled={isSubscribing || !email.trim()}
-                  className="h-8 sm:h-9 w-full sm:w-auto min-w-[100px] bg-red-600 rounded-full text-white hover:bg-red-700 text-sm disabled:opacity-50"
-                >
-                  <span>
-                    {isSubscribing ? 'Subscribing...' : (footerData?.data?.attributes?.subscribe || 'Subscribe')}
-                  </span>
-                </Button>
-              </form>
+                {subscribeError && (
+                  <div className="mb-4 p-3 bg-red-100 dark:bg-red-900/20 border border-red-300 dark:border-red-700 rounded-md text-red-800 dark:text-red-200 text-sm">
+                    {subscribeError}
+                  </div>
+                )}
+
+                <form onSubmit={handleNewsletterSubmit} className="space-y-3">
+                  <div className="flex flex-col sm:flex-row gap-2">
+                  
+                    <button
+                      type="button"
+                      disabled={isSubscribing}
+                      className="px-4 py-2 bg-primary-PARI-Red text-white rounded-[26px] hover:bg-primary-PARI-Red/90 focus:outline-none focus:ring-2 focus:ring-primary-PARI-Red focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed font-noto-sans text-[15px] font-medium"
+                      onClick={() => {
+                       
+                        setIsNewsletterSheetOpen(true);
+                      }}
+                    >
+                      {isSubscribing ? 'Subscribing...' : (footerData?.data?.attributes?.subscribe || 'Subscribe')}
+                    </button>
+                  </div>
+                </form>
+              </div>
             </div>
           </div>
 
@@ -224,7 +269,9 @@ export function Footer() {
               {footerLinks.map((footerLink, index) => {
                 // Add defensive check
                 if (!footerLink) return null;
-                
+
+                const iconUrl = footerLink.icon?.data?.attributes?.url;
+
                 return (
                   <div key={`footer-link-${index}`} className="space-y-3 flex items-end gap-2">
                     <nav className="space-y-3 gap-y-2 flex flex-col">
@@ -232,6 +279,17 @@ export function Footer() {
                         href={footerLink.link || '/'}
                         className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors group font-noto-sans text-[15px] leading-[170%] tracking-[-0.03em]"
                       >
+                        {iconUrl && (
+                          <div className="w-[20px] h-[20px] flex items-center justify-center flex-shrink-0">
+                            <Image
+                              src={`${BASE_URL}${iconUrl}`}
+                              alt={footerLink.name || 'Icon'}
+                              width={20}
+                              height={20}
+                              className="w-full h-full object-contain opacity-80 group-hover:opacity-100 transition-opacity"
+                            />
+                          </div>
+                        )}
                         <span className="font-noto-sans text-[15px] font-medium leading-[170%] tracking-[-0.03em]">{footerLink.name}</span>
                       </Link>
                     </nav>
@@ -244,83 +302,175 @@ export function Footer() {
             <div className='w-full'>
               <div className="flex w-full items-center md:justify-between justify-center flex-col md:flex-row gap-4 space-x-6 md:pr-9 pt-4">
                 <div className="flex items-center  w-full md:justify-start justify-center space-x-4">
-                  <Link 
-                    href="#" 
-                    className="group"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <Image 
-                      src="/images/categories/paymant.png"
-                      alt="Payment Options"
-                      width={80}
-                      height={40}
-                      className="opacity-80 hover:opacity-100 transition-opacity"
-                    />
-                  </Link>
-                  <Link 
-                    href="#" 
-                    className="group"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <Image 
-                      src="/images/categories/razorpay.png"
-                      alt="Razorpay"
-                      width={80}
-                      height={40}
-                      className="opacity-80 hover:opacity-100 transition-opacity"
-                    />
-                  </Link>
+                  {paymentIcons.length > 0 ? (
+                    paymentIcons.map((payment) => {
+                      const iconUrl = payment.attributes?.icon?.data?.attributes?.url
+                      return (
+                        <Link
+                          key={payment.id}
+                          href={payment.attributes?.url || '#'}
+                          className="group flex items-center justify-center"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {iconUrl ? (
+                            <div className="w-[80px] h-[40px] flex items-center justify-center">
+                              <Image
+                                src={`${BASE_URL}${iconUrl}`}
+                                alt={payment.attributes?.name || 'Payment Option'}
+                                width={80}
+                                height={40}
+                                className="w-full h-full object-contain opacity-80 group-hover:opacity-100 transition-opacity"
+                              />
+                            </div>
+                          ) : (
+                            <span className="text-sm">{payment.attributes?.name}</span>
+                          )}
+                        </Link>
+                      )
+                    })
+                  ) : (
+                    // Fallback to hardcoded payment icons if API data is not available
+                    <>
+                      <Link
+                        href="#"
+                        className="group flex items-center justify-center"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <div className="w-[80px] h-[40px] flex items-center justify-center">
+                          <Image
+                            src="/images/categories/paymant.png"
+                            alt="Payment Options"
+                            width={80}
+                            height={40}
+                            className="w-full h-full object-contain opacity-80 group-hover:opacity-100 transition-opacity"
+                          />
+                        </div>
+                      </Link>
+                      <Link
+                        href="#"
+                        className="group flex items-center justify-center"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <div className="w-[80px] h-[40px] flex items-center justify-center">
+                          <Image
+                            src="/images/categories/razorpay.png"
+                            alt="Razorpay"
+                            width={80}
+                            height={40}
+                            className="w-full h-full object-contain opacity-80 group-hover:opacity-100 transition-opacity"
+                          />
+                        </div>
+                      </Link>
+                    </>
+                  )}
                 </div>
 
                 {/* Social Media Icons */}
                 <div className="flex items-center w-full md:justify-center justify-evenly  md:space-x-8">
-                  {[
-                    { 
-                      href: "https://twitter.com/PARInetwork", 
-                      imgSrc: "/images/categories/twitter.png", 
-                      label: "Twitter"
-                    },
-                    { 
-                      href: "https://facebook.com/PARInetwork", 
-                      imgSrc: "/images/categories/facebook.png", 
-                      label: "Facebook"
-                    },
-                    { 
-                      href: "https://instagram.com/pari.network", 
-                      imgSrc: "/images/categories/insta.png", 
-                      label: "Instagram"
-                    },
-                    { 
-                      href: "https://youtube.com/PARInetwork", 
-                      imgSrc: "/images/categories/youtube.png", 
-                      label: "YouTube"
-                    },
-                  ].map(({ href, imgSrc, label }) => (
-                    <Link 
-                      key={href} 
-                      href={href} 
-                      className="group"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <Image 
-                        src={imgSrc}
-                        alt={label}
-                        width={30}
-                        height={30}
-                        className="opacity-100 hover:opacity-100 transition-opacity"
-                      />
-                     
-                    </Link>
-                  ))}
+                  {socialLinks.length > 0 ? (
+                    socialLinks.map((social) => {
+                      const iconUrl = social.attributes?.icon?.data?.attributes?.url
+                      return (
+                        <Link
+                          key={social.id}
+                          href={social.attributes?.url || '#'}
+                          className="group flex items-center justify-center"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {iconUrl ? (
+                            <div className="w-[30px] h-[30px] flex items-center justify-center">
+                              <Image
+                                src={`${BASE_URL}${iconUrl}`}
+                                alt={social.attributes?.name || 'Social Media'}
+                                width={30}
+                                height={30}
+                                className="w-full h-full object-contain opacity-80 group-hover:opacity-100 transition-opacity"
+                              />
+                            </div>
+                          ) : (
+                            <span className="text-sm">{social.attributes?.name}</span>
+                          )}
+                        </Link>
+                      )
+                    })
+                  ) : (
+                    // Fallback to hardcoded icons if API data is not available
+                    <>
+                      <Link
+                        href="https://x.com/PARInetwork"
+                        className="group flex items-center justify-center"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label="X (Twitter)"
+                      >
+                        <div className="w-[30px] h-[30px] flex items-center justify-center">
+                          <FaXTwitter className="w-full h-full text-foreground opacity-80 group-hover:opacity-100 transition-opacity" />
+                        </div>
+                      </Link>
+                      <Link
+                        href="https://facebook.com/PARInetwork"
+                        className="group flex items-center justify-center"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label="Facebook"
+                      >
+                        <div className="w-[30px] h-[30px] flex items-center justify-center">
+                          <FaFacebookF className="w-full h-full text-foreground opacity-80 group-hover:opacity-100 transition-opacity" />
+                        </div>
+                      </Link>
+                      <Link
+                        href="https://instagram.com/pari.network"
+                        className="group flex items-center justify-center"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label="Instagram"
+                      >
+                        <div className="w-[30px] h-[30px] flex items-center justify-center">
+                          <FaInstagram className="w-full h-full text-foreground opacity-80 group-hover:opacity-100 transition-opacity" />
+                        </div>
+                      </Link>
+                      <Link
+                        href="https://youtube.com/@PARInetwork"
+                        className="group flex items-center justify-center"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label="YouTube"
+                      >
+                        <div className="w-[30px] h-[30px] flex items-center justify-center">
+                          <FaYoutube className="w-full h-full text-foreground opacity-80 group-hover:opacity-100 transition-opacity" />
+                        </div>
+                      </Link>
+                      <Link
+                        href="https://linkedin.com/company/pari-network"
+                        className="group flex items-center justify-center"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label="LinkedIn"
+                      >
+                        <div className="w-[30px] h-[30px] flex items-center justify-center">
+                          <FaLinkedinIn className="w-full h-full text-foreground opacity-80 group-hover:opacity-100 transition-opacity" />
+                        </div>
+                      </Link>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </footer>
+      </footer>
+
+      {/* Newsletter Bottom Sheet */}
+      <NewsletterBottomSheet
+        isOpen={isNewsletterSheetOpen}
+        onClose={() => setIsNewsletterSheetOpen(false)}
+        title={footerData?.data?.attributes?.sign_up_for_our_newsletter || 'Sign up for our newsletter'}
+      />
+    </>
   )
 }

@@ -1,0 +1,759 @@
+'use client';
+
+import React, { useState, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
+import { X } from 'lucide-react';
+import axios from 'axios';
+import { useNewsletterSubscription } from '@/hooks/useBrevo';
+import { useLocale } from '@/lib/locale';
+import { languages as staticLanguages } from '@/data/languages';
+
+// Location data interfaces
+interface Country {
+  id: string;
+  name: string;
+  iso2: string;
+}
+
+interface State {
+  id: number;
+  name: string;
+  iso2: string;
+}
+
+interface District {
+  id: number;
+  name: string;
+}
+
+interface Language {
+  code: string;
+  name: string;
+  names?: string[];
+}
+
+interface NewsletterFormData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  country: string;
+  state: string;
+  district: string;
+  language: string;
+  agreeToTerms: boolean;
+}
+
+interface NewsletterApiData {
+  attributes: {
+    firstName?: string;
+    lastName?: string;
+    email?: string;
+    phone?: string;
+    country?: string;
+    state?: string;
+    district?: string;
+    language?: string;
+    title?: string;
+    description?: string;
+    buttonText?: string;
+  };
+}
+
+interface NewsletterBottomSheetProps {
+  isOpen: boolean;
+  onClose: () => void;
+  title?: string;
+}
+
+export const NewsletterBottomSheet: React.FC<NewsletterBottomSheetProps> = ({
+  isOpen,
+  onClose,
+  title = "Sign up for our newsletter"
+}) => {
+  const { language: currentLanguage } = useLocale();
+  const { subscribe, isLoading: isSubscribing, isSuccess, error: subscribeError, reset } = useNewsletterSubscription();
+  const [mounted, setMounted] = useState(false);
+
+  // Location data state
+  const [countries, setCountries] = useState<Country[]>([]);
+  const [states, setStates] = useState<State[]>([]);
+  const [districts, setDistricts] = useState<District[]>([]);
+  const [languages, setLanguages] = useState<Language[]>([]);
+  const [languagesLoading, setLanguagesLoading] = useState(true);
+
+  // Newsletter API data state
+  const [newsletterData, setNewsletterData] = useState<NewsletterApiData | null>(null);
+
+  // Form data state
+  const [formData, setFormData] = useState<NewsletterFormData>({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    country: '',
+    state: '',
+    district: '',
+    language: '',
+    agreeToTerms: true
+  });
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Prevent body scroll when sheet is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
+
+  // Fetch countries
+  const fetchCountries = useCallback(async () => {
+    try {
+      const response = await axios.get('https://api.countrystatecity.in/v1/countries', {
+        headers: {
+          'X-CSCAPI-KEY': 'NHhvOEcyWk50N2Vna3VFTE00bFp3MjFKR0ZEOUhkZlg4RTk1MlJlaA=='
+        }
+      });
+
+      // Sort countries with India at the top
+      const sortedCountries = response.data.sort((a: Country, b: Country) => {
+        // Put India at the top
+        if (a.name.toLowerCase() === 'india') return -1;
+        if (b.name.toLowerCase() === 'india') return 1;
+        // Sort the rest alphabetically
+        return a.name.localeCompare(b.name);
+      });
+
+      setCountries(sortedCountries);
+    } catch (error) {
+      console.error('##Rohit_Rocks## Error fetching countries:', error);
+    }
+  }, []);
+
+  // Fetch states based on selected country
+  const fetchStates = async (countryCode: string) => {
+    try {
+      const response = await axios.get(`https://api.countrystatecity.in/v1/countries/${countryCode}/states`, {
+        headers: {
+          'X-CSCAPI-KEY': 'NHhvOEcyWk50N2Vna3VFTE00bFp3MjFKR0ZEOUhkZlg4RTk1MlJlaA=='
+        }
+      });
+      setStates(response.data);
+    } catch (error) {
+      console.error('##Rohit_Rocks## Error fetching states:', error);
+    }
+  };
+
+  // Fetch districts based on selected state
+  const fetchDistricts = async (countryCode: string, stateCode: string) => {
+    try {
+      const response = await axios.get(`https://api.countrystatecity.in/v1/countries/${countryCode}/states/${stateCode}/cities`, {
+        headers: {
+          'X-CSCAPI-KEY': 'NHhvOEcyWk50N2Vna3VFTE00bFp3MjFKR0ZEOUhkZlg4RTk1MlJlaA=='
+        }
+      });
+      setDistricts(response.data);
+    } catch (error) {
+      console.error('##Rohit_Rocks## Error fetching districts:', error);
+    }
+  };
+
+  // Load languages (merge imported data with API data)
+  const fetchLanguages = useCallback(async () => {
+    console.log('##Rohit_Rocks## Loading languages from both sources');
+    setLanguagesLoading(true);
+
+    // Start with imported language data as base
+    const importedLanguages = staticLanguages.map(lang => ({
+      code: lang.code,
+      name: lang.name,
+      names: lang.names
+    }));
+
+    console.log('##Rohit_Rocks## Imported languages loaded:', importedLanguages.length);
+
+    // Try to fetch from API and merge with imported data
+    try {
+      const response = await fetch(`https://dev.ruralindiaonline.org/v1/api/languages?locale=${currentLanguage || 'en'}`, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data?.data && data.data.length > 0) {
+          // Merge API languages with imported languages
+          const apiLanguages = data.data;
+          const mergedLanguages = [...importedLanguages];
+
+          // Add API languages that don't exist in imported data
+          apiLanguages.forEach((apiLang: Language) => {
+            const existsInImported = importedLanguages.some(importedLang =>
+              importedLang.code === apiLang.code
+            );
+
+            if (!existsInImported) {
+              mergedLanguages.push({
+                code: apiLang.code,
+                name: apiLang.name,
+                names: apiLang.names || [apiLang.name, '']
+              });
+            }
+          });
+
+          // Remove duplicates and sort by name
+          const uniqueLanguages = mergedLanguages.filter((lang, index, self) =>
+            index === self.findIndex(l => l.code === lang.code)
+          ).sort((a, b) => (a.names?.[0] || a.name || '').localeCompare(b.names?.[0] || b.name || ''));
+
+          setLanguages(uniqueLanguages);
+          setLanguagesLoading(false);
+          console.log('##Rohit_Rocks## Languages merged - Imported:', importedLanguages.length, 'API:', apiLanguages.length, 'Total:', uniqueLanguages.length);
+          return;
+        }
+      }
+    } catch {
+      console.log('##Rohit_Rocks## API languages not available, using imported data only');
+    }
+
+    // Fallback to imported languages only
+    setLanguages(importedLanguages);
+    setLanguagesLoading(false);
+    console.log('##Rohit_Rocks## Using imported languages only:', importedLanguages.length);
+    console.log('##Rohit_Rocks## Sample imported languages:', importedLanguages.slice(0, 3));
+  }, [currentLanguage]);
+
+  // Fetch newsletter data for placeholders
+  const fetchNewsletterData = useCallback(async () => {
+    try {
+      console.log('##Rohit_Rocks## Fetching newsletter data from API');
+
+      // Try fetch first (like other successful API calls in the codebase)
+      try {
+        const response = await fetch('https://dev.ruralindiaonline.org/v1/api/newsletter?populate=*', {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log('##Rohit_Rocks## Newsletter API Response (fetch):', data);
+        console.log('##Rohit_Rocks## Newsletter API Response Structure:', JSON.stringify(data, null, 2));
+
+        if (data?.data) {
+          setNewsletterData(data.data);
+          console.log('##Rohit_Rocks## Newsletter Data Set:', data.data);
+          return;
+        } else if (data) {
+          // Handle different API response structure
+          setNewsletterData(data);
+          console.log('##Rohit_Rocks## Newsletter Data Set (direct):', data);
+          return;
+        }
+      } catch (fetchError) {
+        console.log('##Rohit_Rocks## Fetch failed, trying axios fallback:', fetchError);
+
+        // Fallback: try with axios (like other API calls in the codebase)
+        const axiosResponse = await axios.get('https://dev.ruralindiaonline.org/v1/api/newsletter?populate=*', {
+          timeout: 10000,
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+          }
+        });
+
+        console.log('##Rohit_Rocks## Newsletter API Response (axios):', axiosResponse.data);
+
+        if (axiosResponse.data?.data) {
+          setNewsletterData(axiosResponse.data.data);
+          console.log('##Rohit_Rocks## Newsletter Data Set via axios:', axiosResponse.data.data);
+        } else if (axiosResponse.data) {
+          setNewsletterData(axiosResponse.data);
+          console.log('##Rohit_Rocks## Newsletter Data Set via axios (direct):', axiosResponse.data);
+        }
+      }
+    } catch (error) {
+      console.error('##Rohit_Rocks## Both fetch and axios failed for newsletter data:', error);
+      console.log('##Rohit_Rocks## Using fallback placeholder values');
+
+      // Set fallback data structure
+      setNewsletterData({
+        attributes: {
+          title: 'Sign up for our newsletter',
+          description: 'Stay updated with our latest stories and insights',
+          firstName: 'First Name',
+          lastName: 'Last Name',
+          email: 'Email Address',
+          country: 'Select Country',
+          state: 'Select State',
+          district: 'Select District',
+          language: 'Select Language',
+          buttonText: 'Confirm Sign up'
+        }
+      });
+    }
+  }, []);
+
+  // Load languages immediately when component mounts or language changes
+  useEffect(() => {
+    fetchLanguages();
+  }, [fetchLanguages, currentLanguage]);
+
+  // Debug: Log when languages change
+  useEffect(() => {
+    console.log('##Rohit_Rocks## Languages state updated:', {
+      count: languages.length,
+      sample: languages.slice(0, 3).map(l => ({ code: l.code, name: l.name }))
+    });
+  }, [languages]);
+
+  // Load initial data when sheet opens
+  useEffect(() => {
+    if (isOpen) {
+      // Load newsletter data
+      fetchNewsletterData();
+
+      // Only load countries if not already loaded
+      if (countries.length === 0) {
+        fetchCountries();
+      }
+    }
+  }, [isOpen, countries.length, fetchCountries, fetchNewsletterData]);
+
+  // Handle country change
+  useEffect(() => {
+    if (formData.country) {
+      // Find country code from country name
+      const selectedCountry = countries.find(c => c.name === formData.country);
+      if (selectedCountry) {
+        fetchStates(selectedCountry.iso2);
+        setFormData(prev => ({ ...prev, state: '', district: '' }));
+        setDistricts([]);
+      }
+    }
+  }, [formData.country, countries]);
+
+  // Handle state change
+  useEffect(() => {
+    if (formData.country && formData.state) {
+      // Find country and state codes from names
+      const selectedCountry = countries.find(c => c.name === formData.country);
+      const selectedState = states.find(s => s.name === formData.state);
+      if (selectedCountry && selectedState) {
+        fetchDistricts(selectedCountry.iso2, selectedState.iso2);
+        setFormData(prev => ({ ...prev, district: '' }));
+      }
+    }
+  }, [formData.country, formData.state, countries, states]);
+
+  // Handle input changes
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value, type, checked } = e.target as HTMLInputElement;
+
+    // Handle checkbox inputs
+    if (type === 'checkbox') {
+      setFormData(prev => ({
+        ...prev,
+        [name]: checked
+      }));
+      return;
+    }
+
+    // Handle other inputs
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  // Handle form submission
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!formData.firstName.trim() || !formData.lastName.trim() || !formData.email.trim() || !formData.agreeToTerms) {
+      return;
+    }
+
+    console.log('##Rohit_Rocks## Newsletter Bottom Sheet Form Submit:', {
+      ...formData,
+      timestamp: new Date().toISOString()
+    });
+
+    try {
+      // First, submit to PARI newsletter API
+      const newsletterPayload = {
+        data: {
+          firstName: formData.firstName.trim(),
+          lastName: formData.lastName.trim(),
+          email: formData.email.trim(),
+          country: formData.country,
+          state: formData.state,
+          district: formData.district,
+          language: formData.language,
+          subscribedAt: new Date().toISOString()
+        }
+      };
+
+      console.log('##Rohit_Rocks## Submitting to PARI newsletter API:', newsletterPayload);
+
+      // Submit to PARI newsletter API
+      try {
+        const apiResponse = await axios.post('https://dev.ruralindiaonline.org/v1/api/newslatters', newsletterPayload, {
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          timeout: 15000
+        });
+
+        console.log('##Rohit_Rocks## PARI newsletter API success:', {
+          status: apiResponse.status,
+          statusText: apiResponse.statusText,
+          data: apiResponse.data
+        });
+      } catch (apiError) {
+        console.error('##Rohit_Rocks## PARI newsletter API error:', apiError);
+        // Continue with Brevo submission even if PARI API fails
+      }
+
+      // Also submit to Brevo for email automation
+      const fullName = `${formData.firstName} ${formData.lastName}`.trim();
+      const result = await subscribe(
+        formData.email.trim(),
+        fullName,
+        formData.phone?.trim() || undefined,
+        formData.country || undefined,
+        formData.state || undefined,
+        formData.district || undefined,
+        formData.language || undefined
+      );
+
+      console.log('##Rohit_Rocks## Newsletter Bottom Sheet Result:', result);
+
+      if (result.success) {
+        // Reset form on success
+        setFormData({
+          firstName: '',
+          lastName: '',
+          email: '',
+          phone: '',
+          country: '',
+          state: '',
+          district: '',
+          language: '',
+          agreeToTerms: true
+        });
+
+        // Close sheet after 2 seconds to show success message
+        setTimeout(() => {
+          onClose();
+        }, 2000);
+      }
+    } catch (error) {
+      console.error('##Rohit_Rocks## Newsletter submission error:', error);
+    }
+  };
+
+  // Reset form and errors when sheet closes
+  useEffect(() => {
+    if (!isOpen) {
+      reset();
+      setFormData({
+        firstName: '',
+        lastName: '',
+        email: '',
+        phone: '',
+        country: '',
+        state: '',
+        district: '',
+        language: '',
+        agreeToTerms: true
+      });
+    }
+  }, [isOpen, reset]);
+
+  if (!mounted || !isOpen) return null;
+
+  return createPortal(
+    <>
+      {/* Overlay */}
+      <div
+        className="fixed inset-0 bg-black/50 z-[9999] transition-opacity duration-300"
+        onClick={onClose}
+      />
+
+      {/* Bottom Sheet */}
+      <div
+        className="fixed inset-x-0 bottom-0 md:inset-0 md:flex md:items-center md:justify-center z-[10000] transform transition-transform duration-300 ease-out"
+        onClick={onClose}
+      >
+        <div
+          className="bg-white dark:bg-popover py-3 rounded-t-3xl md:rounded-[16px] shadow-2xl md:max-w-lg w-full max-h-[90vh] overflow-hidden border border-border dark:border-borderline"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Handle Bar */}
+          <div className="flex justify-center py-4 md:hidden">
+            <div className="w-16 h-1.5 bg-gray-300 dark:bg-gray-600 rounded-[8px]"></div>
+          </div>
+
+          {/* Header */}
+          <div className="flex items-center justify-between px-8 pb-6 pt-4">
+            <div className="flex-1">
+              <h1 className="font-noto-sans text-[32px] font-bold leading-[120%] tracking-[-0.02em] text-foreground text-center">
+                {newsletterData?.attributes?.title || title}
+              </h1>
+              {newsletterData?.attributes?.description && (
+                <p className="font-noto-sans text-[14px] text-muted-foreground mt-2 text-center">
+                  {newsletterData.attributes.description}
+                </p>
+              )}
+            </div>
+            <button
+              onClick={onClose}
+              className="absolute top-4 right-4 p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-[8px] transition-colors"
+            >
+              <X className="h-5 w-5 text-gray-500" />
+            </button>
+          </div>
+
+          {/* Content */}
+          <div className="px-6 pb-6 max-h-[calc(90vh-120px)] overflow-y-auto">
+            {isSuccess && (
+              <div className="mb-4 p-4 bg-green-100 dark:bg-green-900/20 border border-green-300 dark:border-green-700 rounded-md text-green-800 dark:text-green-200 text-center">
+                Successfully subscribed to newsletter! Thank you for joining us.
+              </div>
+            )}
+
+            {subscribeError && (
+              <div className="mb-4 p-4 bg-red-100 dark:bg-red-900/20 border border-red-300 dark:border-red-700 rounded-md text-red-800 dark:text-red-200 text-center">
+                {subscribeError}
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {/* First Name and Last Name */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="relative">
+                  <input
+                    type="text"
+                    name="firstName"
+                    placeholder={newsletterData?.attributes?.firstName || "First"}
+                    value={formData.firstName}
+                    onChange={handleInputChange}
+                    className="w-full pl-4 pr-4 py-3 border border-border dark:border-borderline rounded-lg focus:ring-2 focus:ring-primary-PARI-Red dark:focus:ring-primary focus:border-transparent outline-none bg-white dark:bg-background text-gray-900 dark:text-foreground placeholder-gray-500 dark:placeholder-muted-foreground text-sm"
+                    required
+                  />
+                </div>
+                <div className="relative">
+                  <input
+                    type="text"
+                    name="lastName"
+                    placeholder={newsletterData?.attributes?.lastName || "Last"}
+                    value={formData.lastName}
+                    onChange={handleInputChange}
+                    className="w-full pl-4 pr-4 py-3 border border-border dark:border-borderline rounded-lg focus:ring-2 focus:ring-primary-PARI-Red dark:focus:ring-primary focus:border-transparent outline-none bg-white dark:bg-background text-gray-900 dark:text-foreground placeholder-gray-500 dark:placeholder-muted-foreground text-sm"
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Email */}
+              <div className="relative">
+                <input
+                  type="email"
+                  name="email"
+                  placeholder={newsletterData?.attributes?.email || "Email"}
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  className="w-full pl-4 pr-4 py-3 border border-border dark:border-borderline rounded-lg focus:ring-2 focus:ring-primary-PARI-Red dark:focus:ring-primary focus:border-transparent outline-none bg-white dark:bg-background text-gray-900 dark:text-foreground placeholder-gray-500 dark:placeholder-muted-foreground text-sm"
+                  required
+                />
+              </div>
+
+              {/* Phone */}
+              <div className="relative">
+                <input
+                  type="tel"
+                  name="phone"
+                  placeholder={newsletterData?.attributes?.phone || "Phone (optional)"}
+                  value={formData.phone}
+                  onChange={handleInputChange}
+                  className="w-full pl-4 pr-4 py-3 border border-border dark:border-borderline rounded-lg focus:ring-2 focus:ring-primary-PARI-Red dark:focus:ring-primary focus:border-transparent outline-none bg-white dark:bg-background text-gray-900 dark:text-foreground placeholder-gray-500 dark:placeholder-muted-foreground text-sm"
+                />
+              </div>
+
+              {/* Location Fields */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {/* Country */}
+                <div className="relative">
+                  <select
+                    name="country"
+                    value={formData.country}
+                    onChange={handleInputChange}
+                    className="w-full pl-4 pr-10 py-3 border border-border dark:border-borderline rounded-lg focus:ring-2 focus:ring-primary-PARI-Red dark:focus:ring-primary focus:border-transparent outline-none bg-white dark:bg-background text-gray-900 dark:text-foreground text-sm disabled:opacity-50 appearance-none"
+                    style={{
+                      backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
+                      backgroundRepeat: 'no-repeat',
+                      backgroundPosition: 'right 12px center',
+                      backgroundSize: '20px'
+                    }}
+                  >
+                    <option value="" className="text-gray-400">{newsletterData?.attributes?.country || "Country"}</option>
+                    {countries.map((country) => (
+                      <option key={country.iso2} value={country.name} className="text-gray-700 dark:text-gray-200">
+                        {country.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* State */}
+                <div className="relative">
+                  <select
+                    name="state"
+                    value={formData.state}
+                    onChange={handleInputChange}
+                    className="w-full pl-4 pr-10 py-3 border border-border dark:border-borderline rounded-lg focus:ring-2 focus:ring-primary-PARI-Red dark:focus:ring-primary focus:border-transparent outline-none bg-white dark:bg-background text-gray-900 dark:text-foreground text-sm disabled:opacity-50 disabled:cursor-not-allowed appearance-none"
+                    disabled={!formData.country}
+                    style={{
+                      backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
+                      backgroundRepeat: 'no-repeat',
+                      backgroundPosition: 'right 12px center',
+                      backgroundSize: '20px'
+                    }}
+                  >
+                    <option value="" className="text-gray-400">{newsletterData?.attributes?.state || "State"}</option>
+                    {states.map((state) => (
+                      <option key={state.iso2} value={state.name} className="text-gray-700 dark:text-gray-200">
+                        {state.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* District */}
+                <div className="relative">
+                  <select
+                    name="district"
+                    value={formData.district}
+                    onChange={handleInputChange}
+                    className="w-full pl-4 pr-10 py-3 border border-border dark:border-borderline rounded-lg focus:ring-2 focus:ring-primary-PARI-Red dark:focus:ring-primary focus:border-transparent outline-none bg-white dark:bg-background text-gray-900 dark:text-foreground text-sm disabled:opacity-50 disabled:cursor-not-allowed appearance-none"
+                    disabled={!formData.state}
+                    style={{
+                      backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
+                      backgroundRepeat: 'no-repeat',
+                      backgroundPosition: 'right 12px center',
+                      backgroundSize: '20px'
+                    }}
+                  >
+                    <option value="" className="text-gray-400">{newsletterData?.attributes?.district || "District"}</option>
+                    {districts.map((district) => (
+                      <option key={district.id} value={district.name} className="text-gray-700 dark:text-gray-200">
+                        {district.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {/* Language Selection */}
+              <div className="relative">
+                <select
+                  name="language"
+                  value={formData.language}
+                  onChange={handleInputChange}
+                  className="w-full pl-4 pr-10 py-3 border border-border dark:border-borderline rounded-lg focus:ring-2 focus:ring-primary-PARI-Red dark:focus:ring-primary focus:border-transparent outline-none bg-white dark:bg-background text-gray-900 dark:text-foreground text-sm appearance-none"
+                  style={{
+                    fontFamily: 'Noto Sans, Noto Sans Devanagari, Noto Sans Telugu UI, Noto Sans Tamil UI, Noto Sans Bengali UI, Noto Sans Gujarati UI, Noto Sans Kannada UI, Noto Sans Malayalam UI, Noto Sans Oriya UI, Noto Sans Gurmukhi UI, sans-serif',
+                    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
+                    backgroundRepeat: 'no-repeat',
+                    backgroundPosition: 'right 12px center',
+                    backgroundSize: '20px'
+                  }}
+                >
+                  <option value="" className="text-gray-400">{newsletterData?.attributes?.language || "Select language"}</option>
+                  {/* Debug: Show language count */}
+                  {languagesLoading && languages.length === 0 && (
+                    <option disabled className="text-gray-400">Loading languages...</option>
+                  )}
+                  {!languagesLoading && languages.length === 0 && (
+                    <option disabled className="text-gray-400">No languages available</option>
+                  )}
+                  {languages.map((language, index) => {
+                    // Debug log for first few languages
+                    if (index < 3) {
+                      console.log('##Rohit_Rocks## Rendering language:', language);
+                    }
+                    return (
+                    <option
+                      key={language.code || index}
+                      value={language.names?.[0] || language.name}
+                      className="text-gray-700 dark:text-gray-200"
+                      style={{
+                        fontFamily: 'Noto Sans, Noto Sans Devanagari, Noto Sans Telugu UI, Noto Sans Tamil UI, Noto Sans Bengali UI, Noto Sans Gujarati UI, Noto Sans Kannada UI, Noto Sans Malayalam UI, Noto Sans Oriya UI, Noto Sans Gurmukhi UI, sans-serif'
+                      }}
+                    >
+                      {language.names?.[0] || language.name || 'Unknown'}
+                    </option>
+                    );
+                  })}
+                </select>
+              </div>
+
+              {/* Terms of Service Agreement */}
+              <div className="mt-6">
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    name="agreeToTerms"
+                    id="agreeToTerms"
+                    checked={formData.agreeToTerms}
+                    onChange={handleInputChange}
+                    required
+                    className="h-4 w-4 text-primary-PARI-Red dark:text-primary focus:ring-primary-PARI-Red dark:focus:ring-primary border-border dark:border-borderline rounded dark:bg-background"
+                  />
+                  <label htmlFor="agreeToTerms" className="text-sm text-discreet-text dark:text-muted-foreground">
+                    I agree to PARI&apos;s{' '}
+                    <a href="https://ruralindiaonline.org/termsofservices" target="_blank" rel="noopener noreferrer" className="text-primary-PARI-Red hover:underline">
+                      terms of service
+                    </a>
+                  </label>
+                </div>
+              </div>
+
+              {/* Submit Button */}
+              <div className="pt-4">
+                <button
+                  type="submit"
+                  disabled={isSubscribing || !formData.firstName.trim() || !formData.lastName.trim() || !formData.email.trim() || !formData.agreeToTerms}
+                  className="w-full bg-primary-PARI-Red dark:bg-primary-PARI-Red text-white py-4 px-6 rounded-full font-medium hover:bg-red-700 dark:hover:bg-red-700 transition-colors duration-200 text-base  disabled:cursor-not-allowed flex items-center justify-center"
+                >
+                  {isSubscribing ? 'Subscribing...' : (newsletterData?.attributes?.buttonText || 'Confirm Sign up')}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </>,
+    document.body
+  );
+};

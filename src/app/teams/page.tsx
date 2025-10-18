@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { API_BASE_URL } from '@/utils/constants'
 
 import { X, Mail } from 'lucide-react'
-import { FaInstagram, FaXTwitter } from 'react-icons/fa6'
+import { FaInstagram, FaXTwitter, FaFacebookF, FaLinkedinIn } from 'react-icons/fa6'
 
 interface PhotoFormat {
   ext: string
@@ -215,8 +215,8 @@ export default function TeamsPage() {
               className="cursor-pointer transition-all duration-300 hover:scale-105"
               onClick={() => handleMemberClick(member)}
             >
-              {/* Profile Image with black background and rounded corners */}
-              <div className="w- sm:max-w-[248px] h-[200px] sm:h-[240px] lg:h-[268px] bg-black rounded-lg overflow-hidden mb-4 relative mx-auto">
+              {/* Profile Image with gray background and rounded corners */}
+              <div className="w-full h-[200px] sm:h-[240px] lg:h-[268px] bg-gray-200 rounded-lg overflow-hidden mb-4 relative">
                 {(() => {
                   console.log(`##rohiiiiii## Checking image for ${member.Name}:`, {
                     hasPhoto: !!member.Photo,
@@ -233,7 +233,7 @@ export default function TeamsPage() {
                         src={imageUrl}
                         alt={member.Name}
                         fill
-                        className="object-cover object-[center_10%] w-[500px]"
+                        className="object-cover object-[center_10%] w-[500px] h-[500px]"
                         onError={() => handleImageError(member.id, imageUrl)}
                         onLoad={() => console.log(`##rohiiiiii## Image loaded successfully for ${member.Name}`)}
                       />
@@ -243,9 +243,12 @@ export default function TeamsPage() {
                       reason: !member.Photo?.data ? 'No photo data' : 'Image error occurred'
                     })
                     return (
-                      <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                        <div className="w-16 h-16 bg-gray-300 rounded-full"></div>
-                      </div>
+                      <Image
+                        src="/team-dammy.png"
+                        alt={`${member.Name} placeholder`}
+                        fill
+                        className="object-cover object-[center_10%] w-[500px] h-[500px]"
+                      />
                     )
                   }
                 })()}
@@ -253,10 +256,10 @@ export default function TeamsPage() {
 
               {/* Member Info - positioned outside image with blue accent line */}
               <div className="relative ">
-                <h3 className="text-sm sm:text-base font-semibold text-foreground mb-1 px-1">
+                <h3 className="text-sm sm:text-base font-semibold text-foreground mb-1">
                   {member.Name}
                 </h3>
-                <p className="text-xs sm:text-sm text-muted-foreground px-1">
+                <p className="text-xs sm:text-sm text-muted-foreground">
                   {member.Designation}
                 </p>
               </div>
@@ -300,7 +303,7 @@ export default function TeamsPage() {
             {/* Content */}
             <div className="flex flex-col h-full px-4  sm:px-6">
               {/* Profile Image - Large and prominent */}
-              <div className="w-full max-w-[436px] h-[268px] sm:w-full sm:h-72 rounded-[8px] overflow-hidden mt-16 mb-8 relative mx-auto sm:mx-0">
+              <div className="w-full max-w-[436px] h-[268px] sm:w-full bg-gray-200 sm:h-72 rounded-[8px] overflow-hidden mt-16 mb-8 relative mx-auto sm:mx-0">
                 {selectedMember.Photo?.data && !imageErrors.has(selectedMember.id) ? (() => {
                   const imageUrl = `${API_BASE_URL}/v1${selectedMember.Photo.data.attributes.formats.large?.url || selectedMember.Photo.data.attributes.url}`
                   console.log(`##rohiiiiii## Rendering modal image for ${selectedMember.Name}:`, imageUrl)
@@ -315,15 +318,19 @@ export default function TeamsPage() {
                     />
                   )
                 })() : (
-                  <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                    <div className="w-24 h-24 bg-gray-300 rounded-full"></div>
-                  </div>
+                  <Image
+                    src="/team-dammy.png"
+                    alt={`${selectedMember.Name} placeholder`}
+                    fill
+                    className="object-cover"
+                  />
                 )}
               </div>
 
               {/* Content Section */}
-              <div className="flex-1   pb-4 ">
+              <div className="flex-1 pb-4 flex flex-col">
 
+                <div className="flex-1 overflow-y-auto pr-1">
                 {/* Name and Role */}
                 <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-primary-PARI-Red mb-2">
                   {selectedMember.Name}
@@ -370,10 +377,31 @@ export default function TeamsPage() {
                       <FaXTwitter className="w-6 h-6" />
                     </a>
                   )}
+                  {selectedMember.FacebookURL && (
+                    <a
+                      href={selectedMember.FacebookURL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-12 h-12 bg-black text-white rounded-full flex items-center justify-center hover:bg-gray-800 transition-colors"
+                    >
+                      <FaFacebookF className="w-6 h-6" />
+                    </a>
+                  )}
+                  {selectedMember.LinkedinURL && (
+                    <a
+                      href={selectedMember.LinkedinURL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-12 h-12 bg-black text-white rounded-full flex items-center justify-center hover:bg-gray-800 transition-colors"
+                    >
+                      <FaLinkedinIn className="w-6 h-6" />
+                    </a>
+                  )}
                 </div>
 
+                </div>
                 {/* See Stories Button */}
-                <button className="w-full bg-primary-PARI-Red text-white py-3 rounded-full font-semibold hover:bg-red-700 transition-colors">
+                <button className="mt-auto w-full bg-primary-PARI-Red text-white py-3 rounded-full font-semibold hover:bg-red-700 transition-colors">
                   See Stories
                 </button>
               </div>

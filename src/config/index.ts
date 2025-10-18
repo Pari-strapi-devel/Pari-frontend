@@ -18,12 +18,14 @@ export const BREVO_CONFIG = {
   senderEmail: process.env.NEXT_PUBLIC_BREVO_SENDER_EMAIL || 'noreply@pari.org',
   senderName: process.env.NEXT_PUBLIC_BREVO_SENDER_NAME || 'PARI Team',
   listIds: {
-    footer: parseInt(process.env.NEXT_PUBLIC_BREVO_FOOTER_LIST_ID || '7'),
-    contact: parseInt(process.env.NEXT_PUBLIC_BREVO_CONTACT_LIST_ID || '8'),
-    intern: parseInt(process.env.NEXT_PUBLIC_BREVO_INTERN_LIST_ID || '9'),
-    volunteer: parseInt(process.env.NEXT_PUBLIC_BREVO_VOLUNTEER_LIST_ID || '10'),
-    newsletter: parseInt(process.env.NEXT_PUBLIC_BREVO_NEWSLETTER_LIST_ID || '7'),
-    default: parseInt(process.env.NEXT_PUBLIC_BREVO_DEFAULT_LIST_ID || '6'),
+    newsletter: parseInt(process.env.NEXT_PUBLIC_BREVO_NEWSLETTER_LIST_ID || '50'),
+    contact: parseInt(process.env.NEXT_PUBLIC_BREVO_CONTACT_LIST_ID || '49'),
+    intern: parseInt(process.env.NEXT_PUBLIC_BREVO_INTERN_LIST_ID || '48'),
+    contribute: parseInt(process.env.NEXT_PUBLIC_BREVO_CONTRIBUTE_LIST_ID || '47'),
+    donation: parseInt(process.env.NEXT_PUBLIC_BREVO_DONATION_LIST_ID || '46'),
+    volunteer: parseInt(process.env.NEXT_PUBLIC_BREVO_VOLUNTEER_LIST_ID || '45'),
+    footer: parseInt(process.env.NEXT_PUBLIC_BREVO_NEWSLETTER_LIST_ID || '50'), // Use newsletter for footer
+    default: parseInt(process.env.NEXT_PUBLIC_BREVO_NEWSLETTER_LIST_ID || '50'), // Use newsletter as default
   },
 };
 
@@ -39,12 +41,12 @@ console.log('##Rohit_Rocks## Brevo Config Loaded:', {
     NEXT_PUBLIC_BREVO_API_KEY: !!process.env.NEXT_PUBLIC_BREVO_API_KEY,
     NEXT_PUBLIC_BREVO_SENDER_EMAIL: !!process.env.NEXT_PUBLIC_BREVO_SENDER_EMAIL,
     NEXT_PUBLIC_BREVO_SENDER_NAME: !!process.env.NEXT_PUBLIC_BREVO_SENDER_NAME,
-    NEXT_PUBLIC_BREVO_FOOTER_LIST_ID: !!process.env.NEXT_PUBLIC_BREVO_FOOTER_LIST_ID,
+    NEXT_PUBLIC_BREVO_NEWSLETTER_LIST_ID: !!process.env.NEXT_PUBLIC_BREVO_NEWSLETTER_LIST_ID,
     NEXT_PUBLIC_BREVO_CONTACT_LIST_ID: !!process.env.NEXT_PUBLIC_BREVO_CONTACT_LIST_ID,
     NEXT_PUBLIC_BREVO_INTERN_LIST_ID: !!process.env.NEXT_PUBLIC_BREVO_INTERN_LIST_ID,
+    NEXT_PUBLIC_BREVO_CONTRIBUTE_LIST_ID: !!process.env.NEXT_PUBLIC_BREVO_CONTRIBUTE_LIST_ID,
+    NEXT_PUBLIC_BREVO_DONATION_LIST_ID: !!process.env.NEXT_PUBLIC_BREVO_DONATION_LIST_ID,
     NEXT_PUBLIC_BREVO_VOLUNTEER_LIST_ID: !!process.env.NEXT_PUBLIC_BREVO_VOLUNTEER_LIST_ID,
-    NEXT_PUBLIC_BREVO_NEWSLETTER_LIST_ID: !!process.env.NEXT_PUBLIC_BREVO_NEWSLETTER_LIST_ID,
-    NEXT_PUBLIC_BREVO_DEFAULT_LIST_ID: !!process.env.NEXT_PUBLIC_BREVO_DEFAULT_LIST_ID,
   },
   timestamp: new Date().toISOString()
 });

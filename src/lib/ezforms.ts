@@ -24,21 +24,57 @@ export interface EZFormResponse {
  */
 export const submitEZForm = async (submission: EZFormSubmission): Promise<EZFormResponse> => {
   try {
-    // Transform to match your API exactly
-    const requestPayload = {
-      data: {
-        name: submission.formData.name as string,
-        email: submission.formData.email as string,
-        message: submission.formData.message as string
-      }
-    };
+    // Check if this is a contribution form submission
+    const isContributionForm = submission.formName === 'Content Upload Form';
 
-    const response = await axios.post(EZFORMS_CONFIG.apiUrl, requestPayload, {
+    let requestPayload;
+    let apiUrl;
+
+    if (isContributionForm) {
+      // Transform data for contribution-submits endpoint
+      apiUrl = 'https://dev.ruralindiaonline.org/v1/api/contribution-submits';
+      console.log('##Rohit_Rocks## Contribution API URL:', apiUrl);
+      requestPayload = {
+        data: {
+          firstName: submission.formData.firstName as string,
+          lastName: submission.formData.lastName as string,
+          email: submission.formData.email as string,
+          phone: submission.formData.phone as string,
+          country: submission.formData.country as string,
+          state: submission.formData.state as string,
+          district: submission.formData.district as string,
+          organisation: submission.formData.organization as string,
+          fileLink: submission.formData.fileLink as string,
+        }
+      };
+      console.log('##Rohit_Rocks## Contribution payload:', JSON.stringify(requestPayload, null, 2));
+    } else {
+      // Default form submission for other forms
+      apiUrl = EZFORMS_CONFIG.apiUrl;
+      requestPayload = {
+        data: {
+          name: submission.formData.name as string,
+          email: submission.formData.email as string,
+          message: submission.formData.message as string
+        }
+      };
+    }
+
+    console.log('##Rohit_Rocks## Making API call to:', apiUrl);
+    console.log('##Rohit_Rocks## Request headers:', {
+      'accept': 'application/json',
+      'Content-Type': 'application/json',
+    });
+
+    const response = await axios.post(apiUrl, requestPayload, {
       headers: {
         'accept': 'application/json',
         'Content-Type': 'application/json',
       },
     });
+
+    console.log('##Rohit_Rocks## API Response Status:', response.status);
+    console.log('##Rohit_Rocks## API Response Data:', JSON.stringify(response.data, null, 2));
 
     return {
       success: true,
@@ -46,19 +82,27 @@ export const submitEZForm = async (submission: EZFormSubmission): Promise<EZForm
       data: response.data,
     };
   } catch (error: unknown) {
-    console.error('EZForms submission error:', error);
+    console.error('##Rohit_Rocks## EZForms submission error:', error);
 
     let errorMessage = 'Failed to submit form';
 
     if (axios.isAxiosError(error)) {
       if (error.response) {
         // Server responded with error status
+        console.error('##Rohit_Rocks## Server Error Response:', {
+          status: error.response.status,
+          statusText: error.response.statusText,
+          data: error.response.data,
+          headers: error.response.headers
+        });
         errorMessage = error.response.data?.message || `Server error: ${error.response.status}`;
       } else if (error.request) {
         // Request was made but no response received
+        console.error('##Rohit_Rocks## Network Error - No Response:', error.request);
         errorMessage = 'Network error - please check your connection';
       }
     } else if (error instanceof Error) {
+      console.error('##Rohit_Rocks## General Error:', error.message);
       errorMessage = error.message;
     }
 

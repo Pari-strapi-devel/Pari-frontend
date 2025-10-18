@@ -10,21 +10,17 @@ import { LanguageToggle } from '@/components/layout/header/LanguageToggle'
 
 interface Author {
   id: number
-  attributes: {
-    author_name: {
-      data: {
-        attributes: {
-          Name: string
-        }
+  AuthorName: string
+  AuthorDesignation: string
+  AuthorImage: {
+    data: Array<{
+      id: number
+      attributes: {
+        url: string
+        name: string
+        alternativeText: string | null
       }
-    }
-    author_role: {
-      data: {
-        attributes: {
-          Name: string
-        }
-      }
-    }
+    }>
   }
 }
 
@@ -41,6 +37,7 @@ interface ExtendedContentItem extends Record<string, unknown> {
   Text?: string;
   text?: string;
   content?: string;
+  Paragraph?: string;
   attributes?: {
     text?: string;
   } | string;
@@ -59,33 +56,13 @@ interface ArticleData {
   id: number
   attributes: {
     Title: string
-    strap: string
-    Original_published_date: string
-    slug: string
+    Strap: string | null
+    createdAt: string
+    updatedAt: string
+    publishedAt: string
     locale: string
-    Cover_image?: {
-      data: {
-        attributes: {
-          url: string
-        }
-      }
-    }
-    Authors: {
-      data: Author[]
-    }
+    Author: Author | null
     Modular_Content: ModularContentItem[]
-  }
-}
-
-interface ApiResponse {
-  data: ArticleData[]
-  meta: {
-    pagination: {
-      page: number
-      pageSize: number
-      pageCount: number
-      total: number
-    }
   }
 }
 
@@ -107,83 +84,60 @@ function LanguageUniverseContent() {
       setIsLoading(true)
       setError(null)
 
-      // Build query for Strapi to fetch the language universe article
-      // First try with specific locale
+      // Language Universe page IDs mapping
+      const pageIdMap: Record<string, number> = {
+        'en': 1,
+        'hi': 15,
+        'bn': 16,
+        'mr': 17,
+        'or': 18,
+        'ur': 19
+      }
+
+      // Get the page ID for current locale, fallback to English
+      const pageId = pageIdMap[currentLocale] || pageIdMap['en']
+
+      // Build query for Strapi to fetch the specific language universe page
       const query = {
-        filters: {
-          slug: {
-            $eq: 'pari-s-language-universe' // Assuming this is the slug for the language universe article
-          }
-        },
         populate: {
-          Cover_image: {
-            fields: ['url']
-          },
-          Authors: {
+          Author: {
             populate: {
-              author_name: {
-                fields: ['Name']
-              },
-              author_role: {
-                fields: ['Name']
+              AuthorImage: {
+                fields: ['url', 'name', 'alternativeText']
               }
             }
           },
           Modular_Content: true,
           localizations: {
-            fields: ['locale', 'Title', 'slug']
-          }
-        },
-        locale: currentLocale
-      }
-
-      // Try fetching all locales first to see what's available
-      const allLocalesQuery = {
-        ...query,
-        locale: 'all'
-      }
-
-      const allLocalesQueryString = qs.stringify(allLocalesQuery, { encodeValuesOnly: true })
-      const allLocalesApiUrl = `${BASE_URL}api/articles?${allLocalesQueryString}`
-
-      console.log('Current Locale:', currentLocale)
-      console.log('Fetching all locales first:', allLocalesApiUrl)
-
-      const allLocalesResponse = await axios.get<ApiResponse>(allLocalesApiUrl)
-      console.log('All locales response:', allLocalesResponse.data)
-
-      if (allLocalesResponse.data.data && allLocalesResponse.data.data.length > 0) {
-        // Find article in current locale
-        const currentLocaleArticle = allLocalesResponse.data.data.find(
-          (article: ArticleData) => article.attributes.locale === currentLocale
-        )
-
-        if (currentLocaleArticle) {
-          console.log('Found article for locale', currentLocale)
-          console.log('Article title:', currentLocaleArticle.attributes.Title)
-          setArticle(currentLocaleArticle)
-        } else {
-          // Fallback to English
-          const englishArticle = allLocalesResponse.data.data.find(
-            (article: ArticleData) => article.attributes.locale === 'en'
-          )
-
-          if (englishArticle) {
-            console.log('Using English fallback article')
-            console.log('English article title:', englishArticle.attributes.Title)
-            setArticle(englishArticle)
-          } else {
-            // Use first available article
-            console.log('Using first available article')
-            setArticle(allLocalesResponse.data.data[0])
+            fields: ['locale', 'Title', 'id']
           }
         }
+      }
+
+      const queryString = qs.stringify(query, { encodeValuesOnly: true })
+      const apiUrl = `${BASE_URL}api/pages/${pageId}?${queryString}`
+
+      console.log('##Rohit_Rocks## Current Locale:', currentLocale)
+      console.log('##Rohit_Rocks## Page ID:', pageId)
+      console.log('##Rohit_Rocks## Fetching from pages API:', apiUrl)
+
+      const response = await axios.get(apiUrl)
+      console.log('##Rohit_Rocks## Pages API response:', response.data)
+
+      if (response.data.data) {
+        const pageData = {
+          id: response.data.data.id,
+          attributes: response.data.data.attributes
+        }
+        console.log('##Rohit_Rocks## Page title:', pageData.attributes.Title)
+        console.log('##Rohit_Rocks## Page locale:', pageData.attributes.locale)
+        setArticle(pageData)
       } else {
-        console.log('No articles found at all')
-        setError('Language Universe article not found')
+        console.log('##Rohit_Rocks## No page found')
+        setError('Language Universe page not found')
       }
     } catch (error) {
-      console.error('Error fetching language universe article:', error)
+      console.error('##Rohit_Rocks## Error fetching language universe page:', error)
       setError('Failed to load Language Universe content')
     } finally {
       setIsLoading(false)
@@ -194,17 +148,7 @@ function LanguageUniverseContent() {
     fetchLanguageUniverseArticle()
   }, [fetchLanguageUniverseArticle])
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString)
-    // Use current locale for date formatting
-    return date.toLocaleDateString(currentLocale === 'en' ? 'en-US' : currentLocale, {
-      weekday: 'short',
-      year: 'numeric',
-      month: 'short',
-      day: '2-digit'
-    }).toUpperCase()
-  }
-
+  
   const stripHtmlCssWithStyledStrong = (html: string): string => {
     return html
       .replace(/<style[^>]*>.*?<\/style>/gi, '')
@@ -216,17 +160,17 @@ function LanguageUniverseContent() {
   }
 
   const renderModularContent = (content: ModularContentItem[]) => {
-    console.log('Rendering modular content:', content)
+    console.log('##Rohit_Rocks## Rendering modular content:', content)
 
     return content.map((item, index) => {
-      console.log(`Item ${index}:`, item)
+      console.log(`##Rohit_Rocks## Item ${index}:`, item)
 
       // Handle string content
       if (typeof item === 'string') {
         return (
           <div key={index} className="">
             <p
-              className="text-gray-800 dark:text-gray-200 leading-relaxed"
+              className="text-discreet-text leading-relaxed"
               style={{
                 fontFamily: 'Noto Sans',
                 fontWeight: 400,
@@ -247,7 +191,9 @@ function LanguageUniverseContent() {
           switch (item.__component) {
             case 'shared.rich-text':
             case 'modular-content.text':
-              const content = item.content || item.text || item.Text || ''
+            case 'modular-content.paragraph':
+              const extendedItem = item as ExtendedContentItem
+              const content = extendedItem.Paragraph || extendedItem.content || extendedItem.text || extendedItem.Text || ''
               // Add CSS to style paragraphs with proper spacing
               const styledContent = `
                 <style>
@@ -265,7 +211,7 @@ function LanguageUniverseContent() {
               return (
                 <div key={index} className="mb-6">
                   <div
-                    className="text-gray-800 dark:text-gray-200"
+                    className="text-discreet-text"
                     style={{
                       fontFamily: 'Noto Sans',
                       fontWeight: 400,
@@ -294,7 +240,7 @@ function LanguageUniverseContent() {
               }
               return null
             default:
-              console.log('Unknown component type:', item.__component)
+              console.log('##Rohit_Rocks## Unknown component type:', item.__component)
               return null
           }
         }
@@ -305,13 +251,13 @@ function LanguageUniverseContent() {
             return (
               <div key={index} className="mb-6">
                 <p
-                  className="text-gray-800 dark:text-gray-200 leading-relaxed"
+                  className="text-discreet-text leading-relaxed"
                   style={{
                     fontFamily: 'Noto Sans',
-                    fontWeight: 500,
+                    fontWeight: 400,
                     fontSize: '15px',
-                    lineHeight: '180%',
-                    letterSpacing: '-2%'
+                    lineHeight: '170%',
+                    letterSpacing: '-3%'
                   }}
                   dangerouslySetInnerHTML={{ __html: stripHtmlCssWithStyledStrong(item.attributes.text) }}
                 />
@@ -322,18 +268,18 @@ function LanguageUniverseContent() {
 
         // Handle direct text properties
         const extendedItem = item as ExtendedContentItem
-        const textContent = extendedItem.text || extendedItem.Text || extendedItem.content || ''
+        const textContent = extendedItem.Paragraph || extendedItem.text || extendedItem.Text || extendedItem.content || ''
         if (textContent) {
           return (
             <div key={index} className="mb-6">
               <p
-                className="text-gray-800 dark:text-gray-200 leading-relaxed"
+                className="text-discreet-text leading-relaxed"
                 style={{
                   fontFamily: 'Noto Sans',
-                  fontWeight: 500,
+                  fontWeight: 400,
                   fontSize: '15px',
-                  lineHeight: '180%',
-                  letterSpacing: '-2%'
+                  lineHeight: '170%',
+                  letterSpacing: '-3%'
                 }}
                 dangerouslySetInnerHTML={{ __html: stripHtmlCssWithStyledStrong(textContent) }}
               />
@@ -374,25 +320,27 @@ function LanguageUniverseContent() {
   }
 
   const { attributes } = article
-  const authors = attributes.Authors?.data || []
+  const author = attributes.Author
 
   // Debug logging
-  console.log('Article attributes:', attributes)
-  console.log('Strap:', attributes.strap)
-  console.log('Authors data:', attributes.Authors)
-  console.log('Processed authors:', authors)
+  console.log('##Rohit_Rocks## Page attributes:', attributes)
+  console.log('##Rohit_Rocks## Strap:', attributes.Strap)
+  console.log('##Rohit_Rocks## Author data:', attributes.Author)
+
+  // Get author image URL
+  const authorImageUrl = author?.AuthorImage?.data?.[0]?.attributes?.url
+    ? `${IMAGE_URL}${author.AuthorImage.data[0].attributes.url}`
+    : '/images/P-Sainath.png'
 
   return (
     <div className="min-h-screen bg-white dark:bg-background" dir={textDirection}>
       <div className="container mx-auto px-6 py-12 max-w-3xl">
         {/* Date */}
-        <p className="text-[15px] text-grey-300 font-semibold font-noto-sans  mb-4 uppercase tracking-wide">
-          {formatDate(attributes.Original_published_date)}
-        </p>
+       
 
         {/* Title */}
         <h1
-          className="text-black dark:text-white mb-3"
+          className="text-foreground mb-3"
           style={{
             fontFamily: 'Noto Sans',
             fontWeight: 700,
@@ -405,53 +353,63 @@ function LanguageUniverseContent() {
         </h1>
 
         {/* Subtitle/Strap */}
-        <h2 className="text-2xl md:text-3xl text-gray-700 dark:text-gray-300 mb-8 font-medium leading-relaxed">
-          {attributes.strap || 'Many worlds, myriad tongues'}
-        </h2>
+        {attributes.Strap && (
+          <h2 className="text-discreet-text mb-8" style={{
+            fontFamily: 'Noto Sans',
+            fontWeight: 500,
+            fontSize: '28px',
+            lineHeight: '130%',
+            letterSpacing: '-5%'
+          }}>
+            {attributes.Strap}
+          </h2>
+        )}
 
         {/* Author Section */}
-        <div className="mb-12">
-          <div className="flex items-center gap-4 mb-8">
-            <div className="w-16 h-16 rounded-full overflow-hidden">
-              <Image
-                src="/images/P-Sainath.png"
-                alt="P Sainath"
-                width={64}
-                height={64}
-                className="w-full h-full object-cover"
-              />
+        {author && (
+          <div className="mb-12">
+            <div className="flex items-center gap-4 mb-8">
+              <div className="w-16 h-16 rounded-full overflow-hidden">
+                <Image
+                  src={authorImageUrl}
+                  alt={author.AuthorName || 'Author'}
+                  width={64}
+                  height={64}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div>
+                <p className="text-foreground" style={{
+                  fontFamily: 'Noto Sans',
+                  fontWeight: 500,
+                  fontSize: '18px',
+                  lineHeight: '140%',
+                  letterSpacing: '-4%'
+                }}>
+                  {author.AuthorName}
+                </p>
+                <p className="text-discreet-text" style={{
+                  fontFamily: 'Noto Sans',
+                  fontWeight: 400,
+                  fontSize: '14px',
+                  lineHeight: '170%',
+                  letterSpacing: '-3%'
+                }}>
+                  {author.AuthorDesignation}
+                </p>
+              </div>
             </div>
-            <div>
-              <p className="font-semibold text-black dark:text-white text-lg">
-                {authors.length > 0 ? authors[0].attributes.author_name?.data?.attributes?.Name : 'P Sainath'}
-              </p>
-              <p className="text-gray-600 dark:text-gray-400">
-                {authors.length > 0 ? authors[0].attributes.author_role?.data?.attributes?.Name : 'Founding Editor, PARI'}
-              </p>
-            </div>
+            {/* Separator line */}
+            <hr className="border-border dark:border-borderline" />
           </div>
-          {/* Separator line */}
-          <hr className="border-gray-200 dark:border-[#363636]" />
-        </div>
+        )}
 
         {/* Content */}
         <article className="max-w-none mt-8 space-y-2">
           {attributes.Modular_Content && renderModularContent(attributes.Modular_Content)}
         </article>
 
-        {/* Footer */}
-        <footer className="">
-          <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
-            Want to republish this article? Please write to{' '}
-            <a href="mailto:zahra@ruralindiaonline.org" className="text-primary-PARI-Red hover:underline">
-              zahra@ruralindiaonline.org
-            </a>{' '}
-            with a cc to{' '}
-            <a href="mailto:namita@ruralindiaonline.org" className="text-primary-PARI-Red hover:underline">
-              namita@ruralindiaonline.org
-            </a>
-          </p>
-        </footer>
+        
       </div>
 
       {/* Language Toggle */}

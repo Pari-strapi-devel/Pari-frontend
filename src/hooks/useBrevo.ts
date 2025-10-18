@@ -5,6 +5,8 @@ import {
   addContactFormSubmission,
   addInternApplication,
   addVolunteerApplication,
+  addDonationSubmission,
+  addContributeSubmission,
   sendBrevoEmail,
   isBrevoConfigured,
   type BrevoContact,
@@ -20,10 +22,12 @@ export interface UseBrevoState {
 
 export interface UseBrevoActions {
   addContact: (contact: BrevoContact) => Promise<BrevoResponse>;
-  subscribeNewsletter: (email: string, name?: string) => Promise<BrevoResponse>;
+  subscribeNewsletter: (email: string, name?: string, phone?: string, country?: string, state?: string, district?: string, language?: string) => Promise<BrevoResponse>;
   submitContactForm: (email: string, name: string, phone?: string, message?: string) => Promise<BrevoResponse>;
   submitInternForm: (email: string, fullName: string, phone?: string, collegeName?: string, course?: string) => Promise<BrevoResponse>;
   submitVolunteerForm: (email: string, fullName: string, phone?: string, skills?: string) => Promise<BrevoResponse>;
+  submitDonationForm: (email: string, fullName: string, phone?: string, amount?: string, donationType?: string) => Promise<BrevoResponse>;
+  submitContributeForm: (email: string, fullName: string, phone?: string, organization?: string) => Promise<BrevoResponse>;
   sendEmail: (emailData: BrevoEmailTemplate) => Promise<BrevoResponse>;
   reset: () => void;
   isConfigured: boolean;
@@ -112,8 +116,16 @@ export const useBrevo = (): UseBrevoReturn => {
     return executeBrevoAction(() => addBrevoContact(contact));
   }, [executeBrevoAction]);
 
-  const subscribeNewsletter = useCallback(async (email: string, name?: string): Promise<BrevoResponse> => {
-    return executeBrevoAction(() => subscribeToNewsletter(email, name));
+  const subscribeNewsletter = useCallback(async (
+    email: string,
+    name?: string,
+    phone?: string,
+    country?: string,
+    state?: string,
+    district?: string,
+    language?: string
+  ): Promise<BrevoResponse> => {
+    return executeBrevoAction(() => subscribeToNewsletter(email, name, phone, country, state, district, language));
   }, [executeBrevoAction]);
 
   const submitContactForm = useCallback(async (
@@ -144,6 +156,25 @@ export const useBrevo = (): UseBrevoReturn => {
     return executeBrevoAction(() => addVolunteerApplication(email, fullName, phone, skills));
   }, [executeBrevoAction]);
 
+  const submitDonationForm = useCallback(async (
+    email: string,
+    fullName: string,
+    phone?: string,
+    amount?: string,
+    donationType?: string
+  ): Promise<BrevoResponse> => {
+    return executeBrevoAction(() => addDonationSubmission(email, fullName, phone, amount, donationType));
+  }, [executeBrevoAction]);
+
+  const submitContributeForm = useCallback(async (
+    email: string,
+    fullName: string,
+    phone?: string,
+    organization?: string
+  ): Promise<BrevoResponse> => {
+    return executeBrevoAction(() => addContributeSubmission(email, fullName, phone, organization));
+  }, [executeBrevoAction]);
+
   const sendEmail = useCallback(async (emailData: BrevoEmailTemplate): Promise<BrevoResponse> => {
     return executeBrevoAction(() => sendBrevoEmail(emailData));
   }, [executeBrevoAction]);
@@ -160,6 +191,8 @@ export const useBrevo = (): UseBrevoReturn => {
     submitContactForm,
     submitInternForm,
     submitVolunteerForm,
+    submitDonationForm,
+    submitContributeForm,
     sendEmail,
     reset,
     
@@ -174,8 +207,16 @@ export const useBrevo = (): UseBrevoReturn => {
 export const useNewsletterSubscription = () => {
   const { subscribeNewsletter, isLoading, isSuccess, error, reset } = useBrevo();
 
-  const subscribe = useCallback(async (email: string, name?: string) => {
-    const result = await subscribeNewsletter(email, name);
+  const subscribe = useCallback(async (
+    email: string,
+    name?: string,
+    phone?: string,
+    country?: string,
+    state?: string,
+    district?: string,
+    language?: string
+  ) => {
+    const result = await subscribeNewsletter(email, name, phone, country, state, district, language);
     return result;
   }, [subscribeNewsletter]);
 
@@ -257,6 +298,46 @@ export const useVolunteerBrevo = () => {
 
   return {
     submitApplication,
+    isLoading,
+    isSuccess,
+    error,
+    reset,
+  };
+};
+
+/**
+ * Hook specifically for donation forms
+ */
+export const useDonationBrevo = () => {
+  const { submitDonationForm, isLoading, isSuccess, error, reset } = useBrevo();
+
+  const submitForm = useCallback(async (email: string, fullName: string, phone?: string, amount?: string, donationType?: string) => {
+    const result = await submitDonationForm(email, fullName, phone, amount, donationType);
+    return result;
+  }, [submitDonationForm]);
+
+  return {
+    submitForm,
+    isLoading,
+    isSuccess,
+    error,
+    reset,
+  };
+};
+
+/**
+ * Hook specifically for contribute forms
+ */
+export const useContributeBrevo = () => {
+  const { submitContributeForm, isLoading, isSuccess, error, reset } = useBrevo();
+
+  const submitForm = useCallback(async (email: string, fullName: string, phone?: string, organization?: string) => {
+    const result = await submitContributeForm(email, fullName, phone, organization);
+    return result;
+  }, [submitContributeForm]);
+
+  return {
+    submitForm,
     isLoading,
     isSuccess,
     error,

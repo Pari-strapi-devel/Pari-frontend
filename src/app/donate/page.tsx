@@ -1,9 +1,10 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { Button } from '@/components/ui/button'
+import { useState, useEffect, useCallback, Suspense } from 'react'
 import { FiUser, FiMail, FiPhone, FiMapPin, FiCreditCard, FiCheck, FiCopy } from 'react-icons/fi'
-import { cn } from '@/lib/utils'
+import axios from 'axios'
+import { useDonationBrevo } from '@/hooks/useBrevo'
+import { LanguageToggle } from '@/components/layout/header/LanguageToggle'
 
 // Razorpay types
 interface RazorpayResponse {
@@ -96,68 +97,307 @@ interface DonationFormData {
   phone: string
   panNumber: string
   address: string
+  city: string
+  state: string
+  pincode: string
   amount: string
   customAmount: string
   donationType: 'monthly' | 'yearly' | 'one-time'
-  paymentMethod: 'online' | 'cheque' | 'bank-transfer' | 'upi'
+  paymentMethod: 'online' | 'cheque' | 'bank-transfer' | 'upi' | ''
   isIndianCitizen: boolean
+  agreeToTerms: boolean
+}
+
+interface SubmissionData {
+  firstName: string
+  lastName: string
+  email: string
+  phone: string
+  panNumber: string
+  addressLine1: string
+  addressLine2: string
+  country: string
+  city: string
+  state: string
+  pincode: string
+  isIndianCitizen: boolean
+  paymentMethod: string
+  donationMethods: string
+  donationType: string
+  amount: string
+  referenceId: string
+  agreeToTerms: boolean
+}
+
+interface FAQ {
+  id: number
+  Question: string
+  Answer: string
+}
+
+interface DonatePageData {
+  id: number
+  attributes: {
+    firstName: string
+    lastName: string
+    email: string
+    phone: string
+    addressLine1: string
+    addressLine2: string
+    city: string
+    state: string
+    pincode: string
+    isCitizen: boolean | null
+    donationMethods: string | null
+  }
+}
+
+interface PageContentData {
+  id: number
+  attributes: {
+    PageTitle?: string
+    Strap?: string
+    VideoURL: string
+    Content: string
+    FAQs: FAQ[]
+  }
+}
+
+// Location data interfaces (India only)
+interface State {
+  id: number
+  name: string
+  iso2: string
+}
+
+interface District {
+  id: number
+  name: string
 }
 
 const RAZORPAY_KEY = 'rzp_live_u0qTE80ANbAWR6'
 
-export default function DonatePage() {
+// Fallback Indian states data
+const fallbackIndianStates: State[] = [
+  { id: 1, name: 'Andhra Pradesh', iso2: 'AP' },
+  { id: 2, name: 'Arunachal Pradesh', iso2: 'AR' },
+  { id: 3, name: 'Assam', iso2: 'AS' },
+  { id: 4, name: 'Bihar', iso2: 'BR' },
+  { id: 5, name: 'Chhattisgarh', iso2: 'CT' },
+  { id: 6, name: 'Goa', iso2: 'GA' },
+  { id: 7, name: 'Gujarat', iso2: 'GJ' },
+  { id: 8, name: 'Haryana', iso2: 'HR' },
+  { id: 9, name: 'Himachal Pradesh', iso2: 'HP' },
+  { id: 10, name: 'Jammu and Kashmir', iso2: 'JK' },
+  { id: 11, name: 'Jharkhand', iso2: 'JH' },
+  { id: 12, name: 'Karnataka', iso2: 'KA' },
+  { id: 13, name: 'Kerala', iso2: 'KL' },
+  { id: 14, name: 'Madhya Pradesh', iso2: 'MP' },
+  { id: 15, name: 'Maharashtra', iso2: 'MH' },
+  { id: 16, name: 'Manipur', iso2: 'MN' },
+  { id: 17, name: 'Meghalaya', iso2: 'ML' },
+  { id: 18, name: 'Mizoram', iso2: 'MZ' },
+  { id: 19, name: 'Nagaland', iso2: 'NL' },
+  { id: 20, name: 'Odisha', iso2: 'OR' },
+  { id: 21, name: 'Punjab', iso2: 'PB' },
+  { id: 22, name: 'Rajasthan', iso2: 'RJ' },
+  { id: 23, name: 'Sikkim', iso2: 'SK' },
+  { id: 24, name: 'Tamil Nadu', iso2: 'TN' },
+  { id: 25, name: 'Telangana', iso2: 'TG' },
+  { id: 26, name: 'Tripura', iso2: 'TR' },
+  { id: 27, name: 'Uttar Pradesh', iso2: 'UP' },
+  { id: 28, name: 'Uttarakhand', iso2: 'UT' },
+  { id: 29, name: 'West Bengal', iso2: 'WB' }
+]
+
+function DonatePageContent() {
   const [formData, setFormData] = useState<DonationFormData>({
     fullName: '',
     email: '',
     phone: '',
     panNumber: '',
     address: '',
+    city: '',
+    state: '',
+    pincode: '',
     amount: '500',
     customAmount: '',
     donationType: 'monthly',
-    paymentMethod: 'upi',
-    isIndianCitizen: true
+    paymentMethod: '',
+    isIndianCitizen: true,
+    agreeToTerms: true
   })
 
+  const [apiData, setApiData] = useState<DonatePageData | null>(null)
+  const [pageData, setPageData] = useState<PageContentData | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [showPaymentDetails, setShowPaymentDetails] = useState(false)
   const [referenceId, setReferenceId] = useState('')
   const [copiedField, setCopiedField] = useState<string | null>(null)
 
-  // Load Razorpay script
+  // Location data state (India only)
+  const [states, setStates] = useState<State[]>([])
+  const [districts, setDistricts] = useState<District[]>([])
+  const [loadingStates, setLoadingStates] = useState(false)
+  const [loadingDistricts, setLoadingDistricts] = useState(false)
+
+  // Brevo integration for donation form
+  const { submitForm: submitToBrevo } = useDonationBrevo()
+
+  // Fetch donate page data
+  const fetchDonatePageData = async () => {
+    try {
+      const response = await fetch('https://dev.ruralindiaonline.org/v1/api/donate-page')
+      const result = await response.json()
+      console.log('##Rohit_Rocks## Donate page data:', result)
+      setApiData(result.data)
+    } catch (error) {
+      console.error('##Rohit_Rocks## Error fetching donate page data:', error)
+    }
+  }
+
+  // Fetch page content data with all sections
+  const fetchPageContentData = async () => {
+    try {
+      const response = await fetch('https://dev.ruralindiaonline.org/v1/api/page-donate?populate=*')
+      const result = await response.json()
+      console.log('##Rohit_Rocks## Page content data with all sections:', result)
+      setPageData(result.data)
+    } catch (error) {
+      console.error('##Rohit_Rocks## Error fetching page content data:', error)
+    }
+  }
+
+  // Fetch Indian states data
+  const fetchIndianStates = useCallback(async () => {
+    console.log('##Rohit_Rocks## Starting to fetch Indian states...')
+    setLoadingStates(true)
+    setStates([])
+    setDistricts([])
+
+    try {
+      const response = await axios.get('https://api.countrystatecity.in/v1/countries/IN/states', {
+        headers: {
+          'X-CSCAPI-KEY': 'NHhvOEcyWk50N2Vna3VFTE00bFp3MjFKR0ZEOUhkZlg4RTk1MlJlaA=='
+        }
+      })
+
+      console.log('##Rohit_Rocks## States API Response:', response.data)
+
+      if (response.data && response.data.length > 0) {
+        const stateData = response.data.map((state: { id: number, name: string, iso2: string }) => ({
+          id: state.id,
+          name: state.name,
+          iso2: state.iso2
+        })).sort((a: State, b: State) => a.name.localeCompare(b.name))
+
+        console.log('##Rohit_Rocks## Processed state data:', stateData)
+        setStates(stateData)
+      } else {
+        console.log('##Rohit_Rocks## No states data received, using fallback')
+        setStates(fallbackIndianStates)
+      }
+    } catch (error) {
+      console.error('##Rohit_Rocks## Error fetching Indian states, using fallback:', error)
+      setStates(fallbackIndianStates)
+    } finally {
+      setLoadingStates(false)
+    }
+  }, [])
+
+  // Fetch districts/cities data
+  const fetchDistricts = async (countryCode: string, stateCode: string) => {
+    console.log('##Rohit_Rocks## Fetching districts for:', countryCode, stateCode)
+    setLoadingDistricts(true)
+    setDistricts([])
+
+    try {
+      const response = await axios.get(`https://api.countrystatecity.in/v1/countries/${countryCode}/states/${stateCode}/cities`, {
+        headers: {
+          'X-CSCAPI-KEY': 'NHhvOEcyWk50N2Vna3VFTE00bFp3MjFKR0ZEOUhkZlg4RTk1MlJlaA=='
+        }
+      })
+
+      console.log('##Rohit_Rocks## Districts API Response:', response.data)
+
+      if (response.data && response.data.length > 0) {
+        const cityData = response.data.map((city: { id: number, name: string }, index: number) => ({
+          id: city.id || index + 1,
+          name: city.name
+        })).sort((a: District, b: District) => a.name.localeCompare(b.name))
+
+        console.log('##Rohit_Rocks## Processed city data:', cityData)
+        setDistricts(cityData)
+      } else {
+        console.log('##Rohit_Rocks## No cities data received')
+      }
+    } catch (error) {
+      console.error('##Rohit_Rocks## Error fetching districts:', error)
+    } finally {
+      setLoadingDistricts(false)
+    }
+  }
+
+  // Since we're only dealing with India, we don't need this helper function anymore
+  // All states and cities will be for India only
+
+  // Load Razorpay script and fetch data
   useEffect(() => {
     const script = document.createElement('script')
     script.src = 'https://checkout.razorpay.com/v1/checkout.js'
     script.async = true
     document.body.appendChild(script)
 
+    // Fetch donate page data
+    fetchDonatePageData()
+
+    // Fetch page content data
+    fetchPageContentData()
+
+    // Fetch Indian states data
+    fetchIndianStates()
+
     return () => {
       document.body.removeChild(script)
     }
-  }, [])
+  }, [fetchIndianStates])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target
-    
+
     if (type === 'checkbox') {
       const checked = (e.target as HTMLInputElement).checked
       setFormData(prev => ({ ...prev, [name]: checked }))
     } else {
-      setFormData(prev => ({ ...prev, [name]: value }))
+      // Handle location changes for India
+      if (name === 'state') {
+        setFormData(prev => ({
+          ...prev,
+          [name]: value,
+          city: '' // Reset city when state changes
+        }))
+
+        setDistricts([])
+
+        // Fetch districts if state is selected (India only)
+        if (value) {
+          const selectedState = states.find(s => s.iso2 === value)
+          if (selectedState) {
+            fetchDistricts('IN', value) // Always use 'IN' for India
+          }
+        }
+      } else {
+        setFormData(prev => ({ ...prev, [name]: value }))
+      }
     }
   }
 
-  const handleAmountSelect = (amount: string) => {
-    setFormData(prev => ({ ...prev, amount, customAmount: '' }))
-  }
 
-  const handleCustomAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value
-    setFormData(prev => ({ ...prev, customAmount: value, amount: value ? 'custom' : '500' }))
-  }
 
   const getSelectedAmount = () => {
-    return formData.amount === 'custom' ? formData.customAmount : formData.amount
+    const amount = formData.amount || '500' // Default to 500 if no amount is set
+    console.log('##Rohit_Rocks## getSelectedAmount:', amount)
+    return amount
   }
 
   const generateReferenceId = () => {
@@ -213,7 +453,9 @@ export default function DonatePage() {
       image: 'https://ruralindiaonline.org/favicon.ico',
       handler: function (response: RazorpayResponse) {
         console.log('Payment successful:', response)
-        alert('Payment successful! Thank you for your donation.')
+        console.log('##Rohit_Rocks## Payment successful! Thank you for your donation.')
+        setShowPaymentDetails(true)
+        setReferenceId(response.razorpay_payment_id)
         setIsLoading(false)
         // Here you would typically send the payment details to your backend
       },
@@ -272,12 +514,55 @@ console.log('Razorpay options:', options)
     rzp.open()
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Submit form data to API
+  const submitFormData = async (formDataToSubmit: SubmissionData) => {
+    try {
+      console.log('##Rohit_Rocks## Submitting form data:', formDataToSubmit)
+
+      const response = await fetch('https://dev.ruralindiaonline.org/v1/api/donate-submits', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          data: formDataToSubmit
+        })
+      })
+
+      const result = await response.json()
+      console.log('##Rohit_Rocks## API Response:', result)
+
+      if (response.ok) {
+        console.log('##Rohit_Rocks## Form submitted successfully')
+        // Don't reset form here, let the payment details show first
+        // Form will be reset when user goes back to form
+      } else {
+        throw new Error(result.message || 'Failed to submit form')
+      }
+    } catch (error) {
+      console.error('##Rohit_Rocks## Error submitting form:', error)
+      alert('Error submitting form. Please try again.')
+    }
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
 
+    console.log('##Rohit_Rocks## Form submission started')
+    console.log('##Rohit_Rocks## Form data:', formData)
+    console.log('##Rohit_Rocks## Payment method at submission:', formData.paymentMethod)
+
+    // Validate terms of service agreement
+    if (!formData.agreeToTerms) {
+      alert('You must agree to PARI\'s terms of service to proceed with your donation')
+      setIsLoading(false)
+      return
+    }
+
     // Validate form data
-    if (!formData.fullName || !formData.email || !formData.phone || !formData.panNumber || !formData.address) {
+    if (!formData.fullName || !formData.email || !formData.phone || !formData.panNumber || !formData.address || !formData.state || !formData.city || !formData.pincode || !formData.paymentMethod) {
+      console.log('##Rohit_Rocks## Validation failed - missing required fields')
       alert('Please fill in all required fields')
       setIsLoading(false)
       return
@@ -298,313 +583,556 @@ console.log('Razorpay options:', options)
       return
     }
 
-    // Generate reference ID for non-online payments
-    if (formData.paymentMethod !== 'online') {
-      const refId = generateReferenceId()
-      setReferenceId(refId)
-      setShowPaymentDetails(true)
-      setIsLoading(false)
-      return
+    // Prepare form data for API submission
+    const [firstName, ...lastNameParts] = formData.fullName.split(' ')
+    const lastName = lastNameParts.join(' ')
+    const [addressLine1, addressLine2] = formData.address.split('\n')
+
+    // Get full names for state and city
+    const selectedState = states.find(s => s.iso2 === formData.state)
+
+    console.log('##Rohit_Rocks## Payment method value:', formData.paymentMethod)
+
+    const submissionData: SubmissionData = {
+      firstName: firstName || '',
+      lastName: lastName || '',
+      email: formData.email,
+      phone: formData.phone,
+      panNumber: formData.panNumber,
+      addressLine1: addressLine1 || '',
+      addressLine2: addressLine2 || '',
+      country: 'India', // Always India for this form
+      city: formData.city,
+      state: selectedState?.name || formData.state,
+      pincode: formData.pincode,
+      isIndianCitizen: formData.isIndianCitizen,
+      paymentMethod: formData.paymentMethod,
+      donationMethods: formData.paymentMethod, // Same as paymentMethod for API compatibility
+      donationType: formData.donationType,
+      amount: amount,
+      referenceId: generateReferenceId(),
+      agreeToTerms: formData.agreeToTerms
     }
 
-    // Handle online payment with Razorpay
-    if (window.Razorpay) {
+    console.log('##Rohit_Rocks## Submission data:', submissionData)
+
+    try {
+      // Submit form data to API
+      await submitFormData(submissionData)
+
+      // Also submit to Brevo for email automation
       try {
-        handleRazorpayPayment()
-      } catch (error) {
-        console.error('Error initializing payment:', error)
-        alert('Error initializing payment. Please try again.')
+        console.log('##Rohit_Rocks## Submitting to Brevo for donation tracking')
+        await submitToBrevo(
+          formData.email,
+          formData.fullName,
+          formData.phone || undefined,
+          amount,
+          formData.donationType
+        )
+        console.log('##Rohit_Rocks## Brevo donation submission successful')
+      } catch (brevoError) {
+        console.error('##Rohit_Rocks## Brevo donation submission error:', brevoError)
+        // Don't fail the whole process if Brevo fails
+      }
+
+      // Show payment details for non-online payments
+      if (formData.paymentMethod === 'bank-transfer' || formData.paymentMethod === 'cheque') {
+        const refId = generateReferenceId()
+        setReferenceId(refId)
+        setShowPaymentDetails(true)
+        setIsLoading(false)
+        return
+      }
+
+      // Handle online payment with Razorpay
+      if (window.Razorpay) {
+        try {
+          handleRazorpayPayment()
+        } catch (error) {
+          console.error('Error initializing payment:', error)
+          alert('Error initializing payment. Please try again.')
+          setIsLoading(false)
+        }
+      } else {
+        alert('Payment gateway is not available. Please try again later.')
         setIsLoading(false)
       }
-    } else {
-      alert('Payment gateway is not available. Please try again later.')
+    } catch (error) {
+      console.error('##Rohit_Rocks## Error in form submission:', error)
       setIsLoading(false)
     }
   }
 
-  const predefinedAmounts = ['500', '1000', '2000']
-
   return (
     <div className="min-h-screen bg-background dark:bg-background">
-      <div className="max-w-6xl mx-auto px-4 py-8">
-        {/* Header */}
-        <div className=" mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-6" style={{
-            fontFamily: 'Noto Sans',
-            fontWeight: 700,
-            fontSize: '49px',
-            lineHeight: '112%',
-            letterSpacing: '-4%'
-          }}>
-            Donate to PARI
-          </h1>
-          <div className="max-w-4xl  text-foreground" style={{
-            fontFamily: 'Noto Sans',
-            fontWeight: 400,
-            fontSize: '15px',
-            lineHeight: '170%',
-            letterSpacing: '-3%'
-          }}>
-            <p>
-              We can do this without governments – and will. We can&apos;t do it without you.
-            </p>
-            <p>
-              India is bigger than New Delhi. And people need to know more about the rest of this vast nation.
-            </p>
-            <p>
-              PARI exists to change that. We are a non-profit organisation. We publish under creative commons, 
-              and do not charge readers a subscription fee or put-up advertisements. Nothing is behind a paywall 
-              and we are completely free-to-access by anyone.
-            </p>
-          </div>
-        </div>
-      
+      {/* Add floating language button */}
+      <LanguageToggle />
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Form */}
-          <div className="lg:col-span-2">
-            {!showPaymentDetails ? (
-              <form onSubmit={handleSubmit} className="space-y-8">
-                {/* Payment Method Selection */}
-                <div className="bg-card dark:bg-card rounded-lg p-6 border border-border">
-                  <h3 className="text-lg font-semibold text-foreground mb-4" style={{
+      <div className="max-w-7xl mx-auto px-4 py-10 md:py-20">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+          {/* Left Column - Main Content */}
+          <div className="space-y-8">
+            {/* Header */}
+            <div>
+              <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-6" style={{
+                fontFamily: 'Noto Sans',
+                fontWeight: 700,
+                fontSize: '49px',
+                lineHeight: '112%',
+                letterSpacing: '-4%'
+              }}>
+                {pageData?.attributes?.PageTitle || 'Donate to PARI'}
+              </h1>
+              <p className="text-lg text-discreet-text mb-8" style={{
+                fontFamily: 'Noto Sans',
+                fontWeight: 400,
+                fontSize: '18px',
+                lineHeight: '170%',
+                letterSpacing: '-3%'
+              }}>
+                {pageData?.attributes?.Strap || 'We can do this without governments – and will. We can\'t do it without you.'}
+              </p>
+            </div>
+
+            {/* Video or Image */}
+            {pageData?.attributes?.VideoURL ? (
+              <div className="w-full h-64 rounded-lg overflow-hidden">
+                <iframe
+                  src={pageData.attributes.VideoURL.replace('watch?v=', 'embed/')}
+                  className="w-full h-full border-0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  title="PARI Donation Video"
+                />
+              </div>
+            ) : (
+              <div className="w-full h-64 bg-gray-300 rounded-lg flex items-center justify-center">
+                <span className="text-gray-500">Rural India Image</span>
+              </div>
+            )}
+
+            {/* Main Content Text */}
+            <div className="space-y-6">
+              {pageData?.attributes?.Content && (
+                <div
+                  className="text-discreet-text prose prose-p:text-discreet-text"
+                  style={{
                     fontFamily: 'Noto Sans',
-                    fontWeight: 700,
-                    fontSize: '16px',
-                    lineHeight: '130%',
-                    letterSpacing: '-4%'
-                  }}>
-                    Payment Method
-                  </h3>
+                    fontWeight: 400,
+                    fontSize: '15px',
+                    lineHeight: '170%',
+                    letterSpacing: '-3%'
+                  }}
+                  dangerouslySetInnerHTML={{ __html: pageData.attributes.Content }}
+                />
+              )}
+            </div>
+
+            {/* The PARI Fellow Programme Section */}
+          
+
+            {/* FAQs Section */}
+            {pageData?.attributes?.FAQs && pageData.attributes.FAQs.length > 0 && (
+              <div className="space-y-6">
+                <h2 className="text-2xl font-bold text-foreground" style={{
+                  fontFamily: 'Noto Sans',
+                  fontWeight: 700,
+                  fontSize: '24px',
+                  lineHeight: '130%',
+                  letterSpacing: '-4%'
+                }}>
+                  Frequently Asked Questions
+                </h2>
+                <div className="space-y-4">
+                  {pageData.attributes.FAQs.map((faq: FAQ) => (
+                    <div key={faq.id} className="border-b border-border pb-4">
+                      <h3 className="font-semibold text-foreground mb-2" style={{
+                        fontFamily: 'Noto Sans',
+                        fontWeight: 600,
+                        fontSize: '16px',
+                        lineHeight: '130%',
+                        letterSpacing: '-3%'
+                      }}>
+                        {faq.Question}
+                      </h3>
+                      <div
+                        className="text-discreet-text prose prose-p:text-discreet-text prose-a:text-primary-PARI-Red"
+                        style={{
+                          fontFamily: 'Noto Sans',
+                          fontWeight: 400,
+                          fontSize: '15px',
+                          lineHeight: '170%',
+                          letterSpacing: '-3%'
+                        }}
+                        dangerouslySetInnerHTML={{ __html: faq.Answer }}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+
+          </div>
+
+          {/* Right Column - Donation Form */}
+          <div className="space-y-4">
+            <div className="bg-white dark:bg-popover p-8 rounded-2xl border border-gray-300 dark:border-border h-fit sticky top-8 shadow-xl" style={{ boxShadow: '0px 4px 20px 0px rgba(0,0,0,0.1)' }}>
+            <div className="space-y-6">
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-foreground mb-4" style={{
+              fontFamily: 'Noto Sans',
+              fontWeight: 700,
+              fontSize: '24px',
+              lineHeight: '130%',
+              letterSpacing: '-4%'
+            }}>
+              Donate form
+            </h3>
+            <p className="text-gray-600 dark:text-muted-foreground mb-6" style={{
+              fontFamily: 'Noto Sans',
+              fontWeight: 400,
+              fontSize: '14px',
+              lineHeight: '170%',
+              letterSpacing: '-3%'
+            }}>
+              We need your support
+            </p>
+
+            {!showPaymentDetails ? (
+              <div className="space-y-6">
+              <form onSubmit={handleSubmit} className="space-y-4">
+                {/* Name Fields */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="relative">
+                    <FiUser className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primary-PARI-Red h-4 w-4" />
+                    <input
+                      type="text"
+                      name="fullName"
+                      placeholder={apiData?.attributes.firstName || "First"}
+                      value={formData.fullName.split(' ')[0] || ''}
+                      onChange={(e) => {
+                        const lastName = formData.fullName.split(' ').slice(1).join(' ')
+                        setFormData(prev => ({ ...prev, fullName: `${e.target.value} ${lastName}`.trim() }))
+                      }}
+                      required
+                      className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-border rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-transparent outline-none bg-white dark:bg-background text-gray-900 dark:text-foreground placeholder-gray-500 dark:placeholder-muted-foreground text-sm"
+                    />
+                  </div>
+                  <input
+                    type="text"
+                    placeholder={apiData?.attributes.lastName || "Last"}
+                    value={formData.fullName.split(' ').slice(1).join(' ')}
+                    onChange={(e) => {
+                      const firstName = formData.fullName.split(' ')[0] || ''
+                      setFormData(prev => ({ ...prev, fullName: `${firstName} ${e.target.value}`.trim() }))
+                    }}
+                    required
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-border rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-transparent outline-none bg-white dark:bg-background text-gray-900 dark:text-foreground placeholder-gray-500 dark:placeholder-muted-foreground text-sm"
+                  />
+                </div>
+
+                {/* Email and Phone */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="relative">
+                    <FiMail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primary-PARI-Red h-4 w-4" />
+                    <input
+                      type="email"
+                      name="email"
+                      placeholder={apiData?.attributes.email || "Email"}
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      required
+                      className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-border rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-transparent outline-none bg-white dark:bg-background text-gray-900 dark:text-foreground placeholder-gray-500 dark:placeholder-muted-foreground text-sm"
+                    />
+                  </div>
+                  <div className="relative">
+                    <FiPhone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primary-PARI-Red h-4 w-4" />
+                    <input
+                      type="tel"
+                      name="phone"
+                      placeholder={apiData?.attributes.phone || "Phone"}
+                      value={formData.phone}
+                      onChange={handleInputChange}
+                      required
+                      className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-border rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-transparent outline-none bg-white dark:bg-background text-gray-900 dark:text-foreground placeholder-gray-500 dark:placeholder-muted-foreground text-sm"
+                    />
+                  </div>
+                </div>
+
+                {/* PAN Number */}
+                <div className="relative">
+                  <FiCreditCard className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primary-PARI-Red h-4 w-4" />
+                  <input
+                    type="text"
+                    name="panNumber"
+                    placeholder="PAN Number"
+                    value={formData.panNumber}
+                    onChange={handleInputChange}
+                    required
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-border uppercase rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-transparent outline-none bg-white dark:bg-background text-gray-900 dark:text-foreground placeholder-gray-500 dark:placeholder-muted-foreground text-sm"
+                  />
+                </div>
+
+                {/* Address Fields */}
+                <div className="relative">
+                  <FiMapPin className="absolute left-3 top-3 text-primary-PARI-Red h-4 w-4" />
+                  <input
+                    type="text"
+                    placeholder={apiData?.attributes.addressLine1 || "Address Line 1"}
+                    value={formData.address.split('\n')[0] || ''}
+                    onChange={(e) => {
+                      const lines = formData.address.split('\n')
+                      lines[0] = e.target.value
+                      setFormData(prev => ({ ...prev, address: lines.join('\n') }))
+                    }}
+                    required
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-border rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-transparent outline-none bg-white dark:bg-background text-gray-900 dark:text-foreground placeholder-gray-500 dark:placeholder-muted-foreground text-sm"
+                  />
+                </div>
+
+                <div className="relative">
+                  <FiMapPin className="absolute left-3 top-3 text-primary-PARI-Red h-4 w-4" />
+                  <input
+                    type="text"
+                    placeholder={apiData?.attributes.addressLine2 || "Address Line 2"}
+                    value={formData.address.split('\n')[1] || ''}
+                    onChange={(e) => {
+                      const lines = formData.address.split('\n')
+                      lines[1] = e.target.value
+                      setFormData(prev => ({ ...prev, address: lines.join('\n') }))
+                    }}
+                    required
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-border rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-transparent outline-none bg-white dark:bg-background text-gray-900 dark:text-foreground placeholder-gray-500 dark:placeholder-muted-foreground text-sm"
+                  />
+                </div>
+
+                {/* State, City, Pincode */}
+                <div className="grid grid-cols-3 gap-4">
+                  {/* State dropdown */}
+                  <select
+                    name="state"
+                    value={formData.state}
+                    onChange={handleInputChange}
+                    disabled={loadingStates}
+                    required
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-border rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-transparent outline-none bg-white dark:bg-background text-gray-900 dark:text-foreground disabled:opacity-50 appearance-none"
+                    style={{
+                      backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23B82929' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
+                      backgroundRepeat: 'no-repeat',
+                      backgroundPosition: 'right 0.75rem center',
+                      backgroundSize: '20px 20px'
+                    }}
+                  >
+                    <option value="">
+                      {loadingStates ? 'Loading states...' : 'State'}
+                    </option>
+                    {states.map((state) => (
+                      <option key={state.id} value={state.iso2}>
+                        {state.name}
+                      </option>
+                    ))}
+                  </select>
+
+                  {/* City dropdown */}
+                  <select
+                    name="city"
+                    value={formData.city}
+                    onChange={handleInputChange}
+                    disabled={loadingDistricts || !formData.state.trim()}
+                    required
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-border rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-transparent outline-none bg-white dark:bg-background text-gray-900 dark:text-foreground disabled:opacity-50 disabled:cursor-not-allowed appearance-none"
+                    style={{
+                      backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23B82929' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
+                      backgroundRepeat: 'no-repeat',
+                      backgroundPosition: 'right 0.75rem center',
+                      backgroundSize: '20px 20px'
+                    }}
+                  >
+                    <option value="">
+                      {loadingDistricts ? 'Loading cities...' : 'City'}
+                    </option>
+                    {districts.map((district) => (
+                      <option key={district.id} value={district.name}>
+                        {district.name}
+                      </option>
+                    ))}
+                  </select>
+
+                  {/* Pincode */}
+                  <input
+                    type="text"
+                    name="pincode"
+                    placeholder={apiData?.attributes.pincode || "Pincode"}
+                    value={formData.pincode}
+                    onChange={handleInputChange}
+                    required
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-border rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-transparent outline-none bg-white dark:bg-background text-gray-900 dark:text-foreground placeholder-gray-500 dark:placeholder-muted-foreground text-sm"
+                  />
+                </div>
+
+                {/* Citizen Checkbox */}
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="isIndianCitizen"
+                    name="isIndianCitizen"
+                    checked={formData.isIndianCitizen}
+                    onChange={handleInputChange}
+                    required
+                    className="h-4 w-4 accent-primary-PARI-Red focus:ring-2 focus:ring-primary-PARI-Red border-gray-300 dark:border-border rounded"
+                  />
+                  <label htmlFor="isIndianCitizen" className="text-sm text-gray-900 dark:text-foreground">
+                    I am a citizen of India
+                  </label>
+                </div>
+
+                {/* Donation Method */}
+                <div className="space-y-3">
+                  <label className="block text-sm font-medium text-gray-600 dark:text-muted-foreground">
+                    How would you prefer to donate? *
+                  </label>
                   <div className="flex flex-wrap gap-3">
                     {[
                       { value: 'online', label: 'Online' },
-                      { value: 'cheque', label: 'Cheque/DD' },
-                      { value: 'bank-transfer', label: 'Bank Transfer' }
+                      { value: 'bank-transfer', label: 'Bank Transfer' },
+                      { value: 'cheque', label: 'Cheque / DD' }
                     ].map((method) => (
-                      <button
-                        key={method.value}
-                        type="button"
-                        onClick={() => setFormData(prev => ({ ...prev, paymentMethod: method.value as 'online' | 'cheque' | 'bank-transfer' }))}
-                        className={cn(
-                          "px-4 py-2 rounded-lg border transition-colors",
-                          formData.paymentMethod === method.value
-                            ? "bg-primary-PARI-Red text-white border-primary-PARI-Red"
-                            : "bg-background border-border text-foreground hover:border-primary-PARI-Red"
-                        )}
-                      >
-                        {method.label}
-                      </button>
+                      <label key={method.value} className="flex items-center space-x-2 cursor-pointer">
+                        <input
+                          type="radio"
+                          name="paymentMethod"
+                          value={method.value}
+                          checked={formData.paymentMethod === method.value}
+                          onChange={() => {
+                            console.log('##Rohit_Rocks## Payment method selected:', method.value)
+                            setFormData(prev => ({ ...prev, paymentMethod: method.value as 'online' | 'cheque' | 'bank-transfer' | 'upi' | '' }))
+                          }}
+                          required
+                          className="h-4 w-4 accent-primary-PARI-Red focus:ring-2 focus:ring-primary-PARI-Red border-gray-300 dark:border-border"
+                        />
+                        <span className="text-sm text-gray-900 dark:text-muted-foreground">{method.label}</span>
+                      </label>
                     ))}
                   </div>
                 </div>
 
-                {/* Donation Type */}
-                <div className="bg-card dark:bg-card rounded-lg p-6 border border-border">
-                  <h3 className="text-lg font-semibold text-foreground mb-4" style={{
-                    fontFamily: 'Noto Sans',
-                    fontWeight: 700,
-                    fontSize: '16px',
-                    lineHeight: '130%',
-                    letterSpacing: '-4%'
-                  }}>
-                    Donation Frequency
-                  </h3>
-                  <div className="flex flex-wrap gap-3">
-                    {[
-                      { value: 'monthly', label: 'Monthly' },
-                      { value: 'yearly', label: 'Yearly' },
-                      { value: 'one-time', label: 'One-time' }
-                    ].map((type) => (
-                      <button
-                        key={type.value}
-                        type="button"
-                        onClick={() => setFormData(prev => ({ ...prev, donationType: type.value as 'monthly' | 'yearly' | 'one-time' }))}
-                        className={cn(
-                          "px-4 py-2 rounded-lg border transition-colors",
-                          formData.donationType === type.value
-                            ? "bg-primary-PARI-Red text-white border-primary-PARI-Red"
-                            : "bg-background border-border text-foreground hover:border-primary-PARI-Red"
-                        )}
-                      >
-                        {type.label}
-                      </button>
-                    ))}
+                {/* Donation Amount - Only show when online payment is selected */}
+                {formData.paymentMethod === 'online' && (
+                  <div className="space-y-3">
+                    <label className="block text-sm font-medium text-gray-600 dark:text-muted-foreground">
+                      Donation Amount (₹) *
+                    </label>
+                    <input
+                      type="number"
+                      name="amount"
+                      placeholder="Enter amount"
+                      value={formData.amount}
+                      onChange={handleInputChange}
+                      min="1"
+                      required
+                      className="w-full px-4 py-3 border border-gray-300 dark:border-border rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-transparent outline-none bg-white dark:bg-background text-gray-900 dark:text-foreground placeholder-gray-500 dark:placeholder-muted-foreground text-sm"
+                    />
                   </div>
-                </div>
+                )}
 
-                {/* Personal Information */}
-                <div className="bg-card dark:bg-card rounded-lg p-6 border border-border">
-                  <h3 className="text-lg font-semibold text-foreground mb-4" style={{
-                    fontFamily: 'Noto Sans',
-                    fontWeight: 700,
-                    fontSize: '16px',
-                    lineHeight: '130%',
-                    letterSpacing: '-4%'
-                  }}>
-                    Personal Information
-                  </h3>
-                  <div className="space-y-4">
-                    <div className="relative">
-                      <FiUser className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5" />
-                      <input
-                        type="text"
-                        name="fullName"
-                        placeholder="Full name"
-                        value={formData.fullName}
-                        onChange={handleInputChange}
-                        required
-                        className="w-full pl-12 pr-4 py-3 border border-border rounded-md focus:ring-2 focus:ring-primary-PARI-Red focus:border-transparent outline-none bg-background text-foreground placeholder-muted-foreground"
-                      />
-                    </div>
-
-                    <div className="relative">
-                      <FiMail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5" />
-                      <input
-                        type="email"
-                        name="email"
-                        placeholder="Email address"
-                        value={formData.email}
-                        onChange={handleInputChange}
-                        required
-                        className="w-full pl-12 pr-4 py-3 border border-border rounded-md focus:ring-2 focus:ring-primary-PARI-Red focus:border-transparent outline-none bg-background text-foreground placeholder-muted-foreground"
-                      />
-                    </div>
-
-                    <div className="relative">
-                      <FiPhone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5" />
-                      <input
-                        type="tel"
-                        name="phone"
-                        placeholder="Phone number"
-                        value={formData.phone}
-                        onChange={handleInputChange}
-                        required
-                        className="w-full pl-12 pr-4 py-3 border border-border rounded-md focus:ring-2 focus:ring-primary-PARI-Red focus:border-transparent outline-none bg-background text-foreground placeholder-muted-foreground"
-                      />
-                    </div>
-
-                    <div className="relative">
-                      <FiCreditCard className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5" />
-                      <input
-                        type="text"
-                        name="panNumber"
-                        placeholder="PAN Number"
-                        value={formData.panNumber}
-                        onChange={handleInputChange}
-                        required
-                        className="w-full pl-12 pr-4 py-3 border border-border uppercase rounded-md focus:ring-2 focus:ring-primary-PARI-Red focus:border-transparent outline-none bg-background text-foreground placeholder-muted-foreground"
-                      />
-                    </div>
-
-                    <div className="relative">
-                      <FiMapPin className="absolute left-3 top-3 text-muted-foreground h-5 w-5" />
-                      <textarea
-                        name="address"
-                        placeholder="Address"
-                        value={formData.address}
-                        onChange={handleInputChange}
-                        required
-                        rows={3}
-                        className="w-full pl-12 pr-4 py-3 border border-border rounded-md focus:ring-2 focus:ring-primary-PARI-Red focus:border-transparent outline-none resize-none bg-background text-foreground placeholder-muted-foreground"
-                      />
-                    </div>
-
-                    <p className="text-sm text-muted-foreground">
-                      Required as per Government Regulations
-                    </p>
-
+                {/* Terms of Service Agreement */}
+                {formData.paymentMethod !== '' && (
+                  <div className="mt-6">
                     <div className="flex items-center space-x-2">
                       <input
                         type="checkbox"
-                        id="isIndianCitizen"
-                        name="isIndianCitizen"
-                        checked={formData.isIndianCitizen}
+                        name="agreeToTerms"
+                        id="agreeToTerms"
+                        checked={formData.agreeToTerms}
                         onChange={handleInputChange}
                         required
-                        className="h-4 w-4 text-primary-PARI-Red focus:ring-primary-PARI-Red border-border rounded"
+                        className="h-4 w-4 text-primary-PARI-Red focus:ring-primary-PARI-Red border-gray-300 rounded"
                       />
-                      <label htmlFor="isIndianCitizen" className="text-sm text-foreground">
-                        I&apos;m a citizen of India
+                      <label htmlFor="agreeToTerms" className="text-sm text-muted-foreground">
+                        I agree to PARI&apos;s{' '}
+                        <a href="https://ruralindiaonline.org/termsofservices" target="_blank" rel="noopener noreferrer" className="text-primary-PARI-Red hover:underline">
+                          terms of service
+                        </a>
                       </label>
                     </div>
                   </div>
-                </div>
+                )}
 
-                {/* Amount Selection */}
-                <div className="bg-card dark:bg-card rounded-lg p-6 border border-border">
-                  <h3 className="text-lg font-semibold text-foreground mb-4" style={{
-                    fontFamily: 'Noto Sans',
-                    fontWeight: 700,
-                    fontSize: '16px',
-                    lineHeight: '130%',
-                    letterSpacing: '-4%'
-                  }}>
-                    Donation Amount
-                  </h3>
-                  <div className="space-y-4">
-                    <div className="flex flex-wrap gap-3">
-                      {predefinedAmounts.map((amount) => (
-                        <button
-                          key={amount}
-                          type="button"
-                          onClick={() => handleAmountSelect(amount)}
-                          className={cn(
-                            "px-6 py-3 rounded-lg border transition-colors font-medium",
-                            formData.amount === amount
-                              ? "bg-primary-PARI-Red text-white border-primary-PARI-Red"
-                              : "bg-background border-border text-foreground hover:border-primary-PARI-Red"
-                          )}
-                        >
-                          ₹{amount}
-                        </button>
-                      ))}
-                    </div>
+                {/* Submit Button - Always show when payment method is selected */}
+                {formData.paymentMethod !== '' && (
+                  <button
+                    type="submit"
+                    disabled={isLoading || !formData.agreeToTerms}
+                    className={`w-full py-3 px-6 rounded-lg font-medium transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
+                      !formData.agreeToTerms
+                        ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                        : 'bg-primary-PARI-Red text-white hover:bg-primary-PARI-Red/90'
+                    }`}
+                  >
+                    {isLoading ? 'Processing...' : 'Confirm details'}
+                  </button>
+                )}
 
-                    <div className="relative">
-                      <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">₹</span>
-                      <input
-                        type="number"
-                        placeholder="Other amount"
-                        value={formData.customAmount}
-                        onChange={handleCustomAmountChange}
-                        min="1"
-                        className="w-full pl-8 pr-4 py-3 border border-border rounded-md focus:ring-2 focus:ring-primary-PARI-Red focus:border-transparent outline-none bg-background text-foreground placeholder-muted-foreground"
-                      />
-                    </div>
-                  </div>
-                </div>
 
-                {/* Submit Button */}
-                <Button
-                  type="submit"
-                  disabled={isLoading || !getSelectedAmount()}
-                  className="w-full bg-primary-PARI-Red hover:bg-red-700 text-white py-4 text-lg font-medium"
-                >
-                  {isLoading ? 'Processing...' : `Confirm & Donate ₹${getSelectedAmount()}`}
-                </Button>
 
-                <p className="text-sm text-muted-foreground ">
-                  At present, we can only accept donations in Indian rupees by Indian citizens.
-                  All donations made to the CounterMedia Trust are eligible for exemption under Section 80G of the Income Tax Act, 1961.
-                </p>
+
               </form>
+
+              {/* Disclaimer inside form container */}
+              <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg mt-6 border border-gray-200 dark:border-gray-700">
+                <p className="text-sm text-gray-600 dark:text-muted-foreground">
+                  At present, we can only accept donations in Indian rupees by Indian citizens. All donations made to the CounterMedia Trust are eligible for exemption under Section 80G of the Income Tax Act, 1961. Here is a copy of our{' '}
+                  <a href="#" className="text-primary-PARI-Red hover:underline font-medium">exemption certificate</a>.
+                </p>
+              </div>
+              </div>
             ) : (
               // Payment Details View
               <div className="space-y-6">
+                {/* Success message for online payments */}
+                {formData.paymentMethod === 'online' && (
+                  <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-6">
+                    <div className="flex items-center space-x-3 mb-4">
+                      <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                        <FiCheck className="w-5 h-5 text-white" />
+                      </div>
+                      <h3 className="text-lg font-semibold text-green-800 dark:text-green-200">
+                        Payment Successful!
+                      </h3>
+                    </div>
+                    <p className="text-green-700 dark:text-green-300 mb-4">
+                      Thank you for your donation to The People&apos;s Archive of Rural India.
+                    </p>
+                    <div className="space-y-2">
+                      <p className="text-green-700 dark:text-green-300">
+                        <strong>Payment ID:</strong> {referenceId}
+                      </p>
+                      <p className="text-green-700 dark:text-green-300">
+                        <strong>Amount:</strong> ₹{formData.amount}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
                 {formData.paymentMethod === 'cheque' && (
-                  <div className="bg-card dark:bg-card rounded-lg p-6 border border-border">
-                    <h3 className="text-lg font-semibold text-foreground mb-4">
-                      You&apos;ve chosen to donate via Cheque/DD
-                    </h3>
-                    <p className="text-foreground mb-4">
-                      Thank you for choosing to donate to The People&apos;s Archive of Rural India.
+                  <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6">
+                    <div className="flex items-center space-x-3 mb-4">
+                      <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                        <FiCheck className="w-5 h-5 text-white" />
+                      </div>
+                      <h3 className="text-lg font-semibold text-blue-800 dark:text-blue-200">
+                        Form Submitted Successfully!
+                      </h3>
+                    </div>
+                    <p className="text-blue-700 dark:text-blue-300 mb-4">
+                      Thank you for choosing to donate to The People&apos;s Archive of Rural India via Cheque/DD.
                     </p>
                     <div className="space-y-3">
-                      <p className="text-foreground">
+                      <p className="text-blue-700 dark:text-blue-300">
                         <strong>Reference ID:</strong> {referenceId}
                       </p>
-                      <p className="text-foreground">
+                      <p className="text-blue-700 dark:text-blue-300">
                         Make your cheque to <strong>&quot;CounterMedia Trust&quot;</strong> and send it to us by courier/post along with the above reference ID.
                       </p>
                       <div className="bg-background p-4 rounded-lg border">
@@ -621,18 +1149,23 @@ console.log('Razorpay options:', options)
                 )}
 
                 {formData.paymentMethod === 'bank-transfer' && (
-                  <div className="bg-card dark:bg-card rounded-lg p-6 border border-border">
-                    <h3 className="text-lg font-semibold text-foreground mb-4">
-                      You&apos;ve chosen to donate via Bank Transfer
-                    </h3>
-                    <p className="text-foreground mb-4">
-                      Thank you for choosing to donate to The People&apos;s Archive of Rural India.
+                  <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-6">
+                    <div className="flex items-center space-x-3 mb-4">
+                      <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                        <FiCheck className="w-5 h-5 text-white" />
+                      </div>
+                      <h3 className="text-lg font-semibold text-green-800 dark:text-green-200">
+                        Form Submitted Successfully!
+                      </h3>
+                    </div>
+                    <p className="text-green-700 dark:text-green-300 mb-4">
+                      Thank you for choosing to donate to The People&apos;s Archive of Rural India via Bank Transfer.
                     </p>
                     <div className="space-y-3">
-                      <p className="text-foreground">
+                      <p className="text-green-700 dark:text-green-300">
                         <strong>Reference ID:</strong> {referenceId}
                       </p>
-                      <div className="bg-background p-4 rounded-lg border space-y-3"> 
+                      <div className="bg-background p-4 rounded-lg border space-y-3">
                         <div className="flex justify-between items-center">
                           <span className="font-semibold">PAYABLE TO:</span>
                           <div className="flex items-center gap-2">
@@ -689,148 +1222,48 @@ console.log('Razorpay options:', options)
                   </div>
                 )}
 
-                <Button
-                  onClick={() => setShowPaymentDetails(false)}
-                  variant="outline"
-                  className="w-full"
+                <button
+                  onClick={() => {
+                    setShowPaymentDetails(false)
+                    // Reset form when going back
+                    setFormData({
+                      fullName: '',
+                      email: '',
+                      phone: '',
+                      panNumber: '',
+                      address: '',
+                      city: '',
+                      state: '',
+                      pincode: '',
+                      amount: '500',
+                      customAmount: '',
+                      donationType: 'monthly',
+                      paymentMethod: '',
+                      isIndianCitizen: true,
+                      agreeToTerms: true
+                    })
+                  }}
+                  className="w-full border-2 border-primary-PARI-Red text-primary-PARI-Red hover:bg-primary-PARI-Red hover:text-white py-3 px-6 rounded-lg font-medium transition-colors duration-200"
                 >
                   Back to Form
-                </Button>
+                </button>
               </div>
             )}
-          </div>
-
-          {/* Sidebar with FAQs */}
-          <div className="lg:col-span-1">
-            <div className="bg-card dark:bg-card rounded-lg p-6 border border-border sticky top-8">
-              <h3 className="text-lg font-semibold text-foreground mb-6" style={{
-                fontFamily: 'Noto Sans',
-                fontWeight: 700,
-                fontSize: '16px',
-                lineHeight: '130%',
-                letterSpacing: '-4%'
-              }}>
-                Donate FAQs
-              </h3>
-
-              <div className="space-y-6">
-                <div>
-                  <h4 className="font-semibold text-foreground mb-2" style={{
-                    fontFamily: 'Noto Sans',
-                    fontWeight: 700,
-                    fontSize: '16px',
-                    lineHeight: '130%',
-                    letterSpacing: '-4%'
-                  }}>
-                    What is PARI?
-                  </h4>
-                  <p className="text-muted-foreground text-sm" style={{
-                    fontFamily: 'Noto Sans',
-                    fontWeight: 400,
-                    fontSize: '15px',
-                    lineHeight: '170%',
-                    letterSpacing: '-3%'
-                  }}>
-                    PARI – People&apos;s Archive of Rural India – is both a living journal and an online archive to record and bring to national focus the labour, livelihoods, languages, art, crafts, histories and diverse cultures of rural Indians.
-                  </p>
-                </div>
-
-                <div>
-                  <h4 className="font-semibold text-foreground mb-2" style={{
-                    fontFamily: 'Noto Sans',
-                    fontWeight: 700,
-                    fontSize: '16px',
-                    lineHeight: '130%',
-                    letterSpacing: '-4%'
-                  }}>
-                    How is PARI funded?
-                  </h4>
-                  <p className="text-muted-foreground text-sm" style={{
-                    fontFamily: 'Noto Sans',
-                    fontWeight: 400,
-                    fontSize: '15px',
-                    lineHeight: '170%',
-                    letterSpacing: '-3%'
-                  }}>
-                    We are a non-profit organisation. We publish under creative commons, and do not charge readers or put-up advertisements. We guard our independence and receive no direct grants from governments and corporations.
-                  </p>
-                </div>
-
-                <div>
-                  <h4 className="font-semibold text-foreground mb-2" style={{
-                    fontFamily: 'Noto Sans',
-                    fontWeight: 700,
-                    fontSize: '16px',
-                    lineHeight: '130%',
-                    letterSpacing: '-4%'
-                  }}>
-                    Why we need your regular support?
-                  </h4>
-                  <p className="text-muted-foreground text-sm" style={{
-                    fontFamily: 'Noto Sans',
-                    fontWeight: 400,
-                    fontSize: '15px',
-                    lineHeight: '170%',
-                    letterSpacing: '-3%'
-                  }}>
-                    Every PARI story, photograph and film comes from the field, not from opinion writers at desktops. When you give us recurring monthly donations, it helps stabilise our income.
-                  </p>
-                </div>
-
-                <div>
-                  <h4 className="font-semibold text-foreground mb-2" style={{
-                    fontFamily: 'Noto Sans',
-                    fontWeight: 700,
-                    fontSize: '16px',
-                    lineHeight: '130%',
-                    letterSpacing: '-4%'
-                  }}>
-                    Will my donation be tax-free?
-                  </h4>
-                  <p className="text-muted-foreground text-sm" style={{
-                    fontFamily: 'Noto Sans',
-                    fontWeight: 400,
-                    fontSize: '15px',
-                    lineHeight: '170%',
-                    letterSpacing: '-3%'
-                  }}>
-                    All donations to PARI are exempt from tax under 80G of the Income Tax Act. To receive your donation receipt, please make sure you send us your email and PAN details along with the donation.
-                  </p>
-                </div>
-
-                <div>
-                  <h4 className="font-semibold text-foreground mb-2" style={{
-                    fontFamily: 'Noto Sans',
-                    fontWeight: 700,
-                    fontSize: '16px',
-                    lineHeight: '130%',
-                    letterSpacing: '-4%'
-                  }}>
-                    Contact us
-                  </h4>
-                  <p className="text-muted-foreground text-sm" style={{
-                    fontFamily: 'Noto Sans',
-                    fontWeight: 400,
-                    fontSize: '15px',
-                    lineHeight: '170%',
-                    letterSpacing: '-3%'
-                  }}>
-                    If you have any queries with regards to donations, please write to{' '}
-                    <a href="mailto:donate@ruralindiaonline.org" className="text-primary-PARI-Red hover:underline">
-                      donate@ruralindiaonline.org
-                    </a>
-                  </p>
-                </div>
-              </div>
             </div>
-          </div>
-        </div>
-          <div>
-          <div className="flex md:px-2 my-6 ">
-            <iframe width="1100" height="415" src="https://www.youtube.com/embed/c7mMyZ86JeU" title="YouTube video player"  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen></iframe>
+            </div>
+
+
           </div>
         </div>
       </div>
     </div>
+  )
+}
+
+export default function DonatePage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <DonatePageContent />
+    </Suspense>
   )
 }

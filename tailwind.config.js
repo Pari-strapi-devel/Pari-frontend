@@ -13,6 +13,7 @@ const config = {
     extend: {
       fontFamily: {
         noto: ['var(--font-noto-sans)', 'sans-serif'],
+        'noto-serif': ['var(--font-noto-serif)', 'serif'],
         'noto-devanagari': ['var(--font-noto-sans-devanagari)', 'sans-serif'],
         'noto-telugu': ['var(--font-noto-sans-telugu)', 'sans-serif'],
         'noto-tamil': ['var(--font-noto-sans-tamil)', 'sans-serif'],

@@ -3,10 +3,30 @@ import { ThemeProvider } from '@/components/theme-provider'
 import './globals.css'
 import { Footer } from '@/components/layout/footer/Footer'
 import { Suspense } from 'react'
-import { Noto_Sans } from 'next/font/google';
+import { Noto_Sans, Noto_Serif, Noto_Sans_Devanagari } from 'next/font/google';
 import { Header } from '@/components/layout/header/Header'
 
-const notoSans = Noto_Sans({ subsets: ['latin', 'devanagari'] });
+const notoSans = Noto_Sans({
+  subsets: ['latin', 'latin-ext'],
+  weight: ['300', '400', '500', '600', '700'],
+  variable: '--font-noto-sans',
+  display: 'swap',
+  preload: true
+});
+
+const notoSansDevanagari = Noto_Sans_Devanagari({
+  subsets: ['devanagari', 'latin'],
+  weight: ['300', '400', '500', '600', '700'],
+  variable: '--font-noto-sans-devanagari',
+  display: 'swap',
+  preload: true
+});
+
+const notoSerif = Noto_Serif({
+  subsets: ['latin'],
+  weight: ['400', '600'],
+  variable: '--font-noto-serif'
+});
 
 export const metadata: Metadata = {
   title: {
@@ -28,9 +48,11 @@ export default function RootLayout({ children }: RootLayoutProps) {
     <html lang="en" suppressHydrationWarning>
      <head>
       <meta name="algolia-site-verification"  content="F5CD6E39238D1785" />
+      <link rel="preconnect" href="https://fonts.googleapis.com" />
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
      </head>
-      <body 
-        className={`${notoSans.className} font-noto antialiased`}
+      <body
+        className={`${notoSans.className} ${notoSerif.variable} ${notoSansDevanagari.variable} font-noto antialiased`}
         suppressHydrationWarning
       >
         <ThemeProvider

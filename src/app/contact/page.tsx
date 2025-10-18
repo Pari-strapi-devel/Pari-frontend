@@ -1,4 +1,4 @@
-import { ContactForm } from '@/components/contact/ContactForm'
+import ContactForm from '../../components/contact/ContactForm'
 import { Metadata } from 'next'
 import { Suspense } from 'react'
 

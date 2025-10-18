@@ -1,4 +1,4 @@
-import Link from 'next/link'
+
 import {
   Sun,
   BookMarked,
@@ -81,14 +81,14 @@ export function Sidebar({
 
       {/* Sidebar Content or Toggle Button */}
       {isOpen && sections.length > 0 ? (
-        <div className="h-full w-full md:w-[280px] bg-popover dark:bg-background border border-border dark:border-border rounded-xl g z-40 hidden md:block relative">
+        <div className="h-full w-full md:w-[280px] bg-popover dark:bg-background border border-border dark:border-borderline rounded-xl g z-40 hidden md:block relative">
           <div className="h-full overflow-y-auto py-6 px-5">
             {/* Sidebar Header with close button */}
             <div className="mb-2 px-1 flex items-center justify-between">
               {onToggle && (
                 <button
                   onClick={onToggle}
-                  className="p-1.5 rounded-lg text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200"
+                  className="p-1.5 rounded-lg text-discreet-text dark:text-discreet-text   hover:bg-popover  transition-all duration-200"
                 >
                   <PanelRightClose className="w-5 h-5" />
                 </button>
@@ -102,31 +102,43 @@ export function Sidebar({
                 const IconComponent = getIconComponent(section.iconType || 'FileText');
                 const isActive = activeSection === section.id;
                 const showIcon = index >= 3; // Only show icons for sections after the first 3
+                const isSubsection = showIcon && index < sections.length - 1; // Subsections have icons but are not the last item (Donate)
 
                 return (
-                  <li key={section.id}>
+                  <li key={section.id} className={isSubsection ? 'ml-4 pl-2 ' : ''}>
                     <button
                       onClick={() => scrollToSection?.(section.id)}
                       className={`flex items-center w-full h-10 text-left px-2 p-1 rounded- transition-all duration-200 group relative ${
                         isActive
                           ? 'text-primary-PARI-Red font-semibold border-l-4 border-primary-PARI-Red'
-                          : 'text-primary-PARI-Red dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-propover hover:text-gray-900 dark:hover:text-gray-100 cursor-pointer'
+                          : 'text-primary-PARI-Red  hover:bg-popover hover:text-gray-900 dark:hover:text-gray-100 cursor-pointer'
                       }`}
                     >
                       {showIcon && (
                         <div className="flex items-center w-8 h-8 mr-3 flex-shrink-0">
                           <div className={`flex items-center justify-center w-8 h-8 rounded-full transition-colors ${
                             isActive
-                              ? 'bg-red-100 dark:bg-red-900/30 text-primary-PARI-Red dark:text-primary-PARI-Red'
-                              : 'bg-background dark:bg-propover text-grey-300 dark:text- group-hover:bg-gray-200 dark:group-hover:bg-black/10'
+                              ? '  text-primary-PARI-Red dark:text-primary-PARI-Red'
+                              : ''
                           }`}>
                             <IconComponent className="w-4 h-4" />
                           </div>
                         </div>
                       )}
-                      <span className={`text-sm font-medium leading-tight line-clamp-1 flex-1 ${
-                        isActive ? 'text-primary-PARI-Red' : 'text-grey-300'
-                      }`}>{section.title}</span>
+                      <span
+                        className={`line-clamp-1 flex-1 ${
+                          isActive ? 'text-primary-PARI-Red' : 'text-grey-300'
+                        }`}
+                        style={{
+                          fontFamily: 'Noto Sans',
+                          fontWeight: 500,
+                          fontSize: '14px',
+                          lineHeight: '140%',
+                          letterSpacing: '-4%'
+                        }}
+                      >
+                        {section.title}
+                      </span>
                     </button>
                   </li>
                 );
@@ -135,17 +147,7 @@ export function Sidebar({
 
 
               {/* Donate to PARI */}
-              <li className="pt-6 mt-6 border-t border-gray-100 dark:border-gray-800">
-                <Link
-                  href="/donate"
-                  className="flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group bg-gradient-to-r from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20 hover:from-red-100 hover:to-pink-100 dark:hover:from-red-900/30 dark:hover:to-pink-900/30 border border-red-100 dark:border-red-800 hover:shadow-md"
-                >
-                  <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 group-hover:bg-red-200 dark:group-hover:bg-red-900/40 transition-colors">
-                    <Heart className="w-4 h-4" />
-                  </div>
-                  <span className="text-sm font-semibold text-red-700 dark:text-red-300">Donate to PARI</span>
-                </Link>
-              </li>
+             
             </ul>
           </nav>
         </div>
@@ -156,7 +158,7 @@ export function Sidebar({
           <div className="h-full w-full md:w-[280px] hidden md:flex items-start justify-start pt-6 px-5">
             <button
               onClick={onToggle}
-              className="p-2 rounded-lg bg-popover dark:bg-background border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-200"
+              className="p-2 rounded-lg bg-popover  dark:bg-background border border-border dark:border-borderline text-discreet-text dark:text-discreet-text  hover:bg-popover dark:hover:bg-popover transition-all duration-200"
             >
               <PanelRightOpen className="w-5 h-5" />
             </button>

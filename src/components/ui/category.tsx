@@ -1,6 +1,7 @@
 "use client"
 
 import { cn } from "@/lib/utils"
+import { useState } from "react"
 
 interface CategoryProps {
   name: string
@@ -34,18 +35,43 @@ export function Category({
 interface CategoryListProps {
   categories: string[]
   className?: string
+  onCategoryClick?: (category: string) => void
 }
 
-export function CategoryList({ categories, className }: CategoryListProps) {
+export function CategoryList({ categories, className, onCategoryClick }: CategoryListProps) {
+  const [currentCategoryIndex, setCurrentCategoryIndex] = useState(0)
+
+  if (!categories || categories.length === 0) {
+    return null
+  }
+
   return (
-    <div className={cn("flex flex-wrap gap-2", className)}>
-      {(categories && categories.length > 0) && (
-        <>
-          <Category name={categories[0]} />
-          {categories.length > 1 && (
-            <Category name={`+${categories.length - 1}`} />
-          )}
-        </>
+    <div className={cn("flex items-center gap-2", className)}>
+      {/* Current category - always visible */}
+      <Category
+        key={currentCategoryIndex}
+        name={categories[currentCategoryIndex]}
+        className="animate-slide-in-left"
+        onClick={() => onCategoryClick?.(categories[currentCategoryIndex])}
+      />
+
+      {/* Next/Reset category button */}
+      {categories.length > 1 && (
+        <Category
+          name={currentCategoryIndex === categories.length - 1
+            ? '-'
+            : `+${categories.length - currentCategoryIndex - 1}`
+          }
+          onClick={() => {
+            if (currentCategoryIndex === categories.length - 1) {
+              // If at last category, reset to first
+              setCurrentCategoryIndex(0)
+            } else {
+              // Move to next category
+              setCurrentCategoryIndex(prev => prev + 1)
+            }
+          }}
+        />
       )}
     </div>
   )

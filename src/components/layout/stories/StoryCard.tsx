@@ -70,6 +70,7 @@ export function StoryCard({
 }: StoryCardProps) {
   const [isSheetOpen, setIsSheetOpen] = useState<boolean>(false);
   const [mounted, setMounted] = useState(false);
+  const [currentCategoryIndex, setCurrentCategoryIndex] = useState(0);
 
   useEffect(() => {
     setMounted(true);
@@ -84,67 +85,60 @@ export function StoryCard({
       <Link href={`https://ruralindiaonline.org/article/${slug || ''}`}>
         <article className="group rounded-[16px] m-2 sm:hover:scale-103 transition-transform duration-300 bg-white dark:bg-background hover:rounded-[16px] border border-border ">
           <div className="relative h-[180px] w-full overflow-hidden rounded-t-2xl">
-          <div className="absolute top-3 left-3 flex flex-wrap gap-2 z-10">
+          <div className="absolute top-3 left-3 flex items-center gap-2 z-10">
             {(categories && categories.length > 0) && (
               <>
-                <span 
-                  className={`inline-block items-center px-2 py-1 bg-white ${isStudentArticle ? 'text-student-blue hover:bg-student-blue' : 'text-primary-PARI-Red hover:bg-primary-PARI-Red'} hover:text-white text-xs rounded-full w-fit h-[24px] mb-2 cursor-pointer`}
+                {/* Current category - always visible */}
+                <span
+                  key={currentCategoryIndex}
+                  className={`inline-block items-center px-2 py-1 bg-white ${isStudentArticle ? 'text-student-blue hover:bg-student-blue' : 'text-primary-PARI-Red hover:bg-primary-PARI-Red'} hover:text-white text-xs rounded-full w-fit h-[24px] cursor-pointer transition-all duration-300 animate-slide-in-left`}
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    
+
                     // Get current URL and parameters
                     const url = new URL(window.location.href);
                     const params = new URLSearchParams(url.search);
-                    
+
                     // Get existing types if any
                     const existingTypes = params.get('types')?.split(',').filter(Boolean) || [];
-                    const categorySlug = categories[0].toLowerCase().replace(/\s+/g, '-');
-                    
+                    const categorySlug = categories[currentCategoryIndex].toLowerCase().replace(/\s+/g, '-');
+
                     // Add the new category if it's not already included
                     if (!existingTypes.includes(categorySlug)) {
                       existingTypes.push(categorySlug);
                     }
-                    
+
                     // Update the URL
                     params.set('types', existingTypes.join(','));
-                    
+
                     // Navigate to the updated URL
                     window.location.href = `/articles?${params.toString()}`;
                   }}
                 >
-                  {categories[0]}
+                  {categories[currentCategoryIndex]}
                 </span>
+
+                {/* Next/Reset category button */}
                 {categories.length > 1 && (
-                  <span 
-                    className={`inline-block items-center px-2 py-1 bg-white ${isStudentArticle ? 'text-student-blue hover:bg-student-blue' : 'text-primary-PARI-Red hover:bg-primary-PARI-Red'} hover:text-white text-xs rounded-full w-fit h-[24px] mb-2 cursor-pointer`}
+                  <span
+                    className={`inline-block items-center px-2 py-1 bg-white ${isStudentArticle ? 'text-student-blue hover:bg-student-blue' : 'text-primary-PARI-Red hover:bg-primary-PARI-Red'} hover:text-white text-xs rounded-full w-fit h-[24px] cursor-pointer transition-all duration-300`}
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      
-                      // Get current URL and parameters
-                      const url = new URL(window.location.href);
-                      const params = new URLSearchParams(url.search);
-                      
-                      // Get existing types if any
-                      const existingTypes = params.get('types')?.split(',').filter(Boolean) || [];
-                      
-                      // Add all categories if they're not already included
-                      categories.forEach(category => {
-                        const categorySlug = category.toLowerCase().replace(/\s+/g, '-');
-                        if (!existingTypes.includes(categorySlug)) {
-                          existingTypes.push(categorySlug);
-                        }
-                      });
-                      
-                      // Update the URL
-                      params.set('types', existingTypes.join(','));
-                      
-                      // Navigate to the updated URL
-                      window.location.href = `/articles?${params.toString()}`;
+                      if (currentCategoryIndex === categories.length - 1) {
+                        // If at last category, reset to first
+                        setCurrentCategoryIndex(0);
+                      } else {
+                        // Move to next category
+                        setCurrentCategoryIndex(prev => prev + 1);
+                      }
                     }}
                   >
-                    +{categories.length - 1}
+                    {currentCategoryIndex === categories.length - 1
+                      ? '-'
+                      : `+${categories.length - currentCategoryIndex - 1}`
+                    }
                   </span>
                 )}
               </>

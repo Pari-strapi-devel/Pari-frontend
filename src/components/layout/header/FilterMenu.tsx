@@ -209,8 +209,8 @@ export function FilterMenu({ isOpen, onClose }: FilterMenuProps) {
 
   return (
     <>
-      <div 
-        className={`fixed top-0 right-0 h-full w-[545px] sm:max-w-[90vw] max-w-full bg-background border-l border-border transform transition-transform duration-300 ease-in-out z-50 ${
+      <div
+        className={`fixed top-0 right-0 h-full w-[545px] sm:max-w-[90vw] max-w-full bg-background border-l border-border transform transition-transform duration-300 ease-in-out z-[60] ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
@@ -332,8 +332,8 @@ export function FilterMenu({ isOpen, onClose }: FilterMenuProps) {
 
       {/* Overlay */}
       {isOpen && (
-        <div 
-          className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40"
+        <div
+          className="fixed inset-0 bg-black/20 backdrop-blur-sm z-[55]"
           onClick={onClose}
         />
       )}
