@@ -1511,7 +1511,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
 
       {/* White Card Overlay - Separate from content */}
       {showCard && (
-        <div className="relative -mt-48 mx-auto px-4 my-8 md:px-8 ">
+        <div className={`relative mx-auto px-4 my-8 md:px-8 ${story.coverImage ? '-mt-48' : ''}`}>
           <div className="bg-white dark:bg-popover rounded-3xl p-[2.5rem] lg:p-[4rem] shadow-[0px_4px_20px_0px_rgba(0,0,0,0.1)] relative mx-auto md:max-w-[43rem] lg:max-w-[57rem] xl:max-w-[61.75rem] 2xl:max-w-[76.5rem]"
            
           >
