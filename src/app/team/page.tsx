@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 import { API_BASE_URL } from '@/utils/constants'
 
 import { X, Mail } from 'lucide-react'
@@ -77,6 +78,7 @@ interface ApiResponse {
 }
 
 export default function TeamsPage() {
+  const router = useRouter()
   const [mounted, setMounted] = useState(false)
   const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null)
   const [isSliderOpen, setIsSliderOpen] = useState(false)
@@ -84,6 +86,7 @@ export default function TeamsPage() {
   const [loading, setLoading] = useState(true)
   const [imageErrors, setImageErrors] = useState<Set<number>>(new Set())
   const [, setActiveSection] = useState<string>('')
+  const [memberHasArticles, setMemberHasArticles] = useState<boolean>(false)
 
   useEffect(() => {
     setMounted(true)
@@ -198,15 +201,44 @@ export default function TeamsPage() {
     setImageErrors(prev => new Set(prev).add(memberId))
   }
 
+  const checkIfMemberHasArticles = async (memberName: string) => {
+    try {
+      console.log('##Rohit_Rocks## Checking if member has articles:', memberName)
+      const response = await fetch(
+        `${API_BASE_URL}/v1/api/articles?filters[Authors][author_name][Name][$containsi]=${encodeURIComponent(memberName)}&pagination[limit]=1`
+      )
+      const data = await response.json()
+      const hasArticles = data.data && data.data.length > 0
+      console.log('##Rohit_Rocks## Member has articles:', hasArticles)
+      setMemberHasArticles(hasArticles)
+    } catch (error) {
+      console.error('##Rohit_Rocks## Error checking articles:', error)
+      setMemberHasArticles(false)
+    }
+  }
+
   const handleMemberClick = (member: TeamMember) => {
     console.log('##Rohit_Rocks## Profile clicked, opening immediately:', member.Name)
     setSelectedMember(member)
     setIsSliderOpen(true)
+    checkIfMemberHasArticles(member.Name)
+  }
+
+  const handleSeeStoriesClick = () => {
+    if (selectedMember) {
+      const authorParam = encodeURIComponent(selectedMember.Name)
+      console.log('##Rohit_Rocks## Navigating to articles page for author:', selectedMember.Name)
+      console.log('##Rohit_Rocks## URL:', `/articles?author=${authorParam}`)
+      router.push(`/articles?author=${authorParam}`)
+    }
   }
 
   const closeSlider = () => {
     setIsSliderOpen(false)
-    setTimeout(() => setSelectedMember(null), 300) // Wait for animation to complete
+    setTimeout(() => {
+      setSelectedMember(null)
+      setMemberHasArticles(false)
+    }, 300) // Wait for animation to complete
   }
 
   if (!mounted) {
@@ -318,7 +350,7 @@ export default function TeamsPage() {
 
           {/* Right Side Slider Panel */}
           <div
-            className={`fixed top-0 right-0 h-full w-full sm:w-96 bg-white dark:bg-background z-50 transition-transform duration-300 ease-in-out ${
+            className={`fixed top-0 right-0 h-full w-full sm:w-96 bg-white dark:bg-background z-1000 transition-transform duration-300 ease-in-out ${
               isSliderOpen ? 'translate-x-0' : 'translate-x-full'
             } shadow-xl`}
           >
@@ -430,10 +462,15 @@ export default function TeamsPage() {
                 </div>
 
                 </div>
-                {/* See Stories Button */}
-                <button className="mt-auto w-full bg-primary-PARI-Red text-white py-3 rounded-full font-semibold hover:bg-red-700 transition-colors">
-                  See Stories
-                </button>
+                {/* See Stories Button - Only show if member has articles */}
+                {memberHasArticles && (
+                  <button
+                    onClick={handleSeeStoriesClick}
+                    className="mt-auto w-full bg-primary-PARI-Red text-white py-3 rounded-full font-semibold hover:bg-red-700 transition-colors"
+                  >
+                    See Stories
+                  </button>
+                )}
               </div>
             </div>
           </div>

@@ -736,6 +736,29 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
   // Get locale from URL search params to trigger re-render on language change
   const urlLocale = searchParams?.get('locale') || 'en'
 
+  // Extract locale from slug (same logic as fetchStoryBySlug)
+  const getLocaleFromSlug = (slug: string): string => {
+    const localeMatch = slug.match(/-(en|hi|mr|ta|te|kn|ml|bn|gu|guj|pa|or|as|ur|bho|hne|chh|tam|tel|kan|mal|ben|ori|asm)$/)
+    const detectedLocale = localeMatch ? localeMatch[1] : 'en'
+
+    // Normalize 3-letter codes to 2-letter codes
+    const localeMap: { [key: string]: string } = {
+      'guj': 'gu',
+      'tam': 'ta',
+      'tel': 'te',
+      'kan': 'kn',
+      'mal': 'ml',
+      'ben': 'bn',
+      'ori': 'or',
+      'asm': 'as'
+    }
+
+    return localeMap[detectedLocale] || detectedLocale
+  }
+
+  // Get current article locale from slug
+  const currentArticleLocale = getLocaleFromSlug(slug)
+
   // State for credits modal - Always open by default
   const [showCreditsModal, setShowCreditsModal] = useState(true)
 
@@ -855,7 +878,8 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
 
           console.log('##Rohit_Rocks## Valid languages:', validLanguages)
           setAvailableLanguages(validLanguages)
-          setHasMultipleLanguages(validLanguages.length > 1)
+          // Show language button if there's at least 1 language available
+          setHasMultipleLanguages(validLanguages.length >= 1)
 
         }
 
@@ -3325,7 +3349,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
 
       {/* Credits Section */}
       {showCreditsModal && (
-        <div id="credits-section" className="w-full bg-gray-50 dark:bg-gray-900 py-12 md:py-16">
+        <div id="credits-section" className="w-full bg-gray-50 dark:bg-gray-900 py-12 md:py-16 pb-24 md:pb-16">
           <div className="max-w-4xl mx-auto px-4 md:px-8">
             {/* Donate Section */}
             <div className="bg-white dark:bg-popover rounded-lg p-6 md:p-8 mb-8 shadow-sm">
@@ -3547,7 +3571,9 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                       const languageData = allLanguages.find(l => l.code === lang.code)
                       if (!languageData) return null
 
-                      const isSelected = currentLocale === lang.code
+                      // Use currentArticleLocale (extracted from slug) to check which language is currently being viewed
+                      // This matches the behavior of LanguageToggle which uses the site-wide locale
+                      const isSelected = currentArticleLocale === lang.code
                       const nativeName = languageData.names[1] || languageData.names[0]
                       const englishName = languageData.names[0]
 
@@ -3632,7 +3658,9 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                       const languageData = allLanguages.find(l => l.code === lang.code)
                       if (!languageData) return null
 
-                      const isSelected = currentLocale === lang.code
+                      // Use currentArticleLocale (extracted from slug) to check which language is currently being viewed
+                      // This matches the behavior of LanguageToggle which uses the site-wide locale
+                      const isSelected = currentArticleLocale === lang.code
                       const nativeName = languageData.names[1] || languageData.names[0]
                       const englishName = languageData.names[0]
 
