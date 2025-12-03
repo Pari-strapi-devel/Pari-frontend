@@ -1576,75 +1576,98 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
             {/* Category Tags */}
             {story.categories && story.categories.length > 0 && (
               <div className="flex flex-wrap gap-2 mb-4">
-                {showAllCategories ? (
-                  // Show all categories
-                  <>
-                    {story.categories.map((category, index) => (
-                      <button
-                        key={index}
-                        onClick={() => {
-                          router.push(`/articles?types=${category.slug}`)
-                        }}
-                        className={`px-4 py-2 border ${story.isStudent ? 'border-[#2F80ED] text-[#2F80ED] hover:bg-[#2F80ED]' : 'border-primary-PARI-Red text-primary-PARI-Red hover:bg-primary-PARI-Red'} font-noto-sans rounded-full hover:text-white transition-colors cursor-pointer animate-slide-in-left`}
-                        style={{
-                          fontSize: '14px',
-                          fontWeight: 400,
-                          lineHeight: '100%'
-                        }}
-                      >
-                        {category.title}
-                      </button>
-                    ))}
-                    {/* Reset button */}
-                    {story.categories.length > 2 && (
-                      <button
-                        onClick={() => setShowAllCategories(false)}
-                        className={`px-4 py-2 border ${story.isStudent ? 'border-[#2F80ED] text-[#2F80ED] hover:bg-[#2F80ED]' : 'border-primary-PARI-Red text-primary-PARI-Red hover:bg-primary-PARI-Red'} font-noto-sans rounded-full hover:text-white transition-colors cursor-pointer`}
-                        style={{
-                          fontSize: '14px',
-                          fontWeight: 400,
-                          lineHeight: '100%'
-                        }}
-                      >
-                        -
-                      </button>
-                    )}
-                  </>
-                ) : (
-                  // Show only first 2 categories
-                  <>
-                    {story.categories.slice(0, 2).map((category, index) => (
-                      <button
-                        key={index}
-                        onClick={() => {
-                          router.push(`/articles?types=${category.slug}`)
-                        }}
-                        className={`px-4 py-2 border ${story.isStudent ? 'border-[#2F80ED] text-[#2F80ED] hover:bg-[#2F80ED]' : 'border-primary-PARI-Red text-primary-PARI-Red hover:bg-primary-PARI-Red'} font-noto-sans rounded-full hover:text-white transition-colors cursor-pointer`}
-                        style={{
-                          fontSize: '14px',
-                          fontWeight: 400,
-                          lineHeight: '100%'
-                        }}
-                      >
-                        {category.title}
-                      </button>
-                    ))}
-                    {/* Show more button */}
-                    {story.categories.length > 2 && (
-                      <button
-                        onClick={() => setShowAllCategories(true)}
-                        className={`px-4 py-2 border ${story.isStudent ? 'border-[#2F80ED] text-[#2F80ED] hover:bg-[#2F80ED]' : 'border-primary-PARI-Red text-primary-PARI-Red hover:bg-primary-PARI-Red'} font-noto-sans rounded-full hover:text-white transition-colors cursor-pointer`}
-                        style={{
-                          fontSize: '14px',
-                          fontWeight: 400,
-                          lineHeight: '100%'
-                        }}
-                      >
-                        +{story.categories.length - 2}
-                      </button>
-                    )}
-                  </>
-                )}
+                {/* Desktop: Show all categories */}
+                <div className="hidden md:contents">
+                  {story.categories.map((category, index) => (
+                    <button
+                      key={index}
+                      onClick={() => {
+                        router.push(`/articles?types=${category.slug}`)
+                      }}
+                      className={`px-4 py-2 border ${story.isStudent ? 'border-[#2F80ED] text-[#2F80ED] hover:bg-[#2F80ED]' : 'border-primary-PARI-Red text-primary-PARI-Red hover:bg-primary-PARI-Red'} font-noto-sans rounded-full hover:text-white transition-colors cursor-pointer`}
+                      style={{
+                        fontSize: '14px',
+                        fontWeight: 400,
+                        lineHeight: '100%'
+                      }}
+                    >
+                      {category.title}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Mobile: Show with expand/collapse */}
+                <div className="md:hidden contents">
+                  {showAllCategories ? (
+                    // Show all categories
+                    <>
+                      {story.categories.map((category, index) => (
+                        <button
+                          key={index}
+                          onClick={() => {
+                            router.push(`/articles?types=${category.slug}`)
+                          }}
+                          className={`px-4 py-2 border ${story.isStudent ? 'border-[#2F80ED] text-[#2F80ED] hover:bg-[#2F80ED]' : 'border-primary-PARI-Red text-primary-PARI-Red hover:bg-primary-PARI-Red'} font-noto-sans rounded-full hover:text-white transition-colors cursor-pointer animate-slide-in-left`}
+                          style={{
+                            fontSize: '14px',
+                            fontWeight: 400,
+                            lineHeight: '100%'
+                          }}
+                        >
+                          {category.title}
+                        </button>
+                      ))}
+                      {/* Reset button */}
+                      {story.categories.length > 2 && (
+                        <button
+                          onClick={() => setShowAllCategories(false)}
+                          className={`px-4 py-2 border ${story.isStudent ? 'border-[#2F80ED] text-[#2F80ED] hover:bg-[#2F80ED]' : 'border-primary-PARI-Red text-primary-PARI-Red hover:bg-primary-PARI-Red'} font-noto-sans rounded-full hover:text-white transition-colors cursor-pointer`}
+                          style={{
+                            fontSize: '14px',
+                            fontWeight: 400,
+                            lineHeight: '100%'
+                          }}
+                        >
+                          -
+                        </button>
+                      )}
+                    </>
+                  ) : (
+                    // Show only first 2 categories
+                    <>
+                      {story.categories.slice(0, 2).map((category, index) => (
+                        <button
+                          key={index}
+                          onClick={() => {
+                            router.push(`/articles?types=${category.slug}`)
+                          }}
+                          className={`px-4 py-2 border ${story.isStudent ? 'border-[#2F80ED] text-[#2F80ED] hover:bg-[#2F80ED]' : 'border-primary-PARI-Red text-primary-PARI-Red hover:bg-primary-PARI-Red'} font-noto-sans rounded-full hover:text-white transition-colors cursor-pointer`}
+                          style={{
+                            fontSize: '14px',
+                            fontWeight: 400,
+                            lineHeight: '100%'
+                          }}
+                        >
+                          {category.title}
+                        </button>
+                      ))}
+                      {/* Show more button */}
+                      {story.categories.length > 2 && (
+                        <button
+                          onClick={() => setShowAllCategories(true)}
+                          className={`px-4 py-2 border ${story.isStudent ? 'border-[#2F80ED] text-[#2F80ED] hover:bg-[#2F80ED]' : 'border-primary-PARI-Red text-primary-PARI-Red hover:bg-primary-PARI-Red'} font-noto-sans rounded-full hover:text-white transition-colors cursor-pointer`}
+                          style={{
+                            fontSize: '14px',
+                            fontWeight: 400,
+                            lineHeight: '100%'
+                          }}
+                        >
+                          +{story.categories.length - 2}
+                        </button>
+                      )}
+                    </>
+                  )}
+                </div>
               </div>
             )}
 
