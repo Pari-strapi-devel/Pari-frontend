@@ -10,6 +10,9 @@ import { LanguageToggle } from '@/components/layout/header/LanguageToggle';
 import { useLocale } from '@/lib/locale';
 import Link from 'next/link';
 
+// Force dynamic rendering for this page
+export const dynamic = 'force-dynamic';
+
 // Location data interfaces
 interface Country {
   id: string;

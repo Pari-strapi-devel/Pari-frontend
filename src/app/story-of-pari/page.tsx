@@ -8,6 +8,9 @@ import { useRouter } from 'next/navigation'
 import { useLocale } from '@/lib/locale'
 import { LanguageToggle } from '@/components/layout/header/LanguageToggle'
 
+// Force dynamic rendering for this page
+export const dynamic = 'force-dynamic';
+
 // Define interfaces for page-story-of-pari API
 interface ImageFormat {
   url: string

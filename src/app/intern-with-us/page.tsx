@@ -8,6 +8,9 @@ import { useInternBrevo } from '@/hooks/useBrevo';
 import { LanguageToggle } from '@/components/layout/header/LanguageToggle';
 import { useLocale } from '@/lib/locale';
 
+// Force dynamic rendering for this page
+export const dynamic = 'force-dynamic';
+
 // API response interface for internship page data
 interface InternshipPageData {
   id: number;

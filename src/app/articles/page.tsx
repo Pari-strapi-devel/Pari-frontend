@@ -3,6 +3,9 @@
 import { Suspense } from 'react'
 import ArticlesContent from '@/components/articles/ArticlesContent'
 
+// Force dynamic rendering for this page
+export const dynamic = 'force-dynamic';
+
 export default function ArticlesPage() {
   return (
     <div className="min-h-screen bg-background">

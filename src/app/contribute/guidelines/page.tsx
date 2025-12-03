@@ -6,6 +6,9 @@ import { ContributeSidebar } from '@/components/layout/sidebar/ContributeSidebar
 import { LanguageToggle } from '@/components/layout/header/LanguageToggle';
 import { useLocale } from '@/lib/locale';
 
+// Force dynamic rendering for this page
+export const dynamic = 'force-dynamic';
+
 // Types for API response
 interface GuidelineSubsection {
   id: number;
