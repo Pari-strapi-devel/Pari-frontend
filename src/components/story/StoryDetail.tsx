@@ -1586,12 +1586,12 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
             <div className="w-full h-px bg-gray-200 dark:bg-gray-700 my-8 "></div>
 
             {/* Authors Info - Dynamic */}
-            <div className="flex items-end justify-between">
-              <div className={`grid grid-cols-1 gap-8 flex-1 ${groupedAuthors.length === 1 ? 'md:grid-cols-1' : groupedAuthors.length === 2 ? 'md:grid-cols-2' : 'md:grid-cols-3'}`}>
+            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+              <div className="grid grid-cols-2 md:flex md:flex-row gap-6 md:gap-12 flex-1">
                 {groupedAuthors.map((group, index) => (
                   <div key={index}>
                     <h6 className="text-gray-400 dark:text-gray-500 text-[14px] mb-2"
-                      
+
                     >
                       {group.title || getTranslatedLabel('author', currentLocale)}
                     </h6>
@@ -1606,7 +1606,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                         <span key={nameIndex}>
                           <button
                             onClick={() => {
-                             
+
                               router.push(`/articles?author=${encodeURIComponent(name)}`)
                             }}
                             className="hover:text-primary-PARI-Red dark:hover:text-primary-PARI-Red transition-colors text-left"
@@ -1633,7 +1633,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                     }
                   }, 100)
                 }}
-                className={`ml-8 px-6 py-3 border ${story.isStudent ? 'border-[#2F80ED] text-[#2F80ED] hover:bg-[#2F80ED]' : 'border-primary-PARI-Red text-primary-PARI-Red hover:bg-primary-PARI-Red'} rounded-full font-noto-sans hover:text-white transition-colors whitespace-nowrap`}
+                className={`w-full md:w-auto md:ml-8 px-6 py-3 border ${story.isStudent ? 'border-[#2F80ED] text-[#2F80ED] hover:bg-[#2F80ED]' : 'border-primary-PARI-Red text-primary-PARI-Red hover:bg-primary-PARI-Red'} rounded-full font-noto-sans hover:text-white transition-colors whitespace-nowrap`}
                 style={{
                   fontSize: '14px',
                   fontWeight: 400,
