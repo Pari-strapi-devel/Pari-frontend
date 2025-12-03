@@ -591,38 +591,43 @@ function stripHtmlCssWithStyledStrong(text: string): string {
   result = result.replace(/<em[^>]*>/gi, '<em>');
   result = result.replace(/<i[^>]*>/gi, '<i>');
 
-  // Step 4: Handle paragraph breaks and nbsp
-  result = result.replace(/<br\s*\/?>\s*&nbsp;\s*<\/p>/gi, '</p>');
+  // Step 4: Handle nbsp
   result = result.replace(/&nbsp;/gi, ' ');
 
-  // Step 5: Protect br tags before whitespace processing
+  // Step 5: Protect br tags before processing
   result = result.replace(/<br\s*\/?>/gi, '|||BR|||');
 
-  // Step 6: Convert paragraphs to line breaks
-  result = result.replace(/<\/p>\s*<p[^>]*>/gi, '|||BR||||||BR|||');
-  result = result.replace(/<p[^>]*>/gi, '');
-  result = result.replace(/<\/p>/gi, '');
-
-  // Step 7: Handle divs and spans
+  // Step 6: Clean up divs - remove opening div tags and replace closing divs with paragraph markers
   result = result.replace(/<div[^>]*>/gi, '');
-  result = result.replace(/<\/div>/gi, '|||BR|||');
+  result = result.replace(/<\/div>/gi, '|||PARA|||');
+
+  // Step 7: Clean up spans
   result = result.replace(/<span[^>]*>/gi, '');
   result = result.replace(/<\/span>/gi, '');
 
-  // Step 8: Clean up whitespace (now safe because br tags are protected)
+  // Step 8: Remove existing p tags and replace with paragraph markers
+  result = result.replace(/<\/p>\s*<p[^>]*>/gi, '|||PARA|||');
+  result = result.replace(/<p[^>]*>/gi, '');
+  result = result.replace(/<\/p>/gi, '|||PARA|||');
+
+  // Step 9: Clean up whitespace (but preserve BR markers)
   result = result.replace(/\s+/g, ' ');
 
-  // Step 9: Restore br tags
+  // Step 10: Restore br tags
   result = result.replace(/\|\|\|BR\|\|\|/g, '<br>');
 
-  // Step 10: Clean up whitespace around br tags
+  // Step 11: Clean up whitespace around br tags
   result = result.replace(/<br>\s+/g, '<br>');
   result = result.replace(/\s+<br>/g, '<br>');
 
-  // Step 11: Limit consecutive br tags to maximum of 2
-  result = result.replace(/(<br>){3,}/g, '<br><br>');
+  // Step 12: Split by paragraph markers and wrap each in <p> tags
+  const paragraphs = result.split('|||PARA|||')
+    .map(p => p.trim())
+    .filter(p => p.length > 0)
+    .map(p => `<p>${p}</p>`)
+    .join('');
 
-  return result.trim();
+  return paragraphs;
 }
 
 // Content interfaces
@@ -1943,8 +1948,28 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
 
                   return (
                     <div key={index} className="my-6 max-w-3xl mx-auto px-4 md:px-8 lg:px-10">
-                     
-                      <p
+                      <style jsx>{`
+                        .article-content-text {
+                          font-weight: 400;
+                        }
+                        .article-content-text :global(*) {
+                          font-weight: 400;
+                        }
+                        .article-content-text :global(p) {
+                          margin-bottom: 1rem;
+                        }
+                        .article-content-text :global(p),
+                        .article-content-text :global(div),
+                        .article-content-text :global(span),
+                        .article-content-text :global(a) {
+                          font-weight: 400;
+                        }
+                        .article-content-text :global(strong),
+                        .article-content-text :global(b) {
+                          font-weight: 700;
+                        }
+                      `}</style>
+                      <div
                         className="article-content-text text-foreground leading-relaxed"
                         style={{
                            fontFamily: 'Noto Sans',
@@ -2002,6 +2027,9 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                 }
                                 .article-content-text :global(*) {
                                   font-weight: 400;
+                                }
+                                .article-content-text :global(p) {
+                                  margin-bottom: 1rem;
                                 }
                                 .article-content-text :global(p),
                                 .article-content-text :global(div),
