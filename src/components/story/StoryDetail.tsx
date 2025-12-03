@@ -2334,6 +2334,38 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                         // Extract Content array
                         const columnarContentArray = 'Content' in obj && Array.isArray(obj.Content) ? obj.Content : null
 
+                        console.log('##Rohit_Rocks## Columnar Text - Content Array Length:', columnarContentArray?.length)
+
+                        // Handle single column (when only 1 item in Content array)
+                        if (columnarContentArray && columnarContentArray.length === 1) {
+                          const singleColumn = columnarContentArray[0] as Record<string, unknown>
+                          const singleText = 'Paragraph' in singleColumn && typeof singleColumn.Paragraph === 'string' ? singleColumn.Paragraph : ''
+
+                          console.log('##Rohit_Rocks## Columnar Text (Single) - Text:', singleText.substring(0, 100))
+
+                          return (
+                            <div key={index} className="my-16 w-full flex justify-center">
+                              <div className="my-6 max-w-3xl mx-auto px-4">
+                                <div className="flex justify-center">
+                                  {/* Single Column */}
+                                  <div
+                                    className="text-foreground columnar-text-content max-w-2xl"
+                                    style={{
+                                      fontFamily: 'Noto Sans',
+                                      fontWeight: 400,
+                                      fontSize: `${fontSize}px`,
+                                      lineHeight: '170%',
+                                      letterSpacing: '-3%'
+                                    }}
+                                    dangerouslySetInnerHTML={{ __html: singleText }}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          )
+                        }
+
+                        // Handle two columns (when 2 or more items in Content array)
                         if (columnarContentArray && columnarContentArray.length >= 2) {
                           const leftColumn = columnarContentArray[0] as Record<string, unknown>
                           const rightColumn = columnarContentArray[1] as Record<string, unknown>
@@ -2376,6 +2408,52 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                           )
                         }
 
+                        return null
+
+                      case 'modular-content.single-columnar-text':
+                        // Skip single columnar text if showing photos only
+                        if (showPhotos) return null
+
+                        // Debug logging
+                        console.log('##Rohit_Rocks## Single Columnar Text Component Found:', obj)
+                        console.log('##Rohit_Rocks## Has Content?', 'Content' in obj)
+                        console.log('##Rohit_Rocks## Content value:', obj.Content)
+
+                        // Extract Content array
+                        const singleColumnarContentArray = 'Content' in obj && Array.isArray(obj.Content) ? obj.Content : null
+
+                        console.log('##Rohit_Rocks## Single Columnar Content Array:', singleColumnarContentArray)
+
+                        if (singleColumnarContentArray && singleColumnarContentArray.length >= 1) {
+                          const singleColumn = singleColumnarContentArray[0] as Record<string, unknown>
+                          const singleText = 'Paragraph' in singleColumn && typeof singleColumn.Paragraph === 'string' ? singleColumn.Paragraph : ''
+
+                          console.log('##Rohit_Rocks## Single Column Data:', singleColumn)
+                          console.log('##Rohit_Rocks## Single Text:', singleText)
+
+                          return (
+                            <div key={index} className="my-16 w-full flex justify-center">
+                              <div className="my-6 max-w-3xl mx-auto px-4">
+                                <div className="flex justify-center">
+                                  {/* Single Column */}
+                                  <div
+                                    className="text-foreground columnar-text-content max-w-2xl"
+                                    style={{
+                                      fontFamily: 'Noto Sans',
+                                      fontWeight: 400,
+                                      fontSize: `${fontSize}px`,
+                                      lineHeight: '170%',
+                                      letterSpacing: '-3%'
+                                    }}
+                                    dangerouslySetInnerHTML={{ __html: singleText }}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          )
+                        }
+
+                        console.log('##Rohit_Rocks## Single Columnar Text - No valid content found')
                         return null
 
                       case 'modular-content.image':
@@ -4928,6 +5006,14 @@ async function fetchStoryBySlug(slug: string) {
     const finalContent = Array.isArray(articleData.attributes.Modular_Content)
       ? articleData.attributes.Modular_Content
       : []
+
+    // Debug: Log all component types in Modular_Content
+    console.log('##Rohit_Rocks## Total Modular_Content items:', finalContent.length)
+    finalContent.forEach((item, index) => {
+      if (item && typeof item === 'object' && '__component' in item) {
+        console.log(`##Rohit_Rocks## Item ${index}: ${item.__component}`)
+      }
+    })
 
     const finalTitle = articleData.attributes.Title || "Untitled Story"
 
