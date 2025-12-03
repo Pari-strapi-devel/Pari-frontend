@@ -619,6 +619,9 @@ function stripHtmlCssWithStyledStrong(text: string): string {
   result = result.replace(/<br>\s+/g, '<br>');
   result = result.replace(/\s+<br>/g, '<br>');
 
+  // Step 11: Limit consecutive br tags to maximum of 2
+  result = result.replace(/(<br>){3,}/g, '<br><br>');
+
   return result.trim();
 }
 
@@ -1603,7 +1606,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                         <span key={nameIndex}>
                           <button
                             onClick={() => {
-                              console.log('##Rohit_Rocks## Author clicked:', name)
+                             
                               router.push(`/articles?author=${encodeURIComponent(name)}`)
                             }}
                             className="hover:text-primary-PARI-Red dark:hover:text-primary-PARI-Red transition-colors text-left"
@@ -1956,7 +1959,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                           const isStarsOnly = /^[\s*]+$/.test(strippedContent)
 
                           return (
-                            <div key={index} className="my-6 max-w-4xl mx-auto px-4 md:px-8 lg:px-10">
+                            <div key={index} className="my-6 max-w-3xl mx-auto px-4 md:px-8 lg:px-10">
                               <style jsx>{`
                                 .article-content-text {
                                   font-weight: 400;
@@ -2284,7 +2287,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
 
                           return (
                             <div key={index} className="my-16 w-full flex justify-center">
-                              <div className="my-6 max-w-4xl mx-auto px-4 ">
+                              <div className="my-6 max-w-3xl mx-auto px-4 ">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                   {/* Left Column */}
                                   <div
@@ -3286,145 +3289,125 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
               </button>
             </div>
 
-            {/* All Authors - Dynamic - Grouped by Role */}
-            {groupedAuthors.map((group, index) => (
-              <div key={index} className="bg-white dark:bg-popover rounded-lg p-6 md:p-8 mb-6 shadow-sm">
-                <h3 className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-3 tracking-wider">
-                  {group.title || getTranslatedLabel('author', currentLocale)}
-                </h3>
-                <div className={`text-2xl font-bold mb-4 ${story.isStudent ? 'text-[#2F80ED]' : 'text-primary-PARI-Red'}`}>
-                  {group.names.map((name, nameIndex) => (
-                    <span key={nameIndex}>
-                      <button
-                        onClick={() => {
-                          console.log('##Rohit_Rocks## Author name clicked in credits:', name)
-                          router.push(`/articles?author=${encodeURIComponent(name)}`)
-                        }}
-                        className="hover:underline transition-all text-left"
-                      >
-                        <h3 className='text-2xl'>{name}</h3>
-                      </button>
-                      {nameIndex < group.names.length - 1 && ', '}
-                    </span>
-                  ))}
-                </div>
-                {/* Show bios for all authors in this group */}
-                {group.bios.filter(bio => bio).length > 0 && (
-                  <div className="space-y-4 mb-6">
-                    {group.bios.map((bio, bioIndex) => bio && (
-                      <div key={bioIndex}>
-                        {group.names.length > 1 && (
-                          <p className="font-semibold text-gray-900 dark:text-gray-100 mb-2">
-                            {group.names[bioIndex]}:
-                          </p>
-                        )}
+            {/* All Authors - Dynamic - Separate Cards */}
+            {groupedAuthors.map((group, groupIndex) => (
+              // Create separate card for each author in the group
+              group.names.map((name, authorIndex) => {
+                const bio = group.bios[authorIndex]
+                const email = group.emails[authorIndex]
+                const twitter = group.twitters[authorIndex]
+                const facebook = group.facebooks[authorIndex]
+                const instagram = group.instagrams[authorIndex]
+                const linkedin = group.linkedins[authorIndex]
+
+                const hasSocialLinks = email || twitter || facebook || instagram || linkedin
+
+                return (
+                  <div
+                    key={`${groupIndex}-${authorIndex}`}
+                    onClick={() => {
+                      router.push(`/articles?author=${encodeURIComponent(name)}`)
+                    }}
+                    className="bg-white dark:bg-popover rounded-lg p-6 md:p-8 mb-6 shadow-sm cursor-pointer hover:shadow-md transition-shadow"
+                  >
+                    <h3 className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-3 tracking-wider">
+                      {group.title || getTranslatedLabel('author', currentLocale)}
+                    </h3>
+                    <div className={`text-2xl font-bold mb-4 ${story.isStudent ? 'text-[#2F80ED]' : 'text-primary-PARI-Red'}`}>
+                      <h3 className='text-2xl'>{name}</h3>
+                    </div>
+
+                    {/* Show bio if available */}
+                    {bio && (
+                      <div className="mb-6">
                         <p
                           className="text-gray-700 dark:text-gray-300 leading-relaxed"
                           dangerouslySetInnerHTML={{ __html: stripHtmlCssWithStyledStrong(bio) }}
                         />
                       </div>
-                    ))}
+                    )}
+
+                    <div className="flex items-center gap-4">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation() // Prevent card click
+                          router.push(`/articles?author=${encodeURIComponent(name)}`)
+                        }}
+                        className={`px-6 py-2 border ${story.isStudent ? 'border-[#2F80ED] text-[#2F80ED] hover:bg-[#2F80ED]' : 'border-primary-PARI-Red text-primary-PARI-Red hover:bg-primary-PARI-Red'} rounded-full hover:text-white transition-colors text-sm font-medium flex items-center gap-2`}
+                      >
+                        {getTranslatedLabel('seeMoreStories', currentLocale)}
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                      </button>
+
+                      {/* Social Media Links - Dynamic from API */}
+                      {hasSocialLinks && (
+                        <div className="flex gap-3">
+                          {email && (
+                            <a
+                              href={`mailto:${email}`}
+                              onClick={(e) => e.stopPropagation()} // Prevent card click
+                              className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+                              title="Email"
+                            >
+                              <FiMail className="w-6 h-6" />
+                            </a>
+                          )}
+                          {instagram && (
+                            <a
+                              href={instagram}
+                              onClick={(e) => e.stopPropagation()} // Prevent card click
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+                              title="Instagram"
+                            >
+                              <FaInstagram className="w-6 h-6" />
+                            </a>
+                          )}
+                          {twitter && (
+                            <a
+                              href={twitter}
+                              onClick={(e) => e.stopPropagation()} // Prevent card click
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+                              title="Twitter/X"
+                            >
+                              <FaXTwitter className="w-6 h-6" />
+                            </a>
+                          )}
+                          {facebook && (
+                            <a
+                              href={facebook}
+                              onClick={(e) => e.stopPropagation()} // Prevent card click
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+                              title="Facebook"
+                            >
+                              <FaFacebookF className="w-6 h-6" />
+                            </a>
+                          )}
+                          {linkedin && (
+                            <a
+                              href={linkedin}
+                              onClick={(e) => e.stopPropagation()} // Prevent card click
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+                              title="LinkedIn"
+                            >
+                              <FaLinkedinIn className="w-6 h-6" />
+                            </a>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </div>
-                )}
-
-                <div className="flex items-center gap-4">
-                  <button
-                    onClick={() => {
-                      // If multiple authors, navigate to articles filtered by this role
-                      if (group.names.length > 1) {
-                        router.push(`/articles`)
-                      } else {
-                        router.push(`/authors/${group.names[0].toLowerCase().replace(/\s+/g, '-')}`)
-                      }
-                    }}
-                    className={`px-6 py-2 border ${story.isStudent ? 'border-[#2F80ED] text-[#2F80ED] hover:bg-[#2F80ED]' : 'border-primary-PARI-Red text-primary-PARI-Red hover:bg-primary-PARI-Red'} rounded-full hover:text-white transition-colors text-sm font-medium flex items-center gap-2`}
-                  >
-                    {getTranslatedLabel('seeMoreStories', currentLocale)}
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M5 12h14M12 5l7 7-7 7"/>
-                    </svg>
-                  </button>
-
-                  {/* Social Media Links - Dynamic from API */}
-                  {(() => {
-                    // Collect all unique social links from all authors in this group
-                    const allEmails = group.emails.filter(e => e)
-                    const allTwitters = group.twitters.filter(t => t)
-                    const allFacebooks = group.facebooks.filter(f => f)
-                    const allInstagrams = group.instagrams.filter(i => i)
-                    const allLinkedins = group.linkedins.filter(l => l)
-
-                    const hasSocialLinks = allEmails.length > 0 || allTwitters.length > 0 ||
-                                          allFacebooks.length > 0 || allInstagrams.length > 0 ||
-                                          allLinkedins.length > 0
-
-                    if (!hasSocialLinks) return null
-
-                    return (
-                      <div className="flex gap-3">
-                        {allEmails.map((email, idx) => (
-                          <a
-                            key={`email-${idx}`}
-                            href={`mailto:${email}`}
-                            className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
-                            title="Email"
-                          >
-                            <FiMail className="w-6 h-6" />
-                          </a>
-                        ))}
-                        {allInstagrams.map((instagram, idx) => (
-                          <a
-                            key={`instagram-${idx}`}
-                            href={instagram}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
-                            title="Instagram"
-                          >
-                            <FaInstagram className="w-6 h-6" />
-                          </a>
-                        ))}
-                        {allTwitters.map((twitter, idx) => (
-                          <a
-                            key={`twitter-${idx}`}
-                            href={twitter}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
-                            title="Twitter/X"
-                          >
-                            <FaXTwitter className="w-6 h-6" />
-                          </a>
-                        ))}
-                        {allFacebooks.map((facebook, idx) => (
-                          <a
-                            key={`facebook-${idx}`}
-                            href={facebook}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
-                            title="Facebook"
-                          >
-                            <FaFacebookF className="w-6 h-6" />
-                          </a>
-                        ))}
-                        {allLinkedins.map((linkedin, idx) => (
-                          <a
-                            key={`linkedin-${idx}`}
-                            href={linkedin}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
-                            title="LinkedIn"
-                          >
-                            <FaLinkedinIn className="w-6 h-6" />
-                          </a>
-                        ))}
-                      </div>
-                    )
-                  })()}
-                </div>
-              </div>
+                )
+              })
             ))}
           </div>
         </div>
