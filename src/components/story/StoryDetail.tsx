@@ -733,6 +733,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
     instagrams: string[];
     linkedins: string[];
   }>>([])
+  const [showAllCategories, setShowAllCategories] = useState(false)
 
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -1447,7 +1448,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
           showHeaderBar ? 'translate-y-0' : '-translate-y-full'
         }`}
       >
-        <div className="max-w-7xl mx-auto px-3 md:px-8 py-3 md:py-4 flex items-center justify-center gap-4 md:gap-12 relative">
+        <div className="max-w-7xl mx-auto px-3 md:px-8 py-3 md:py-4 flex items-center justify-center gap-12 md:gap-16 relative">
           {/* Audio Play */}
           {/* <button
             onClick={handleAudioToggle}
@@ -1550,7 +1551,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
             {/* Close Button */}
             <button
               onClick={handleClose}
-              className={`absolute top-6 right-6 w-10 h-10 flex items-center justify-center rounded-full border-2 ${story.isStudent ? 'border-[#2F80ED] text-[#2F80ED] hover:bg-[#2F80ED]' : 'border-primary-PARI-Red text-primary-PARI-Red hover:bg-primary-PARI-Red'} hover:text-white transition-colors`}
+              className={`absolute md:top-6 top-2 right-2 md:right-6 w-10 h-10 flex items-center justify-center rounded-full border-2 ${story.isStudent ? 'border-[#2F80ED] text-[#2F80ED] hover:bg-[#2F80ED]' : 'border-primary-PARI-Red text-primary-PARI-Red hover:bg-primary-PARI-Red'} hover:text-white transition-colors`}
             >
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <line x1="5" y1="10" x2="15" y2="10" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
@@ -1575,22 +1576,75 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
             {/* Category Tags */}
             {story.categories && story.categories.length > 0 && (
               <div className="flex flex-wrap gap-2 mb-4">
-                {story.categories.map((category, index) => (
-                  <button
-                    key={index}
-                    onClick={() => {
-                      router.push(`/articles?types=${category.slug}`)
-                    }}
-                    className={`px-4 py-2 border ${story.isStudent ? 'border-[#2F80ED] text-[#2F80ED] hover:bg-[#2F80ED]' : 'border-primary-PARI-Red text-primary-PARI-Red hover:bg-primary-PARI-Red'} font-noto-sans rounded-full hover:text-white transition-colors cursor-pointer`}
-                    style={{
-                      fontSize: '14px',
-                      fontWeight: 400,
-                      lineHeight: '100%'
-                    }}
-                  >
-                    {category.title}
-                  </button>
-                ))}
+                {showAllCategories ? (
+                  // Show all categories
+                  <>
+                    {story.categories.map((category, index) => (
+                      <button
+                        key={index}
+                        onClick={() => {
+                          router.push(`/articles?types=${category.slug}`)
+                        }}
+                        className={`px-4 py-2 border ${story.isStudent ? 'border-[#2F80ED] text-[#2F80ED] hover:bg-[#2F80ED]' : 'border-primary-PARI-Red text-primary-PARI-Red hover:bg-primary-PARI-Red'} font-noto-sans rounded-full hover:text-white transition-colors cursor-pointer animate-slide-in-left`}
+                        style={{
+                          fontSize: '14px',
+                          fontWeight: 400,
+                          lineHeight: '100%'
+                        }}
+                      >
+                        {category.title}
+                      </button>
+                    ))}
+                    {/* Reset button */}
+                    {story.categories.length > 2 && (
+                      <button
+                        onClick={() => setShowAllCategories(false)}
+                        className={`px-4 py-2 border ${story.isStudent ? 'border-[#2F80ED] text-[#2F80ED] hover:bg-[#2F80ED]' : 'border-primary-PARI-Red text-primary-PARI-Red hover:bg-primary-PARI-Red'} font-noto-sans rounded-full hover:text-white transition-colors cursor-pointer`}
+                        style={{
+                          fontSize: '14px',
+                          fontWeight: 400,
+                          lineHeight: '100%'
+                        }}
+                      >
+                        -
+                      </button>
+                    )}
+                  </>
+                ) : (
+                  // Show only first 2 categories
+                  <>
+                    {story.categories.slice(0, 2).map((category, index) => (
+                      <button
+                        key={index}
+                        onClick={() => {
+                          router.push(`/articles?types=${category.slug}`)
+                        }}
+                        className={`px-4 py-2 border ${story.isStudent ? 'border-[#2F80ED] text-[#2F80ED] hover:bg-[#2F80ED]' : 'border-primary-PARI-Red text-primary-PARI-Red hover:bg-primary-PARI-Red'} font-noto-sans rounded-full hover:text-white transition-colors cursor-pointer`}
+                        style={{
+                          fontSize: '14px',
+                          fontWeight: 400,
+                          lineHeight: '100%'
+                        }}
+                      >
+                        {category.title}
+                      </button>
+                    ))}
+                    {/* Show more button */}
+                    {story.categories.length > 2 && (
+                      <button
+                        onClick={() => setShowAllCategories(true)}
+                        className={`px-4 py-2 border ${story.isStudent ? 'border-[#2F80ED] text-[#2F80ED] hover:bg-[#2F80ED]' : 'border-primary-PARI-Red text-primary-PARI-Red hover:bg-primary-PARI-Red'} font-noto-sans rounded-full hover:text-white transition-colors cursor-pointer`}
+                        style={{
+                          fontSize: '14px',
+                          fontWeight: 400,
+                          lineHeight: '100%'
+                        }}
+                      >
+                        +{story.categories.length - 2}
+                      </button>
+                    )}
+                  </>
+                )}
               </div>
             )}
 
@@ -1638,7 +1692,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
 
                               router.push(`/articles?author=${encodeURIComponent(name)}`)
                             }}
-                            className="hover:text-primary-PARI-Red dark:hover:text-primary-PARI-Red transition-colors text-left"
+                            className={`transition-colors text-left ${story.isStudent ? 'hover:text-[#2F80ED] dark:hover:text-[#2F80ED]' : 'hover:text-primary-PARI-Red dark:hover:text-primary-PARI-Red'}`}
                           >
                             {name}
                           </button>
@@ -1703,81 +1757,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
         </div>
       )}
 
-   {!showHeaderBar && (
-     <div className="flex justify-center items-center gap-4 mt-8 mb-8">
-          {/* Photo Story Button */}
-          <button
-            onClick={handlePhotoClick}
-            className={`flex items-center gap-2 px-6 py-3 border ${story.isStudent ? 'border-[#2F80ED] text-[#2F80ED] hover:bg-[#2F80ED]' : 'border-primary-PARI-Red text-primary-PARI-Red hover:bg-primary-PARI-Red'} rounded-full font-noto-sans hover:text-white transition-colors`}
-            style={{
-              fontSize: '14px',
-              fontWeight: 400,
-              lineHeight: '100%'
-            }}
-          >
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5">
-              <rect x="3" y="3" width="14" height="14" rx="2" ry="2"/>
-              <circle cx="8" cy="8" r="2"/>
-              <path d="M17 13 L13 9 L5 17"/>
-            </svg>
-            Photo Story
-          </button>
-
-          {/* Share Button */}
-          <button
-            onClick={handleShare}
-            className={`flex items-center gap-2 px-6 py-3 border ${story.isStudent ? 'border-[#2F80ED] text-[#2F80ED] hover:bg-[#2F80ED]' : 'border-primary-PARI-Red text-primary-PARI-Red hover:bg-primary-PARI-Red'} rounded-full font-noto-sans hover:text-white transition-colors`}
-            style={{
-              fontSize: '14px',
-              fontWeight: 400,
-              lineHeight: '100%'
-            }}
-          >
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5">
-              <path d="M13 7 L18 2 M18 2 L18 7 M18 2 L10 10"/>
-              <path d="M15 11 L15 17 C15 17.5 14.5 18 14 18 L3 18 C2.5 18 2 17.5 2 17 L2 6 C2 5.5 2.5 5 3 5 L9 5"/>
-            </svg>
-            Share
-          </button>
-
-          {/* Print Button */}
-          <button
-            onClick={handlePrint}
-            className={`flex items-center gap-2 px-6 py-3 border ${story.isStudent ? 'border-[#2F80ED] text-[#2F80ED] hover:bg-[#2F80ED]' : 'border-primary-PARI-Red text-primary-PARI-Red hover:bg-primary-PARI-Red'} rounded-full font-noto-sans hover:text-white transition-colors`}
-            style={{
-              fontSize: '14px',
-              fontWeight: 400,
-              lineHeight: '100%'
-            }}
-          >
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5">
-              <path d="M5 6 L5 2 L15 2 L15 6"/>
-              <rect x="2" y="6" width="16" height="6" rx="1"/>
-              <rect x="5" y="10" width="10" height="8"/>
-            </svg>
-            Print
-          </button>
-
-          {/* Text Size Controls */}
-          <div className={`flex items-center gap-3 px-6 py-3 border ${story.isStudent ? 'border-[#2F80ED]' : 'border-primary-PARI-Red'} rounded-full`}>
-            <button
-              onClick={decreaseFontSize}
-              className={`${story.isStudent ? 'text-[#2F80ED] hover:text-[#2F80ED]/70' : 'text-primary-PARI-Red hover:text-primary-PARI-Red/70'} transition-opacity text-xl font-bold leading-none`}
-              title="Decrease Font Size"
-            >
-              −
-            </button>
-            <span className={`${story.isStudent ? 'text-[#2F80ED]' : 'text-primary-PARI-Red'} font-bold text-lg`}>T</span>
-            <button
-              onClick={increaseFontSize}
-              className={`${story.isStudent ? 'text-[#2F80ED] hover:text-[#2F80ED]/70' : 'text-primary-PARI-Red hover:text-primary-PARI-Red/70'} transition-opacity text-xl font-bold leading-none`}
-              title="Increase Font Size"
-            >
-              +
-            </button>
-          </div>
-        </div>
-   )}
+ 
       {/* Main Content - Always visible */}
       <div className="w-full mt-8 mx-auto  md:px-8">
         {story.content && story.content.length > 0 ? (
