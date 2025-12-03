@@ -7,11 +7,10 @@ import qs from 'qs'
 import { StoryCard } from '@/components/layout/stories/StoryCard'
 
 import { BASE_URL } from '@/config'
-import { X, Filter, ChevronLeft, ChevronRight } from 'lucide-react'
+import { X,  ChevronLeft, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { languages as languagesList } from '@/data/languages';
 import { useLocale } from '@/lib/locale'
-import { LanguageToggle } from '@/components/layout/header/LanguageToggle'
 
 
 // Import the getTextDirection function or define it here
@@ -27,12 +26,12 @@ export interface Story {
   // description: string;
   imageUrl: string;
   slug: string;
-  categories: string[];
+  categories: Array<{ title: string; slug: string }>;
   authors: string[];
   localizations: Array<{ locale: string; title: string; strap: string; slug: string }>;
   location: string;
   date: string;
-  type: string; 
+  type: string;
   isStudentArticle: boolean;
   availableLanguages?: string[]; // Add this property
 }
@@ -41,13 +40,17 @@ export interface AuthorData {
   attributes?: {
     author_name?: {
       data?: {
+        id: number;
         attributes?: {
           Name: string;
+          Bio?: string;
+          Description?: string;
         };
       };
     };
     author_role?: {
       data?: {
+        id: number;
         attributes?: {
           Name: string;
         };
@@ -56,13 +59,17 @@ export interface AuthorData {
   };
   author_name?: {
     data?: {
+      id: number;
       attributes?: {
         Name: string;
+        Bio?: string;
+        Description?: string;
       };
     };
   };
   author_role?: {
     data?: {
+      id: number;
       attributes?: {
         Name: string;
       };
@@ -83,6 +90,7 @@ export interface ArticleAttributes {
   Original_published_date?: string;
   type?: string;
   is_student?: boolean;
+  locale?: string;
   Cover_image?: {
     data?: {
       attributes?: {
@@ -284,6 +292,11 @@ export default function ArticlesContent() {
       params.delete(filterType);
     }
     
+    // Preserve locale if it exists
+    if (currentLocale && currentLocale !== 'en') {
+      params.set('locale', currentLocale);
+    }
+
     // Update sessionStorage with new filters
     const newFilters = {
       types: params.get('types') || null,
@@ -292,9 +305,9 @@ export default function ArticlesContent() {
       dates: params.get('dates') || null,
       content: params.get('content') || null
     };
-    
+
     sessionStorage.setItem('articleFilters', JSON.stringify(newFilters));
-    
+
     // Navigate to the new URL
     const newSearchParams = params.toString();
     router.push(newSearchParams ? `/articles?${newSearchParams}` : '/articles');
@@ -419,16 +432,9 @@ export default function ArticlesContent() {
           setFilterTitle(`${categorySlugs.join(', ')}`)
         }
         
-        // Author filter
+        // Author filter - using URL parameter approach like search
         if (author) {
-          filters.Authors = {
-            author_name: {
-              Name: {
-                $containsi: author
-              }
-            }
-          }
-          console.log('Added author filter:', filters.Authors);
+          // We'll handle this differently using URL parameters
           setFilterTitle(`Author: ${author}`)
         }
         
@@ -565,7 +571,20 @@ export default function ArticlesContent() {
         if ([types, author, location, dates, content, languages].filter(Boolean).length > 1) {
           setFilterTitle('Multiple Filters Applied');
         }
-        
+
+        // Clean up filters - remove empty $and array if no filters are applied
+        const cleanedFilters: Record<string, unknown> = {}
+
+        if (filters.categories) cleanedFilters.categories = filters.categories
+        if (filters.Authors) cleanedFilters.Authors = filters.Authors
+        if (filters.Original_published_date) cleanedFilters.Original_published_date = filters.Original_published_date
+        if (filters.location) cleanedFilters.location = filters.location
+        if (filters.location_auto_suggestion) cleanedFilters.location_auto_suggestion = filters.location_auto_suggestion
+        if (filters.type) cleanedFilters.type = filters.type
+        if (filters.is_student) cleanedFilters.is_student = filters.is_student
+        if (filters.$or) cleanedFilters.$or = filters.$or
+        if (filters.$and && filters.$and.length > 0) cleanedFilters.$and = filters.$and
+
         // Build the query with pagination and sorting by date
         const query = {
           populate: {
@@ -591,7 +610,7 @@ export default function ArticlesContent() {
             type: true,
             is_student: true
           },
-          filters,
+          ...(Object.keys(cleanedFilters).length > 0 ? { filters: cleanedFilters } : {}),
           pagination: {
             page: currentPage,
             pageSize: pageSize
@@ -642,11 +661,42 @@ export default function ArticlesContent() {
             setTotalPages(Math.ceil(totalItems / pageSize));
           } else {
             // If no language filter, make a single request with the current locale
-            const queryWithLocale = { ...query, locale: currentLocale };
-            const queryString = qs.stringify(queryWithLocale, { encodeValuesOnly: true });
-            console.log('Query string sent to API:', queryString);
-            
-            const response = await axios.get(`${BASE_URL}api/articles?${queryString}`);
+            let response;
+
+            if (author) {
+              // Use axios params for author filter like search functionality
+              const params: Record<string, string | number | boolean> = {
+                'filters[Authors][author_name][Name][$containsi]': author,
+                'pagination[page]': currentPage,
+                'pagination[pageSize]': pageSize,
+                'populate[Cover_image][fields][0]': 'url',
+                'populate[Authors][populate][author_name][fields][0]': 'Name',
+                'populate[categories][fields][0]': 'Title',
+                'populate[categories][fields][1]': 'slug',
+                'populate[location][fields][0]': 'name',
+                'populate[location][fields][1]': 'district',
+                'populate[location][fields][2]': 'state',
+                'populate[localizations][fields][0]': 'locale',
+                'populate[localizations][fields][1]': 'title',
+                'populate[localizations][fields][2]': 'strap',
+                'populate[localizations][fields][3]': 'slug',
+                'populate[type]': true,
+                'populate[is_student]': true,
+                'sort[0]': 'Original_published_date:desc',
+                'locale': currentLocale
+              };
+
+              console.log('Making author filter API call with params:', params);
+              response = await axios.get(`${BASE_URL}api/articles`, { params });
+            } else {
+              // Use the existing query structure for other filters
+              const queryWithLocale = { ...query, locale: currentLocale };
+              const queryString = qs.stringify(queryWithLocale, { encodeValuesOnly: true });
+              console.log('Query string sent to API:', queryString);
+
+              response = await axios.get(`${BASE_URL}api/articles?${queryString}`);
+            }
+
             allResults = response.data.data;
             
             // Set total pages from pagination metadata
@@ -708,9 +758,12 @@ export default function ArticlesContent() {
               return language ? language.name : langCode;
             });
             
-            // Extract categories
+            // Extract categories with both title and slug
             const categories = attributes.categories?.data?.map(
-              (cat: { attributes: { Title: string } }) => cat.attributes.Title
+              (cat: { attributes: { Title: string; slug?: string } }) => ({
+                title: cat.attributes.Title,
+                slug: cat.attributes.slug || ''
+              })
             ) || [];
             
             // Format date
@@ -878,34 +931,27 @@ export default function ArticlesContent() {
     <div className="min-h-screen">
       
       <main className="max-w-[1232px] mx-auto px-4 py-8" dir={textDirection}>
-        {/* Add LanguageToggle */}
-        <LanguageToggle />
-        
         <div className="mb-8 pl-3">
           <div className={`flex items-center justify-between mb-4 ${currentLocale === 'ur' ? 'flex-row-reverse' : ''}`}>
-            <h1 className="text-3xl ml-3 font-bold">Articles</h1>
-            {hasActiveFilters && (
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={clearFilters}
-                className="text-primary-PARI-Red rounded-[48px] hover:bg-primary-PARI-Red hover:text-white border-primary-PARI-Red"
-              >
-                Clear All Filters
-              </Button>
-            )}
+            <div>
+              <h1 className="text-4xl ml-3 font-bold">Articles</h1>
+              {/* Author-specific title */}
+              {activeFilters.author && (
+                <h2 className="text-xl ml-3 mt-2 font-semibold text-primary-PARI-Red">
+                  Stories by {activeFilters.author}
+                </h2>
+              )}
+            </div>
+           
           </div>
           
           {/* Active filters display */}
           {hasActiveFilters && (
             <div className={`flex items-center justify-between mb-4 ${currentLocale === 'ur' ? 'flex-row-reverse' : ''}`}>
-              <div className={`flex items-center gap-2 ${currentLocale === 'ur' ? 'flex-row-reverse' : ''}`}>
-                <Filter className="h-5 w-5 text-primary-PARI-Red" />
-                <h2 className="text-lg font-semibold">Active Filters: </h2>
-              </div>
+             
             </div>
           )}
-            <div className={`flex flex-wrap gap-2 mb-6 ${currentLocale === 'ur' ? 'flex-row-reverse' : ''}`}>
+            <div className={`flex flex-wrap gap-6 mb-6 ${currentLocale === 'ur' ? 'flex-row-reverse' : ''}`}>
               {activeFilters.types?.map(type => (
                 <div key={`type-${type}`} className={`flex items-center ring-1 text-primary-PARI-Red ring-primary-PARI-Red bg-background rounded-full px-3 py-1 ${currentLocale === 'ur' ? 'flex-row-reverse' : ''}`}>
                   <span className="text-sm mr-2"> {type}</span>
@@ -917,8 +963,20 @@ export default function ArticlesContent() {
                   >
                     <X className="h-3 w-3 text-primary-PARI-Red" />
                   </Button>
+                  
                 </div>
+                
               ))}
+               {hasActiveFilters && (
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={clearFilters}
+                className="text-primary-PARI-Red rounded-[48px] hover:bg-primary-PARI-Red hover:text-white border-primary-PARI-Red"
+              >
+                Clear all filters
+              </Button>
+            )}
               
               {activeFilters.author && (
                 <div className="flex items-center  ring-1 text-primary-PARI-Red ring-primary-PARI-Red bg-background  rounded-full px-3 py-1">

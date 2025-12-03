@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, Suspense } from 'react';
 import { useLocale } from '@/lib/locale';
+import { LanguageToggle } from '@/components/layout/header/LanguageToggle';
 import axios from 'axios';
 
 // Define interfaces for the grievance API
@@ -104,7 +105,7 @@ const GrievanceContent = () => {
         setIsLoading(true);
         setError(null);
 
-        const apiUrl = `https://dev.ruralindiaonline.org/v1/api/grievance?populate=*&locale=${currentLocale}`;
+        const apiUrl = `https://merge.ruralindiaonline.org/v1/api/grievance?populate=*&locale=${currentLocale}`;
         const response = await axios.get<ApiResponse>(apiUrl);
 
         if (response.data.data) {
@@ -118,7 +119,7 @@ const GrievanceContent = () => {
         // Fallback to English if locale not found
         if (axios.isAxiosError(err) && err.response?.status === 404 && currentLocale !== 'en') {
           try {
-            const fallbackUrl = 'https://dev.ruralindiaonline.org/v1/api/grievance?populate=*&locale=en';
+            const fallbackUrl = 'https://merge.ruralindiaonline.org/v1/api/grievance?populate=*&locale=en';
             const fallbackResponse = await axios.get<ApiResponse>(fallbackUrl);
             
             if (fallbackResponse.data.data) {
@@ -414,6 +415,7 @@ const GrievancePage = () => {
   return (
     <Suspense fallback={<LoadingComponent />}>
       <GrievanceContent />
+      <LanguageToggle />
     </Suspense>
   );
 };

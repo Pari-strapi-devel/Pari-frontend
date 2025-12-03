@@ -6,7 +6,6 @@ import axios from 'axios'
 import qs from 'qs'
 import { BASE_URL, IMAGE_URL } from '@/config'
 import { useLocale } from '@/lib/locale'
-import { LanguageToggle } from '@/components/layout/header/LanguageToggle'
 
 interface Author {
   id: number
@@ -84,21 +83,16 @@ function LanguageUniverseContent() {
       setIsLoading(true)
       setError(null)
 
-      // Language Universe page IDs mapping
-      const pageIdMap: Record<string, number> = {
-        'en': 1,
-        'hi': 15,
-        'bn': 16,
-        'mr': 17,
-        'or': 18,
-        'ur': 19
-      }
+      console.log('##Rohit_Rocks## Current Locale:', currentLocale)
+      console.log('##Rohit_Rocks## Fetching Language Universe page by title')
 
-      // Get the page ID for current locale, fallback to English
-      const pageId = pageIdMap[currentLocale] || pageIdMap['en']
-
-      // Build query for Strapi to fetch the specific language universe page
+      // Build query for Strapi to fetch the Language Universe page by title
       const query = {
+        filters: {
+          Title: {
+            $eq: "PARI's Language Universe"
+          }
+        },
         populate: {
           Author: {
             populate: {
@@ -109,32 +103,77 @@ function LanguageUniverseContent() {
           },
           Modular_Content: true,
           localizations: {
-            fields: ['locale', 'Title', 'id']
+            populate: '*'
           }
-        }
+        },
+        locale: 'en'
       }
 
       const queryString = qs.stringify(query, { encodeValuesOnly: true })
-      const apiUrl = `${BASE_URL}api/pages/${pageId}?${queryString}`
-
-      console.log('##Rohit_Rocks## Current Locale:', currentLocale)
-      console.log('##Rohit_Rocks## Page ID:', pageId)
-      console.log('##Rohit_Rocks## Fetching from pages API:', apiUrl)
+      const apiUrl = `${BASE_URL}api/pages?${queryString}`
+      console.log('##Rohit_Rocks## API URL:', apiUrl)
 
       const response = await axios.get(apiUrl)
       console.log('##Rohit_Rocks## Pages API response:', response.data)
 
-      if (response.data.data) {
-        const pageData = {
-          id: response.data.data.id,
-          attributes: response.data.data.attributes
+      if (!response.data.data || response.data.data.length === 0) {
+        throw new Error('Language Universe page not found')
+      }
+
+      // Get the first (and should be only) result
+      const englishPage = response.data.data[0]
+
+      // If current locale is English, use the English page
+      if (currentLocale === 'en') {
+        console.log('##Rohit_Rocks## Using English content')
+        console.log('##Rohit_Rocks## Page title:', englishPage.attributes.Title)
+        console.log('##Rohit_Rocks## Page locale:', englishPage.attributes.locale)
+        setArticle(englishPage)
+      } else if (englishPage.attributes.localizations?.data?.length > 0) {
+        // Check if requested locale exists in localizations
+        const localization = englishPage.attributes.localizations.data.find(
+          (loc: { attributes: { locale: string } }) => loc.attributes.locale === currentLocale
+        )
+
+        if (localization) {
+          // Fetch the specific localization
+          console.log('##Rohit_Rocks## Found localization for', currentLocale, ', fetching full data...')
+          try {
+            const localeQuery = {
+              populate: {
+                Author: {
+                  populate: {
+                    AuthorImage: {
+                      fields: ['url', 'name', 'alternativeText']
+                    }
+                  }
+                },
+                Modular_Content: true
+              }
+            }
+            const localeQueryString = qs.stringify(localeQuery, { encodeValuesOnly: true })
+            const localeResponse = await axios.get(
+              `${BASE_URL}api/pages/${localization.id}?${localeQueryString}`
+            )
+            console.log('##Rohit_Rocks## Localized content:', {
+              Title: localeResponse.data.data.attributes.Title,
+              locale: localeResponse.data.data.attributes.locale
+            })
+            setArticle(localeResponse.data.data)
+          } catch (localeError) {
+            console.error('##Rohit_Rocks## Error fetching localized content:', localeError)
+            // Fallback to English
+            setArticle(englishPage)
+          }
+        } else {
+          // Fallback to English if locale not found
+          console.log('##Rohit_Rocks## No localization found for', currentLocale, ', using English')
+          setArticle(englishPage)
         }
-        console.log('##Rohit_Rocks## Page title:', pageData.attributes.Title)
-        console.log('##Rohit_Rocks## Page locale:', pageData.attributes.locale)
-        setArticle(pageData)
       } else {
-        console.log('##Rohit_Rocks## No page found')
-        setError('Language Universe page not found')
+        // No localizations available, use English
+        console.log('##Rohit_Rocks## No localizations available, using English')
+        setArticle(englishPage)
       }
     } catch (error) {
       console.error('##Rohit_Rocks## Error fetching language universe page:', error)
@@ -408,12 +447,7 @@ function LanguageUniverseContent() {
         <article className="max-w-none mt-8 space-y-2">
           {attributes.Modular_Content && renderModularContent(attributes.Modular_Content)}
         </article>
-
-        
       </div>
-
-      {/* Language Toggle */}
-      <LanguageToggle />
     </div>
   )
 }

@@ -139,22 +139,52 @@ export default function TeamsPage() {
   const fetchTeamData = async () => {
     try {
       console.log('##rohiiiiii## Fetching team data from API...')
-      const response = await fetch(`${API_BASE_URL}/v1/api/page-our-team?populate=deep`)
+      console.log('##rohiiiiii## API URL:', `${API_BASE_URL}/v1/api/page-our-team?populate[TeamMember][populate]=*`)
+
+      const response = await fetch(`${API_BASE_URL}/v1/api/page-our-team?populate[TeamMember][populate]=*`)
+      console.log('##rohiiiiii## Response status:', response.status)
+      console.log('##rohiiiiii## Response ok:', response.ok)
+
       const data: ApiResponse = await response.json()
-      console.log('##rohiiiiii## API Response:', data)
+      console.log('##rohiiiiii## Full API Response:', JSON.stringify(data, null, 2))
+
+      // Check if data exists
+      if (!data.data) {
+        console.error('##rohiiiiii## No data returned from API')
+        console.error('##rohiiiiii## Response was:', data)
+
+        // Try alternative populate strategy
+        console.log('##rohiiiiii## Trying alternative populate strategy...')
+        const altResponse = await fetch(`${API_BASE_URL}/v1/api/page-our-team?populate=deep,3`)
+        const altData: ApiResponse = await altResponse.json()
+        console.log('##rohiiiiii## Alternative API Response:', JSON.stringify(altData, null, 2))
+
+        if (altData.data && altData.data.attributes.TeamMember) {
+          setTeamMembers(altData.data.attributes.TeamMember)
+          console.log('##rohiiiiii## Team members set successfully from alternative API, count:', altData.data.attributes.TeamMember.length)
+          return
+        }
+
+        return
+      }
+
       console.log('##rohiiiiii## Team Members:', data.data.attributes.TeamMember)
 
       // Log image data for each member
-      data.data.attributes.TeamMember.forEach((member, index) => {
-        console.log(`##rohiiiiii## Member ${index + 1} (${member.Name}):`, {
-          hasPhoto: !!member.Photo?.data,
-          photoData: member.Photo?.data?.attributes,
-          imageUrl: member.Photo?.data ? `${API_BASE_URL}/v1${member.Photo.data.attributes.formats.medium?.url || member.Photo.data.attributes.url}` : 'No image'
+      if (data.data.attributes.TeamMember) {
+        data.data.attributes.TeamMember.forEach((member, index) => {
+          console.log(`##rohiiiiii## Member ${index + 1} (${member.Name}):`, {
+            hasPhoto: !!member.Photo?.data,
+            photoData: member.Photo?.data?.attributes,
+            imageUrl: member.Photo?.data ? `${API_BASE_URL}/v1${member.Photo.data.attributes.formats.medium?.url || member.Photo.data.attributes.url}` : 'No image'
+          })
         })
-      })
 
-      setTeamMembers(data.data.attributes.TeamMember)
-      console.log('##rohiiiiii## Team members set successfully, count:', data.data.attributes.TeamMember.length)
+        setTeamMembers(data.data.attributes.TeamMember)
+        console.log('##rohiiiiii## Team members set successfully, count:', data.data.attributes.TeamMember.length)
+      } else {
+        console.error('##rohiiiiii## No TeamMember data in response')
+      }
     } catch (error) {
       console.error('##rohiiiiii## Error fetching team data:', error)
     } finally {
@@ -199,12 +229,12 @@ export default function TeamsPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         {/* Header Section */}
         <div className="text-center mb-8 sm:mb-12 lg:mb-16">
-          <h1 className="text-2xl sm:text-3xl lg:text-5xl font-bold text-foreground mb-2 sm:mb-4">
+          <h1 className=" text-foreground mb-2 ">
             Our Team
           </h1>
-          <p className="text-sm sm:text-base lg:text-xl text-muted-foreground px-4">
+          <h2 className=" text-muted-foreground px-4">
             PARI: A living journal, a breathing archive
-          </p>
+          </h2>
         </div>
 
         {/* Team Grid */}
@@ -256,7 +286,7 @@ export default function TeamsPage() {
 
               {/* Member Info - positioned outside image with blue accent line */}
               <div className="relative ">
-                <h3 className="text-sm sm:text-base font-semibold text-foreground mb-1">
+                <h3 className="text-lg  text-foreground mb-1">
                   {member.Name}
                 </h3>
                 <p className="text-xs sm:text-sm text-muted-foreground">
@@ -332,9 +362,9 @@ export default function TeamsPage() {
 
                 <div className="flex-1 overflow-y-auto pr-1">
                 {/* Name and Role */}
-                <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-primary-PARI-Red mb-2">
+                <h3 className="text-xl sm:text-2xl lg:text-3xl  text-primary-PARI-Red mb-2">
                   {selectedMember.Name}
-                </h2>
+                </h3>
                 <p className="text-foreground text-sm sm:text-base font-medium mb-6 sm:mb-8">
                   {selectedMember.Designation}
                 </p>

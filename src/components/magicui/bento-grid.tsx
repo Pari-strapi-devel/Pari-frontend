@@ -364,7 +364,7 @@ const BentoCard = ({
                               currentOpenSheet = null;
                               currentOpenSheetId = null;
                               setIsSheetOpen(false);
-                              window.open(`https://ruralindiaonline.org/article/${language.slug}`, '_blank');
+                              window.location.href = `/article/${language.slug}`;
                             }}
                           >
                             <div className="flex items-center justify-between">
@@ -402,7 +402,27 @@ const BentoCard = ({
                 {title}
               </h3>
           <p className="text-discreet-text mb-4 line-clamp-2">{description}</p>
-          <p className="font-noto-sans font-semibold text-grey-300 text-[15px]  mb-2 line-clamp-1">{authors?.join(', ')}</p>
+          <div className="font-noto-sans font-semibold text-grey-300 text-[15px] mb-2 line-clamp-1">
+            {authors && authors.length > 0 ? (
+              authors.map((author, index) => (
+                <span key={index}>
+                  <span
+                    className="cursor-pointer hover:text-primary-PARI-Red transition-colors duration-200"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      window.location.href = `/articles?author=${encodeURIComponent(author.trim())}`;
+                    }}
+                  >
+                    {author.trim()}
+                  </span>
+                  {index < authors.length - 1 && ', '}
+                </span>
+              ))
+            ) : (
+              'PARI'
+            )}
+          </div>
           
           {/* Additional info */}
           <div className="flex flex-col font-noto-sans text-sm">

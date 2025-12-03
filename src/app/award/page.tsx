@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import axios from 'axios'
 import Image from 'next/image'
-import { HiExternalLink } from 'react-icons/hi'
 import { API_BASE_URL } from '@/utils/constants'
 
 // Get API URL from centralized constants
@@ -180,16 +179,16 @@ const getImageUrl = (imageData?: ApiAwardDetail['Image']): string => {
   const baseUrl = `${API_BASE_URL}/v1`
 
   // Prefer medium size, fallback to large, small, thumbnail, or original
-  if (formats.medium?.url) {
+  if (formats?.medium?.url) {
     return `${baseUrl}${formats.medium.url}`
   }
-  if (formats.large?.url) {
+  if (formats?.large?.url) {
     return `${baseUrl}${formats.large.url}`
   }
-  if (formats.small?.url) {
+  if (formats?.small?.url) {
     return `${baseUrl}${formats.small.url}`
   }
-  if (formats.thumbnail?.url) {
+  if (formats?.thumbnail?.url) {
     return `${baseUrl}${formats.thumbnail.url}`
   }
   if (url) {
@@ -273,7 +272,7 @@ const AwardEntry = ({ award, isLast = false }: AwardEntryProps) => (
         </div>
       </div>
       <div className="flex-1">
-        <h3 className="text-lg sm:text-xl md:text-2xl font-bold mb-3 md:mb-4 leading-tight text-primary-PARI-Red transition-colors duration-200" style={{
+        <h3 className="text-lg sm:text-xl md:text-2xl mb-2 text-primary-PARI-Red transition-colors duration-200" style={{
          
         }}>
           {award.title}
@@ -291,10 +290,10 @@ const AwardEntry = ({ award, isLast = false }: AwardEntryProps) => (
               href={award.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center text-primary-PARI-Red hover:text-primary-PARI-Red/80 font-medium text-sm sm:text-base transition-all duration-200 group border border-primary-PARI-Red/20 hover:border-primary-PARI-Red/40 rounded-lg px-3 py-2 sm:px-4 sm:py-2.5 hover:bg-primary-PARI-Red/5 hover:shadow-sm active:scale-95"
+              className="inline-flex items-center text-primary-PARI-Red hover:text-primary-PARI-Red/80 font-medium text-sm  transition-all duration-200 group border-1 border-primary-PARI-Red hover:border-primary-PARI-Red rounded-full px-4 py-2   hover:bg-primary-PARI-Red/5 hover:shadow-sm active:scale-95"
             >
               <span>Read the full story</span>
-              <HiExternalLink className="ml-2 w-4 h-4 sm:w-5 sm:h-5 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+             
             </a>
           </div>
         )}
@@ -451,28 +450,19 @@ export default function AwardPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-8 sm:py-12 md:py-16">
         {/* Main Title and Subtitle - Enhanced Styling */}
         <div className="mb-8 sm:mb-12 md:mb-16">
-          <h1 className="text-2xl sm:text-3xl md:text-5xl lg:text-5xl font-bold text- mb-4 sm:mb-4 leading-[112%]" style={{
-            fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
-            fontWeight: 800,
-            letterSpacing: '-0.03em'
-          }}>
-            <span className="bg-gradient-to-r from-primary-PARI-Red to-primary-PARI-Red/80 bg-clip-text text-transparent">
-              PARI&apos;s
-            </span>{' '}
-            journalism prizes,<br className="hidden sm:block" />
-            <span className="sm:hidden"> </span>awards and honours
+          <h1 className=" mb-2">
+            
+             PARI&apos;s
+            
+            journalism prizes
+            awards and honours
           </h1>
-          <p className="text-base sm:text-lg md:text-2xl dark:text-discreet-text font-normal leading-[150%] max-w-3xl" style={{
-            fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
-            fontWeight: 400,
-           
-            letterSpacing: '-0.01em'
-          }}>
+          <h2 className=" dark:text-discreet-text  max-w-3xl" 
+            >
             PARI&apos;s won{' '}
-            <span className="font-semibold text-primary-PARI-Red">82 journalism awards</span>{' '}
-            since we<br className="hidden sm:block" />
-            <span className="sm:hidden"> </span>began publishing in 2014.
-          </p>
+            82 journalism awards
+            since we began publishing in 2014.
+          </h2>
         </div>
 
         {/* Timeline Layout - Responsive */}

@@ -32,7 +32,7 @@ export const submitEZForm = async (submission: EZFormSubmission): Promise<EZForm
 
     if (isContributionForm) {
       // Transform data for contribution-submits endpoint
-      apiUrl = 'https://dev.ruralindiaonline.org/v1/api/contribution-submits';
+      apiUrl = 'https://merge.ruralindiaonline.org/v1/api/contribution-submits';
       console.log('##Rohit_Rocks## Contribution API URL:', apiUrl);
       requestPayload = {
         data: {

@@ -16,6 +16,7 @@ import { useKeenSlider } from 'keen-slider/react';
 import 'keen-slider/keen-slider.min.css';
 import { languages as languagesList } from '@/data/languages';
 
+
 import { Globe, X } from 'lucide-react';
 
 export interface Article {
@@ -347,15 +348,15 @@ export function MakeInIndiaCard() {
           <div className='flex items-center justify-between'>
             <div className='flex items-center gap-2'>
               <Newspaper className="h-6 w-7 text-primary-PARI-Red" />
-              <h2 className="text-[13px] font-noto-sans uppercase text-grey-300 leading-[100%] letter-spacing-[-2%] font-semibold">
+              <h6 className=" text-grey-300 ">
                 {strap}
-              </h2>
+              </h6>
             </div>
           </div>
           <div className="flex justify-between items-end">
-            <h4 className="font-noto-sans sm:text-[40px] md:text-[48px] lg:text-[56px] text-[32px] font-bold leading-[122%] tracking-[-0.04em]">
+            <h1 className="font-noto-sans sm:text-[40px] md:text-[48px] lg:text-[56px] text-[32px] font-bold leading-[122%] tracking-[-0.04em]">
               {sectionTitle}
-            </h4>
+            </h1>
             <div className="hidden md:flex items-end gap-3">
               <Button
                 variant="outline"
@@ -382,9 +383,9 @@ export function MakeInIndiaCard() {
       <div className="relative max-w-[1234px] mx-auto">
         <div ref={sliderRef} className="keen-slider !overflow-visible">
           {features.map((feature, index) => (
-            <Link 
-              key={`${feature.href}-${index}`} 
-              href={`https://ruralindiaonline.org/article/${feature.href}`}
+            <Link
+              key={`${feature.href}-${index}`}
+              href={`/article/${feature.href}`}
               className="keen-slider__slide min-h-[400px] md:p-3 max-w-full min-w-[360px]  "
             >
               <BentoCard
@@ -416,9 +417,27 @@ export function MakeInIndiaCard() {
                   </div>
                 
                   <div className="space-y-2">
-                    <p className="text-sm text-gray-300">
-                      {feature.authors.join(', ')}
-                    </p>
+                    <div className="text-sm text-gray-300">
+                      {feature.authors && feature.authors.length > 0 ? (
+                        feature.authors.map((author, index) => (
+                          <span key={index}>
+                            <span
+                              className="cursor-pointer hover:text-white transition-colors duration-200"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                window.location.href = `/articles?author=${encodeURIComponent(author.trim())}`;
+                              }}
+                            >
+                              {author.trim()}
+                            </span>
+                            {index < feature.authors.length - 1 && ', '}
+                          </span>
+                        ))
+                      ) : (
+                        'PARI'
+                      )}
+                    </div>
                     <div className="flex items-center gap-2 text-gray-300 text-sm">
                       {feature.location && <span>{feature.location}</span>}
                       {feature.location && feature.date && <span>•</span>}
@@ -506,7 +525,7 @@ export function MakeInIndiaCard() {
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
-                          window.open(`https://ruralindiaonline.org/article/${language.slug}`, '_blank');
+                          window.location.href = `/article/${language.slug}`;
                         }}
                       >
                         <div className="flex items-center justify-between">

@@ -8,13 +8,14 @@ import { Button } from '@/components/ui/button'
 import { languages as languagesList } from '@/data/languages';
 import { createPortal } from 'react-dom';
 
+
 interface AudioVideoBigCardProps {
   title: string
   description: string
   imageUrl: string
   type: 'audio' | 'video'
   duration?: string
-  categories: string[]
+  categories: Array<{ title: string; slug: string }>
   slug: string
   languages?: string[]
   location?: string
@@ -53,7 +54,7 @@ export function AudioVideoBigCard({
 }: AudioVideoBigCardProps) {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const [categoryStartIndex, setCategoryStartIndex] = useState(0);
+  const [showAllCategories, setShowAllCategories] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -76,8 +77,8 @@ export function AudioVideoBigCard({
   }
 
   return (
-    <Link 
-      href={`https://ruralindiaonline.org/article/${slug}`}
+    <Link
+      href={`/article/${slug}`}
       className="group"
     >
       <article className="grid grid-cols-1 md:grid-cols-2 justify-center gap-6 rounded-[8px] overflow-hidden bg-background  transition-all duration-300 ">
@@ -130,73 +131,73 @@ export function AudioVideoBigCard({
 
         {/* Right side - Content */}
         <div className="md:p-6 px-1 pb-6  flex flex-col mt-4 md:mt-0 lg:pr-36 gap-4">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           {categories?.length > 0 && (
             <>
-              {/* Show 2 categories at a time */}
-              {categories.slice(categoryStartIndex, categoryStartIndex + 2).map((category, index) => (
-                <span
-                  key={`${categoryStartIndex}-${index}`}
-                  className="inline-block items-center px-2 py-1 ring-1 hover:bg-primary-PARI-Red hover:text-white ring-primary-PARI-Red text-xs text-primary-PARI-Red rounded-full w-fit h-[23px] mb-2 cursor-pointer animate-slide-in-left"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
+              {showAllCategories ? (
+                // Show all categories
+                categories.map((category, index) => (
+                  <span
+                    key={index}
+                    className="inline-block items-center px-2 py-1 ring-1 hover:bg-primary-PARI-Red hover:text-white ring-primary-PARI-Red text-xs text-primary-PARI-Red rounded-full w-fit h-[23px] mb-2 cursor-pointer animate-slide-in-left"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
 
-                    // Get current URL and parameters
-                    const url = new URL(window.location.href);
-                    const params = new URLSearchParams(url.search);
+                      // Navigate to articles page with this category filter
+                      const params = new URLSearchParams();
+                      params.set('types', category.slug);
+                      window.location.href = `/articles?${params.toString()}`;
+                    }}
+                  >
+                    {category.title}
+                  </span>
+                ))
+              ) : (
+                // Show first 2 categories
+                <>
+                  {categories.slice(0, 2).map((category, index) => (
+                    <span
+                      key={index}
+                      className="inline-block items-center px-2 py-1 ring-1 hover:bg-primary-PARI-Red hover:text-white ring-primary-PARI-Red text-xs text-primary-PARI-Red rounded-full w-fit h-[23px] mb-2 cursor-pointer animate-slide-in-left"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
 
-                    // Get existing types if any
-                    const existingTypes = params.get('types')?.split(',').filter(Boolean) || [];
-                    const categorySlug = category.toLowerCase().replace(/\s+/g, '-');
+                        // Navigate to articles page with this category filter
+                        const params = new URLSearchParams();
+                        params.set('types', category.slug);
+                        window.location.href = `/articles?${params.toString()}`;
+                      }}
+                    >
+                      {category.title}
+                    </span>
+                  ))}
+                </>
+              )}
 
-                    // Add the new category if it's not already included
-                    if (!existingTypes.includes(categorySlug)) {
-                      existingTypes.push(categorySlug);
-                    }
-
-                    // Update the URL
-                    params.set('types', existingTypes.join(','));
-
-                    // Navigate to the updated URL
-                    window.location.href = `/articles?${params.toString()}`;
-                  }}
-                >
-                  {category}
-                </span>
-              ))}
-
-              {/* Next/Reset button */}
+              {/* Show all / Reset button */}
               {categories.length > 2 && (
                 <span
                   className="inline-block items-center px-2 py-1 ring-1 hover:bg-primary-PARI-Red hover:text-white ring-primary-PARI-Red text-xs text-primary-PARI-Red rounded-full w-fit h-[23px] mb-2 cursor-pointer"
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    if (categoryStartIndex + 2 >= categories.length) {
-                      // If at end, reset to beginning
-                      setCategoryStartIndex(0);
-                    } else {
-                      // Move to next pair
-                      setCategoryStartIndex(prev => prev + 2);
-                    }
+                    setShowAllCategories(!showAllCategories);
                   }}
                 >
-                  {categoryStartIndex + 2 >= categories.length
-                    ? '-'
-                    : `+${categories.length - (categoryStartIndex + 2)}`
-                  }
+                  {showAllCategories ? '-' : `+${categories.length - 2}`}
                 </span>
               )}
             </>
           )}
         </div>
 
-          <h2 className="font-noto-sans text-2xl md:text-3xl font-bold leading-[130%] tracking-[-0.04em]  text-foreground">
+          <h3 className="text-2xl md:text-3xl  text-foreground">
             {title}
-          </h2>
+          </h3>
 
-          <p className="font-noto-sans text-[16px] font-normal  leading-[170%] tracking-[-0.01em] text-discreet-text">
+          <p className=" text-discreet-text">
             {description}
           </p>
 
@@ -215,9 +216,27 @@ export function AudioVideoBigCard({
           )}
 
           <div className="flex flex-col  ">
-          <p className="font-noto-sans text-[15px] pb-1 font-semibold leading-[170%] text-grey-300 tracking-[-0.04em] line-clamp-1">
-              {authors?.join(', ') || 'PARI'}
-            </p>
+            <div className="font-noto-sans text-[15px] pb-1 font-semibold leading-[170%] text-grey-300 tracking-[-0.04em] line-clamp-1">
+              {authors && authors.length > 0 ? (
+                authors.map((author, index) => (
+                  <span key={index}>
+                    <span
+                      className="cursor-pointer hover:text-primary-PARI-Red transition-colors duration-200"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        window.location.href = `/articles?author=${encodeURIComponent(author.trim())}`;
+                      }}
+                    >
+                      {author.trim()}
+                    </span>
+                    {index < authors.length - 1 && ', '}
+                  </span>
+                ))
+              ) : (
+                'PARI'
+              )}
+            </div>
 
             <div className="font-noto-sans text-[14px] font-normal leading-[150%] tracking-[-0.03em] text-foreground flex items-center gap-1">
               {/* <span className="flex items-center gap-1">
@@ -306,7 +325,7 @@ export function AudioVideoBigCard({
                                     e.preventDefault();
                                     e.stopPropagation();
                                     setIsSheetOpen(false);
-                                    window.open(`https://ruralindiaonline.org/article/${language.slug}`, '_blank');
+                                    window.location.href = `/article/${language.slug}`;
                                   }}
                                 >
                                   <div className="flex items-center justify-between">

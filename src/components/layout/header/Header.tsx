@@ -11,8 +11,9 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import axios from 'axios'
 import qs from 'qs'
-import { BASE_URL, IMAGE_URL } from '@/config'
+import { BASE_URL } from '@/config'
 import { useLocale } from '@/lib/locale'
+import { useTheme } from 'next-themes'
 
 // Helper function to highlight matching text
 const highlightMatch = (text: string, query: string): JSX.Element => {
@@ -37,87 +38,80 @@ interface SearchSuggestion {
   type: string;
 }
 
-interface HeaderApiResponse {
-  data: {
-    id: number;
-    attributes: {
-      createdAt: string;
-      updatedAt: string;
-      publishedAt: string;
-      locale: string;
-      Tagline: string;
-      LogoText: string;
-      MainLogo?: {
-        data: {
-          attributes: {
-            url: string;
-            alternativeText?: string;
-            width?: number;
-            height?: number;
-          };
-        };
-      };
+// Helper function to get logo path based on theme and language
+const getLogoPath = (language: string, theme: string | undefined): string => {
+  // Map language codes to logo file names
+  const languageMap: { [key: string]: string } = {
+    'en': 'english',
+    'hi': 'hindi',
+    'bn': 'bangla',
+    'mr': 'marathi',
+    'or': 'odia',
+    'ur': 'urdu'
+  }
 
-    };
-  };
-  meta: object;
+  const langName = languageMap[language] || 'english'
+  const mode = theme === 'dark' ? 'dark' : 'light'
+  const modeFolder = theme === 'dark' ? 'For-dark-mode' : 'For-light-mode'
+
+  // Note: There's a typo in the light mode urdu filename (udru instead of urdu)
+  const fileName = language === 'ur' && theme !== 'dark'
+    ? `pari-udru-${mode}.png`
+    : `pari-${langName}-${mode}.png`
+
+  return `/images/header-logo/${modeFolder}/${fileName}`
 }
 
 export function Header() {
-  const { language } = useLocale()
+  const { language, addLocaleToUrl } = useLocale()
+  const { theme } = useTheme()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isSearchExpanded, setIsSearchExpanded] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [isSticky, setIsSticky] = useState(false)
-  const [headerData, setHeaderData] = useState<HeaderApiResponse | null>(null)
   const isFilterOpen = useFilterStore((state) => state.isOpen)
   const setIsFilterOpen = useFilterStore((state) => state.setIsOpen)
   const router = useRouter()
+  const [mounted, setMounted] = useState(false)
 
   // Add state for suggestions
   const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([])
   const [showSuggestions, setShowSuggestions] = useState(false)
   const suggestionsRef = useRef<HTMLDivElement>(null)
-  
+
+  // Handle mounting to prevent hydration mismatch
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
   // Add this function to handle search submission
   const handleSearch = (e?: React.FormEvent) => {
     if (e) e.preventDefault()
     if (searchQuery.trim()) {
-      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`)
+      const params = new URLSearchParams();
+      params.set('q', searchQuery.trim());
+      if (language && language !== 'en') {
+        params.set('locale', language);
+      }
+      router.push(`/search?${params.toString()}`)
       setIsSearchExpanded(false)
       setSearchQuery('')
       setShowSuggestions(false)
     }
   }
-  
+
   // Handle suggestion selection
   const handleSuggestionSelect = (suggestion: string) => {
-    router.push(`/search?q=${encodeURIComponent(suggestion)}`)
+    const params = new URLSearchParams();
+    params.set('q', suggestion);
+    if (language && language !== 'en') {
+      params.set('locale', language);
+    }
+    router.push(`/search?${params.toString()}`)
     setIsSearchExpanded(false)
     setSearchQuery('')
     setShowSuggestions(false)
   }
-
-  // Fetch header data from API
-  useEffect(() => {
-    const fetchHeaderData = async () => {
-      try {
-        const apiUrl = `${BASE_URL}api/header?populate=*&locale=${language}`
-
-
-        const response = await fetch(apiUrl)
-        const data: HeaderApiResponse = await response.json()
-
-        if (data?.data?.attributes) {
-          setHeaderData(data)
-        }
-      } catch (error) {
-        console.error('Error fetching header data:', error)
-      }
-    }
-
-    fetchHeaderData()
-  }, [language])
 
   // Handle scroll for sticky header
   useEffect(() => {
@@ -259,27 +253,9 @@ export function Header() {
     };
   }, [router]);
 
-  // Get data from header API response
-  const tagline = headerData?.data?.attributes?.Tagline
-  const logoText = headerData?.data?.attributes?.LogoText
-
-  // Get logo URLs from API or use fallback images
-  const getLogoUrl = (logoData: { data: { attributes: { url: string } } } | undefined) => {
-    if (!logoData?.data?.attributes?.url) return '/pari-logo.png'
-
-    const rawUrl = logoData.data.attributes.url
-    if (rawUrl.startsWith('http')) return rawUrl
-    // Fix double slash issue by ensuring proper URL construction
-    const cleanUrl = rawUrl.startsWith('/') ? rawUrl : `/${rawUrl}`
-    return `${IMAGE_URL.replace(/\/$/, '')}${cleanUrl}`
-  }
-
-  // Test with known working logo URL from API
-  const testLogoUrl = `${IMAGE_URL.replace(/\/$/, '')}/uploads/pari_logo_9d9d9407eb.svg`
-
-  const mainLogoUrl = headerData?.data?.attributes?.MainLogo ? getLogoUrl(headerData.data.attributes.MainLogo) : testLogoUrl
-  // Use MainLogo for sticky logo as well since StickyLogo doesn't exist in API
-  const stickyLogoUrl = headerData?.data?.attributes?.MainLogo ? getLogoUrl(headerData.data.attributes.MainLogo) : testLogoUrl
+  // Get logo path based on current theme and language
+  // Use 'light' as default during SSR to prevent hydration mismatch
+  const logoPath = mounted ? getLogoPath(language, theme) : getLogoPath(language, 'light')
 
 
 
@@ -288,60 +264,22 @@ export function Header() {
       {/* Top Header with Logo and Title */}
       <div className="main-header-section bg-white dark:bg-popover md:pb-6 py-5 md:pt-2 border-b border-border dark:border-borderline">
         <div className="container mx-auto px-4 top-0 max-w-[1282px]">
-          <div className="flex flex-col items-center justify-center w-full">
+          <div className="flex flex-col items-center justify-center w-full z-1000">
             {/* Complete Header Content - Centered as a unit */}
             <div className="flex flex-col items-center -mt-1 mx-auto">
-              {/* Logo and Title Row - Same layout on all devices */}
-              <div className="flex items-center gap-2 sm:gap-3 md:gap-4 mb-0">
-                <Link href="/" className="flex-shrink-0">
+              {/* Logo - Centered */}
+              <div className="flex items-center justify-center mb-0">
+                <Link href={addLocaleToUrl("/")} className="flex-shrink-0">
                   <Image
-                    src={mainLogoUrl}
+                    src={logoPath}
                     alt="PARI Logo"
-                    width={70}
-                    height={70}
+                    width={300}
+                    height={100}
                     priority
-                    className="object-contain w-[90px] h-[80px]  md:w-[90px] md:h-[90px] lg:w-[100px] lg:h-[100px]"
+                    className="object-contain w-[250px] h-[100px] sm:w-[280px] sm:h-[100px] md:w-[300px] md:h-[100px] lg:w-[350px] lg:h-[120px]"
                   />
                 </Link>
-                <div className="flex flex-col justify-center text-left">
-                  {logoText ? (
-                    // If logoText contains "of", split it into two lines
-                    logoText.includes(' of ') ? (
-                      logoText.split(' of ').map((part, index) => (
-                        <h1 key={index} className="font-noto-serif text-[1rem] font-semibold text-black dark:text-white leading-tight" style={{
-                          fontSize: 'clamp(14px, 4vw, 20px)',
-                          lineHeight: '120%',
-                          letterSpacing: '-3%'
-                        }}>
-                          {index === 0 ? part : `of ${part}`}
-                        </h1>
-                      ))
-                    ) : (
-                      // Single line if no "of" separator
-                      <h1 className="font-noto-serif font-semibold text-black dark:text-white leading-tight" style={{
-                        fontSize: 'clamp(14px, 4vw, 20px)',
-                        lineHeight: '120%',
-                        letterSpacing: '-3%'
-                      }}>
-                        {logoText}
-                      </h1>
-                    )
-                  ) : null}
-                </div>
               </div>
-
-              {/* Tagline - Aligned with title text on all devices */}
-              {tagline && (
-                <div className="w-full flex md:-mt-4 mt-1">
-                  <p className="font-noto font-semibold italic text-black dark:text-white text-left" style={{
-                    fontSize: 'clamp(11px, 2.5vw, 15px)',
-                    lineHeight: '110%',
-                    letterSpacing: '-4%'
-                  }}>
-                    {tagline}
-                  </p>
-                </div>
-              )}
             </div>
           </div>
         </div>
@@ -349,7 +287,7 @@ export function Header() {
 
       {/* Sticky Navigation Header */}
       <header className={`border-b border-gray-200 dark:border-border dark:bg-popover bg-white transition-all duration-300 ${
-        isSticky ? 'fixed top-0 left-0 right-0 z-50 shadow-lg' : 'relative z-50'
+        isSticky ? 'fixed top-0 left-0 right-0 z-50 shadow-lg' : 'relative z-40'
       }`}>
         <div className="container mx-auto px-4 max-w-[1282px]">
           <nav className="flex items-center justify-between h-[60px]">
@@ -371,14 +309,14 @@ export function Header() {
 
               {/* Show sticky logo only when header is sticky */}
               {isSticky && (
-                <Link href="/">
+                <Link href={addLocaleToUrl("/")}>
                   <Image
-                    src={stickyLogoUrl}
+                    src="/pari-logo.png"
                     alt="PARI Logo"
-                    width={117}
-                    height={64}
+                    width={60}
+                    height={60}
                     priority
-                    className="h-8 w-auto"
+                    className="h-10 w-10 object-contain"
                   />
                 </Link>
               )}
@@ -435,7 +373,7 @@ export function Header() {
               </div>
             ) : (
               <div className={`hidden md:flex items-center space-x-8 ${
-                isSticky && stickyLogoUrl ? '' : 'flex-1'
+                isSticky && logoPath ? '' : 'flex-1'
               }`}>
                 <Navigation />
               </div>
@@ -504,14 +442,18 @@ export function Header() {
         <div className="flex flex-col h-full">
           {/* Mobile Menu Header */}
           <div className="p-4 border-b border-border">
-            <div className="flex items-center justify-between mb-4">
-              <Image
-                src={stickyLogoUrl}
-                alt="PARI Logo"
-                width={60}
-                height={60}
-                priority
-              />
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex flex-col gap-1">
+                <Image
+                  src="/pari-logo.png"
+                  alt="PARI Logo"
+                  width={60}
+                  height={60}
+                  priority
+                  className="h-10 w-10 object-contain"
+                />
+               
+              </div>
               <Button
                 variant="ghost"
                 size="icon"
@@ -523,7 +465,7 @@ export function Header() {
             </div>
 
             {/* Mobile Menu Action Buttons */}
-           
+
           </div>
 
           {/* Mobile Navigation */}

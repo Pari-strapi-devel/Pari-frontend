@@ -84,7 +84,7 @@ export function Footer() {
   const [footerData, setFooterData] = useState<FooterApiResponse | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const { language } = useLocale()
+  const { language, addLocaleToUrl } = useLocale()
 
   // Newsletter subscription state
   const [email, setEmail] = useState('')
@@ -216,9 +216,9 @@ export function Footer() {
               </div>
             )}
             <div>
-              <h3 className="font-noto-sans text-[18px] font-semibold leading-[160%] tracking-[-0.04em] text-foreground mb-2">
+              <h5 className="font-noto-sans text-[18px]  text-foreground mb-2">
                {title}
-              </h3>
+              </h5>
               <p className="font-noto-sans text-[15px] text-[#4F4F4F] font-normal leading-[150%] tracking-[-0.03em] mb-10">
                 {description}
               </p>
@@ -226,9 +226,9 @@ export function Footer() {
             
             <div className="mt-4">
               <div className="bg-transparent shadow-none p-0 max-w-none">
-                <h4 className="font-noto-sans text-[16px] font-bold leading-[130%] tracking-[-0.04em] text-foreground mb-4">
+                <h5 className="font-noto-sans text-[18px]  text-foreground mb-4">
                   {footerData?.data?.attributes?.sign_up_for_our_newsletter || 'Sign up for our newsletter'}
-                </h4>
+                </h5>
 
                 {isSuccess && (
                   <div className="mb-4 p-3 bg-green-100 dark:bg-green-900/20 border border-green-300 dark:border-green-700 rounded-md text-green-800 dark:text-green-200 text-sm">
@@ -270,16 +270,16 @@ export function Footer() {
                 // Add defensive check
                 if (!footerLink) return null;
 
-                const iconUrl = footerLink.icon?.data?.attributes?.url;
+                // const iconUrl = footerLink.icon?.data?.attributes?.url;
 
                 return (
                   <div key={`footer-link-${index}`} className="space-y-3 flex items-end gap-2">
                     <nav className="space-y-3 gap-y-2 flex flex-col">
                       <Link
-                        href={footerLink.link || '/'}
+                        href={addLocaleToUrl(footerLink.link || '/')}
                         className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors group font-noto-sans text-[15px] leading-[170%] tracking-[-0.03em]"
                       >
-                        {iconUrl && (
+                        {/* {iconUrl && (
                           <div className="w-[20px] h-[20px] flex items-center justify-center flex-shrink-0">
                             <Image
                               src={`${BASE_URL}${iconUrl}`}
@@ -289,7 +289,7 @@ export function Footer() {
                               className="w-full h-full object-contain opacity-80 group-hover:opacity-100 transition-opacity"
                             />
                           </div>
-                        )}
+                        )} */}
                         <span className="font-noto-sans text-[15px] font-medium leading-[170%] tracking-[-0.03em]">{footerLink.name}</span>
                       </Link>
                     </nav>

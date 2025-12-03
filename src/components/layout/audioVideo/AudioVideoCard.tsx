@@ -32,7 +32,7 @@ interface MediaStory {
   description: string;
   imageUrl: string;
   type: 'audio' | 'video';  // This must be strictly 'audio' or 'video'
-  categories: string[];
+  categories: Array<{ title: string; slug: string }>;
   slug: string;
   authors: string[];
   location: string;
@@ -231,9 +231,12 @@ export function AudioVideoCard() {
               : '/images/categories/default.jpg',
             type: 'video/audio',
             duration: '00:00',
-            categories: Array.isArray(articleData.categories?.data) 
+            categories: Array.isArray(articleData.categories?.data)
               ? articleData.categories.data.map(
-                  (cat: { attributes: { Title: string } }) => cat.attributes.Title
+                  (cat: { attributes: { Title: string; slug?: string } }) => ({
+                    title: cat.attributes.Title,
+                    slug: cat.attributes.slug || ''
+                  })
                 )
               : [],
             slug: articleData.slug,
@@ -318,9 +321,9 @@ export function AudioVideoCard() {
           ) : (
             <CirclePlay className="h-6 w-6 text-primary-PARI-Red" />
           )}
-          <h2 className="text-[13px] font-noto-sans uppercase text-grey-300 leading-[100%] tracking-[-0.02em] font-semibold">
+          <h6 className="text-[13px] font-noto-sans uppercase text-grey-300 leading-[100%] tracking-[-0.02em] font-semibold">
             {featuredStory.headtitle}
-          </h2>
+          </h6>
         </div>
         <div className="flex items-center gap-4">
          

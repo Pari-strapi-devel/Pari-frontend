@@ -124,16 +124,12 @@ export const NewsletterBottomSheet: React.FC<NewsletterBottomSheetProps> = ({
         }
       });
 
-      // Sort countries with India at the top
-      const sortedCountries = response.data.sort((a: Country, b: Country) => {
-        // Put India at the top
-        if (a.name.toLowerCase() === 'india') return -1;
-        if (b.name.toLowerCase() === 'india') return 1;
-        // Sort the rest alphabetically
-        return a.name.localeCompare(b.name);
-      });
+      // Filter to only India
+      const indiaOnly = response.data.filter((country: Country) =>
+        country.name.toLowerCase() === 'india'
+      );
 
-      setCountries(sortedCountries);
+      setCountries(indiaOnly);
     } catch (error) {
       console.error('##Rohit_Rocks## Error fetching countries:', error);
     }
@@ -183,7 +179,7 @@ export const NewsletterBottomSheet: React.FC<NewsletterBottomSheetProps> = ({
 
     // Try to fetch from API and merge with imported data
     try {
-      const response = await fetch(`https://dev.ruralindiaonline.org/v1/api/languages?locale=${currentLanguage || 'en'}`, {
+      const response = await fetch(`https://merge.ruralindiaonline.org/v1/api/languages?locale=${currentLanguage || 'en'}`, {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
@@ -218,9 +214,14 @@ export const NewsletterBottomSheet: React.FC<NewsletterBottomSheetProps> = ({
             index === self.findIndex(l => l.code === lang.code)
           ).sort((a, b) => (a.names?.[0] || a.name || '').localeCompare(b.names?.[0] || b.name || ''));
 
-          setLanguages(uniqueLanguages);
+          // Filter to only English and Malayalam
+          const filteredLanguages = uniqueLanguages.filter(lang =>
+            lang.code === 'en' || lang.code === 'ml'
+          );
+
+          setLanguages(filteredLanguages);
           setLanguagesLoading(false);
-          console.log('##Rohit_Rocks## Languages merged - Imported:', importedLanguages.length, 'API:', apiLanguages.length, 'Total:', uniqueLanguages.length);
+          console.log('##Rohit_Rocks## Languages merged and filtered - Total:', filteredLanguages.length);
           return;
         }
       }
@@ -228,11 +229,14 @@ export const NewsletterBottomSheet: React.FC<NewsletterBottomSheetProps> = ({
       console.log('##Rohit_Rocks## API languages not available, using imported data only');
     }
 
-    // Fallback to imported languages only
-    setLanguages(importedLanguages);
+    // Fallback to imported languages only, filtered to English and Malayalam
+    const filteredImportedLanguages = importedLanguages.filter(lang =>
+      lang.code === 'en' || lang.code === 'ml'
+    );
+    setLanguages(filteredImportedLanguages);
     setLanguagesLoading(false);
-    console.log('##Rohit_Rocks## Using imported languages only:', importedLanguages.length);
-    console.log('##Rohit_Rocks## Sample imported languages:', importedLanguages.slice(0, 3));
+    console.log('##Rohit_Rocks## Using imported languages only (filtered):', filteredImportedLanguages.length);
+    console.log('##Rohit_Rocks## Filtered languages:', filteredImportedLanguages);
   }, [currentLanguage]);
 
   // Fetch newsletter data for placeholders
@@ -241,22 +245,17 @@ export const NewsletterBottomSheet: React.FC<NewsletterBottomSheetProps> = ({
       console.log('##Rohit_Rocks## Fetching newsletter data from API');
 
       // Try fetch first (like other successful API calls in the codebase)
-      try {
-        const response = await fetch('https://dev.ruralindiaonline.org/v1/api/newsletter?populate=*', {
-          method: 'GET',
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-          }
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+      const response = await fetch('https://merge.ruralindiaonline.org/v1/api/newsletter?populate=*', {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
         }
+      });
 
+      if (response.ok) {
         const data = await response.json();
         console.log('##Rohit_Rocks## Newsletter API Response (fetch):', data);
-        console.log('##Rohit_Rocks## Newsletter API Response Structure:', JSON.stringify(data, null, 2));
 
         if (data?.data) {
           setNewsletterData(data.data);
@@ -268,48 +267,28 @@ export const NewsletterBottomSheet: React.FC<NewsletterBottomSheetProps> = ({
           console.log('##Rohit_Rocks## Newsletter Data Set (direct):', data);
           return;
         }
-      } catch (fetchError) {
-        console.log('##Rohit_Rocks## Fetch failed, trying axios fallback:', fetchError);
-
-        // Fallback: try with axios (like other API calls in the codebase)
-        const axiosResponse = await axios.get('https://dev.ruralindiaonline.org/v1/api/newsletter?populate=*', {
-          timeout: 10000,
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-          }
-        });
-
-        console.log('##Rohit_Rocks## Newsletter API Response (axios):', axiosResponse.data);
-
-        if (axiosResponse.data?.data) {
-          setNewsletterData(axiosResponse.data.data);
-          console.log('##Rohit_Rocks## Newsletter Data Set via axios:', axiosResponse.data.data);
-        } else if (axiosResponse.data) {
-          setNewsletterData(axiosResponse.data);
-          console.log('##Rohit_Rocks## Newsletter Data Set via axios (direct):', axiosResponse.data);
-        }
+      } else {
+        console.log('##Rohit_Rocks## Newsletter API returned status:', response.status, '- Using fallback data');
       }
-    } catch (error) {
-      console.error('##Rohit_Rocks## Both fetch and axios failed for newsletter data:', error);
-      console.log('##Rohit_Rocks## Using fallback placeholder values');
-
-      // Set fallback data structure
-      setNewsletterData({
-        attributes: {
-          title: 'Sign up for our newsletter',
-          description: 'Stay updated with our latest stories and insights',
-          firstName: 'First Name',
-          lastName: 'Last Name',
-          email: 'Email Address',
-          country: 'Select Country',
-          state: 'Select State',
-          district: 'Select District',
-          language: 'Select Language',
-          buttonText: 'Confirm Sign up'
-        }
-      });
+    } catch {
+      console.log('##Rohit_Rocks## Newsletter API not available - Using fallback placeholder values');
     }
+
+    // Set fallback data structure (used when API is not available)
+    setNewsletterData({
+      attributes: {
+        title: 'Sign up for our newsletter',
+        description: 'Stay updated with our latest stories and insights',
+        firstName: 'First Name',
+        lastName: 'Last Name',
+        email: 'Email Address',
+        country: 'Select Country',
+        state: 'Select State',
+        district: 'Select District',
+        language: 'Select Language',
+        buttonText: 'Confirm Sign up'
+      }
+    });
   }, []);
 
   // Load languages immediately when component mounts or language changes
@@ -416,7 +395,7 @@ export const NewsletterBottomSheet: React.FC<NewsletterBottomSheetProps> = ({
 
       // Submit to PARI newsletter API
       try {
-        const apiResponse = await axios.post('https://dev.ruralindiaonline.org/v1/api/newslatters', newsletterPayload, {
+        const apiResponse = await axios.post('https://merge.ruralindiaonline.org/v1/api/newslatters', newsletterPayload, {
           headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json'

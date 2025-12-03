@@ -1,6 +1,8 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
+import { useLocale } from '@/lib/locale';
+import { LanguageToggle } from '@/components/layout/header/LanguageToggle';
 import axios from 'axios';
 
 interface TermsPoint {
@@ -43,38 +45,82 @@ interface TermsResponse {
   meta: Record<string, unknown>;
 }
 
-const TermsConditionsPage = () => {
+const TermsConditionsContent = () => {
+  const { language: currentLocale } = useLocale();
   const [termsData, setTermsData] = useState<TermsData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [fontFamily, setFontFamily] = useState('Noto Sans');
 
   // Simple test to see if component renders
-  console.log('##Rohit_Rocks## Terms page component is rendering!');
+  console.log('##Rohit_Rocks## Terms page component is rendering with locale:', currentLocale);
+
+  // Set font family based on locale
+  useEffect(() => {
+    switch (currentLocale) {
+      case 'hi':
+      case 'mr':
+        setFontFamily('Noto Sans Devanagari');
+        break;
+      case 'te':
+        setFontFamily('Noto Sans Telugu UI');
+        break;
+      case 'ta':
+        setFontFamily('Noto Sans Tamil UI');
+        break;
+      case 'ur':
+        setFontFamily('Noto Sans');
+        break;
+      default:
+        setFontFamily('Noto Sans');
+    }
+  }, [currentLocale]);
 
   useEffect(() => {
-    console.log('##Rohit_Rocks## useEffect is running!');
+    console.log('##Rohit_Rocks## useEffect is running with locale:', currentLocale);
     const fetchTermsData = async () => {
       try {
         setIsLoading(true);
         setError(null);
 
-        console.log('##Rohit_Rocks## Fetching terms data...');
-        const response = await axios.get<TermsResponse>('https://dev.ruralindiaonline.org/v1/api/terms-of-service?populate=*');
+        console.log('##Rohit_Rocks## Fetching terms data for locale:', currentLocale);
+        const apiUrl = `https://merge.ruralindiaonline.org/v1/api/terms-of-service?populate=*&locale=${currentLocale}`;
+        const response = await axios.get<TermsResponse>(apiUrl);
         console.log('##Rohit_Rocks## Terms API response:', response.data);
-        console.log('##Rohit_Rocks## Terms data:', response.data.data);
-        console.log('##Rohit_Rocks## Terms points:', response.data.data.attributes.TermsAndConditionsPoints);
-        console.log('##Rohit_Rocks## Privacy points:', response.data.data.attributes.PrivacyPolicyPoints);
-        setTermsData(response.data.data);
+
+        if (response.data.data) {
+          setTermsData(response.data.data);
+        } else {
+          setError('Terms data not found');
+        }
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'API Error');
         console.error('##Rohit_Rocks## Error fetching terms data:', err);
+
+        // Fallback to English if locale not found
+        if (axios.isAxiosError(err) && err.response?.status === 404 && currentLocale !== 'en') {
+          try {
+            const fallbackUrl = 'https://merge.ruralindiaonline.org/v1/api/terms-of-service?populate=*&locale=en';
+            const fallbackResponse = await axios.get<TermsResponse>(fallbackUrl);
+
+            if (fallbackResponse.data.data) {
+              setTermsData(fallbackResponse.data.data);
+            } else {
+              setError('Terms data not available');
+            }
+          } catch (fallbackErr) {
+            console.error('##Rohit_Rocks## Error fetching fallback terms data:', fallbackErr);
+            setError('Failed to load terms information');
+          }
+        } else {
+          setError('Failed to load terms information');
+        }
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchTermsData();
-  }, []);
+  }, [currentLocale]);
 
   // Helper function to clean and render HTML content
   const cleanHTMLContent = (htmlContent: string) => {
@@ -143,9 +189,18 @@ const TermsConditionsPage = () => {
 
   console.log('##Rohit_Rocks## Rendering main content, termsData:', termsData);
 
+  const textDirection = ['ar', 'ur'].includes(currentLocale) ? 'rtl' : 'ltr';
+
   return (
-    <div className="min-h-screen bg-background py-6 md:py-12 px-4">
-      <div className="max-w-2xl mx-auto">
+    <>
+      <div
+        className="min-h-screen bg-background py-6 md:py-12 px-4"
+        style={{
+          fontFamily,
+          direction: textDirection
+        }}
+      >
+        <div className="max-w-2xl mx-auto">
 
 
         {/* Main Title */}
@@ -216,8 +271,31 @@ const TermsConditionsPage = () => {
             {renderHTMLContent(termsData.attributes.DonateToPariContentWithLink)}
           </div>
         )}
+        </div>
       </div>
-    </div>
+      <LanguageToggle />
+    </>
+  );
+};
+
+const TermsConditionsPage = () => {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-background py-10 md:py-20 px-4">
+        <div className="max-w-4xl mx-auto">
+          <div className="animate-pulse space-y-8">
+            <div className="h-12 bg-gray-200 rounded mb-8"></div>
+            <div className="space-y-4">
+              <div className="h-4 bg-gray-200 rounded"></div>
+              <div className="h-4 bg-gray-200 rounded"></div>
+              <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    }>
+      <TermsConditionsContent />
+    </Suspense>
   );
 };
 

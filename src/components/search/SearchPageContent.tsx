@@ -3,20 +3,20 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useSearchParams } from 'next/navigation'
 import axios from 'axios'
-import qs from 'qs'
 import { StoryCard } from '@/components/layout/stories/StoryCard'
 import { BASE_URL } from '@/config'
 import { useLocale } from '@/lib/locale'
 import { languages as languagesList } from '@/data/languages'
 import { Button } from '@/components/ui/button'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Filter } from 'lucide-react'
+import { SearchFiltersSidebar, SearchFilters } from './SearchFilters'
 
 interface SearchResult {
   id: number;
   title: string;
   imageUrl: string;
   slug: string;
-  categories: string[];
+  categories: Array<{ title: string; slug: string }>;
   authors: string[];
   localizations: Array<{
     locale: string;
@@ -32,6 +32,8 @@ interface SearchResult {
     name: string;
     slug: string;
   }>;
+  currentLanguage?: string;
+  currentLanguageName?: string;
 }
 
 interface AuthorData {
@@ -121,12 +123,16 @@ export default function SearchPageContent() {
   const query = searchParams?.get('q') || ''
   const { language: currentLocale } = useLocale()
 
+
+
   const [results, setResults] = useState<SearchResult[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [totalPages, setTotalPages] = useState<number>(0)
   const [totalResults, setTotalResults] = useState<number>(0)
   const [pageSize, setPageSize] = useState<number>(20)
+  const [isFilterOpen, setIsFilterOpen] = useState<boolean>(false)
+  const [filters, setFilters] = useState<SearchFilters>({})
 
   // Update page size based on screen width (responsive like articles page)
   useEffect(() => {
@@ -151,16 +157,18 @@ export default function SearchPageContent() {
   }, [pageSize]);
 
   console.log('##Rohit_Rocks## SearchPageContent rendered with query:', query, 'type:', typeof query, 'length:', query?.length, 'timestamp:', new Date().toISOString())
-  console.log('##Rohit_Rocks## About to set up useEffect with query dependency:', query)
-  console.log('##Rohit_Rocks## FORCE RECOMPILE v2 - Component is definitely running new code')
 
-  // Fetch search results using Strapi
-  console.log('##Rohit_Rocks## About to define useEffect, query is:', query)
+  // Test useEffect to see if it runs
+  useEffect(() => {
+    console.log('##Rohit_Rocks## TEST useEffect is running! Query:', query)
+    console.log('##Rohit_Rocks## Window object available:', typeof window !== 'undefined')
+    console.log('##Rohit_Rocks## Current results length:', results.length)
+  }, [query, results.length])
 
-  // Define fetchSearchResults function outside useEffect so it can be used by pagination
+  // Main search function
   const fetchSearchResults = useCallback(async (page: number = 1) => {
-    console.log('##Rohit_Rocks## fetchSearchResults called with query:', query, 'page:', page)
-    if (!query) {
+    console.log('##Rohit_Rocks## fetchSearchResults called with query:', query, 'page:', page, 'filters:', filters)
+    if (!query || !query.trim()) {
       console.log('##Rohit_Rocks## No query provided, clearing results')
       setResults([])
       setIsLoading(false)
@@ -171,58 +179,91 @@ export default function SearchPageContent() {
 
     try {
       setIsLoading(true)
+      console.log('##Rohit_Rocks## Making API call for query:', query)
 
-      // Build query for Strapi
-      const strapiQuery = {
-        filters: {
-          $or: [
-            { Title: { $containsi: query } },
-            { strap: { $containsi: query } },
-            { categories: { Title: { $containsi: query } } },
-            { location: { name: { $containsi: query } } },
-            { location: { district: { $containsi: query } } },
-            { location: { state: { $containsi: query } } },
-            { Authors: { author_name: { Name: { $containsi: query } } } }
-          ]
-        },
-        populate: {
-          Cover_image: {
-            fields: ['url']
-          },
-          Authors: {
-            populate: {
-              author_name: {
-                fields: ['Name']
-              }
-            }
-          },
-          categories: {
-            fields: ['Title']
-          },
-          location: {
-            fields: ['name', 'district', 'state']
-          },
-          localizations: {
-            fields: ['locale', 'title', 'strap', 'slug']
-          }
-        },
-        fields: ['Title', 'strap', 'slug', 'Original_published_date', 'type', 'locale'],
-        pagination: {
-          page: page,
-          pageSize: pageSize
-        }
+      // Build base search parameters
+      const searchParams: Record<string, string | number> = {
+        'filters[$or][0][Title][$containsi]': query,
+        'filters[$or][1][strap][$containsi]': query,
+        'filters[$or][2][location][name][$containsi]': query,
+        'filters[$or][3][location][district][$containsi]': query,
+        'filters[$or][4][location][state][$containsi]': query,
+        'filters[$or][5][Authors][author_name][Name][$containsi]': query,
+        'filters[$or][6][categories][Title][$containsi]': query,
+        'pagination[page]': page,
+        'pagination[pageSize]': pageSize,
+        'populate[Cover_image][fields][0]': 'url',
+        'populate[location][fields][0]': 'name',
+        'populate[location][fields][1]': 'district',
+        'populate[location][fields][2]': 'state',
+        'populate[Authors][populate][author_name][fields][0]': 'Name',
+        'populate[categories][fields][0]': 'Title',
+        'populate[localizations][fields][0]': 'locale',
+        'populate[localizations][fields][1]': 'title',
+        'populate[localizations][fields][2]': 'strap',
+        'populate[localizations][fields][3]': 'slug',
+        'fields[0]': 'Title',
+        'fields[1]': 'strap',
+        'fields[2]': 'slug',
+        'fields[3]': 'Original_published_date',
+        'fields[4]': 'type',
+        'fields[5]': 'locale'
       }
 
-      const queryString = qs.stringify(strapiQuery, { encodeValuesOnly: true })
-      const response = await axios.get(`${BASE_URL}api/articles?${queryString}`)
+      // Add filter parameters
+      let filterIndex = 7 // Continue from where search filters left off
 
-      console.log('##Rohit_Rocks## Search API Response:', {
-        query,
-        url: `${BASE_URL}api/articles?${queryString}`,
-        resultCount: response.data.data?.length || 0,
-        firstResult: response.data.data?.[0] || null,
-        pagination: response.data.meta?.pagination
+      // Language filter - use current locale, explicit filter, or search all languages
+      const targetLocale = filters.language || currentLocale;
+      console.log('##Rohit_Rocks## Using locale for search:', targetLocale, 'from filters:', filters.language, 'current locale:', currentLocale);
+
+      // Only set locale parameter if not searching all languages
+      if (targetLocale !== 'all') {
+        searchParams['locale'] = targetLocale
+      } else {
+        console.log('##Rohit_Rocks## Searching all languages - no locale filter applied');
+      }
+
+      // Date range filters
+      if (filters.dateFrom) {
+        searchParams[`filters[$and][${filterIndex}][Original_published_date][$gte]`] = filters.dateFrom
+        filterIndex++
+      }
+      if (filters.dateTo) {
+        searchParams[`filters[$and][${filterIndex}][Original_published_date][$lte]`] = filters.dateTo
+        filterIndex++
+      }
+
+      // Author filter
+      if (filters.author) {
+        searchParams[`filters[$and][${filterIndex}][Authors][author_name][Name][$containsi]`] = filters.author
+        filterIndex++
+      }
+
+      // Location filter
+      if (filters.location) {
+        searchParams[`filters[$and][${filterIndex}][$or][0][location][name][$containsi]`] = filters.location
+        searchParams[`filters[$and][${filterIndex}][$or][1][location][district][$containsi]`] = filters.location
+        searchParams[`filters[$and][${filterIndex}][$or][2][location][state][$containsi]`] = filters.location
+        filterIndex++
+      }
+
+      console.log('##Rohit_Rocks## Final API params being sent:', searchParams);
+      console.log('##Rohit_Rocks## Full API URL will be:', `${BASE_URL}api/articles`);
+
+      const response = await axios.get(`${BASE_URL}api/articles`, {
+        params: searchParams
       })
+
+      console.log('##Rohit_Rocks## Full request URL:', response.config.url);
+
+      console.log('##Rohit_Rocks## API Response received:', response.data.data?.length || 0, 'results')
+      console.log('##Rohit_Rocks## Pagination info:', response.data.meta?.pagination)
+      console.log('##Rohit_Rocks## First few results locales:', response.data.data?.slice(0, 3).map((item: SearchApiItem) => ({
+        id: item.id,
+        title: item.attributes?.Title,
+        locale: item.attributes?.locale
+      })))
 
       // Update pagination state
       if (response.data.meta?.pagination) {
@@ -230,225 +271,140 @@ export default function SearchPageContent() {
         setTotalPages(response.data.meta.pagination.pageCount)
       }
 
-      // Transform the response to match our SearchResult interface
-      const transformedResults: SearchResult[] = response.data.data.map((item: SearchApiItem) => {
-        // Get localizations
-        const localizations = item.attributes.localizations?.data || [];
+      if (response.data.data) {
+        const searchResults = response.data.data.map((item: SearchApiItem) => {
+          // Get localizations
+          const localizations = item.attributes.localizations?.data || [];
 
-        // Build available languages array
-        const availableLanguages = localizations.map((loc: { attributes: { locale: string; slug: string } }) => {
-          const langCode = loc.attributes.locale;
-          const language = languagesList.find((lang: { code: string; name: string }) => lang.code === langCode);
-          return {
-            code: langCode,
-            name: language ? language.name : langCode,
-            slug: loc.attributes.slug
-          };
-        });
+          // Build available languages array
+          const availableLanguages = localizations.map((loc: { attributes: { locale: string; slug: string } }) => {
+            const langCode = loc.attributes.locale;
+            const language = languagesList.find((lang: { code: string; name: string }) => lang.code === langCode);
+            return {
+              code: langCode,
+              name: language ? language.name : langCode,
+              slug: loc.attributes.slug
+            };
+          });
 
-        // Add current language if not in localizations
-        const currentArticleLocale = item.attributes.locale || 'en';
-        const hasCurrentLocale = availableLanguages.some((lang: { code: string }) => lang.code === currentArticleLocale);
-        if (!hasCurrentLocale) {
-          const currentLanguage = languagesList.find((lang: { code: string; name: string }) => lang.code === currentArticleLocale);
-          if (currentLanguage) {
-            availableLanguages.unshift({
-              code: currentArticleLocale,
-              name: currentLanguage.name,
-              slug: item.attributes.slug || ''
-            });
+          // Add current language if not in localizations
+          const currentArticleLocale = item.attributes.locale || 'en';
+          const hasCurrentLocale = availableLanguages.some((lang: { code: string }) => lang.code === currentArticleLocale);
+          if (!hasCurrentLocale) {
+            const currentLanguage = languagesList.find((lang: { code: string; name: string }) => lang.code === currentArticleLocale);
+            if (currentLanguage) {
+              availableLanguages.unshift({
+                code: currentArticleLocale,
+                name: currentLanguage.name,
+                slug: item.attributes.slug || ''
+              });
+            }
           }
-        }
 
-        // Extract authors using the same logic as ArticlesContent
-        const authors = item.attributes.Authors
-          ? 'data' in item.attributes.Authors
-            ? item.attributes.Authors.data?.map((author: AuthorData) =>
-                author.attributes?.author_name?.data?.attributes?.Name || 'PARI'
-              ) || ['PARI']
-            : (item.attributes.Authors as AuthorData[]).map((author: AuthorData) =>
-                author.author_name?.data?.attributes?.Name || 'PARI'
-              )
-          : ['PARI']
+          // Extract authors using the same logic as ArticlesContent
+          const authors = item.attributes.Authors
+            ? 'data' in item.attributes.Authors
+              ? item.attributes.Authors.data?.map((author: AuthorData) =>
+                  author.attributes?.author_name?.data?.attributes?.Name || 'PARI'
+                ) || ['PARI']
+              : (item.attributes.Authors as AuthorData[]).map((author: AuthorData) =>
+                  author.author_name?.data?.attributes?.Name || 'PARI'
+                )
+            : ['PARI']
 
-        const detailedResult = {
-          id: item.id,
-          title: item.attributes.Title || '',
-          imageUrl: item.attributes.Cover_image?.data?.attributes?.url
-            ? `${BASE_URL}${item.attributes.Cover_image.data.attributes.url}`
-            : '/images/placeholder.jpg',
-          slug: item.attributes.slug || '',
-          categories: item.attributes.categories?.data?.map((cat: { attributes: { Title: string } }) => cat.attributes.Title) || [],
-          authors: authors,
-          localizations: localizations.map((loc: { attributes: { locale: string; title: string; slug: string } }) => ({
-            locale: loc.attributes.locale,
-            title: loc.attributes.title,
-            strap: '', // Add empty strap as it's required by StoryCard
-            slug: loc.attributes.slug
-          })),
-          location: item.attributes.location?.data?.attributes
-            ? `${item.attributes.location.data.attributes.name}, ${item.attributes.location.data.attributes.district}, ${item.attributes.location.data.attributes.state}`
-            : '',
-          date: item.attributes.Original_published_date || '',
-          type: item.attributes.type || 'article',
-          availableLanguages: availableLanguages.length > 0 ? availableLanguages : undefined
-        };
+          // Get current language name for display
+          const currentLanguageName = languagesList.find((lang: { code: string; name: string }) => lang.code === currentArticleLocale)?.name || currentArticleLocale;
 
-        // Determine what type of match this is for detailed results
-        const detailedMatchTypes = []
-        if (detailedResult.title.toLowerCase().includes(query.toLowerCase())) detailedMatchTypes.push('title')
-        if (detailedResult.authors.some((author: string) => author.toLowerCase().includes(query.toLowerCase()))) detailedMatchTypes.push('author')
-        if (detailedResult.location.toLowerCase().includes(query.toLowerCase())) detailedMatchTypes.push('location')
-        if (detailedResult.categories.some((cat: string) => cat.toLowerCase().includes(query.toLowerCase()))) detailedMatchTypes.push('category')
+          const result = {
+            id: item.id,
+            title: item.attributes.Title || '',
+            imageUrl: item.attributes.Cover_image?.data?.attributes?.url
+              ? `${BASE_URL.replace('/v1/', '')}${item.attributes.Cover_image.data.attributes.url}`
+              : '/images/placeholder.jpg',
+            slug: item.attributes.slug || '',
+            categories: item.attributes.categories?.data?.map((cat: { attributes: { Title: string; slug?: string } }) => ({
+              title: cat.attributes.Title,
+              slug: cat.attributes.slug
+            })) || [],
+            authors: authors,
+            localizations: localizations.map((loc: { attributes: { locale: string; title: string; slug: string } }) => ({
+              locale: loc.attributes.locale,
+              title: loc.attributes.title,
+              strap: '', // Add empty strap as it's required by StoryCard
+              slug: loc.attributes.slug
+            })),
+            location: item.attributes.location?.data?.attributes
+              ? `${item.attributes.location.data.attributes.name}, ${item.attributes.location.data.attributes.district}, ${item.attributes.location.data.attributes.state}`
+              : '',
+            date: item.attributes.Original_published_date
+              ? new Date(item.attributes.Original_published_date).toLocaleDateString('en-US', {
+                month: 'short',
+                day: '2-digit',
+                year: 'numeric'
+              })
+              : '',
+            type: item.attributes.type || 'article',
+            availableLanguages: availableLanguages.length > 0 ? availableLanguages : undefined,
+            currentLanguage: currentArticleLocale,
+            currentLanguageName: currentLanguageName
+          }
 
-        console.log('##Rohit_Rocks## Detailed search result item:', {
-          title: detailedResult.title,
-          authors: detailedResult.authors,
-          location: detailedResult.location,
-          categories: detailedResult.categories,
-          matchTypes: detailedMatchTypes,
-          query: query
+          // Determine what type of match this is
+          const matchTypes = []
+          if (result.title.toLowerCase().includes(query.toLowerCase())) matchTypes.push('title')
+          if (result.authors.some((author: string) => author.toLowerCase().includes(query.toLowerCase()))) matchTypes.push('author')
+          if (result.location.toLowerCase().includes(query.toLowerCase())) matchTypes.push('location')
+          if (result.categories.some((cat: { title: string; slug: string | undefined }) => cat.title.toLowerCase().includes(query.toLowerCase()))) matchTypes.push('category')
+
+          console.log('##Rohit_Rocks## Search result item:', {
+            title: result.title,
+            authors: result.authors,
+            location: result.location,
+            categories: result.categories,
+            matchTypes: matchTypes,
+            query: query
+          })
+
+          return result
         })
 
-        return detailedResult;
-      })
-
-      setResults(transformedResults)
+        console.log('##Rohit_Rocks## Setting results:', searchResults.length)
+        setResults(searchResults)
+      }
     } catch (error) {
-      console.error('Error fetching search results:', error)
+      console.error('##Rohit_Rocks## API Error:', error)
       setResults([])
     } finally {
       setIsLoading(false)
     }
-  }, [query, pageSize])
+  }, [query, pageSize, filters, currentLocale])
 
-  // Test useEffect
-  useEffect(() => {
-    console.log('##Rohit_Rocks## TEST useEffect is working!')
-    console.log('##Rohit_Rocks## Query in useEffect:', query)
-
-    // Simple search implementation
-    if (query && query.trim()) {
-      console.log('##Rohit_Rocks## Making API call for query:', query)
-      setIsLoading(true)
-
-      const searchAPI = async (page: number = 1) => {
-        try {
-          const response = await axios.get(`${BASE_URL}api/articles`, {
-            params: {
-              'filters[$or][0][Title][$containsi]': query,
-              'filters[$or][1][strap][$containsi]': query,
-              'filters[$or][2][location][name][$containsi]': query,
-              'filters[$or][3][location][district][$containsi]': query,
-              'filters[$or][4][location][state][$containsi]': query,
-              'filters[$or][5][Authors][author_name][Name][$containsi]': query,
-              'filters[$or][6][categories][Title][$containsi]': query,
-              'pagination[page]': page,
-              'pagination[pageSize]': pageSize,
-              'populate[Cover_image][fields][0]': 'url',
-              'populate[location][fields][0]': 'name',
-              'populate[location][fields][1]': 'district',
-              'populate[location][fields][2]': 'state',
-              'populate[Authors][populate][author_name][fields][0]': 'Name',
-              'populate[categories][fields][0]': 'Title',
-              'fields[0]': 'Title',
-              'fields[1]': 'strap',
-              'fields[2]': 'slug',
-              'fields[3]': 'Original_published_date'
-            }
-          })
-
-          console.log('##Rohit_Rocks## API Response received:', response.data.data?.length || 0, 'results')
-          console.log('##Rohit_Rocks## Pagination info:', response.data.meta?.pagination)
-
-          // Update pagination state
-          if (response.data.meta?.pagination) {
-            setTotalResults(response.data.meta.pagination.total)
-            setTotalPages(response.data.meta.pagination.pageCount)
-          }
-
-          if (response.data.data) {
-            const searchResults = response.data.data.map((item: SearchApiItem) => {
-              // Extract authors using the same logic as the detailed search
-              const authors = item.attributes.Authors
-                ? 'data' in item.attributes.Authors
-                  ? item.attributes.Authors.data?.map((author: AuthorData) =>
-                      author.attributes?.author_name?.data?.attributes?.Name || 'PARI'
-                    ) || ['PARI']
-                  : (item.attributes.Authors as AuthorData[]).map((author: AuthorData) =>
-                      author.author_name?.data?.attributes?.Name || 'PARI'
-                    )
-                : ['PARI']
-
-              const result = {
-                id: item.id,
-                title: item.attributes.Title || '',
-                imageUrl: item.attributes.Cover_image?.data?.attributes?.url
-                  ? `${BASE_URL.replace('/v1/', '')}${item.attributes.Cover_image.data.attributes.url}`
-                  : '',
-                slug: item.attributes.slug || '',
-                categories: item.attributes.categories?.data?.map((cat: { attributes: { Title: string } }) => cat.attributes.Title) || [],
-                authors: authors,
-                localizations: [],
-                location: item.attributes.location?.data?.attributes
-                  ? `${item.attributes.location.data.attributes.name}, ${item.attributes.location.data.attributes.district}, ${item.attributes.location.data.attributes.state}`
-                  : '',
-                date: item.attributes.Original_published_date || '',
-                type: 'article'
-              }
-
-              // Determine what type of match this is
-              const matchTypes = []
-              if (result.title.toLowerCase().includes(query.toLowerCase())) matchTypes.push('title')
-              if (result.authors.some((author: string) => author.toLowerCase().includes(query.toLowerCase()))) matchTypes.push('author')
-              if (result.location.toLowerCase().includes(query.toLowerCase())) matchTypes.push('location')
-              if (result.categories.some((cat: string) => cat.toLowerCase().includes(query.toLowerCase()))) matchTypes.push('category')
-
-              console.log('##Rohit_Rocks## Search result item:', {
-                title: result.title,
-                authors: result.authors,
-                location: result.location,
-                categories: result.categories,
-                matchTypes: matchTypes,
-                query: query
-              })
-
-              return result
-            })
-
-            console.log('##Rohit_Rocks## Setting results:', searchResults.length)
-            setResults(searchResults)
-          }
-        } catch (error) {
-          console.error('##Rohit_Rocks## API Error:', error)
-        } finally {
-          setIsLoading(false)
-        }
-      }
-
-      searchAPI()
-    } else {
-      console.log('##Rohit_Rocks## No query, clearing results')
-      setResults([])
-      setIsLoading(false)
-    }
-  }, [query, pageSize])
-
-
+  // Main useEffect for search
   useEffect(() => {
     console.log('##Rohit_Rocks## useEffect triggered with query:', query, 'type:', typeof query, 'length:', query?.length, 'timestamp:', new Date().toISOString())
-    console.log('##Rohit_Rocks## About to call fetchSearchResults function')
+    console.log('##Rohit_Rocks## Current filters:', filters)
+    console.log('##Rohit_Rocks## About to call fetchSearchResults')
     fetchSearchResults(1).catch(error => {
       console.error('##Rohit_Rocks## Error in fetchSearchResults:', error)
     })
-  }, [query, fetchSearchResults])
+  }, [query, fetchSearchResults, filters])
 
-  console.log('##Rohit_Rocks## useEffect has been set up, current query:', query, 'results length:', results.length)
-
-  // Reset to page 1 when query changes
+  // Reset to page 1 when query or locale changes
   useEffect(() => {
     setCurrentPage(1)
-  }, [query])
+  }, [query, currentLocale])
+
+  // Refresh search when locale changes
+  useEffect(() => {
+    if (query && query.trim()) {
+      console.log('##Rohit_Rocks## Locale changed to:', currentLocale, 'refreshing search with article locale filtering');
+      fetchSearchResults(1).catch(error => {
+        console.error('##Rohit_Rocks## Error refreshing search after locale change:', error)
+      })
+    }
+  }, [currentLocale, fetchSearchResults, query])
+
+
 
   // Pagination functions
   const handlePageChange = async (newPage: number) => {
@@ -472,7 +428,7 @@ export default function SearchPageContent() {
 
     // Show fewer pages on mobile
     const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
-    const maxVisiblePages = isMobile ? 4 : 9;
+    const maxVisiblePages = isMobile ? 3 : 5;
     const startPage = Math.max(1, Math.min(currentPage - Math.floor(maxVisiblePages / 2), totalPages - maxVisiblePages + 1));
     const endPage = Math.min(startPage + maxVisiblePages - 1, totalPages);
 
@@ -495,18 +451,19 @@ export default function SearchPageContent() {
     };
 
     return (
-      <div className="mt-8">
-        <div className={`flex items-center justify-center gap-2 ${currentLocale === 'ur' ? 'flex-row-reverse' : ''}`}>
+      <div className="mt-6 sm:mt-8">
+        <div className={`flex items-center justify-center gap-1 sm:gap-2 ${currentLocale === 'ur' ? 'flex-row-reverse' : ''}`}>
 
-          {/* Jump back 5 pages button */}
+          {/* Jump back 5 pages button - hidden on mobile */}
           {currentPage > 5 && (
             <Button
               variant="secondary"
               size="sm"
               onClick={handlePrevSet}
-              className="text-primary-PARI-Red rounded-2xl"
+              className="text-primary-PARI-Red rounded-full hidden sm:flex text-xs sm:text-sm px-2 sm:px-3"
             >
-              Prev 5
+              <span className="hidden md:inline">Prev 5</span>
+              <span className="md:hidden">-5</span>
             </Button>
           )}
           {/* Previous button */}
@@ -515,21 +472,21 @@ export default function SearchPageContent() {
             size="sm"
             onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
             disabled={currentPage === 1}
-            className="text-primary-PARI-Red rounded-2xl mr-2"
+            className="text-primary-PARI-Red rounded-full mr-1 sm:mr-2 h-8 w-8  p-0"
           >
-            <ChevronLeft className="h-4 w-4" />
+            <ChevronLeft className="h-6 w-6 " />
           </Button>
 
 
-          {/* Page numbers - hide some on very small screens */}
-          <div className={`flex flex-wrap justify-center gap-2 ${currentLocale === 'ur' ? 'flex-row-reverse' : ''}`}>
+          {/* Page numbers - responsive */}
+          <div className={`flex flex-wrap justify-center gap-1 sm:gap-2 ${currentLocale === 'ur' ? 'flex-row-reverse' : ''}`}>
             {visiblePages.map((page) => (
               <Button
                 key={page}
                 variant={currentPage === page ? "default" : "secondary"}
                 size="sm"
                 onClick={() => handlePageChange(page)}
-                className={currentPage === page ? "bg-primary-PARI-Red text-white rounded-2xl" : "text-primary-PARI-Red rounded-2xl"}
+                className={`${currentPage === page ? "bg-primary-PARI-Red text-white" : "text-primary-PARI-Red"} rounded-full h-8 w-8 sm:h-9 sm:w-9 p-0 text-xs sm:text-sm`}
               >
                 {page}
               </Button>
@@ -544,20 +501,21 @@ export default function SearchPageContent() {
             size="sm"
             onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
             disabled={currentPage === totalPages}
-            className="text-primary-PARI-Red rounded-2xl ml-2"
+            className="text-primary-PARI-Red rounded-full ml-1 sm:ml-2 h-8 w-8  p-0"
           >
-            <ChevronRight className="h-4 w-4" />
+            <ChevronRight className="h-6 w-6 " />
           </Button>
 
-          {/* Jump forward 5 pages button */}
+          {/* Jump forward 5 pages button - hidden on mobile */}
           {currentPage + 5 <= totalPages && (
             <Button
               variant="secondary"
               size="sm"
               onClick={handleNextSet}
-              className="text-primary-PARI-Red rounded-2xl"
+              className="text-primary-PARI-Red rounded-full hidden sm:flex text-xs sm:text-sm px-2 sm:px-3"
             >
-              Next 5
+              <span className="hidden md:inline">Next 5</span>
+              <span className="md:hidden">+5</span>
             </Button>
           )}
         </div>
@@ -567,47 +525,75 @@ export default function SearchPageContent() {
 
   return (
     <div className="min-h-screen bg-background">
-    
-      <main className="max-w-[1232px] mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">Search Results</h1>
-          {query && (
-            <div className="space-y-2">
-              <p className="text-muted-foreground">
-                {isLoading ? 'Searching...' : `Found ${totalResults || results.length} results for "${query}"`}
-              </p>
-              {!isLoading && results.length > 0 && (
-                <div className="text-sm text-muted-foreground">
-                
-                </div>
-              )}
+      <div className="flex flex-col md:flex-row gap-0 max-w-[1232px] mx-auto md:gap-6 lg:gap-16">
+        {/* Filter Sidebar */}
+        <SearchFiltersSidebar
+          filters={filters}
+          onFiltersChange={setFilters}
+          isOpen={isFilterOpen}
+          onToggle={() => setIsFilterOpen(!isFilterOpen)}
+        />
+
+        {/* Main Content */}
+        <main className={`flex-1 w-full ${isFilterOpen ? 'md:max-w-[calc(100%-20rem)] lg:max-w-[calc(100%-24rem)]' : ''} px-4 sm:px-6 md:px-0 py-6 md:py-8`}>
+          {/* Header with Filter Toggle */}
+          <div className="mb-6 md:mb-8">
+            <div className="flex items-center justify-between mb-4">
+              <h1 className="text-2xl sm:text-3xl font-bold">Search Results</h1>
+              <Button
+                variant="outline"
+                onClick={() => setIsFilterOpen(!isFilterOpen)}
+                className="md:hidden flex items-center gap-2 h-10"
+              >
+                <Filter className="h-4 w-4" />
+                <span className="hidden sm:inline">Filters</span>
+              </Button>
             </div>
-          )}
-          {!query && (
-            <div className="space-y-2">
-              <p className="text-muted-foreground">Enter a search term to find articles</p>
-              <div className="text-sm text-muted-foreground">
-                <p className="mb-1">You can search by:</p>
-                <ul className="list-disc list-inside space-y-1 ml-4">
-                  <li>Article titles and content</li>
-                  <li>Author names (e.g., &quot;P. Sainath&quot;, &quot;Kavitha Iyer&quot;)</li>
-                  <li>Locations (e.g., &quot;Maharashtra&quot;, &quot;Telangana&quot;, &quot;Wayanad&quot;)</li>
-                  <li>Categories and topics</li>
-                </ul>
+
+            {query && (
+              <div className="space-y-2">
+                <p className="text-sm sm:text-base text-muted-foreground">
+                  {isLoading ? 'Searching...' : `Found ${totalResults || results.length} results for "${query}"`}
+                  {filters.language === 'all' && !isLoading && (
+                    <span className="ml-2 text-primary-PARI-Red font-medium text-xs sm:text-sm">(across all languages)</span>
+                  )}
+                </p>
+                {!isLoading && results.length > 0 && (
+                  <div className="text-xs sm:text-sm text-muted-foreground">
+                    {filters.language === 'all' && (
+                      <p className="text-primary-PARI-Red">
+                        Results include articles from all available languages. Use language selection on each card to view in different languages.
+                      </p>
+                    )}
+                  </div>
+                )}
               </div>
-            </div>
-          )}
-        </div>
+            )}
+            {!query && (
+              <div className="space-y-2">
+                <p className="text-sm sm:text-base text-muted-foreground">Enter a search term to find articles</p>
+                <div className="text-xs sm:text-sm text-muted-foreground">
+                  <p className="mb-1 font-medium">You can search by:</p>
+                  <ul className="list-disc list-inside space-y-1 ml-2 sm:ml-4">
+                    <li>Article titles and content</li>
+                    <li>Author names (e.g., &quot;P. Sainath&quot;, &quot;Kavitha Iyer&quot;)</li>
+                    <li>Locations (e.g., &quot;Maharashtra&quot;, &quot;Telangana&quot;, &quot;Wayanad&quot;)</li>
+                    <li>Categories and topics</li>
+                  </ul>
+                </div>
+              </div>
+            )}
+          </div>
 
         {isLoading ? (
-          <div className="flex justify-center items-center min-h-[400px]">
+          <div className="flex justify-center items-center min-h-[300px] sm:min-h-[400px]">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-PARI-Red mx-auto mb-4"></div>
-              <p>Searching...</p>
+              <div className="animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-b-2 border-primary-PARI-Red mx-auto mb-4"></div>
+              <p className="text-sm sm:text-base">Searching...</p>
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className={`grid grid-cols-1 sm:grid-cols-2 ${isFilterOpen ? 'lg:grid-cols-3' : 'lg:grid-cols-4'} gap-4 sm:gap-5 md:gap-6`}>
             {results.map((result) => (
               <StoryCard
                 key={result.id}
@@ -627,9 +613,9 @@ export default function SearchPageContent() {
         )}
 
         {!isLoading && results.length === 0 && query && (
-          <div className="text-center py-12">
-            <p className="text-lg text-muted-foreground mb-4">No results found for &quot;{query}&quot;</p>
-            <p className="text-sm text-muted-foreground">Try different keywords or check your spelling</p>
+          <div className="text-center py-8 sm:py-12">
+            <p className="text-base sm:text-lg text-muted-foreground mb-2 sm:mb-4">No results found for &quot;{query}&quot;</p>
+            <p className="text-xs sm:text-sm text-muted-foreground">Try different keywords or check your spelling</p>
           </div>
         )}
 
@@ -638,12 +624,13 @@ export default function SearchPageContent() {
 
         {/* Pagination Info */}
         {!isLoading && results.length > 0 && totalPages > 1 && (
-          <div className="text-center text-sm text-muted-foreground mt-4">
+          <div className="text-center text-xs sm:text-sm text-muted-foreground mt-3 sm:mt-4">
             Showing page {currentPage} of {totalPages} ({totalResults} total results)
           </div>
         )}
 
-      </main>
+        </main>
+      </div>
     </div>
   )
 }

@@ -1,11 +1,14 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import axios from 'axios';
-import { useEZForm } from '@/hooks/useEZForm';
-import { FormErrorMessage, FormLoadingSpinner } from '@/components/forms/EZFormWrapper';
+import { EZFormWrapper, FormSuccessMessage, FormErrorMessage, FormLoadingSpinner } from '@/components/forms/EZFormWrapper';
+import { EZFormData } from '@/lib/ezforms';
 import { PencilRuler } from 'lucide-react';
 import { useContributeBrevo } from '@/hooks/useBrevo';
+import { LanguageToggle } from '@/components/layout/header/LanguageToggle';
+import { useLocale } from '@/lib/locale';
+import Link from 'next/link';
 
 // Location data interfaces
 interface Country {
@@ -37,30 +40,6 @@ interface ContributeFormData {
   uploadFile?: File | null;
   fileLink: string;
   agreeToTerms: boolean;
-}
-
-interface FormConfigData {
-  id: number;
-  attributes: {
-    firstName: string;
-    lastName: string;
-    email: string;
-    phone: number;
-    Country: string;
-    State: string;
-    District: string;
-    organisation: string;
-    fileLink: string;
-    createdAt: string;
-    updatedAt: string;
-    publishedAt: string;
-    locale: string;
-  };
-}
-
-interface FormConfigResponse {
-  data: FormConfigData;
-  meta: Record<string, unknown>;
 }
 
 // Types for pages API response
@@ -103,7 +82,8 @@ interface ContributePageData {
     Modular_Content: ModularContentItem[];
     localizations: {
       data: Array<{
-        attributes?: {
+        id: number;
+        attributes: {
           locale: string;
           title?: string;
           strap?: string;
@@ -114,22 +94,16 @@ interface ContributePageData {
   };
 }
 
-interface ContributePageResponse {
-  data: ContributePageData;
-  meta: Record<string, unknown>;
-}
-
-const ContributePage = () => {
+const ContributeContent = () => {
   const [mounted, setMounted] = useState(false);
+  const { language: currentLocale } = useLocale();
 
   // Page content data states
   const [pageData, setPageData] = useState<ContributePageData | null>(null);
   const [isLoadingPageData, setIsLoadingPageData] = useState(true);
   const [pageError, setPageError] = useState<string | null>(null);
 
-  // Form configuration data states
-  const [formConfig, setFormConfig] = useState<FormConfigData | null>(null);
-  const [formConfigError, setFormConfigError] = useState<string | null>(null);
+  // Form configuration data states - REMOVED (not used)
 
   // Location data states
   const [countries, setCountries] = useState<Country[]>([]);
@@ -139,35 +113,11 @@ const ContributePage = () => {
   const [loadingStates, setLoadingStates] = useState(false);
   const [loadingDistricts, setLoadingDistricts] = useState(false);
 
-  // EZForms hook for handling form submission
-  const { isSubmitting, isSuccess, error } = useEZForm({
-    formName: 'Content Upload Form',
-    requiredFields: ['firstName', 'lastName', 'email', 'agreeToTerms'],
-    onSuccess: async () => {
-      console.log('##Rohit_Rocks## Content Upload Form - Form Success');
-      // Reset form on success
-      setFormData({
-        firstName: '',
-        lastName: '',
-        email: '',
-        phone: '',
-        country: '',
-        state: '',
-        district: '',
-        organization: '',
-        uploadFile: null,
-        fileLink: '',
-        agreeToTerms: true
-      });
-      // Clear location data to force fresh fetch
-      setCountries([]);
-      setStates([]);
-      setDistricts([]);
-    }
-  });
-
   // Brevo integration for contribute form
   const { submitForm: submitToBrevo } = useContributeBrevo();
+
+  // Font class state for language-specific fonts
+  const [fontClass, setFontClass] = useState('font-noto');
 
   const [formData, setFormData] = useState<ContributeFormData>({
     firstName: '',
@@ -324,84 +274,34 @@ const ContributePage = () => {
 
   // Helper function to extract hero content from API
   const getHeroContent = () => {
-    if (!pageData?.attributes?.Modular_Content) {
+    if (!pageData?.attributes) {
       return {
         title: 'Cover your country',
         description: "India's biggest archive of itself needs everyone to participate. Join us."
       };
     }
 
-    const modularContent = pageData.attributes.Modular_Content;
-    let title = 'Cover your country';
-    let description = "India's biggest archive of itself needs everyone to participate. Join us.";
-
-    // Find the paragraph that contains the main content
-    const mainContent = modularContent.find(item =>
-      item.__component === 'modular-content.paragraph' &&
-      item.Paragraph &&
-      item.Paragraph.includes('COVER YOUR COUNTRY')
-    );
-
-    if (mainContent?.Paragraph) {
-      // Parse the HTML to extract title and description
-      const tempDiv = document.createElement('div');
-      tempDiv.innerHTML = mainContent.Paragraph;
-
-      const h2Elements = tempDiv.querySelectorAll('h2');
-      const pElements = tempDiv.querySelectorAll('p');
-
-      // Get the first h2 for title
-      if (h2Elements[0]) {
-        title = h2Elements[0].textContent || title;
-      }
-
-      // Get the first p for description
-      if (pElements[0]) {
-        description = pElements[0].textContent || description;
-      }
-    }
+    // Use the Title and Strap directly from the API response
+    const title = pageData.attributes.Title || 'Cover your country';
+    const description = pageData.attributes.Strap || "India's biggest archive of itself needs everyone to participate. Join us.";
 
     return { title, description };
-  };
-
-  // Helper function to extract section title from API
-  const getSectionTitle = () => {
-    if (!pageData?.attributes?.Modular_Content) {
-      return 'Write / Photograph / Film / Create';
-    }
-
-    const modularContent = pageData.attributes.Modular_Content;
-
-    // Find the paragraph that contains the section title
-    const mainContent = modularContent.find(item =>
-      item.__component === 'modular-content.paragraph' &&
-      item.Paragraph &&
-      item.Paragraph.includes('Write / Photograph')
-    );
-
-    if (mainContent?.Paragraph) {
-      // Parse the HTML to extract the section title
-      const tempDiv = document.createElement('div');
-      tempDiv.innerHTML = mainContent.Paragraph;
-
-      const h2Elements = tempDiv.querySelectorAll('h2');
-
-      // Find the h2 that contains "Write"
-      for (const h2 of h2Elements) {
-        if (h2.textContent && h2.textContent.includes('Write')) {
-          return h2.textContent;
-        }
-      }
-    }
-
-    return 'Write / Photograph / Film / Create';
   };
 
   // Helper function to render modular content with custom styling
   const renderModularContent = (modularContent: ModularContentItem[]) => {
     return modularContent.map((item, index) => {
       if (item.__component === 'modular-content.paragraph' && item.Paragraph) {
-        const content = item.Paragraph;
+        let content = item.Paragraph;
+
+        // Remove h6 headings from content (since we show them separately at the top)
+        if (content.includes('<h6>')) {
+          const tempDiv = document.createElement('div');
+          tempDiv.innerHTML = content;
+          const h6Elements = tempDiv.querySelectorAll('h6');
+          h6Elements.forEach(h6 => h6.remove());
+          content = tempDiv.innerHTML;
+        }
 
         // Handle content with HTML lists - convert to custom styled lists
         if (content.includes('<ul>') && content.includes('<li>')) {
@@ -475,45 +375,147 @@ const ContributePage = () => {
 
   // Fetch contribute page data from pages API
   useEffect(() => {
+    console.log('##Rohit_Rocks## useEffect triggered for locale:', currentLocale);
+
     const fetchContributePageData = async () => {
       try {
         setIsLoadingPageData(true);
         setPageError(null);
 
-        // Fetch contribute page content from pages API (ID 3 is the contribute page)
-        const response = await axios.get<ContributePageResponse>('https://dev.ruralindiaonline.org/v1/api/pages/3?populate=*');
-        setPageData(response.data.data);
-      } catch {
-        setPageError('Failed to load page content');
+        console.log('##Rohit_Rocks## Fetching contribute page with locale:', currentLocale);
+
+        // Fetch all pages and find "Cover your country" by title
+        const listResponse = await axios.get<{ data: ContributePageData[]; meta: Record<string, unknown> }>(
+          `https://merge.ruralindiaonline.org/v1/api/pages?filters[Title][$eq]=Cover your country&populate=deep,3&locale=en`
+        );
+
+        if (!listResponse.data.data || listResponse.data.data.length === 0) {
+          throw new Error('Contribute page not found');
+        }
+
+        const response = { data: { data: listResponse.data.data[0], meta: {} } };
+
+        const mainData = response.data.data;
+        console.log('##Rohit_Rocks## Main data locale:', mainData.attributes.locale);
+        console.log('##Rohit_Rocks## Available localizations:', mainData.attributes.localizations);
+
+        // If current locale is English, use the main data
+        if (currentLocale === 'en') {
+          console.log('##Rohit_Rocks## Using English content');
+          setPageData(mainData);
+        } else if (mainData.attributes.localizations?.data?.length > 0) {
+          // Check if requested locale exists in localizations
+          const localization = mainData.attributes.localizations.data.find(
+            (loc) => loc.attributes.locale === currentLocale
+          );
+
+          if (localization) {
+            // Fetch the specific localization
+            console.log('##Rohit_Rocks## Found localization for', currentLocale, ', fetching full data...');
+            try {
+              const localeResponse = await axios.get<{ data: ContributePageData; meta: Record<string, unknown> }>(
+                `https://merge.ruralindiaonline.org/v1/api/pages/${localization.id}?populate=deep,3`
+              );
+              console.log('##Rohit_Rocks## Localized content:', {
+                Title: localeResponse.data.data.attributes.Title,
+                Strap: localeResponse.data.data.attributes.Strap,
+                locale: localeResponse.data.data.attributes.locale
+              });
+              setPageData(localeResponse.data.data);
+            } catch (localeError) {
+              console.error('##Rohit_Rocks## Error fetching localized content:', localeError);
+              // Fallback to English
+              setPageData(mainData);
+            }
+          } else {
+            // Fallback to English if locale not found
+            console.log('##Rohit_Rocks## No localization found for', currentLocale, ', using English');
+            setPageData(mainData);
+          }
+        } else {
+          // No localizations available, use English
+          console.log('##Rohit_Rocks## No localizations available, using English');
+          setPageData(mainData);
+        }
+      } catch (error) {
+        console.error('##Rohit_Rocks## Error fetching contribute page:', error);
+        // Use fallback content even on error
+        const fallbackData: ContributePageData = {
+          id: 3,
+          attributes: {
+            Title: 'Contribute to PARI',
+            Strap: 'Share your stories, photographs, and films with us',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            publishedAt: new Date().toISOString(),
+            locale: currentLocale,
+            Author: null,
+            Modular_Content: [
+              {
+                id: 1,
+                __component: 'modular-content.paragraph',
+                Paragraph: '<p>PARI welcomes contributions from writers, photographers, filmmakers, and creators who want to document rural India.</p>',
+                Align_content: null
+              }
+            ],
+            localizations: {
+              data: []
+            }
+          }
+        };
+        setPageData(fallbackData);
       } finally {
         setIsLoadingPageData(false);
       }
     };
 
     fetchContributePageData();
-  }, []);
+  }, [currentLocale]); // Re-fetch when locale changes
 
-  // Fetch form configuration data
+  // Form configuration fetch removed - not needed
+
+  // Set font based on language
   useEffect(() => {
-    const fetchFormConfigData = async () => {
-      try {
-        setFormConfigError(null);
-
-        const response = await axios.get<FormConfigResponse>('https://dev.ruralindiaonline.org/v1/api/form-contribute', {
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-          },
-          timeout: 10000 // 10 second timeout
-        });
-        setFormConfig(response.data.data);
-      } catch {
-        setFormConfigError('Failed to load form configuration');
-      }
-    };
-
-    fetchFormConfigData();
-  }, []);
+    switch (currentLocale) {
+      case 'hi':
+      case 'mr':
+        setFontClass('font-noto-devanagari');
+        break;
+      case 'te':
+        setFontClass('font-noto-telugu');
+        break;
+      case 'ta':
+        setFontClass('font-noto-tamil');
+        break;
+      case 'ur':
+        setFontClass('font-noto-urdu');
+        break;
+      case 'bn':
+        setFontClass('font-noto-bengali');
+        break;
+      case 'gu':
+        setFontClass('font-noto-gujarati');
+        break;
+      case 'or':
+        setFontClass('font-noto-odia');
+        break;
+      case 'kn':
+        setFontClass('font-noto-kannada');
+        break;
+      case 'pa':
+        setFontClass('font-noto-punjabi');
+        break;
+      case 'as':
+        setFontClass('font-noto-assamese');
+        break;
+      case 'ml':
+        setFontClass('font-noto-malayalam');
+        break;
+      default:
+        setFontClass('font-noto');
+        break;
+    }
+  }, [currentLocale]);
 
   useEffect(() => {
     setMounted(true);
@@ -593,7 +595,7 @@ const ContributePage = () => {
 
       console.log('##Rohit_Rocks## Uploading file:', file.name);
 
-      const response = await fetch('https://dev.ruralindiaonline.org/v1/api/upload', {
+      const response = await fetch('https://merge.ruralindiaonline.org/v1/api/upload', {
         method: 'POST',
         body: formData
       });
@@ -613,15 +615,9 @@ const ContributePage = () => {
     }
   };
 
-  const handleSubmitApplication = async () => {
+  const handleSubmitApplication = async (submitForm: (formData: EZFormData, captchaToken?: string) => Promise<void>) => {
     console.log('##Rohit_Rocks## Submit button clicked!');
     console.log('##Rohit_Rocks## Current form data:', formData);
-
-    // Validate terms of service agreement
-    if (!formData.agreeToTerms) {
-      alert('You must agree to PARI\'s terms of service to submit your content');
-      return;
-    }
 
     try {
       console.log('##Rohit_Rocks## Starting form submission');
@@ -641,7 +637,7 @@ const ContributePage = () => {
       const selectedState = states.find(s => s.iso2 === formData.state);
       const selectedDistrict = districts.find(d => d.name === formData.district);
 
-      const submissionData = {
+      const submissionData: EZFormData = {
         firstName: formData.firstName || '',
         lastName: formData.lastName || '',
         email: formData.email || '',
@@ -649,7 +645,7 @@ const ContributePage = () => {
         country: selectedCountry?.name || '',
         state: selectedState?.name || '',
         district: selectedDistrict?.name || '',
-        organisation: formData.organization || '',
+        organization: formData.organization || '',
         fileLink: formData.fileLink || '',
         agreeToTerms: formData.agreeToTerms,
         // Add the uploaded file ID if file was uploaded
@@ -658,59 +654,27 @@ const ContributePage = () => {
 
       console.log('##Rohit_Rocks## Submission data:', submissionData);
 
-      // Step 3: Submit form data with file ID
-      const response = await fetch('https://dev.ruralindiaonline.org/v1/api/contribution-submits', {
-        method: 'POST',
-        headers: {
-          'accept': 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ data: submissionData })
-      });
+      // Step 3: Submit via EZForm
+      await submitForm(submissionData);
 
-      console.log('##Rohit_Rocks## Submission response status:', response.status);
-      const result = await response.json();
-      console.log('##Rohit_Rocks## Submission response data:', result);
-
-      if (response.ok) {
-        alert('Success! Data and file uploaded to API successfully!');
-
-        // Also submit to Brevo for email automation
-        try {
-          console.log('##Rohit_Rocks## Submitting to Brevo for contribute tracking');
-          const fullName = `${formData.firstName} ${formData.lastName}`.trim();
-          await submitToBrevo(
-            formData.email,
-            fullName,
-            formData.phone || undefined,
-            formData.organization || undefined
-          );
-          console.log('##Rohit_Rocks## Brevo contribute submission successful');
-        } catch (brevoError) {
-          console.error('##Rohit_Rocks## Brevo contribute submission error:', brevoError);
-          // Don't fail the whole process if Brevo fails
-        }
-
-        // Reset form on success
-        setFormData({
-          firstName: '',
-          lastName: '',
-          email: '',
-          phone: '',
-          country: '',
-          state: '',
-          district: '',
-          organization: '',
-          uploadFile: null,
-          fileLink: '',
-          agreeToTerms: true
-        });
-      } else {
-        alert('Error: ' + JSON.stringify(result));
+      // Also submit to Brevo for email automation
+      try {
+        console.log('##Rohit_Rocks## Submitting to Brevo for contribute tracking');
+        const fullName = `${formData.firstName} ${formData.lastName}`.trim();
+        await submitToBrevo(
+          formData.email,
+          fullName,
+          formData.phone || undefined,
+          formData.organization || undefined
+        );
+        console.log('##Rohit_Rocks## Brevo contribute submission successful');
+      } catch (brevoError) {
+        console.error('##Rohit_Rocks## Brevo contribute submission error:', brevoError);
+        // Don't fail the whole process if Brevo fails
       }
     } catch (error) {
       console.error('##Rohit_Rocks## Submission error:', error);
-      alert('Error: ' + (error instanceof Error ? error.message : String(error)));
+      throw error; // Re-throw to let EZForm handle the error display
     }
   };
 
@@ -718,10 +682,18 @@ const ContributePage = () => {
     return null;
   }
 
+  // Text direction helper function
+  const getTextDirection = (locale: string) => {
+    return ['ar', 'ur'].includes(locale) ? 'rtl' : 'ltr';
+  };
+
   return (
-    <div className="min-h-screen bg-background py-10 md:py-20 px-4">
+    <div
+      className={`min-h-screen bg-background py-10 md:py-20 px-4 ${fontClass}`}
+      dir={getTextDirection(currentLocale)}
+    >
       <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-2  md:gap-20 sm:gap-20 gap-8 items-start">
           {/* Left Content Section */}
           <div className="md:px-8">
             {isLoadingPageData ? (
@@ -747,35 +719,35 @@ const ContributePage = () => {
             ) : pageData ? (
               <div className="space-y-8">
                 {/* Main Heading - Extract from API Content */}
-                <div>
+                <div className=' mb-16'>
                   {(() => {
                     const heroContent = getHeroContent();
                     return (
                       <>
-                        <h1 className="text-5xl font-bold text-foreground mb-4 leading-tight">
+                        <h1 className=" text-foreground mb-2 ">
                           {heroContent.title}
                         </h1>
-                        <p className="text-xl text-muted-foreground mb-8">
+                        <h2 className=" text-muted-foreground mb-4">
                           {heroContent.description}
-                        </p>
+                        </h2>
                       </>
                     );
                   })()}
-                  <button className="px-6 py-3 border-2 border-primary-PARI-Red text-primary-PARI-Red rounded-full hover:bg-primary-PARI-Red hover:text-white transition-colors duration-200 font-medium">
-                    See Content Guidelines
-                  </button>
+                  <Link href="/contribute/guidelines">
+                    <button className="px-5 py-2 border-2 border-primary-PARI-Red text-primary-PARI-Red rounded-full hover:bg-primary-PARI-Red hover:text-white transition-colors duration-200 font-medium">
+                      See Content Guidelines
+                    </button>
+                  </Link>
+                
                 </div>
 
                 {/* Dynamic Content from API - Styled with same design */}
                 <div className="space-y-6">
-                  <div className="flex items-center space-x-3">
-                    
-                    <div className="flex items-center gap-3 mb-4">
-                      <PencilRuler  className="text-2xl text-foreground" />
-                      <h2 className="text-2xl  font-bold text-foreground">
-                        {getSectionTitle()}
-                      </h2>
-                    </div>
+                  <div className="flex items-center gap-3 mb-4">
+                    <PencilRuler className="text-2xl text-foreground" />
+                    <h3 className="text-xl  text-foreground">
+                      Write / Photograph / Film / Create
+                    </h3>
                   </div>
 
                   {/* API Content with Custom Styling */}
@@ -795,7 +767,7 @@ const ContributePage = () => {
           <div className="bg-popover dark:bg-popover p-8 rounded-lg shadow-sm border border-border">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-semibold text-card-foreground">
-                {pageData?.attributes?.Title || 'Contribute content form'}
+                { 'Contribute content form'}
               </h2>
             </div>
 
@@ -803,21 +775,36 @@ const ContributePage = () => {
               Help us build India&apos;s biggest archive by contributing your content
             </p>
 
-            {/* Form Configuration Error State */}
-            {formConfigError && (
-              <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg mb-6">
-                <p className="text-red-600 dark:text-red-400">{formConfigError}</p>
-              </div>
-            )}
-
-            {/* Form configuration status - only show errors */}
-            {formConfigError && (
-              <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg mb-6">
-                <p className="text-red-600 dark:text-red-400">{formConfigError}</p>
-              </div>
-            )}
-
-            <div className="space-y-6">
+            <EZFormWrapper
+              formName="Content Upload Form"
+              requiredFields={[]}
+              onSuccess={async () => {
+                console.log('##Rohit_Rocks## Content Upload Form - Form Success');
+                // Reset form on success
+                setFormData({
+                  firstName: '',
+                  lastName: '',
+                  email: '',
+                  phone: '',
+                  country: '',
+                  state: '',
+                  district: '',
+                  organization: '',
+                  uploadFile: null,
+                  fileLink: '',
+                  agreeToTerms: true
+                });
+                // Clear location data to force fresh fetch
+                setCountries([]);
+                setStates([]);
+                setDistricts([]);
+              }}
+            >
+              {({ isSubmitting, isSuccess, error, submitForm }) => (
+            <form onSubmit={async (e) => {
+              e.preventDefault();
+              await handleSubmitApplication(submitForm);
+            }} className="space-y-6">
               {/* Personal Info Section */}
               <div>
                 <h3 className="text-sm font-medium text-muted-foreground mb-4 uppercase tracking-wide">
@@ -829,17 +816,19 @@ const ContributePage = () => {
                     <input
                       type="text"
                       name="firstName"
-                      placeholder={formConfig?.attributes?.firstName || "First Name"}
+                      placeholder="First Name *"
                       value={formData.firstName}
                       onChange={handleInputChange}
+                      required
                       className="w-full px-4 py-3 border border-input rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-primary-PARI-Red outline-none bg-background"
                     />
                     <input
                       type="text"
                       name="lastName"
-                      placeholder={formConfig?.attributes?.lastName || "Last Name"}
+                      placeholder="Last Name *"
                       value={formData.lastName}
                       onChange={handleInputChange}
+                      required
                       className="w-full px-4 py-3 border border-input rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-primary-PARI-Red outline-none bg-background"
                     />
                   </div>
@@ -848,15 +837,16 @@ const ContributePage = () => {
                     <input
                       type="email"
                       name="email"
-                      placeholder={formConfig?.attributes?.email || "Email"}
+                      placeholder="Email *"
                       value={formData.email}
                       onChange={handleInputChange}
+                      required
                       className="w-full px-4 py-3 border border-input rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-primary-PARI-Red outline-none bg-background"
                     />
                     <input
                       type="tel"
                       name="phone"
-                      placeholder={formConfig?.attributes?.phone?.toString() || "Phone"}
+                      placeholder="Phone"
                       value={formData.phone}
                       onChange={handleInputChange}
                       className="w-full px-4 py-3 border border-input rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-primary-PARI-Red outline-none bg-background"
@@ -873,7 +863,7 @@ const ContributePage = () => {
                       className="w-full px-4 py-3 border border-input rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-primary-PARI-Red outline-none bg-background disabled:opacity-50"
                     >
                       <option value="">
-                        {loadingCountries ? 'Loading countries...' : (formConfig?.attributes?.Country || 'Country')}
+                        {loadingCountries ? 'Loading countries...' : 'Country'}
                       </option>
                       {(() => {
                         // Sort countries with India at the top
@@ -900,7 +890,7 @@ const ContributePage = () => {
                       className="w-full px-4 py-3 border border-input rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-primary-PARI-Red outline-none bg-background disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <option value="">
-                        {loadingStates ? 'Loading states...' : (formConfig?.attributes?.State || 'State')}
+                        {loadingStates ? 'Loading states...' : 'State'}
                       </option>
                       {states.map((state) => (
                         <option key={state.id} value={state.iso2}>
@@ -918,7 +908,7 @@ const ContributePage = () => {
                       className="w-full px-4 py-3 border border-input rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-primary-PARI-Red outline-none bg-background disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <option value="">
-                        {loadingDistricts ? 'Loading districts...' : (formConfig?.attributes?.District || 'District')}
+                        {loadingDistricts ? 'Loading districts...' : 'District'}
                       </option>
                       {districts.map((district) => (
                         <option key={district.id} value={district.name}>
@@ -932,7 +922,7 @@ const ContributePage = () => {
                     <input
                       type="text"
                       name="organization"
-                      placeholder={formConfig?.attributes?.organisation || "Organisation / University / School name"}
+                      placeholder="Organisation / University / School name"
                       value={formData.organization}
                       onChange={handleInputChange}
                       className="w-full px-4 py-3 border border-input rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-primary-PARI-Red outline-none bg-background"
@@ -972,7 +962,7 @@ const ContributePage = () => {
                     <input
                       type="url"
                       name="fileLink"
-                      placeholder={formConfig?.attributes?.fileLink || "Submit a link with your file"}
+                      placeholder="Submit a link with your file"
                       value={formData.fileLink}
                       onChange={handleInputChange}
                       className="w-full px-4 py-3 border border-input rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-primary-PARI-Red outline-none bg-background"
@@ -983,11 +973,7 @@ const ContributePage = () => {
 
               {/* Success Message */}
               {isSuccess && (
-                <div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
-                  <p className="text-green-800 dark:text-green-200 text-sm">
-                    Thank you! Your content has been submitted successfully.
-                  </p>
-                </div>
+                <FormSuccessMessage message="Thank you! Your content has been submitted successfully." />
               )}
 
               {/* Error Message */}
@@ -1009,7 +995,7 @@ const ContributePage = () => {
                   />
                   <label htmlFor="agreeToTerms" className="text-sm text-muted-foreground">
                     I agree to PARI&apos;s{' '}
-                    <a href="https://ruralindiaonline.org/termsofservices" target="_blank" rel="noopener noreferrer" className="text-primary-PARI-Red hover:underline">
+                    <a href="/terms-and-conditions" target="_blank" rel="noopener noreferrer" className="text-primary-PARI-Red hover:underline">
                       terms of service
                     </a>
                   </label>
@@ -1017,12 +1003,9 @@ const ContributePage = () => {
               </div>
 
               <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleSubmitApplication();
-                }}
+                type="submit"
                 disabled={isSubmitting || !formData.agreeToTerms}
-                className={`w-full py-3 px-6 rounded-lg font-medium transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
+                className={`w-full py-3 px-6 rounded-full font-medium transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
                   !formData.agreeToTerms
                     ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
                     : 'bg-primary-PARI-Red text-white hover:bg-primary-PARI-Red/90'
@@ -1037,11 +1020,31 @@ const ContributePage = () => {
                   'Submit Content'
                 )}
               </button>
-            </div>
+            </form>
+              )}
+            </EZFormWrapper>
           </div>
         </div>
       </div>
+
+      {/* Floating Language Toggle */}
+      <LanguageToggle />
     </div>
+  );
+};
+
+const ContributePage = () => {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    }>
+      <ContributeContent />
+    </Suspense>
   );
 };
 

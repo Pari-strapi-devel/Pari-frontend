@@ -5,6 +5,7 @@ import axios from 'axios';
 import qs from 'qs';
 import { BASE_URL } from '@/config';
 
+
 import Link from 'next/link';
 
 import { FiArrowRight, FiUser, FiMail, FiPhone, FiMessageSquare, FiEdit3, FiUsers, FiBookOpen, FiHeart } from 'react-icons/fi';
@@ -12,6 +13,136 @@ import { useTheme } from 'next-themes';
 import { EZFormWrapper, FormSuccessMessage, FormErrorMessage, FormValidationErrors, FormLoadingSpinner } from '@/components/forms/EZFormWrapper';
 import { useBrevo } from '@/hooks/useBrevo';
 import { useLocale } from '@/lib/locale';
+import { LanguageToggle } from '@/components/layout/header/LanguageToggle';
+
+// Translation map for contact form static text
+const contactTranslations: { [locale: string]: { [key: string]: string } } = {
+  'en': {
+    'getInTouch': 'Get in touch',
+    'loveToHear': "We'd love to hear from you.",
+    'coverYourCountry': 'Cover your country',
+    'coverDescription': "India's biggest archive of itself needs everyone to participate. Join us in building a unique national knowledge repository on rural India.",
+    'volunteer': 'Volunteer',
+    'volunteerDescription': 'We need your support',
+    'intern': 'Intern',
+    'internDescription': 'We need your support',
+    'donate': 'Donate',
+    'donateDescription': "We can do this without governments – and will. We can't do it without you.",
+    'address': 'Address',
+    'mailingAddress': 'Mailing address:',
+    'addressLine1': 'P. Sainath',
+    'addressLine2': 'People\'s Archive of Rural India',
+    'addressLine3': '27/43 Sagar Sangam',
+    'addressLine4': 'Bandra (West)',
+    'addressLine5': 'Mumbai 400050',
+    'addressLine6': 'Maharashtra, India'
+  },
+  'hi': {
+    'getInTouch': 'संपर्क करें',
+    'loveToHear': 'हम आपसे सुनना चाहते हैं।',
+    'coverYourCountry': 'अपने देश को कवर करें',
+    'coverDescription': 'भारत के सबसे बड़े अभिलेखागार में सभी की भागीदारी की आवश्यकता है। ग्रामीण भारत पर एक अनूठा राष्ट्रीय ज्ञान भंडार बनाने में हमारे साथ जुड़ें।',
+    'volunteer': 'स्वयंसेवक',
+    'volunteerDescription': 'हमें आपके समर्थन की आवश्यकता है',
+    'intern': 'इंटर्न',
+    'internDescription': 'हमें आपके समर्थन की आवश्यकता है',
+    'donate': 'दान करें',
+    'donateDescription': 'हम सरकारों के बिना यह कर सकते हैं - और करेंगे। हम आपके बिना यह नहीं कर सकते।',
+    'address': 'पता',
+    'mailingAddress': 'डाक पता:',
+    'addressLine1': 'पी. साईनाथ',
+    'addressLine2': 'पीपुल्स आर्काइव ऑफ रूरल इंडिया',
+    'addressLine3': '27/43 सागर संगम',
+    'addressLine4': 'बांद्रा (पश्चिम)',
+    'addressLine5': 'मुंबई 400050',
+    'addressLine6': 'महाराष्ट्र, भारत'
+  },
+  'mr': {
+    'getInTouch': 'संपर्क साधा',
+    'loveToHear': 'आम्हाला तुमच्याकडून ऐकायला आवडेल।',
+    'coverYourCountry': 'तुमच्या देशाचे कव्हरेज करा',
+    'coverDescription': 'भारताच्या सर्वात मोठ्या संग्रहालयात सर्वांचा सहभाग आवश्यक आहे। ग्रामीण भारतावर एक अनोखा राष्ट्रीय ज्ञान भांडार तयार करण्यात आमच्यासोबत सामील व्हा।',
+    'volunteer': 'स्वयंसेवक',
+    'volunteerDescription': 'आम्हाला तुमच्या समर्थनाची गरज आहे',
+    'intern': 'इंटर्न',
+    'internDescription': 'आम्हाला तुमच्या समर्थनाची गरज आहे',
+    'donate': 'देणगी द्या',
+    'donateDescription': 'आम्ही सरकारांशिवाय हे करू शकतो - आणि करू. आम्ही तुमच्याशिवाय हे करू शकत नाही।',
+    'address': 'पत्ता',
+    'mailingAddress': 'टपाल पत्ता:',
+    'addressLine1': 'पी. साईनाथ',
+    'addressLine2': 'पीपुल्स आर्काइव्ह ऑफ रुरल इंडिया',
+    'addressLine3': '27/43 सागर संगम',
+    'addressLine4': 'बांद्रा (पश्चिम)',
+    'addressLine5': 'मुंबई 400050',
+    'addressLine6': 'महाराष्ट्र, भारत'
+  },
+  'bn': {
+    'getInTouch': 'যোগাযোগ করুন',
+    'loveToHear': 'আমরা আপনার কাছ থেকে শুনতে চাই।',
+    'coverYourCountry': 'আপনার দেশকে কভার করুন',
+    'coverDescription': 'ভারতের সবচেয়ে বড় আর্কাইভে সবার অংশগ্রহণ প্রয়োজন। গ্রামীণ ভারতের উপর একটি অনন্য জাতীয় জ্ঞান ভাণ্ডার তৈরিতে আমাদের সাথে যোগ দিন।',
+    'volunteer': 'স্বেচ্ছাসেবক',
+    'volunteerDescription': 'আমাদের আপনার সহায়তা প্রয়োজন',
+    'intern': 'ইন্টার্ন',
+    'internDescription': 'আমাদের আপনার সহায়তা প্রয়োজন',
+    'donate': 'দান করুন',
+    'donateDescription': 'আমরা সরকার ছাড়াই এটি করতে পারি - এবং করব। আমরা আপনি ছাড়া এটি করতে পারি না।',
+    'address': 'ঠিকানা',
+    'mailingAddress': 'ডাক ঠিকানা:',
+    'addressLine1': 'পি. সাইনাথ',
+    'addressLine2': 'পিপলস আর্কাইভ অফ রুরাল ইন্ডিয়া',
+    'addressLine3': '২৭/৪৩ সাগর সঙ্গম',
+    'addressLine4': 'বান্দ্রা (পশ্চিম)',
+    'addressLine5': 'মুম্বাই ৪০০০৫০',
+    'addressLine6': 'মহারাষ্ট্র, ভারত'
+  },
+  'or': {
+    'getInTouch': 'ଯୋଗାଯୋଗ କରନ୍ତୁ',
+    'loveToHear': 'ଆମେ ଆପଣଙ୍କଠାରୁ ଶୁଣିବାକୁ ଭଲ ପାଇବୁ।',
+    'coverYourCountry': 'ଆପଣଙ୍କ ଦେଶକୁ କଭର କରନ୍ତୁ',
+    'coverDescription': 'ଭାରତର ସବୁଠାରୁ ବଡ଼ ଅଭିଲେଖାଗାରରେ ସମସ୍ତଙ୍କର ଅଂଶଗ୍ରହଣ ଆବଶ୍ୟକ। ଗ୍ରାମୀଣ ଭାରତ ଉପରେ ଏକ ଅନନ୍ୟ ଜାତୀୟ ଜ୍ଞାନ ଭଣ୍ଡାର ନିର୍ମାଣରେ ଆମ ସହିତ ଯୋଗ ଦିଅନ୍ତୁ।',
+    'volunteer': 'ସ୍ୱେଚ୍ଛାସେବୀ',
+    'volunteerDescription': 'ଆମକୁ ଆପଣଙ୍କ ସହାୟତା ଦରକାର',
+    'intern': 'ଇଣ୍ଟର୍ନ',
+    'internDescription': 'ଆମକୁ ଆପଣଙ୍କ ସହାୟତା ଦରକାର',
+    'donate': 'ଦାନ କରନ୍ତୁ',
+    'donateDescription': 'ଆମେ ସରକାର ବିନା ଏହା କରିପାରିବା - ଏବଂ କରିବୁ। ଆମେ ଆପଣଙ୍କ ବିନା ଏହା କରିପାରିବୁ ନାହିଁ।',
+    'address': 'ଠିକଣା',
+    'mailingAddress': 'ଡାକ ଠିକଣା:',
+    'addressLine1': 'ପି. ସାଇନାଥ',
+    'addressLine2': 'ପିପୁଲ୍ସ ଆର୍କାଇଭ୍ ଅଫ୍ ରୁରାଲ୍ ଇଣ୍ଡିଆ',
+    'addressLine3': '୨୭/୪୩ ସାଗର ସଙ୍ଗମ',
+    'addressLine4': 'ବାନ୍ଦ୍ରା (ପଶ୍ଚିମ)',
+    'addressLine5': 'ମୁମ୍ବାଇ ୪୦୦୦୫୦',
+    'addressLine6': 'ମହାରାଷ୍ଟ୍ର, ଭାରତ'
+  },
+  'ur': {
+    'getInTouch': 'رابطہ کریں',
+    'loveToHear': 'ہم آپ سے سننا پسند کریں گے۔',
+    'coverYourCountry': 'اپنے ملک کو کور کریں',
+    'coverDescription': 'ہندوستان کے سب سے بڑے آرکائیو میں سب کی شرکت ضروری ہے۔ دیہی ہندوستان پر ایک منفرد قومی علمی ذخیرہ بنانے میں ہمارے ساتھ شامل ہوں۔',
+    'volunteer': 'رضاکار',
+    'volunteerDescription': 'ہمیں آپ کی حمایت کی ضرورت ہے',
+    'intern': 'انٹرن',
+    'internDescription': 'ہمیں آپ کی حمایت کی ضرورت ہے',
+    'donate': 'عطیہ دیں',
+    'donateDescription': 'ہم حکومتوں کے بغیر یہ کر سکتے ہیں - اور کریں گے۔ ہم آپ کے بغیر یہ نہیں کر سکتے۔',
+    'address': 'پتہ',
+    'mailingAddress': 'ڈاک کا پتہ:',
+    'addressLine1': 'پی. سائی ناتھ',
+    'addressLine2': 'پیپلز آرکائیو آف رورل انڈیا',
+    'addressLine3': '27/43 ساگر سنگم',
+    'addressLine4': 'بندرا (مغرب)',
+    'addressLine5': 'ممبئی 400050',
+    'addressLine6': 'مہاراشٹر، ہندوستان'
+  }
+};
+
+// Helper function to get translated text
+const getTranslatedText = (key: string, locale: string): string => {
+  return contactTranslations[locale]?.[key] || contactTranslations['en'][key] || key;
+};
 
 // Location data interfaces
 interface Country {
@@ -153,6 +284,8 @@ const ContactForm = () => {
 
 
 
+
+
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -180,15 +313,7 @@ const ContactForm = () => {
   const [loadingStates, setLoadingStates] = useState(false);
   const [loadingDistricts, setLoadingDistricts] = useState(false);
 
-  // Static placeholder data for form fields (removed API call to avoid 404 error)
-  const contactPageData = {
-    attributes: {
-      firstName: "First Name",
-      lastName: "Last Name",
-      email: "Email",
-      phone: "Phone"
-    }
-  };
+
 
   // Fetch This Week on PARI data
   useEffect(() => {
@@ -311,8 +436,13 @@ const ContactForm = () => {
 
   // Set mounted to true after component mounts to prevent hydration mismatch
   useEffect(() => {
+    console.log('##Rohit_Rocks## ContactForm component mounted');
     setMounted(true);
   }, []);
+
+
+
+
 
   // Fetch countries from multiple APIs (same as intern page)
   const fetchCountries = async () => {
@@ -563,7 +693,7 @@ const ContactForm = () => {
   });
 
   return (
-    <div className="md:min-h-screen mx-auto relative dark:bg-background">
+    <div className="md:min-h-screen  mx-auto relative dark:bg-background">
       {/* Animated Background Images */}
       <div className="absolute inset-0 overflow-hidden">
         {articles.length > 0 && articles.map((article, index) => (
@@ -603,18 +733,18 @@ const ContactForm = () => {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 max-w-[1232px] mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12 lg:py-16">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-1 lg:gap-12 items-center min-h-[calc(100vh-10rem)] lg:min-h-[calc(100vh-8rem)]">
+      <div className="relative z-10 lg:max-w-[1232px] max-w-2xl mx-auto px-4 lg:px-0 py-10 sm:py-12 lg:py-16">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-1 lg:gap-40 items-center min-h-[calc(100vh-10rem)] lg:min-h-[calc(100vh-40rem)]">
           {/* Left Content Section - Get in touch with us */}
-          <div className="text-white flex flex-col justify-center h-full relative p-4 sm:p-6 space-y-8">
+          <div className="text-white flex flex-col justify-stretch h-full relative   space-y-8">
             {/* Main Title */}
             <div className="space-y-2">
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight" style={{ fontFamily: 'Noto Sans', fontWeight: 700 }}>
-                Get in touch with us
+              <h1 className=" mb-2" >
+                {getTranslatedText('getInTouch', language)}
               </h1>
-              <p className="text-xl sm:text-2xl font-medium opacity-90" style={{ fontFamily: 'Noto Sans', fontWeight: 500 }}>
-                We&apos;d love to hear from you
-              </p>
+              <h2 className="" >
+                {getTranslatedText('loveToHear', language)}
+              </h2>
             </div>
 
             {/* Action Cards */}
@@ -623,14 +753,14 @@ const ContactForm = () => {
               <Link href="/contribute" className="block">
                 <div className="backdrop-blur-sm bg-white/20 rounded-xl p-6 hover:bg-white/30 hover:backdrop-blur-md hover:scale-105 hover:shadow-lg transition-all duration-300 cursor-pointer border border-transparent hover:border-white/20">
                   <div className="space-y-2">
-                    <div className="flex items-center space-x-3">
-                      <FiEdit3 className="h-6 w-6 text-white hover:text-white transition-colors duration-300" />
+                    <div className="flex items-center space-x-2">
+                      <FiEdit3 className="h-5 w-5 text-white hover:text-white transition-colors duration-300" />
                       <h3 className="text-xl font-bold text-white hover:text-white transition-colors duration-300" style={{ fontFamily: 'Noto Sans', fontWeight: 700 }}>
-                        Contribute
+                        {getTranslatedText('coverYourCountry', language)}
                       </h3>
                     </div>
-                    <p className="text-sm text-white leading-relaxed pl-9 hover:text-white/90 transition-colors duration-300" style={{ fontFamily: 'Noto Sans', fontWeight: 400 }}>
-                      India&apos;s biggest archive of itself needs everyone to participate. Join us.
+                    <p className="text-sm text-white leading-relaxed  hover:text-white/90 transition-colors duration-300" style={{ fontFamily: 'Noto Sans', fontWeight: 400 }}>
+                      {getTranslatedText('coverDescription', language)}
                     </p>
                   </div>
                 </div>
@@ -640,14 +770,14 @@ const ContactForm = () => {
               <Link href="/volunteer" className="block">
                 <div className="backdrop-blur-sm bg-white/20 rounded-xl p-6 hover:bg-white/40 hover:backdrop-blur-md hover:scale-105 hover:shadow-lg transition-all duration-300 cursor-pointer border border-transparent hover:border-white/20">
                   <div className="space-y-2">
-                    <div className="flex items-center space-x-3">
-                      <FiUsers className="h-6 w-6 text-white hover:text-white transition-colors duration-300" />
+                    <div className="flex items-center space-x-2">
+                      <FiUsers className="h-5 w-5 text-white hover:text-white transition-colors duration-300" />
                       <h3 className="text-xl font-bold text-white hover:text-white transition-colors duration-300" style={{ fontFamily: 'Noto Sans', fontWeight: 700 }}>
-                        Volunteer
+                        {getTranslatedText('volunteer', language)}
                       </h3>
                     </div>
-                    <p className="text-sm text-white leading-relaxed pl-9 hover:text-white/90 transition-colors duration-300" style={{ fontFamily: 'Noto Sans', fontWeight: 400 }}>
-                      Engage with today&apos;s issues
+                    <p className="text-sm text-white leading-relaxed  hover:text-white/90 transition-colors duration-300" style={{ fontFamily: 'Noto Sans', fontWeight: 400 }}>
+                      {getTranslatedText('volunteerDescription', language)}
                     </p>
                   </div>
                 </div>
@@ -660,11 +790,11 @@ const ContactForm = () => {
                     <div className="flex items-center space-x-3">
                       <FiBookOpen className="h-6 w-6 text-white hover:text-white transition-colors duration-300" />
                       <h3 className="text-xl font-bold text-white hover:text-white transition-colors duration-300" style={{ fontFamily: 'Noto Sans', fontWeight: 700 }}>
-                        Intern
+                        {getTranslatedText('intern', language)}
                       </h3>
                     </div>
-                    <p className="text-sm text-white leading-relaxed pl-9 hover:text-white/90 transition-colors duration-300" style={{ fontFamily: 'Noto Sans', fontWeight: 400 }}>
-                      We need your support
+                    <p className="text-sm text-white leading-relaxed  hover:text-white/90 transition-colors duration-300" style={{ fontFamily: 'Noto Sans', fontWeight: 400 }}>
+                      {getTranslatedText('internDescription', language)}
                     </p>
                   </div>
                 </div>
@@ -677,95 +807,28 @@ const ContactForm = () => {
                     <div className="flex items-center space-x-3">
                       <FiHeart className="h-6 w-6 text-white hover:text-white transition-colors duration-300" />
                       <h3 className="text-xl font-bold text-white hover:text-white transition-colors duration-300" style={{ fontFamily: 'Noto Sans', fontWeight: 700 }}>
-                        Donate
+                        {getTranslatedText('donate', language)}
                       </h3>
                     </div>
-                    <p className="text-sm text-white leading-relaxed pl-9 hover:text-white/90 transition-colors duration-300" style={{ fontFamily: 'Noto Sans', fontWeight: 400 }}>
-                      We can do this without governments – and will. We can&apos;t do it without you.
+                    <p className="text-sm text-white leading-relaxed  hover:text-white/90 transition-colors duration-300" style={{ fontFamily: 'Noto Sans', fontWeight: 400 }}>
+                      {getTranslatedText('donateDescription', language)}
                     </p>
                   </div>
                 </div>
               </Link>
             </div>
 
-            {/* NOW ON PARI Section */}
-            <div className="border-t border-white/20 pt-6">
-              <div className="space-y-4">
-                <p className="text-sm font-semibold tracking-wider opacity-80" style={{ fontFamily: 'Noto Sans', fontWeight: 600 }}>
-                  NOW ON PARI
-                </p>
-
-                {/* Show This Week on PARI content if available */}
-                {thisWeekData?.article_with_lang_selection_1?.[0] && (
-                  <div className="space-y-2">
-                    <h4 className="text-lg font-bold leading-tight" style={{ fontFamily: 'Noto Sans', fontWeight: 700 }}>
-                      {thisWeekData.article_with_lang_selection_1[currentImageIndex % thisWeekData.article_with_lang_selection_1.length]?.article?.data?.attributes?.Title}
-                    </h4>
-                    <p className="text-sm opacity-90" style={{ fontFamily: 'Noto Sans', fontWeight: 400 }}>
-                      by {thisWeekData.article_with_lang_selection_1[currentImageIndex % thisWeekData.article_with_lang_selection_1.length]?.article?.data?.attributes?.Authors?.map(author =>
-                        author.author_name?.data?.attributes?.Name || 'Unknown Author'
-                      ).join(', ') || 'Unknown Author'}
-                    </p>
-                    <Link
-                      href={`/article/${thisWeekData.article_with_lang_selection_1[currentImageIndex % thisWeekData.article_with_lang_selection_1.length]?.article?.data?.attributes?.slug}`}
-                      className="inline-flex items-center text-white hover:text-gray-200 transition-colors duration-200 pt-2"
-                    >
-                      <span className="text-sm font-medium" style={{ fontFamily: 'Noto Sans', fontWeight: 500 }}>Read story</span>
-                      <FiArrowRight className="h-4 w-4 ml-2" />
-                    </Link>
-                  </div>
-                )}
-
-                {/* Fallback to regular articles if This Week data not available */}
-                {!thisWeekData?.article_with_lang_selection_1?.[0] && articles.length > 0 && (
-                  <div className="space-y-2">
-                    <h4 className="text-lg font-bold leading-tight" style={{ fontFamily: 'Noto Sans', fontWeight: 700 }}>
-                      {articles[currentImageIndex].attributes.Title}
-                    </h4>
-                    <p className="text-sm opacity-90" style={{ fontFamily: 'Noto Sans', fontWeight: 400 }}>
-                      by {formatArticleData(articles[currentImageIndex]).authors.join(', ') || 'Unknown Author'}
-                    </p>
-                    <Link
-                      href={`/article/${articles[currentImageIndex].attributes.slug}`}
-                      className="inline-flex items-center text-white hover:text-gray-200 transition-colors duration-200 pt-2"
-                    >
-                      <span className="text-sm font-medium" style={{ fontFamily: 'Noto Sans', fontWeight: 500 }}>Read story</span>
-                      <FiArrowRight className="h-4 w-4 ml-2" />
-                    </Link>
-                  </div>
-                )}
-
-                {/* Loading and empty states */}
-                {!thisWeekData?.article_with_lang_selection_1?.[0] && articles.length === 0 && !isLoadingArticles && !isLoadingThisWeek && (
-                  <div>
-                    <h4 className="text-lg font-bold leading-tight mb-2" style={{ fontFamily: 'Noto Sans', fontWeight: 700 }}>
-                      Agriculture in the age of inequality
-                    </h4>
-                    <p className="text-sm opacity-90 mb-2" style={{ fontFamily: 'Noto Sans', fontWeight: 400 }}>
-                      by P. Sainath
-                    </p>
-                    <div className="inline-flex items-center text-white hover:text-gray-200 transition-colors duration-200">
-                      <span className="text-sm font-medium" style={{ fontFamily: 'Noto Sans', fontWeight: 500 }}>Read story</span>
-                      <FiArrowRight className="h-4 w-4 ml-2" />
-                    </div>
-                  </div>
-                )}
-                {(isLoadingArticles || isLoadingThisWeek) && (
-                  <div>
-                    <p className="text-sm opacity-90" style={{ fontFamily: 'Noto Sans', fontWeight: 400 }}>Loading featured content...</p>
-                  </div>
-                )}
-              </div>
-            </div>
+            {/* NOW ON PARI and Address Section */}
+           
           </div>
 
           {/* Right Form Section */}
-          <div className='flex flex-col justify-center h-full'>
+          <div className='flex flex-col justify-center py-8 md:py-20  h-full'>
           <div className="bg-white dark:bg-popover p-8 rounded-2xl w-full max-w-2xl mx-auto shadow-xl" style={{ boxShadow: '0px 4px 20px 0px rgba(0,0,0,0.1)' }}>
             <div className="mb-6">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-foreground mb-2">
+              <h4 className="text-2xl font-bold text-gray-900 dark:text-foreground mb-2">
                 Contact us
-              </h2>
+              </h4>
             </div>
 
             <EZFormWrapper
@@ -995,7 +1058,7 @@ const ContactForm = () => {
                     <input
                       type="text"
                       name="firstName"
-                      placeholder={contactPageData?.attributes?.firstName || "First Name"}
+                      placeholder="First Name"
                       value={formData.firstName}
                       onChange={handleInputChange}
                       required
@@ -1006,7 +1069,7 @@ const ContactForm = () => {
                     <input
                       type="text"
                       name="lastName"
-                      placeholder={contactPageData?.attributes?.lastName || "Last Name"}
+                      placeholder="Last Name"
                       value={formData.lastName}
                       onChange={handleInputChange}
                       required
@@ -1021,7 +1084,7 @@ const ContactForm = () => {
                   <input
                     type="email"
                     name="email"
-                    placeholder={contactPageData?.attributes?.email || "Email"}
+                    placeholder="Email"
                     value={formData.email}
                     onChange={handleInputChange}
                     required
@@ -1035,7 +1098,7 @@ const ContactForm = () => {
                   <input
                     type="tel"
                     name="phone"
-                    placeholder={contactPageData?.attributes?.phone || "Phone"}
+                    placeholder="Phone"
                     value={formData.phone}
                     onChange={handleInputChange}
                     className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-border rounded-lg focus:ring-2 focus:ring-primary-PARI-Red dark:focus:ring-primary focus:border-transparent outline-none bg-white dark:bg-background text-gray-900 dark:text-foreground placeholder-gray-500 dark:placeholder-muted-foreground text-sm"
@@ -1177,14 +1240,14 @@ const ContactForm = () => {
                   />
                   <label htmlFor="agreeTerms" className="text-sm text-gray-600 dark:text-muted-foreground">
                     I agree to PARI&apos;s{' '}
-                    <a href="https://ruralindiaonline.org/termsofservices" target="_blank" rel="noopener noreferrer" className="text-primary-PARI-Red hover:underline">
+                    <a href="/terms-and-conditions" target="_blank" rel="noopener noreferrer" className="text-primary-PARI-Red hover:underline">
                       terms of service
                     </a>
                   </label>
                 </div>
 
                 {/* Newsletter Subscription with Language Dropdown */}
-                <div className="flex items-center space-x-2">
+                <div className="flex items-start md:items-center gap-2">
                   <input
                     type="checkbox"
                     name="subscribeNewsletter"
@@ -1201,7 +1264,7 @@ const ContactForm = () => {
                       name="newsletterLanguage"
                       value={formData.newsletterLanguage}
                       onChange={handleInputChange}
-                      className="pl-3 pr-8 py-2 text-sm rounded-full bg-primary-PARI-Red/20 border-none outline-none focus:ring-0 text-primary-PARI-Red appearance-none"
+                      className="pl-3 pr-8 py-2 text-sm w-fit rounded-full bg-primary-PARI-Red/20 border-none outline-none focus:ring-0 text-primary-PARI-Red appearance-none"
                       style={{
                         backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23B82929' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
                         backgroundRepeat: 'no-repeat',
@@ -1210,6 +1273,7 @@ const ContactForm = () => {
                       }}
                     >
                       <option value="English">English</option>
+                      <option value="Malayalam">Malayalam / മലയാളം</option>
 
                     </select>
                   </div>
@@ -1235,21 +1299,119 @@ const ContactForm = () => {
               )}
             </EZFormWrapper>
           </div>
-
-          {/* Mailing Address below form */}
-          <div className="mt-12 sm:mt-6 w-full max-w-md mx-auto">
-            <p className="text-white dark:text-foreground text-xs sm:text-sm border-t border-white/20 dark:border-border pt-6 sm:pt-4 text-center lg:text-left">
-              <span className="font-semibold mb-2">Mailing address</span>
-              <br />
-              27/43 Sagar Sangam, Bandra Reclamation, Bandra West, Mumbai, Maharashtra- 400050
-            </p>
           </div>
-        </div>
-        </div>
 
-        {/* Articles Section */}
-     
+        </div>
+         <div className="border-t border-white/50 mt-5 pt-12  flex md:flex-row flex-col md:gap-40 gap-6">
+              {/* NOW ON PARI Section */}
+              <div className="space-y-4 text-white w-full">
+                <h6 className="" >
+                  NOW ON PARI
+                </h6>
+
+                {/* Show This Week on PARI content if available */}
+                {thisWeekData?.article_with_lang_selection_1?.[0] && (
+                  <div className="space-y-2">
+                    <h4 className="text-lg font-bold leading-tight line-clamp-2" style={{ fontFamily: 'Noto Sans', fontWeight: 700 }}>
+                      {thisWeekData.article_with_lang_selection_1[currentImageIndex % thisWeekData.article_with_lang_selection_1.length]?.article?.data?.attributes?.Title}
+                    </h4>
+                    <p className="text-sm opacity-90 line-clamp-1" style={{ fontFamily: 'Noto Sans', fontWeight: 400 }}>
+                      by {thisWeekData.article_with_lang_selection_1[currentImageIndex % thisWeekData.article_with_lang_selection_1.length]?.article?.data?.attributes?.Authors?.map(author =>
+                        author.author_name?.data?.attributes?.Name || 'Unknown Author'
+                      ).join(', ') || 'Unknown Author'}
+                    </p>
+                    <Link
+                      href={`/article/${thisWeekData.article_with_lang_selection_1[currentImageIndex % thisWeekData.article_with_lang_selection_1.length]?.article?.data?.attributes?.slug}`}
+                      className="inline-flex items-center text-white hover:text-gray-200 transition-colors duration-200 pt-2"
+                    >
+                      <span className="text-sm font-medium" style={{ fontFamily: 'Noto Sans', fontWeight: 500 }}>Read story</span>
+                      <FiArrowRight className="h-4 w-4 ml-2" />
+                    </Link>
+                  </div>
+                )}
+
+                {/* Fallback to regular articles if This Week data not available */}
+                {!thisWeekData?.article_with_lang_selection_1?.[0] && articles.length > 0 && (
+                  <div className="space-y-2">
+                    <h3 className="text-lg  line-clamp-2" >
+                      {articles[currentImageIndex].attributes.Title}
+                    </h3>
+                    <div className="text-sm opacity-90" style={{ fontFamily: 'Noto Sans', fontWeight: 400 }}>
+                      by {(() => {
+                        const authors = formatArticleData(articles[currentImageIndex]).authors;
+                        return authors && authors.length > 0 ? (
+                          authors.map((author, index) => (
+                            <span key={index}>
+                              <span
+                                className="cursor-pointer hover:text-gray-200 transition-colors duration-200"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  window.location.href = `/articles?author=${encodeURIComponent(author.trim())}`;
+                                }}
+                              >
+                                {author.trim()}
+                              </span>
+                              {index < authors.length - 1 && ', '}
+                            </span>
+                          ))
+                        ) : (
+                          'Unknown Author'
+                        );
+                      })()}
+                    </div>
+                    <Link
+                      href={`/article/${articles[currentImageIndex].attributes.slug}`}
+                      className="inline-flex items-center text-white hover:text-gray-200 transition-colors duration-200 "
+                    >
+                      <span className="text-sm font-medium" style={{ fontFamily: 'Noto Sans', fontWeight: 500 }}>Read story</span>
+                      <FiArrowRight className="h-4 w-4 ml-2" />
+                    </Link>
+                  </div>
+                )}
+
+                {/* Loading and empty states */}
+                {!thisWeekData?.article_with_lang_selection_1?.[0] && articles.length === 0 && !isLoadingArticles && !isLoadingThisWeek && (
+                  <div>
+                    <h3 className="text-lg font-bold leading-tight mb-2" style={{ fontFamily: 'Noto Sans', fontWeight: 700 }}>
+                      Agriculture in the age of inequality
+                    </h3>
+                    <p className="text-sm opacity-90 line-clamp-1 " style={{ fontFamily: 'Noto Sans', fontWeight: 400 }}>
+                      by P. Sainath
+                    </p>
+                    <div className="inline-flex items-center text-white hover:text-gray-200 transition-colors duration-200">
+                      <span className="text-sm font-medium" style={{ fontFamily: 'Noto Sans', fontWeight: 500 }}>Read story</span>
+                      <FiArrowRight className="h-4 w-4 ml-2" />
+                    </div>
+                  </div>
+                )}
+                {(isLoadingArticles || isLoadingThisWeek) && (
+                  <div>
+                    <p className="text-sm opacity-90" style={{ fontFamily: 'Noto Sans', fontWeight: 400 }}>Loading featured content...</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Address Section */}
+              <div className="space-y-2 w-full">
+                <h6 className=" text-white" style={{ fontFamily: 'Noto Sans', fontWeight: 700 }}>
+                  {getTranslatedText('address', language)}
+                </h6>
+                <div className="text-sm text-white opacity-90 leading-relaxed" style={{ fontFamily: 'Noto Sans', fontWeight: 400 }}>
+                  <div>
+                    {getTranslatedText('addressLine1', language)},
+                    <br />
+                    {getTranslatedText('addressLine2', language)}, {getTranslatedText('addressLine3', language)},
+                    <br />
+                    {getTranslatedText('addressLine4', language)}, {getTranslatedText('addressLine5', language)}, {getTranslatedText('addressLine6', language)}
+                  </div>
+                </div>
+              </div>
+            </div>
       </div>
+
+      {/* Floating Language Toggle Button */}
+      <LanguageToggle />
     </div>
   );
 };

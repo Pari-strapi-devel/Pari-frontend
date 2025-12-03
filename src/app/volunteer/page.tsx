@@ -166,10 +166,16 @@ const VolunteerPageContent = () => {
 
         console.log('##Rohit_Rocks## Fetching volunteer page with locale:', currentLocale);
 
-        // First, fetch the English version with all localizations populated
-        const response = await axios.get<{ data: VolunteerPageData; meta: Record<string, unknown> }>(
-          `https://dev.ruralindiaonline.org/v1/api/pages/2?populate=deep,3&locale=en`
+        // First, fetch all pages and find "Volunteer" by title
+        const listResponse = await axios.get<{ data: VolunteerPageData[]; meta: Record<string, unknown> }>(
+          `https://merge.ruralindiaonline.org/v1/api/pages?filters[Title][$eq]=Volunteer&populate=deep,3&locale=en`
         );
+
+        if (!listResponse.data.data || listResponse.data.data.length === 0) {
+          throw new Error('Volunteer page not found');
+        }
+
+        const response = { data: { data: listResponse.data.data[0], meta: {} } };
 
         const mainData = response.data.data;
         console.log('##Rohit_Rocks## Main data locale:', mainData.attributes.locale);
@@ -190,7 +196,7 @@ const VolunteerPageContent = () => {
             console.log('##Rohit_Rocks## Found localization for', currentLocale, ', fetching full data...');
             try {
               const localeResponse = await axios.get<{ data: VolunteerPageData; meta: Record<string, unknown> }>(
-                `https://dev.ruralindiaonline.org/v1/api/pages/${localization.id}?populate=deep,3`
+                `https://merge.ruralindiaonline.org/v1/api/pages/${localization.id}?populate=deep,3`
               );
               console.log('##Rohit_Rocks## Localized content:', {
                 Title: localeResponse.data.data.attributes.Title,
@@ -226,41 +232,34 @@ const VolunteerPageContent = () => {
         setIsLoadingVolunteerData(true);
         setVolunteerDataError(null);
 
-        console.log('##Rohit_Rocks## Fetching volunteer API data with locale:', currentLocale);
+        console.log('##Rohit_Rocks## Fetching volunteer API data');
 
-        try {
-          // Try to fetch with the selected locale
-          const response = await axios.get<VolunteerApiResponse>(`https://dev.ruralindiaonline.org/v1/api/volunteer?locale=${currentLocale}`, {
-            headers: {
-              'Accept': 'application/json',
-              'Content-Type': 'application/json'
-            },
-            timeout: 10000 // 10 second timeout
-          });
-          console.log('##Rohit_Rocks## Volunteer API response for locale', currentLocale, ':', response.data);
-          console.log('##Rohit_Rocks## Volunteer API field labels:', {
-            first_name: response.data.data.attributes.first_name,
-            last_name: response.data.data.attributes.last_name,
-            email: response.data.data.attributes.email,
-            phone: response.data.data.attributes.phone
-          });
-          setVolunteerApiData(response.data.data);
-        } catch (error) {
-          // If locale-specific content not found, fallback to English
-          console.log('##Rohit_Rocks## Volunteer API locale not found, falling back to English. Error:', error);
-          const response = await axios.get<VolunteerApiResponse>('https://dev.ruralindiaonline.org/v1/api/volunteer?locale=en', {
-            headers: {
-              'Accept': 'application/json',
-              'Content-Type': 'application/json'
-            },
-            timeout: 10000 // 10 second timeout
-          });
-          console.log('##Rohit_Rocks## Volunteer API response (fallback):', response.data);
-          setVolunteerApiData(response.data.data);
-        }
+        // Try the form-volunteer endpoint (similar to contribute page pattern)
+        const response = await axios.get<VolunteerApiResponse>('https://merge.ruralindiaonline.org/v1/api/form-volunteer', {
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          },
+          timeout: 10000 // 10 second timeout
+        });
+        console.log('##Rohit_Rocks## Volunteer API response:', response.data);
+        console.log('##Rohit_Rocks## Volunteer API field labels:', {
+          first_name: response.data.data.attributes.first_name,
+          last_name: response.data.data.attributes.last_name,
+          email: response.data.data.attributes.email,
+          phone: response.data.data.attributes.phone
+        });
+        setVolunteerApiData(response.data.data);
       } catch (error) {
-        console.error('##Rohit_Rocks## Error fetching volunteer API:', error);
-        setVolunteerDataError('Unable to load form configuration from server');
+        // Check if it's a 404 error - if so, handle gracefully without logging as error
+        if (axios.isAxiosError(error) && error.response?.status === 404) {
+          console.log('##Rohit_Rocks## form-volunteer content type not found (404), using default form field placeholders');
+        } else {
+          console.error('##Rohit_Rocks## Error fetching volunteer API:', error);
+        }
+        // Don't show error to user, just use default placeholders
+        console.log('##Rohit_Rocks## Using default form field placeholders');
+        setVolunteerDataError(null); // Clear error to allow form to work with defaults
       } finally {
         setIsLoadingVolunteerData(false);
       }
@@ -758,7 +757,7 @@ const VolunteerPageContent = () => {
     try {
       // Submit to volunteer API
       console.log('##Rohit_Rocks## Submitting to volunteer API...');
-      await axios.post('https://dev.ruralindiaonline.org/v1/api/volunteer-submits', volunteerData, {
+      await axios.post('https://merge.ruralindiaonline.org/v1/api/volunteer-submits', volunteerData, {
         headers: {
           'Content-Type': 'application/json'
         }
@@ -810,12 +809,12 @@ const VolunteerPageContent = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background py-10 md:py-20 px-4">
+    <div className="min-h-screen bg-background py-10 md:py-10 px-4">
       {/* Add floating language button */}
       <LanguageToggle />
 
       <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-2 md:gap-24 sm:gap-20 gap-8 items-start">
           {/* Left Content Section */}
           <div className="md:px-8">
             {isLoadingPageData ? (
@@ -857,9 +856,9 @@ const VolunteerPageContent = () => {
 
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center space-x-3">
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-foreground">
+                <h4 className="text-2xl font-bold text-gray-900 dark:text-foreground">
                   Profile form
-                </h2>
+                </h4>
                 {isLoadingVolunteerData && (
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-PARI-Red"></div>
                 )}
@@ -1078,7 +1077,7 @@ const VolunteerPageContent = () => {
 
                 <button
                   type="submit"
-                  className="w-full bg-primary-PARI-Red text-white py-3 px-6 rounded-lg font-medium hover:bg-primary-PARI-Red/90 transition-colors duration-200"
+                  className="w-full bg-primary-PARI-Red text-white py-3 px-6 rounded-full font-medium hover:bg-primary-PARI-Red/90 transition-colors duration-200"
                 >
                   Next section
                 </button>
@@ -1124,7 +1123,7 @@ const VolunteerPageContent = () => {
 
                 <button
                   type="submit"
-                  className="w-full bg-primary-PARI-Red text-white py-3 px-6 rounded-lg font-medium hover:bg-primary-PARI-Red/90 transition-colors duration-200"
+                  className="w-full bg-primary-PARI-Red text-white py-3 px-6 rounded-full font-medium hover:bg-primary-PARI-Red/90 transition-colors duration-200"
                 >
                   Next Section
                 </button>

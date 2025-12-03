@@ -23,7 +23,7 @@ const WeekOnHeader: React.FC<WeekOnHeaderProps> = ({
             <div className='flex flex-row items-center gap-2'>
               {/* {header && (
                 <Image 
-                  src={ header || "https://beta.ruralindiaonline.org/v1/uploads/stand_2aa0fa18b2.svg"} // Removed extra quotes
+                  src={ header || "https://merge.ruralindiaonline.org/v1/uploads/stand_2aa0fa18b2.svg"} // Removed extra quotes
                   alt={title} 
                   width={24}
                   height={24}
@@ -31,9 +31,9 @@ const WeekOnHeader: React.FC<WeekOnHeaderProps> = ({
                 />
               )} */}
               <CalendarDays className="h-6 w-7 text-primary-PARI-Red" />
-                <h2 className="text-[13px] font-noto-sans uppercase text-grey-300 leading-[100%] letter-spacing-[-2%] font-semibold">
+                <h6 className="text-[13px] font-noto-sans uppercase text-grey-300 leading-[100%] letter-spacing-[-2%] font-semibold">
                   {title}
-                </h2>
+                </h6>
             </div>
           
           <Link href={buttonLink}>

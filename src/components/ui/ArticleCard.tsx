@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { useLocale } from '@/lib/locale'
 import { languages as languagesList } from '@/data/languages'
 import { useState } from 'react'
-import { API_BASE_URL } from '@/utils/constants'
+
 
 
 
@@ -55,7 +55,7 @@ export function ArticleCard({
   availableLanguages = [],
   isStudentArticle = false
 }: ArticleCardProps) {
-  const { language: currentLocale } = useLocale();
+  const { language: currentLocale, addLocaleToUrl } = useLocale();
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [categoryStartIndex, setCategoryStartIndex] = useState(0);
 
@@ -65,7 +65,7 @@ export function ArticleCard({
   return (
     <>
     <Link
-      href={`${API_BASE_URL}/article/${slug}`}
+      href={addLocaleToUrl(`/article/${slug}`)}
       className={className}
     >
       <article className="group relative rounded-lg overflow-hidden sm:pt-8 hover:rounded-xl transition-discrete-00 transition-all duration-300 h-full">
@@ -216,9 +216,23 @@ export function ArticleCard({
               
           <div className="flex items-end justify-between font-noto-sans text-sm text-muted-foreground">
             <div>
-              <p className="font-noto-sans text-[15px] font-medium leading-[180%] line-clamp-1 tracking-[-0.02em] text-[#828282]">
-                {authors.join(', ')}
-              </p>
+              <div className="font-noto-sans text-[15px] font-medium leading-[180%] line-clamp-1 tracking-[-0.02em] text-[#828282]">
+                {authors && authors.map((author, index) => (
+                  <span key={index}>
+                    <span
+                      className="cursor-pointer hover:text-primary-PARI-Red transition-colors duration-200"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        window.location.href = `/articles?author=${encodeURIComponent(author.trim())}`;
+                      }}
+                    >
+                      {author.trim()}
+                    </span>
+                    {index < authors.length - 1 && ', '}
+                  </span>
+                ))}
+              </div>
               <div className='flex gap-1 items-center w-fit text-primary-PARI-Red font-noto-sans text-[14px] font-medium leading-[160%] tracking-[-0.03em]'> 
                 {location && <p>{location}</p>}
                 {location && date && '•'}
@@ -319,7 +333,7 @@ export function ArticleCard({
                         e.preventDefault();
                         e.stopPropagation();
                         setIsSheetOpen(false);
-                        window.open(`${API_BASE_URL}/article/${language.slug}`, '_blank');
+                        window.location.href = addLocaleToUrl(`/article/${language.slug}`);
                       }}
                     >
                       <div className="flex items-center justify-between">

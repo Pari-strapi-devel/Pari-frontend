@@ -148,13 +148,13 @@ export function PariLibrary() {
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2">
               <BookOpen className="h-6 w-6 text-primary-PARI-Red" />
-              <h2 className="text-[13px] font-noto-sans uppercase text-grey-300 leading-[100%] tracking-[-0.02em] font-semibold">
+              <h6 className="text-[13px] font-noto-sans uppercase text-grey-300 leading-[100%] tracking-[-0.02em] font-semibold">
                 {libraryData[0]?.sub_title}
-              </h2>
+              </h6>
             </div>
-            <h3 className="font-noto-sans md:text-[56px] text-[32px] font-bold leading-[122%] tracking-[-0.04em]">
+            <h1 className="font-noto-sans md:text-[56px] text-[32px] font-bold leading-[122%] tracking-[-0.04em]">
               {libraryData[0]?.headtitle}
-            </h3>
+            </h1>
             <p className="font-noto-sans max-w-[32.375rem] text-[16px] text-discreet-text font-normal leading-[170%] tracking-[-0.01em] ">
               {libraryData[0]?.headDescription}
             </p>

@@ -5,6 +5,7 @@ import { FiUser, FiMail, FiPhone, FiMapPin, FiCreditCard, FiCheck, FiCopy } from
 import axios from 'axios'
 import { useDonationBrevo } from '@/hooks/useBrevo'
 import { LanguageToggle } from '@/components/layout/header/LanguageToggle'
+import { useLocale } from '@/lib/locale'
 
 // Razorpay types
 interface RazorpayResponse {
@@ -135,31 +136,27 @@ interface FAQ {
   Answer: string
 }
 
-interface DonatePageData {
-  id: number
-  attributes: {
-    firstName: string
-    lastName: string
-    email: string
-    phone: string
-    addressLine1: string
-    addressLine2: string
-    city: string
-    state: string
-    pincode: string
-    isCitizen: boolean | null
-    donationMethods: string | null
-  }
-}
+// DonatePageData interface removed - donate-page endpoint doesn't exist in API
+// Using PageContentData from pages API instead
 
 interface PageContentData {
   id: number
   attributes: {
     PageTitle?: string
     Strap?: string
-    VideoURL: string
-    Content: string
-    FAQs: FAQ[]
+    VideoURL?: string
+    Content?: string
+    FAQs?: FAQ[]
+    FAQTitle?: string | null
+    locale?: string
+    localizations?: {
+      data: Array<{
+        id: number
+        attributes: {
+          locale: string
+        }
+      }>
+    }
   }
 }
 
@@ -211,6 +208,10 @@ const fallbackIndianStates: State[] = [
 ]
 
 function DonatePageContent() {
+  const { language: currentLocale } = useLocale()
+  console.log('##Rohit_Rocks## DonatePageContent component rendered with locale:', currentLocale)
+  const [fontClass, setFontClass] = useState('font-noto')
+
   const [formData, setFormData] = useState<DonationFormData>({
     fullName: '',
     email: '',
@@ -228,7 +229,7 @@ function DonatePageContent() {
     agreeToTerms: true
   })
 
-  const [apiData, setApiData] = useState<DonatePageData | null>(null)
+  // apiData removed - not needed since donate-page endpoint doesn't exist
   const [pageData, setPageData] = useState<PageContentData | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [showPaymentDetails, setShowPaymentDetails] = useState(false)
@@ -244,29 +245,127 @@ function DonatePageContent() {
   // Brevo integration for donation form
   const { submitForm: submitToBrevo } = useDonationBrevo()
 
-  // Fetch donate page data
-  const fetchDonatePageData = async () => {
-    try {
-      const response = await fetch('https://dev.ruralindiaonline.org/v1/api/donate-page')
-      const result = await response.json()
-      console.log('##Rohit_Rocks## Donate page data:', result)
-      setApiData(result.data)
-    } catch (error) {
-      console.error('##Rohit_Rocks## Error fetching donate page data:', error)
-    }
+  // Text direction helper function
+  const getTextDirection = (locale: string) => {
+    return ['ar', 'ur'].includes(locale) ? 'rtl' : 'ltr'
   }
 
-  // Fetch page content data with all sections
-  const fetchPageContentData = async () => {
-    try {
-      const response = await fetch('https://dev.ruralindiaonline.org/v1/api/page-donate?populate=*')
-      const result = await response.json()
-      console.log('##Rohit_Rocks## Page content data with all sections:', result)
-      setPageData(result.data)
-    } catch (error) {
-      console.error('##Rohit_Rocks## Error fetching page content data:', error)
+  const textDirection = getTextDirection(currentLocale)
+
+  // Set font based on language
+  useEffect(() => {
+    console.log('##Rohit_Rocks## Language changed to:', currentLocale)
+    switch (currentLocale) {
+      case 'hi':
+      case 'mr':
+        console.log('##Rohit_Rocks## Setting font to Devanagari for:', currentLocale)
+        setFontClass('font-noto-devanagari')
+        break
+      case 'te':
+        console.log('##Rohit_Rocks## Setting font to Telugu')
+        setFontClass('font-noto-telugu')
+        break
+      case 'ta':
+        console.log('##Rohit_Rocks## Setting font to Tamil')
+        setFontClass('font-noto-tamil')
+        break
+      case 'gu':
+        console.log('##Rohit_Rocks## Setting font to Gujarati')
+        setFontClass('font-noto-gujarati')
+        break
+      case 'kn':
+        console.log('##Rohit_Rocks## Setting font to Kannada')
+        setFontClass('font-noto-kannada')
+        break
+      case 'ml':
+        console.log('##Rohit_Rocks## Setting font to Malayalam')
+        setFontClass('font-noto-malayalam')
+        break
+      case 'pa':
+        console.log('##Rohit_Rocks## Setting font to Gurmukhi')
+        setFontClass('font-noto-gurmukhi')
+        break
+      case 'bn':
+        console.log('##Rohit_Rocks## Setting font to Bengali')
+        setFontClass('font-noto-bengali')
+        break
+      case 'or':
+        console.log('##Rohit_Rocks## Setting font to Oriya')
+        setFontClass('font-noto-oriya')
+        break
+      case 'as':
+        console.log('##Rohit_Rocks## Setting font to Bengali for Assamese')
+        setFontClass('font-noto-bengali') // Using Bengali for Assamese as fallback
+        break
+      case 'ur':
+        console.log('##Rohit_Rocks## Setting font to default for Urdu')
+        setFontClass('font-noto') // Using default for Urdu as fallback
+        break
+      default:
+        console.log('##Rohit_Rocks## Setting font to default for:', currentLocale)
+        setFontClass('font-noto')
+        break
     }
-  }
+  }, [currentLocale])
+
+  // Fetch donate page data from page-donate endpoint
+  const fetchDonatePageData = useCallback(async () => {
+    console.log('##Rohit_Rocks## Fetching donate page content for locale:', currentLocale)
+
+    let pageDataLoaded = false
+
+    // Try to fetch the requested locale first
+    if (!pageDataLoaded) {
+      try {
+        const url = `https://merge.ruralindiaonline.org/v1/api/page-donate?populate=*&locale=${currentLocale}`
+        console.log('##Rohit_Rocks## Fetching from URL:', url)
+
+        const response = await axios.get<{ data: PageContentData; meta: Record<string, unknown> }>(url)
+
+        if (response.data.data) {
+          console.log('##Rohit_Rocks## Donate page data loaded:', {
+            PageTitle: response.data.data.attributes.PageTitle,
+            Strap: response.data.data.attributes.Strap,
+            FAQsCount: response.data.data.attributes.FAQs?.length || 0,
+            FAQTitle: response.data.data.attributes.FAQTitle,
+            locale: response.data.data.attributes.locale || currentLocale,
+            requestedLocale: currentLocale
+          })
+          setPageData(response.data.data)
+          pageDataLoaded = true
+        }
+      } catch {
+        console.log('##Rohit_Rocks## Locale', currentLocale, 'not available (404 or unpublished in Strapi)')
+      }
+    }
+
+    // If the requested locale failed, fall back to English
+    if (!pageDataLoaded && currentLocale !== 'en') {
+      try {
+        console.log('##Rohit_Rocks## Falling back to English...')
+        const fallbackUrl = `https://merge.ruralindiaonline.org/v1/api/page-donate?populate=*&locale=en`
+        const fallbackResponse = await axios.get<{ data: PageContentData; meta: Record<string, unknown> }>(fallbackUrl)
+
+        if (fallbackResponse.data.data) {
+          console.log('##Rohit_Rocks## Loaded English fallback content')
+          setPageData(fallbackResponse.data.data)
+          pageDataLoaded = true
+        }
+      } catch (fallbackError) {
+        console.error('##Rohit_Rocks## Fallback to English also failed:', fallbackError)
+      }
+    }
+
+    if (!pageDataLoaded) {
+      console.error('##Rohit_Rocks## Failed to load donate page data for any locale')
+    }
+  }, [currentLocale])
+
+  // Fetch page content data (keeping for compatibility, but using fetchDonatePageData instead)
+  const fetchPageContentData = useCallback(async () => {
+    // This function is now handled by fetchDonatePageData
+    console.log('##Rohit_Rocks## fetchPageContentData called, but using fetchDonatePageData instead')
+  }, [])
 
   // Fetch Indian states data
   const fetchIndianStates = useCallback(async () => {
@@ -341,26 +440,31 @@ function DonatePageContent() {
   // Since we're only dealing with India, we don't need this helper function anymore
   // All states and cities will be for India only
 
-  // Load Razorpay script and fetch data
+  // Load Razorpay script (only once)
   useEffect(() => {
     const script = document.createElement('script')
     script.src = 'https://checkout.razorpay.com/v1/checkout.js'
     script.async = true
     document.body.appendChild(script)
 
+    return () => {
+      document.body.removeChild(script)
+    }
+  }, [])
+
+  // Fetch data when language changes
+  useEffect(() => {
     // Fetch donate page data
     fetchDonatePageData()
 
     // Fetch page content data
     fetchPageContentData()
 
-    // Fetch Indian states data
-    fetchIndianStates()
-
-    return () => {
-      document.body.removeChild(script)
+    // Fetch Indian states data (only once, not language dependent)
+    if (states.length === 0) {
+      fetchIndianStates()
     }
-  }, [fetchIndianStates])
+  }, [currentLocale, fetchDonatePageData, fetchPageContentData, fetchIndianStates, states.length])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target
@@ -452,8 +556,7 @@ function DonatePageContent() {
       description: `${formData.donationType.charAt(0).toUpperCase() + formData.donationType.slice(1)} donation to PARI`,
       image: 'https://ruralindiaonline.org/favicon.ico',
       handler: function (response: RazorpayResponse) {
-        console.log('Payment successful:', response)
-        console.log('##Rohit_Rocks## Payment successful! Thank you for your donation.')
+      
         setShowPaymentDetails(true)
         setReferenceId(response.razorpay_payment_id)
         setIsLoading(false)
@@ -519,7 +622,7 @@ console.log('Razorpay options:', options)
     try {
       console.log('##Rohit_Rocks## Submitting form data:', formDataToSubmit)
 
-      const response = await fetch('https://dev.ruralindiaonline.org/v1/api/donate-submits', {
+      const response = await fetch('https://merge.ruralindiaonline.org/v1/api/donate-submits', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -665,7 +768,7 @@ console.log('Razorpay options:', options)
   }
 
   return (
-    <div className="min-h-screen bg-background dark:bg-background">
+    <div className={`min-h-screen bg-background dark:bg-background ${fontClass}`} dir={textDirection}>
       {/* Add floating language button */}
       <LanguageToggle />
 
@@ -675,24 +778,12 @@ console.log('Razorpay options:', options)
           <div className="space-y-8">
             {/* Header */}
             <div>
-              <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-6" style={{
-                fontFamily: 'Noto Sans',
-                fontWeight: 700,
-                fontSize: '49px',
-                lineHeight: '112%',
-                letterSpacing: '-4%'
-              }}>
+              <h1 className=" text-foreground mb-6" >
                 {pageData?.attributes?.PageTitle || 'Donate to PARI'}
               </h1>
-              <p className="text-lg text-discreet-text mb-8" style={{
-                fontFamily: 'Noto Sans',
-                fontWeight: 400,
-                fontSize: '18px',
-                lineHeight: '170%',
-                letterSpacing: '-3%'
-              }}>
+              <h2 className=" text-discreet-text mb-2" >
                 {pageData?.attributes?.Strap || 'We can do this without governments – and will. We can\'t do it without you.'}
-              </p>
+              </h2>
             </div>
 
             {/* Video or Image */}
@@ -780,7 +871,7 @@ console.log('Razorpay options:', options)
           <div className="space-y-4">
             <div className="bg-white dark:bg-popover p-8 rounded-2xl border border-gray-300 dark:border-border h-fit sticky top-8 shadow-xl" style={{ boxShadow: '0px 4px 20px 0px rgba(0,0,0,0.1)' }}>
             <div className="space-y-6">
-            <h3 className="text-2xl font-bold text-gray-900 dark:text-foreground mb-4" style={{
+            <h4 className="text-2xl font-bold text-gray-900 dark:text-foreground mb-4" style={{
               fontFamily: 'Noto Sans',
               fontWeight: 700,
               fontSize: '24px',
@@ -788,7 +879,7 @@ console.log('Razorpay options:', options)
               letterSpacing: '-4%'
             }}>
               Donate form
-            </h3>
+            </h4>
             <p className="text-gray-600 dark:text-muted-foreground mb-6" style={{
               fontFamily: 'Noto Sans',
               fontWeight: 400,
@@ -809,7 +900,7 @@ console.log('Razorpay options:', options)
                     <input
                       type="text"
                       name="fullName"
-                      placeholder={apiData?.attributes.firstName || "First"}
+                      placeholder="First Name"
                       value={formData.fullName.split(' ')[0] || ''}
                       onChange={(e) => {
                         const lastName = formData.fullName.split(' ').slice(1).join(' ')
@@ -821,7 +912,7 @@ console.log('Razorpay options:', options)
                   </div>
                   <input
                     type="text"
-                    placeholder={apiData?.attributes.lastName || "Last"}
+                    placeholder="Last Name"
                     value={formData.fullName.split(' ').slice(1).join(' ')}
                     onChange={(e) => {
                       const firstName = formData.fullName.split(' ')[0] || ''
@@ -839,7 +930,7 @@ console.log('Razorpay options:', options)
                     <input
                       type="email"
                       name="email"
-                      placeholder={apiData?.attributes.email || "Email"}
+                      placeholder="Email"
                       value={formData.email}
                       onChange={handleInputChange}
                       required
@@ -851,7 +942,7 @@ console.log('Razorpay options:', options)
                     <input
                       type="tel"
                       name="phone"
-                      placeholder={apiData?.attributes.phone || "Phone"}
+                      placeholder="Phone"
                       value={formData.phone}
                       onChange={handleInputChange}
                       required
@@ -879,7 +970,7 @@ console.log('Razorpay options:', options)
                   <FiMapPin className="absolute left-3 top-3 text-primary-PARI-Red h-4 w-4" />
                   <input
                     type="text"
-                    placeholder={apiData?.attributes.addressLine1 || "Address Line 1"}
+                    placeholder="Address Line 1"
                     value={formData.address.split('\n')[0] || ''}
                     onChange={(e) => {
                       const lines = formData.address.split('\n')
@@ -895,7 +986,7 @@ console.log('Razorpay options:', options)
                   <FiMapPin className="absolute left-3 top-3 text-primary-PARI-Red h-4 w-4" />
                   <input
                     type="text"
-                    placeholder={apiData?.attributes.addressLine2 || "Address Line 2"}
+                    placeholder="Address Line 2"
                     value={formData.address.split('\n')[1] || ''}
                     onChange={(e) => {
                       const lines = formData.address.split('\n')
@@ -963,7 +1054,7 @@ console.log('Razorpay options:', options)
                   <input
                     type="text"
                     name="pincode"
-                    placeholder={apiData?.attributes.pincode || "Pincode"}
+                    placeholder="Pincode"
                     value={formData.pincode}
                     onChange={handleInputChange}
                     required
@@ -1080,8 +1171,8 @@ console.log('Razorpay options:', options)
               </form>
 
               {/* Disclaimer inside form container */}
-              <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg mt-6 border border-gray-200 dark:border-gray-700">
-                <p className="text-sm text-gray-600 dark:text-muted-foreground">
+              <div className=" p-4 rounded-lg bg-popover mt-6 border border-border dark:border-borderline">
+                <p className="text-sm text-discreet-text dark:text-muted-foreground">
                   At present, we can only accept donations in Indian rupees by Indian citizens. All donations made to the CounterMedia Trust are eligible for exemption under Section 80G of the Income Tax Act, 1961. Here is a copy of our{' '}
                   <a href="#" className="text-primary-PARI-Red hover:underline font-medium">exemption certificate</a>.
                 </p>

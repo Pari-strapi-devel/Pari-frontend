@@ -3,30 +3,112 @@ import { ThemeProvider } from '@/components/theme-provider'
 import './globals.css'
 import { Footer } from '@/components/layout/footer/Footer'
 import { Suspense } from 'react'
-import { Noto_Sans, Noto_Serif, Noto_Sans_Devanagari } from 'next/font/google';
+import {
+  Noto_Sans,
+  Noto_Sans_Devanagari,
+  Noto_Sans_Telugu,
+  Noto_Sans_Tamil,
+  Noto_Sans_Kannada,
+  Noto_Sans_Bengali,
+  Noto_Sans_Gujarati,
+  Noto_Sans_Oriya,
+  Noto_Sans_Malayalam,
+  Noto_Sans_Gurmukhi,
+  Noto_Sans_Arabic
+} from 'next/font/google';
 import { Header } from '@/components/layout/header/Header'
+import { LanguageToggle } from '@/components/layout/header/LanguageToggle'
 
 const notoSans = Noto_Sans({
-  subsets: ['latin', 'latin-ext'],
-  weight: ['300', '400', '500', '600', '700'],
+  subsets: ['latin'],
+  weight: 'variable',
   variable: '--font-noto-sans',
-  display: 'swap',
-  preload: true
+  axes: ['wdth'],
+  display: 'swap'
 });
 
 const notoSansDevanagari = Noto_Sans_Devanagari({
   subsets: ['devanagari', 'latin'],
-  weight: ['300', '400', '500', '600', '700'],
   variable: '--font-noto-sans-devanagari',
+  display: 'swap',
+  axes: ['wdth'],
+  preload: true
+});
+
+const notoSansTelugu = Noto_Sans_Telugu({
+  subsets: ['telugu', 'latin'],
+  weight: ['300', '400', '500', '600', '700', '800', '900'],
+  variable: '--font-noto-sans-telugu',
   display: 'swap',
   preload: true
 });
 
-const notoSerif = Noto_Serif({
-  subsets: ['latin'],
-  weight: ['400', '600'],
-  variable: '--font-noto-serif'
+const notoSansTamil = Noto_Sans_Tamil({
+  subsets: ['tamil', 'latin'],
+ 
+  variable: '--font-noto-sans-tamil',
+  display: 'swap',
+  preload: true,
+  axes: ['wdth'],
 });
+
+const notoSansKannada = Noto_Sans_Kannada({
+  subsets: ['kannada', 'latin'],
+  weight: ['300', '400', '500', '600', '700', '800', '900'],
+  variable: '--font-noto-sans-kannada',
+  display: 'swap',
+  preload: true
+});
+
+const notoSansBengali = Noto_Sans_Bengali({
+  subsets: ['bengali', 'latin'],
+  weight: ['300', '400', '500', '600', '700', '800', '900'],
+  variable: '--font-noto-sans-bengali',
+  display: 'swap',
+  preload: true
+});
+
+const notoSansGujarati = Noto_Sans_Gujarati({
+  subsets: ['gujarati', 'latin'],
+  weight: ['300', '400', '500', '600', '700', '800', '900'],
+  variable: '--font-noto-sans-gujarati',
+  display: 'swap',
+  preload: true
+});
+
+const notoSansOriya = Noto_Sans_Oriya({
+  subsets: ['oriya', 'latin'],
+  weight: ['300', '400', '500', '600', '700', '800', '900'],
+  variable: '--font-noto-sans-oriya',
+  display: 'swap',
+  preload: true
+});
+
+const notoSansMalayalam = Noto_Sans_Malayalam({
+  subsets: ['malayalam', 'latin'],
+  weight: ['300', '400', '500', '600', '700', '800', '900'],
+  variable: '--font-noto-sans-malayalam',
+  display: 'swap',
+  preload: true
+});
+
+const notoSansGurmukhi = Noto_Sans_Gurmukhi({
+  subsets: ['gurmukhi', 'latin'],
+  weight: ['300', '400', '500', '600', '700', '800', '900'],
+  variable: '--font-noto-sans-gurmukhi',
+  display: 'swap',
+  preload: true
+});
+
+const notoSansArabic = Noto_Sans_Arabic({
+  subsets: ['arabic'],
+  weight: ['300', '400', '500', '600', '700', '800', '900'],
+  variable: '--font-noto-sans-arabic',
+  display: 'swap',
+  preload: true
+});
+
+
 
 export const metadata: Metadata = {
   title: {
@@ -48,11 +130,9 @@ export default function RootLayout({ children }: RootLayoutProps) {
     <html lang="en" suppressHydrationWarning>
      <head>
       <meta name="algolia-site-verification"  content="F5CD6E39238D1785" />
-      <link rel="preconnect" href="https://fonts.googleapis.com" />
-      <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
      </head>
       <body
-        className={`${notoSans.className} ${notoSerif.variable} ${notoSansDevanagari.variable} font-noto antialiased`}
+        className={`${notoSans.variable} ${notoSansDevanagari.variable} ${notoSansTelugu.variable} ${notoSansTamil.variable} ${notoSansKannada.variable} ${notoSansBengali.variable} ${notoSansGujarati.variable} ${notoSansOriya.variable} ${notoSansMalayalam.variable} ${notoSansGurmukhi.variable} ${notoSansArabic.variable} font-noto antialiased`}
         suppressHydrationWarning
       >
         <ThemeProvider
@@ -78,6 +158,11 @@ export default function RootLayout({ children }: RootLayoutProps) {
             </div>
           }>
             <Footer />
+          </Suspense>
+
+          {/* Floating Language Toggle Button */}
+          <Suspense fallback={null}>
+            <LanguageToggle />
           </Suspense>
         </ThemeProvider>
       </body>

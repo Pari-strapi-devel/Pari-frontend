@@ -83,30 +83,11 @@ interface ApiResponse {
   meta: Record<string, unknown>
 }
 
-// Utility function to strip HTML/CSS elements from text
+// Utility function to preserve HTML content as-is from backend
 function stripHtmlCss(text: string): string {
   if (typeof text !== 'string') return text
-
+  // Return content as-is without any modifications
   return text
-    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
-    .replace(/style\s*=\s*["'][^"']*["']/gi, '')
-    .replace(/class\s*=\s*["'][^"']*["']/gi, '')
-    .replace(/id\s*=\s*["'][^"']*["']/gi, '')
-    .replace(/<strong\b[^>]*>/gi, '<strong class="font-bold text-discreet-text">')
-    .replace(/<b\b[^>]*>/gi, '<strong class="font-semibold text-primary-PARI-Red">')
-    .replace(/<\/b>/gi, '</strong>')
-    .replace(/<\/p>\s*<p[^>]*>/gi, '<br><br>')
-    .replace(/<p[^>]*>/gi, '')
-    .replace(/<\/p>/gi, '')
-    .replace(/<\/div>\s*<div[^>]*>/gi, '<br>')
-    .replace(/<div[^>]*>/gi, '')
-    .replace(/<\/div>/gi, '')
-    .replace(/\n\s*\n/g, '<br><br>')
-    .replace(/\n/g, '<br>')
-    .replace(/<(?!\/?(?:strong|em|br|a|u|i)\b)[^>]*>/gi, '')
-    .replace(/(<br\s*\/?>){3,}/gi, '<br><br>')
-    .replace(/[ \t]+/g, ' ')
-    .trim()
 }
 
 // Translation map for hardcoded English terms that appear in non-English API responses
@@ -232,7 +213,8 @@ function StoryOfPariContent() {
         console.log('##Rohit_Rocks## Fetching Story of PARI in locale:', currentLocale)
 
         // Try to fetch the page in the current locale
-        const apiUrl = `${BASE_URL}api/page-story-of-pari?populate=deep,3&locale=${currentLocale}`
+        // Note: publicationState=preview allows fetching unpublished content (useful for development)
+        const apiUrl = `${BASE_URL}api/page-story-of-pari?populate=deep,3&locale=${currentLocale}&publicationState=preview`
 
         const response = await axios.get<ApiResponse>(apiUrl)
 
@@ -300,7 +282,7 @@ function StoryOfPariContent() {
         if (axios.isAxiosError(err) && err.response?.status === 404 && currentLocale !== 'en') {
           console.log('##Rohit_Rocks## Locale not found, falling back to English')
           try {
-            const fallbackUrl = `${BASE_URL}api/page-story-of-pari?populate=deep,3&locale=en`
+            const fallbackUrl = `${BASE_URL}api/page-story-of-pari?populate=deep,3&locale=en&publicationState=preview`
             const fallbackResponse = await axios.get<ApiResponse>(fallbackUrl)
 
             if (fallbackResponse.data.data) {
@@ -419,7 +401,7 @@ function StoryOfPariContent() {
     if (authorImagePath.startsWith('http')) {
       authorImageUrl = authorImagePath
     } else {
-      authorImageUrl = `https://dev.ruralindiaonline.org${authorImagePath}`
+      authorImageUrl = `https://merge.ruralindiaonline.org${authorImagePath}`
     }
   }
 
@@ -434,8 +416,37 @@ function StoryOfPariContent() {
   })
 
   return (
-    <div className="flex flex-col md:flex-row min-h-screen bg-white md:py-20 py-10 dark:bg-background" dir={textDirection}>
-      <div className="flex flex-col gap-4 md:flex-row min-h-screen max-w-[1232px] mx-auto w-full">
+    <>
+      <style jsx global>{`
+        .story-content p {
+          margin-bottom: 1rem;
+          margin-top: 0;
+        }
+        .story-content p:last-child {
+          margin-bottom: 0;
+        }
+        .story-content br {
+          display: block;
+          content: "";
+          margin-top: 0.5rem;
+        }
+        .story-content ul,
+        .story-content ol {
+          margin-bottom: 1rem;
+          padding-left: 1.5rem;
+        }
+        .story-content li {
+          margin-bottom: 0.5rem;
+        }
+        .story-content strong {
+          font-weight: 700;
+        }
+        .story-content em {
+          font-style: italic;
+        }
+      `}</style>
+      <div className="flex flex-col md:flex-row min-h-screen bg-white md:py-20 py-10 dark:bg-background" dir={textDirection}>
+        <div className="flex flex-col gap-4 md:flex-row min-h-screen max-w-[1232px] mx-auto w-full">
         {/* Sidebar */}
         <div className={`hidden md:block flex-shrink-0 sticky top-4 self-start transition-all duration-300 ${isSidebarOpen ? 'w-[280px]' : 'w-0'}`}>
           <Sidebar
@@ -459,14 +470,8 @@ function StoryOfPariContent() {
 
             {/* Title */}
             <h1
-              className="mb-4 text-foreground"
-              style={{
-                fontFamily: 'Noto Sans',
-                fontWeight: 700,
-                fontSize: '49px',
-                lineHeight: '112%',
-                letterSpacing: '-4%'
-              }}
+              className="mb-2 text-foreground"
+              
             >
               {attributes.Title}
             </h1>
@@ -475,13 +480,7 @@ function StoryOfPariContent() {
             {attributes.Strap && (
               <h2
                 className="mb-8 text-discreet-text"
-                style={{
-                  fontFamily: 'Noto Sans',
-                  fontWeight: 500,
-                  fontSize: '28px',
-                  lineHeight: '130%',
-                  letterSpacing: '-5%'
-                }}
+                
               >
                 {attributes.Strap}
               </h2>
@@ -545,21 +544,15 @@ function StoryOfPariContent() {
                     {/* Main Section */}
                     <section id={sectionId} className="scroll-mt-20">
                       {section.Title && (
-                        <h2
-                          className="mb-4 text-foreground"
-                          style={{
-                            fontFamily: 'Noto Sans',
-                            fontWeight: 700,
-                            fontSize: '28px',
-                            lineHeight: '130%',
-                            letterSpacing: '-5%'
-                          }}
+                        <h3
+                          className="mb-4 text-[28px] text-foreground"
+                         
                         >
                           {section.Title}
-                        </h2>
+                        </h3>
                       )}
-                      <div
-                        className="text-discreet-text mb-6"
+                      <p
+                        className="text-discreet-text mb-6 story-content"
                         style={{
                           fontFamily: 'Noto Sans',
                           fontWeight: 400,
@@ -580,20 +573,14 @@ function StoryOfPariContent() {
 
                           return (
                             <section key={subsection.id} id={subsectionId} className="scroll-mt-20 dark:text-gray-300 pl-6 border-l-1 border-border dark:border-borderline">
-                              <h3
-                                className="mb-3 text-foreground"
-                                style={{
-                                  fontFamily: 'Noto Sans',
-                                  fontWeight: 700,
-                                  fontSize: '24px',
-                                  lineHeight: '130%',
-                                  letterSpacing: '-5%'
-                                }}
+                              <h4
+                                className="mb-3 text-[24px] text-foreground"
+                               
                               >
                                 {subsection.Title}
-                              </h3>
-                              <div
-                                className="text-discreet-text"
+                              </h4>
+                              <p
+                                className="text-discreet-text story-content"
                                 style={{
                                   fontFamily: 'Noto Sans',
                                   fontWeight: 400,
@@ -622,6 +609,7 @@ function StoryOfPariContent() {
       {/* Language Toggle */}
       <LanguageToggle />
     </div>
+    </>
   )
 }
 

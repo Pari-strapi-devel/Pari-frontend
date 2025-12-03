@@ -1,6 +1,6 @@
 'use client'
 
-import { useParams } from 'next/navigation'
+import { useParams, useSearchParams } from 'next/navigation'
 import { Suspense } from 'react'
 import StoryDetail from '../../../components/story/StoryDetail'
 
@@ -12,9 +12,16 @@ import StoryDetail from '../../../components/story/StoryDetail'
 //   }
 // }
 
-export default function StoryPage() {
+function StoryContent() {
   const params = useParams()
+  const searchParams = useSearchParams()
   const slug = params?.slug as string
+
+  // Force re-render when locale changes by including it in a key
+  const locale = searchParams?.get('locale') || 'en'
+  const key = `${slug}-${locale}`
+
+  console.log('##Rohit_Rocks## StoryContent rendering with slug:', slug, 'locale:', locale, 'key:', key)
 
   if (!slug) {
     return (
@@ -26,6 +33,10 @@ export default function StoryPage() {
     )
   }
 
+  return <StoryDetail key={key} slug={slug} />
+}
+
+export default function StoryPage() {
   return (
     <div className="min-h-screen bg-background">
       <Suspense fallback={
@@ -36,7 +47,7 @@ export default function StoryPage() {
           </div>
         </div>
       }>
-        <StoryDetail slug={slug} />
+        <StoryContent />
       </Suspense>
     </div>
   )

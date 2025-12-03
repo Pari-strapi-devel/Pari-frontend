@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { languages as languagesList } from '@/data/languages'
+import { useLocale } from '@/lib/locale'
 
 export interface LocalizationData {
   attributes?: {
@@ -26,7 +27,7 @@ interface StoryCardProps {
   description?: string
   authors?: string
   imageUrl?: string
-  categories?: string[]
+  categories?: Array<{ title: string; slug: string }>
   slug?: string
   location?: string
   date?: string
@@ -70,7 +71,8 @@ export function StoryCard({
 }: StoryCardProps) {
   const [isSheetOpen, setIsSheetOpen] = useState<boolean>(false);
   const [mounted, setMounted] = useState(false);
-  const [currentCategoryIndex, setCurrentCategoryIndex] = useState(0);
+  const [showAllCategories, setShowAllCategories] = useState(false);
+  const { addLocaleToUrl } = useLocale();
 
   useEffect(() => {
     setMounted(true);
@@ -78,67 +80,68 @@ export function StoryCard({
 
 
 
- 
-  
+
+
   return (
     <div className={`relative ${className}`}>
-      <Link href={`https://ruralindiaonline.org/article/${slug || ''}`}>
+      <Link href={addLocaleToUrl(`/article/${slug || ''}`)}>
+
         <article className="group rounded-[16px] m-2 sm:hover:scale-103 transition-transform duration-300 bg-white dark:bg-background hover:rounded-[16px] border border-border ">
           <div className="relative h-[180px] w-full overflow-hidden rounded-t-2xl">
-          <div className="absolute top-3 left-3 flex items-center gap-2 z-10">
+          <div className="absolute top-3 left-3 flex items-center gap-2 z-10 flex-wrap max-w-[calc(100%-24px)]">
             {(categories && categories.length > 0) && (
               <>
-                {/* Current category - always visible */}
-                <span
-                  key={currentCategoryIndex}
-                  className={`inline-block items-center px-2 py-1 bg-white ${isStudentArticle ? 'text-student-blue hover:bg-student-blue' : 'text-primary-PARI-Red hover:bg-primary-PARI-Red'} hover:text-white text-xs rounded-full w-fit h-[24px] cursor-pointer transition-all duration-300 animate-slide-in-left`}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
+                {showAllCategories ? (
+                  // Show all categories
+                  categories.map((category, index) => (
+                    <span
+                      key={index}
+                      className={`inline-block items-center px-2 py-1 bg-white ${isStudentArticle ? 'text-student-blue hover:bg-student-blue' : 'text-primary-PARI-Red hover:bg-primary-PARI-Red'} hover:text-white text-xs rounded-full w-fit h-[24px] cursor-pointer transition-all duration-300 animate-slide-in-left`}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
 
-                    // Get current URL and parameters
-                    const url = new URL(window.location.href);
-                    const params = new URLSearchParams(url.search);
+                        // Navigate to articles page with this category filter
+                        const params = new URLSearchParams();
+                        params.set('types', category.slug);
+                        const url = addLocaleToUrl(`/articles?${params.toString()}`);
+                        window.location.href = url;
+                      }}
+                    >
+                      {category.title}
+                    </span>
+                  ))
+                ) : (
+                  // Show only first category
+                  <span
+                    key={0}
+                    className={`inline-block items-center px-2 py-1 bg-white ${isStudentArticle ? 'text-student-blue hover:bg-student-blue' : 'text-primary-PARI-Red hover:bg-primary-PARI-Red'} hover:text-white text-xs rounded-full w-fit h-[24px] cursor-pointer transition-all duration-300 animate-slide-in-left`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
 
-                    // Get existing types if any
-                    const existingTypes = params.get('types')?.split(',').filter(Boolean) || [];
-                    const categorySlug = categories[currentCategoryIndex].toLowerCase().replace(/\s+/g, '-');
+                      // Navigate to articles page with this category filter
+                      const params = new URLSearchParams();
+                      params.set('types', categories[0].slug);
+                      const url = addLocaleToUrl(`/articles?${params.toString()}`);
+                      window.location.href = url;
+                    }}
+                  >
+                    {categories[0].title}
+                  </span>
+                )}
 
-                    // Add the new category if it's not already included
-                    if (!existingTypes.includes(categorySlug)) {
-                      existingTypes.push(categorySlug);
-                    }
-
-                    // Update the URL
-                    params.set('types', existingTypes.join(','));
-
-                    // Navigate to the updated URL
-                    window.location.href = `/articles?${params.toString()}`;
-                  }}
-                >
-                  {categories[currentCategoryIndex]}
-                </span>
-
-                {/* Next/Reset category button */}
+                {/* Show all / Reset button */}
                 {categories.length > 1 && (
                   <span
                     className={`inline-block items-center px-2 py-1 bg-white ${isStudentArticle ? 'text-student-blue hover:bg-student-blue' : 'text-primary-PARI-Red hover:bg-primary-PARI-Red'} hover:text-white text-xs rounded-full w-fit h-[24px] cursor-pointer transition-all duration-300`}
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      if (currentCategoryIndex === categories.length - 1) {
-                        // If at last category, reset to first
-                        setCurrentCategoryIndex(0);
-                      } else {
-                        // Move to next category
-                        setCurrentCategoryIndex(prev => prev + 1);
-                      }
+                      setShowAllCategories(!showAllCategories);
                     }}
                   >
-                    {currentCategoryIndex === categories.length - 1
-                      ? '-'
-                      : `+${categories.length - currentCategoryIndex - 1}`
-                    }
+                    {showAllCategories ? '-' : `+${categories.length - 1}`}
                   </span>
                 )}
               </>
@@ -242,9 +245,23 @@ export function StoryCard({
              
 
               <div className="flex flex-col pt-3">
-                <p className="font-noto-sans text-[15px] pb-1 font-semibold leading-[170%] text-grey-300 tracking-[-0.04em] line-clamp-1">
-                  {authors}
-                </p>
+                <div className="font-noto-sans text-[15px] pb-1 font-semibold leading-[170%] text-grey-300 tracking-[-0.04em] line-clamp-1">
+                  {authors && authors.split(',').map((author, index) => (
+                    <span key={index}>
+                      <span
+                        className="cursor-pointer hover:text-student-blue transition-colors duration-200"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          window.location.href = addLocaleToUrl(`/articles?author=${encodeURIComponent(author.trim())}`);
+                        }}
+                      >
+                        {author.trim()}
+                      </span>
+                      {index < authors.split(',').length - 1 && ', '}
+                    </span>
+                  ))}
+                </div>
 
                 <div className="flex items-center justify-between font-noto-sans text-sm text-">
                   <div className='flex flex-col'>
@@ -267,18 +284,32 @@ export function StoryCard({
             </div>
           ) : (
             <div className="py-6 flex min-h-[180px] items-start bg-popover rounded-b-[16px] justify-between flex-col px-4">
-              <h3 className="font-noto-sans pt-2 flex  text-[18px] font-semibold leading-[136%] tracking-[-0.04em]  text-foreground  !line-clamp-2">
+              <h4 className="font-noto-sans pt-2 flex  text-[18px] font-semibold leading-[136%] tracking-[-0.04em]  text-foreground  !line-clamp-2">
                 {title}
-              </h3>
+              </h4>
 
               <p className="font-noto-sans pt-1 text-discreet-text text-[15px] font-normal leading-[160%]  tracking-[-0.04em] line-clamp-2">
                 {description}
               </p>
 
               <div className="flex flex-col pt-3">
-                <p className="font-noto-sans text-[15px] pb-1 font-semibold leading-[170%] text-grey-300 tracking-[-0.04em] line-clamp-1">
-                  {authors}
-                </p>
+                <div className="font-noto-sans text-[15px] pb-1 font-semibold leading-[170%] text-grey-300 tracking-[-0.04em] line-clamp-1">
+                  {authors && authors.split(',').map((author, index) => (
+                    <span key={index}>
+                      <span
+                        className="cursor-pointer hover:text-primary-PARI-Red transition-colors duration-200"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          window.location.href = addLocaleToUrl(`/articles?author=${encodeURIComponent(author.trim())}`);
+                        }}
+                      >
+                        {author.trim()}
+                      </span>
+                      {index < authors.split(',').length - 1 && ', '}
+                    </span>
+                  ))}
+                </div>
 
                 <div className="flex items-center justify-between font-noto-sans text-sm text-foreground">
                   <div className='flex flex-col '>
@@ -381,7 +412,8 @@ export function StoryCard({
                           e.preventDefault();
                           e.stopPropagation();
                           setIsSheetOpen(false);
-                          window.open(`https://ruralindiaonline.org/article/${language.slug}`, '_blank');
+                          const url = addLocaleToUrl(`/article/${language.slug}`);
+                          window.location.href = url;
                         }}
                       >
                         <div className="flex items-center justify-between">

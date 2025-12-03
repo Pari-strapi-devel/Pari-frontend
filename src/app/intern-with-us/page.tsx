@@ -1,10 +1,12 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import axios from 'axios';
 import { useEZForm } from '@/hooks/useEZForm';
 import { FormErrorMessage, FormLoadingSpinner } from '@/components/forms/EZFormWrapper';
 import { useInternBrevo } from '@/hooks/useBrevo';
+import { LanguageToggle } from '@/components/layout/header/LanguageToggle';
+import { useLocale } from '@/lib/locale';
 
 // API response interface for internship page data
 interface InternshipPageData {
@@ -149,8 +151,19 @@ interface InternPageResponse {
   meta: Record<string, unknown>;
 }
 
-const InternPage = () => {
+const InternContent = () => {
   const [currentStep, setCurrentStep] = useState(1);
+
+  // Locale hook for language functionality
+  const { language: currentLocale } = useLocale();
+
+  console.log('##Rohit_Rocks## InternPage component rendered with locale:', currentLocale);
+  console.log('##Rohit_Rocks## Component is rendering, about to set up effects...');
+
+  // Simple test useEffect
+  useEffect(() => {
+    console.log('##Rohit_Rocks## SIMPLE useEffect fired!');
+  });
 
   // Page content data states
   const [pageData, setPageData] = useState<InternPageData | null>(null);
@@ -163,6 +176,19 @@ const InternPage = () => {
   const [degreeOptions, setDegreeOptions] = useState<string[]>([]);
   const [isLoadingContributions, setIsLoadingContributions] = useState(true);
   const [contributionError, setContributionError] = useState<string | null>(null);
+  const [contributionValidationError, setContributionValidationError] = useState<boolean>(false);
+
+  // Validation errors state for each field
+  const [validationErrors, setValidationErrors] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    collegeName: '',
+    course: '',
+    startDate: '',
+    endDate: ''
+  });
 
   // Helper function to convert API contribution labels to internal values
   const getContributionValue = (label: string): string => {
@@ -176,6 +202,13 @@ const InternPage = () => {
     };
     return mapping[label] || label.toLowerCase().replace(/\s+/g, '-');
   };
+
+  // Text direction helper function for RTL languages
+  const getTextDirection = (locale: string) => {
+    return ['ar', 'ur'].includes(locale) ? 'rtl' : 'ltr';
+  };
+
+  const textDirection = getTextDirection(currentLocale);
 
   // Location data states
   const [countries, setCountries] = useState<Country[]>([]);
@@ -686,7 +719,7 @@ const InternPage = () => {
   // Fetch degree enumeration data from content-type schema
   const fetchDegreeEnumeration = useCallback(async () => {
     try {
-      const response = await fetch('https://dev.ruralindiaonline.org/v1/api/content-type-builder/content-types', {
+      const response = await fetch('https://merge.ruralindiaonline.org/v1/api/content-type-builder/content-types', {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
@@ -728,13 +761,23 @@ const InternPage = () => {
       setIsLoadingContributions(true);
       setContributionError(null);
 
-      const response = await fetch('https://dev.ruralindiaonline.org/v1/api/internship-page?populate=*', {
+      const response = await fetch('https://merge.ruralindiaonline.org/v1/api/internship-page?populate=*', {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json'
         }
       });
+
+      // If 404, the content type doesn't exist - use fallback data gracefully
+      if (response.status === 404) {
+        console.log('##Rohit_Rocks## internship-page content type not found (404), using fallback data');
+        setContributionError(null);
+        setIsLoadingContributions(false);
+        // Try to fetch degree enumeration from content-type schema
+        await fetchDegreeEnumeration();
+        return;
+      }
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -775,7 +818,7 @@ const InternPage = () => {
 
       // Fallback: try with axios
       try {
-        const axiosResponse = await axios.get('https://dev.ruralindiaonline.org/v1/api/internship-page?populate=*');
+        const axiosResponse = await axios.get('https://merge.ruralindiaonline.org/v1/api/internship-page?populate=*');
 
         if (axiosResponse.data && axiosResponse.data.data) {
           setInternshipPageData(axiosResponse.data.data);
@@ -806,38 +849,117 @@ const InternPage = () => {
         }
       } catch (axiosError) {
         console.error('##Rohit_Rocks## Both Strapi fetch methods failed:', axiosError);
-        setContributionError('Failed to load contribution options from Strapi API');
-        setIsLoadingContributions(false);
+
+        // Check if axios error is also 404
+        if (axios.isAxiosError(axiosError) && axiosError.response?.status === 404) {
+          console.log('##Rohit_Rocks## Axios also returned 404, using fallback data');
+          setContributionError(null);
+          setIsLoadingContributions(false);
+          // Try to fetch degree enumeration from content-type schema
+          await fetchDegreeEnumeration();
+        } else {
+          setContributionError('Failed to load contribution options from Strapi API');
+          setIsLoadingContributions(false);
+        }
       }
     }
   }, [fetchDegreeEnumeration]);
 
-  // Fetch intern page data from pages API
-  useEffect(() => {
-    const fetchInternPageData = async () => {
-      try {
-        setIsLoadingPageData(true);
-        setPageError(null);
+  // Fetch intern page data from pages API with locale support
+  const fetchInternPageData = useCallback(async () => {
+    console.log('##Rohit_Rocks## fetchInternPageData function called!');
+    console.log('##Rohit_Rocks## Current locale in fetchInternPageData:', currentLocale);
+    try {
+      setIsLoadingPageData(true);
+      setPageError(null);
 
-        // Fetch intern page content from pages API (ID 4 is the intern page)
-        const response = await axios.get<InternPageResponse>('https://dev.ruralindiaonline.org/v1/api/pages/4?populate=*');
-        setPageData(response.data.data);
-      } catch {
-        setPageError('Failed to load page content');
-      } finally {
-        setIsLoadingPageData(false);
+      console.log('##Rohit_Rocks## Fetching intern page data for locale:', currentLocale);
+
+      // First, fetch all pages and find "Intern" by title
+      const listResponse = await axios.get<{ data: InternPageData[]; meta: Record<string, unknown> }>(
+        `https://merge.ruralindiaonline.org/v1/api/pages?filters[Title][$eq]=Intern&populate=deep,3&locale=en`
+      );
+
+      if (!listResponse.data.data || listResponse.data.data.length === 0) {
+        throw new Error('Intern page not found');
       }
-    };
 
+      const response = { data: { data: listResponse.data.data[0], meta: {} } };
+
+      const mainData = response.data.data;
+      console.log('##Rohit_Rocks## Main data locale:', mainData.attributes.locale);
+      console.log('##Rohit_Rocks## Available localizations:', mainData.attributes.localizations);
+
+      // If current locale is English, use the main data
+      if (currentLocale === 'en') {
+        console.log('##Rohit_Rocks## Using English content');
+        setPageData(mainData);
+      } else if (mainData.attributes.localizations?.data?.length > 0) {
+        // Check if requested locale exists in localizations
+        const localization = mainData.attributes.localizations.data.find(
+          (loc) => loc.attributes.locale === currentLocale
+        );
+
+        if (localization) {
+          // Fetch the specific localization
+          console.log('##Rohit_Rocks## Found localization for', currentLocale, ', fetching full data...');
+          try {
+            const localeResponse = await axios.get<InternPageResponse>(
+              `https://merge.ruralindiaonline.org/v1/api/pages/${localization.id}?populate=deep,3`
+            );
+            console.log('##Rohit_Rocks## Localized content:', {
+              Title: localeResponse.data.data.attributes.Title,
+              Strap: localeResponse.data.data.attributes.Strap,
+              locale: localeResponse.data.data.attributes.locale
+            });
+            setPageData(localeResponse.data.data);
+          } catch (localeError) {
+            console.error('##Rohit_Rocks## Error fetching localized content:', localeError);
+            // Fallback to English if localized content fails to load
+            setPageData(mainData);
+          }
+        } else {
+          // Fallback to English if locale not found
+          console.log('##Rohit_Rocks## No localization found for', currentLocale, ', using English');
+          setPageData(mainData);
+        }
+      } else {
+        // No localizations available, use English
+        console.log('##Rohit_Rocks## No localizations available, using English');
+        setPageData(mainData);
+      }
+    } catch (error) {
+      console.error('##Rohit_Rocks## Error fetching intern page data:', error);
+      setPageError('Failed to load page content');
+    } finally {
+      setIsLoadingPageData(false);
+    }
+  }, [currentLocale]);
+
+  // Load intern page data when locale changes
+  useEffect(() => {
+    console.log('##Rohit_Rocks## useEffect for fetchInternPageData triggered with locale:', currentLocale);
     fetchInternPageData();
+  }, [fetchInternPageData, currentLocale]);
+
+  // Test useEffect to see if it fires
+  console.log('##Rohit_Rocks## About to set up test useEffect...');
+  useEffect(() => {
+    console.log('##Rohit_Rocks## TEST useEffect fired!');
   }, []);
 
   // Load countries and internship page data on component mount
+  console.log('##Rohit_Rocks## About to set up mount useEffect...');
   useEffect(() => {
     console.log('##Rohit_Rocks## Component mounted, fetching data...');
+    console.log('##Rohit_Rocks## About to call fetchCountries...');
     fetchCountries();
+    console.log('##Rohit_Rocks## About to call fetchInternshipPageData...');
     fetchInternshipPageData();
-  }, [fetchCountries, fetchInternshipPageData]);
+    console.log('##Rohit_Rocks## About to call fetchInternPageData...');
+    fetchInternPageData();
+    console.log('##Rohit_Rocks## All fetch functions called in mount useEffect');
+  }, [fetchCountries, fetchInternshipPageData, fetchInternPageData]);
 
   // Debug log for contribution options
   useEffect(() => {
@@ -928,6 +1050,14 @@ const InternPage = () => {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type, checked } = e.target as HTMLInputElement;
+
+    // Clear validation error for this field when user starts typing
+    if (validationErrors[name as keyof typeof validationErrors]) {
+      setValidationErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }));
+    }
 
     // Handle checkbox inputs
     if (type === 'checkbox') {
@@ -1032,6 +1162,9 @@ const InternPage = () => {
   };
 
   const handleCheckboxChange = (value: string) => {
+    // Clear validation error when user interacts with checkboxes
+    setContributionValidationError(false);
+
     setFormData(prev => ({
       ...prev,
       contributions: prev.contributions.includes(value)
@@ -1051,10 +1184,97 @@ const InternPage = () => {
   };
 
   const handleNextSection = () => {
-    // Check for date validation errors before proceeding to next step
-    if (currentStep === 2 && dateValidationError) {
-      // Don't proceed if there's a date validation error
-      return;
+    // Clear previous validation errors
+    setValidationErrors({
+      firstName: '',
+      lastName: '',
+      email: '',
+      phone: '',
+      collegeName: '',
+      course: '',
+      startDate: '',
+      endDate: ''
+    });
+
+    // Step 1 validation - Personal Info (only name, email, phone are mandatory)
+    if (currentStep === 1) {
+      const errors = {
+        firstName: '',
+        lastName: '',
+        email: '',
+        phone: '',
+        collegeName: '',
+        course: '',
+        startDate: '',
+        endDate: ''
+      };
+
+      // Validate required fields - show only ONE error at a time
+      if (!formData.firstName || formData.firstName.trim() === '') {
+        errors.firstName = 'Please fill in this field.';
+        setValidationErrors(errors);
+        return;
+      }
+      if (!formData.lastName || formData.lastName.trim() === '') {
+        errors.lastName = 'Please fill in this field.';
+        setValidationErrors(errors);
+        return;
+      }
+      if (!formData.email || formData.email.trim() === '') {
+        errors.email = 'Please fill in this field.';
+        setValidationErrors(errors);
+        return;
+      }
+      // Validate email format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(formData.email.trim())) {
+        errors.email = 'Please enter a valid email address.';
+        setValidationErrors(errors);
+        return;
+      }
+      if (!formData.phone || formData.phone.trim() === '') {
+        errors.phone = 'Please fill in this field.';
+        setValidationErrors(errors);
+        return;
+      }
+    }
+
+    // Step 2 validation - Internship Details
+    if (currentStep === 2) {
+      const errors = {
+        firstName: '',
+        lastName: '',
+        email: '',
+        phone: '',
+        collegeName: '',
+        course: '',
+        startDate: '',
+        endDate: ''
+      };
+
+      // Check for date validation errors before proceeding to next step
+      if (dateValidationError) {
+        // Don't proceed if there's a date validation error
+        return;
+      }
+
+      // Validate required date fields - show only ONE error at a time
+      if (!formData.startDate || formData.startDate.trim() === '') {
+        errors.startDate = 'Please fill in this field.';
+        setValidationErrors(errors);
+        return;
+      }
+      if (!formData.endDate || formData.endDate.trim() === '') {
+        errors.endDate = 'Please fill in this field.';
+        setValidationErrors(errors);
+        return;
+      }
+
+      // Validate contributions
+      if (!formData.contributions || formData.contributions.length === 0) {
+        setContributionValidationError(true);
+        return;
+      }
     }
 
     if (currentStep < 3) {
@@ -1070,7 +1290,7 @@ const InternPage = () => {
 
       console.log('##Rohit_Rocks## Uploading file:', file.name);
 
-      const response = await fetch('https://dev.ruralindiaonline.org/v1/api/upload', {
+      const response = await fetch('https://merge.ruralindiaonline.org/v1/api/upload', {
         method: 'POST',
         body: formData
       });
@@ -1095,7 +1315,7 @@ const InternPage = () => {
     try {
       console.log('##Rohit_Rocks## Submitting to internship API:', applicationData);
 
-      const response = await fetch('https://dev.ruralindiaonline.org/v1/api/internships', {
+      const response = await fetch('https://merge.ruralindiaonline.org/v1/api/internships', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -1146,6 +1366,16 @@ const InternPage = () => {
         setShowSubmissionMessage(false);
         throw new Error('Last name is required');
       }
+
+      // Validate contributions field
+      if (!formData.contributions || formData.contributions.length === 0) {
+        setShowSubmissionMessage(false);
+        setContributionValidationError(true);
+        throw new Error('Please select at least one contribution area');
+      }
+
+      // Clear contribution validation error if validation passes
+      setContributionValidationError(false);
 
       // Validate date range before submission
       if (dateValidationError) {
@@ -1251,9 +1481,9 @@ const InternPage = () => {
 
 
   return (
-    <div className="min-h-screen bg-background py-10 md:py-20 px-4">
+    <div className="min-h-screen bg-background py-10 md:py-20 px-4" dir={textDirection}>
       <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-2 md:gap-40 gap-8 items-start">
           {/* Left Content Section */}
           <div className="md:px-8">
             {isLoadingPageData ? (
@@ -1272,6 +1502,9 @@ const InternPage = () => {
               </div>
             ) : pageData ? (
               <>
+                {/* Language Indicator */}
+                
+
                 <h1 className="text-4xl font-bold text-foreground mb-6">
                   {pageData.attributes.Title}
                 </h1>
@@ -1344,41 +1577,93 @@ const InternPage = () => {
 
                   <div className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <input
-                        type="text"
-                        name="firstName"
-                        placeholder={internshipPageData?.attributes?.first_name || "First Name"}
-                        value={formData.firstName}
-                        onChange={handleInputChange}
-                        className="w-full px-4 py-3 border border-input rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-primary-PARI-Red outline-none bg-background"
-                      />
-                      <input
-                        type="text"
-                        name="lastName"
-                        placeholder={internshipPageData?.attributes?.last_name || "Last Name"}
-                        value={formData.lastName}
-                        onChange={handleInputChange}
-                        className="w-full px-4 py-3 border border-input rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-primary-PARI-Red outline-none bg-background"
-                      />
+                      <div className="relative">
+                        <input
+                          type="text"
+                          name="firstName"
+                          placeholder={internshipPageData?.attributes?.first_name || "First Name"}
+                          value={formData.firstName}
+                          onChange={handleInputChange}
+                          required
+                          className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary-PARI-Red outline-none bg-background ${
+                            validationErrors.firstName ? 'border-primary-PARI-Red border-2' : 'border-input focus:border-primary-PARI-Red'
+                          }`}
+                        />
+                        {validationErrors.firstName && (
+                          <div className="absolute left-0 top-full mt-1 flex items-center gap-2 bg-white dark:bg-popover px-3 py-2 rounded shadow-lg border border-gray-200 dark:border-border z-10">
+                            <div className="flex items-center justify-center w-5 h-5 bg-orange-500 rounded-sm flex-shrink-0">
+                              <span className="text-white text-sm font-bold">!</span>
+                            </div>
+                            <span className="text-sm text-gray-700 dark:text-foreground">{validationErrors.firstName}</span>
+                          </div>
+                        )}
+                      </div>
+                      <div className="relative">
+                        <input
+                          type="text"
+                          name="lastName"
+                          placeholder={internshipPageData?.attributes?.last_name || "Last Name"}
+                          value={formData.lastName}
+                          onChange={handleInputChange}
+                          required
+                          className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary-PARI-Red outline-none bg-background ${
+                            validationErrors.lastName ? 'border-primary-PARI-Red border-2' : 'border-input focus:border-primary-PARI-Red'
+                          }`}
+                        />
+                        {validationErrors.lastName && (
+                          <div className="absolute left-0 top-full mt-1 flex items-center gap-2 bg-white dark:bg-popover px-3 py-2 rounded shadow-lg border border-gray-200 dark:border-border z-10">
+                            <div className="flex items-center justify-center w-5 h-5 bg-orange-500 rounded-sm flex-shrink-0">
+                              <span className="text-white text-sm font-bold">!</span>
+                            </div>
+                            <span className="text-sm text-gray-700 dark:text-foreground">{validationErrors.lastName}</span>
+                          </div>
+                        )}
+                      </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <input
-                        type="email"
-                        name="email"
-                        placeholder={internshipPageData?.attributes?.email || "Email"}
-                        value={formData.email}
-                        onChange={handleInputChange}
-                        className="w-full px-4 py-3 border border-input rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-primary-PARI-Red outline-none bg-background"
-                      />
-                      <input
-                        type="tel"
-                        name="phone"
-                        placeholder={internshipPageData?.attributes?.phone || "Phone"}
-                        value={formData.phone}
-                        onChange={handleInputChange}
-                        className="w-full px-4 py-3 border border-input rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-primary-PARI-Red outline-none bg-background"
-                      />
+                      <div className="relative">
+                        <input
+                          type="email"
+                          name="email"
+                          placeholder={internshipPageData?.attributes?.email || "Email"}
+                          value={formData.email}
+                          onChange={handleInputChange}
+                          required
+                          className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary-PARI-Red outline-none bg-background ${
+                            validationErrors.email ? 'border-primary-PARI-Red border-2' : 'border-input focus:border-primary-PARI-Red'
+                          }`}
+                        />
+                        {validationErrors.email && (
+                          <div className="absolute left-0 top-full mt-1 flex items-center gap-2 bg-white dark:bg-popover px-3 py-2 rounded shadow-lg border border-gray-200 dark:border-border z-10">
+                            <div className="flex items-center justify-center w-5 h-5 bg-orange-500 rounded-sm flex-shrink-0">
+                              <span className="text-white text-sm font-bold">!</span>
+                            </div>
+                            <span className="text-sm text-gray-700 dark:text-foreground">{validationErrors.email}</span>
+                          </div>
+                        )}
+                      </div>
+                      <div className="relative">
+                        <input
+                          type="tel"
+                          name="phone"
+                          placeholder={internshipPageData?.attributes?.phone || "Phone"}
+                          value={formData.phone}
+                          onChange={handleInputChange}
+                          required
+                          className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary-PARI-Red outline-none bg-background ${
+                            validationErrors.phone ? 'border-primary-PARI-Red border-2' : 'border-input focus:border-primary-PARI-Red'
+                          }`}
+                        />
+                        {validationErrors.phone && (
+                          <div className="absolute left-0 top-full mt-1 flex items-center gap-2 bg-white dark:bg-popover px-3 py-2 rounded shadow-lg border border-gray-200 dark:border-border z-10">
+                            <div className="flex items-center justify-center w-5 h-5 bg-orange-500 rounded-sm flex-shrink-0">
+                              <span className="text-white text-sm font-bold">!</span>
+                            </div>
+                            <span className="text-sm text-gray-700 dark:text-foreground">{validationErrors.phone}</span>
+                          </div>
+                        )}
+                      </div>
                     </div>
 
                     <div>
@@ -1415,7 +1700,7 @@ const InternPage = () => {
 
                 <button
                   onClick={handleNextSection}
-                  className="w-full bg-primary-PARI-Red text-white py-3 px-6 rounded-lg font-medium hover:bg-primary-PARI-Red/90 transition-colors duration-200"
+                  className="w-full bg-primary-PARI-Red text-white py-3 px-6 rounded-full font-medium hover:bg-primary-PARI-Red/90 transition-colors duration-200"
                 >
                   Next Section
                 </button>
@@ -1440,28 +1725,48 @@ const InternPage = () => {
                         </span>
                       </p>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <input
-                          type="date"
-                          name="startDate"
-                          placeholder={internshipPageData?.attributes?.start_date || "Start date"}
-                          value={formData.startDate}
-                          onChange={handleInputChange}
-                          min={getTodayDate()}
-                          className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-primary-PARI-Red outline-none bg-background ${
-                            dateValidationError ? 'border-red-500' : 'border-input'
-                          }`}
-                        />
-                        <input
-                          type="date"
-                          name="endDate"
-                          placeholder={internshipPageData?.attributes?.end_date || "End date"}
-                          value={formData.endDate}
-                          onChange={handleInputChange}
-                          min={formData.startDate || getTodayDate()}
-                          className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-primary-PARI-Red outline-none bg-background ${
-                            dateValidationError ? 'border-red-500' : 'border-input'
-                          }`}
-                        />
+                        <div className="relative">
+                          <input
+                            type="date"
+                            name="startDate"
+                            placeholder={internshipPageData?.attributes?.start_date || "Start date"}
+                            value={formData.startDate}
+                            onChange={handleInputChange}
+                            min={getTodayDate()}
+                            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary-PARI-Red outline-none bg-background ${
+                              dateValidationError || validationErrors.startDate ? 'border-primary-PARI-Red border-2' : 'border-input focus:border-primary-PARI-Red'
+                            }`}
+                          />
+                          {validationErrors.startDate && (
+                            <div className="absolute left-0 top-full mt-1 flex items-center gap-2 bg-white dark:bg-popover px-3 py-2 rounded shadow-lg border border-gray-200 dark:border-border z-10">
+                              <div className="flex items-center justify-center w-5 h-5 bg-orange-500 rounded-sm flex-shrink-0">
+                                <span className="text-white text-sm font-bold">!</span>
+                              </div>
+                              <span className="text-sm text-gray-700 dark:text-foreground">{validationErrors.startDate}</span>
+                            </div>
+                          )}
+                        </div>
+                        <div className="relative">
+                          <input
+                            type="date"
+                            name="endDate"
+                            placeholder={internshipPageData?.attributes?.end_date || "End date"}
+                            value={formData.endDate}
+                            onChange={handleInputChange}
+                            min={formData.startDate || getTodayDate()}
+                            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary-PARI-Red outline-none bg-background ${
+                              dateValidationError || validationErrors.endDate ? 'border-primary-PARI-Red border-2' : 'border-input focus:border-primary-PARI-Red'
+                            }`}
+                          />
+                          {validationErrors.endDate && (
+                            <div className="absolute left-0 top-full mt-1 flex items-center gap-2 bg-white dark:bg-popover px-3 py-2 rounded shadow-lg border border-gray-200 dark:border-border z-10">
+                              <div className="flex items-center justify-center w-5 h-5 bg-orange-500 rounded-sm flex-shrink-0">
+                                <span className="text-white text-sm font-bold">!</span>
+                              </div>
+                              <span className="text-sm text-gray-700 dark:text-foreground">{validationErrors.endDate}</span>
+                            </div>
+                          )}
+                        </div>
                       </div>
                       {dateValidationError && (
                         <div className="mt-2 text-sm text-red-600 bg-red-50 dark:bg-red-900/20 dark:text-red-400 p-3 rounded-lg border border-red-200 dark:border-red-800">
@@ -1540,11 +1845,14 @@ const InternPage = () => {
                     </div>
 
                     <div>
-                      <p className="text-sm text-muted-foreground mb-3">
-                        {internshipPageData?.attributes?.contributions || "How would you like to contribute to PARI?"}
+                      <p className={`text-sm font-medium mb-3 ${contributionValidationError ? 'text-primary-PARI-Red' : 'text-gray-600 dark:text-muted-foreground'}`}>
+                        {internshipPageData?.attributes?.contributions || "How would you like to contribute to PARI?"} <span className="text-primary-PARI-Red">*</span>
                       </p>
+                      {contributionValidationError && (
+                        <p className="text-sm text-primary-PARI-Red mb-2">Please select at least one contribution area</p>
+                      )}
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className={`grid grid-cols-1 md:grid-cols-2 gap-4 ${contributionValidationError ? 'p-3 border-2 border-primary-PARI-Red rounded-lg bg-red-50 dark:bg-red-900/10' : ''}`}>
                         {isLoadingContributions ? (
                           // Loading state while fetching contribution options from Strapi
                           <div className="col-span-2 flex items-center justify-center py-8">
@@ -1572,48 +1880,58 @@ const InternPage = () => {
                               Retry loading from Strapi
                             </button>
                           </div>
-                        ) : contributionOptions.length > 0 ? (
-                          // Success state - render contribution options from Strapi
-                          <>
-                            <div className="space-y-3">
-                              {contributionOptions.slice(0, Math.ceil(contributionOptions.length / 2)).map((contribution) => {
-                                const value = getContributionValue(contribution);
-                                return (
-                                  <label key={value} className="flex items-center space-x-3">
-                                    <input
-                                      type="checkbox"
-                                      checked={formData.contributions.includes(value)}
-                                      onChange={() => handleCheckboxChange(value)}
-                                      className="w-4 h-4 accent-primary-PARI-Red focus:ring-primary-PARI-Red border-gray-300 rounded"
-                                    />
-                                    <span className="text-sm text-muted-foreground">{contribution}</span>
-                                  </label>
-                                );
-                              })}
-                            </div>
-
-                            <div className="space-y-3">
-                              {contributionOptions.slice(Math.ceil(contributionOptions.length / 2)).map((contribution) => {
-                                const value = getContributionValue(contribution);
-                                return (
-                                  <label key={value} className="flex items-center space-x-3">
-                                    <input
-                                      type="checkbox"
-                                      checked={formData.contributions.includes(value)}
-                                      onChange={() => handleCheckboxChange(value)}
-                                      className="w-4 h-4 accent-primary-PARI-Red focus:ring-primary-PARI-Red border-gray-300 rounded"
-                                    />
-                                    <span className="text-sm text-muted-foreground">{contribution}</span>
-                                  </label>
-                                );
-                              })}
-                            </div>
-                          </>
                         ) : (
-                          // Empty state when no contribution options are available
-                          <div className="col-span-2 flex items-center justify-center py-8">
-                            <span className="text-sm text-muted-foreground">No contribution options available from Strapi</span>
-                          </div>
+                          // Render contribution options from Strapi or use fallback defaults
+                          (() => {
+                            const options = contributionOptions.length > 0
+                              ? contributionOptions
+                              : [
+                                  'Report and write a story',
+                                  'Social media',
+                                  'Write and research with Library',
+                                  'Make a film/video',
+                                  'Contribute to FACES',
+                                  'Translations'
+                                ];
+
+                            return (
+                              <>
+                                <div className="space-y-3">
+                                  {options.slice(0, Math.ceil(options.length / 2)).map((contribution) => {
+                                    const value = getContributionValue(contribution);
+                                    return (
+                                      <label key={value} className="flex items-center space-x-3">
+                                        <input
+                                          type="checkbox"
+                                          checked={formData.contributions.includes(value)}
+                                          onChange={() => handleCheckboxChange(value)}
+                                          className="w-4 h-4 accent-primary-PARI-Red focus:ring-primary-PARI-Red border-gray-300 rounded"
+                                        />
+                                        <span className="text-sm text-muted-foreground">{contribution}</span>
+                                      </label>
+                                    );
+                                  })}
+                                </div>
+
+                                <div className="space-y-3">
+                                  {options.slice(Math.ceil(options.length / 2)).map((contribution) => {
+                                    const value = getContributionValue(contribution);
+                                    return (
+                                      <label key={value} className="flex items-center space-x-3">
+                                        <input
+                                          type="checkbox"
+                                          checked={formData.contributions.includes(value)}
+                                          onChange={() => handleCheckboxChange(value)}
+                                          className="w-4 h-4 accent-primary-PARI-Red focus:ring-primary-PARI-Red border-gray-300 rounded"
+                                        />
+                                        <span className="text-sm text-muted-foreground">{contribution}</span>
+                                      </label>
+                                    );
+                                  })}
+                                </div>
+                              </>
+                            );
+                          })()
                         )}
                       </div>
                     </div>
@@ -1623,7 +1941,7 @@ const InternPage = () => {
                 <button
                   onClick={handleNextSection}
                   disabled={dateValidationError !== ''}
-                  className={`w-full py-3 px-6 rounded-lg font-medium transition-colors duration-200 ${
+                  className={`w-full py-3 px-6 rounded-full font-medium transition-colors duration-200 ${
                     dateValidationError
                       ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
                       : 'bg-primary-PARI-Red text-white hover:bg-primary-PARI-Red/90'
@@ -1812,7 +2130,7 @@ const InternPage = () => {
                 <button
                   onClick={handleSubmitApplication}
                   disabled={isSubmitting || !formData.agreeToTerms}
-                  className={`w-full py-3 px-6 rounded-lg font-medium transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center ${
+                  className={`w-full py-3 px-6 rounded-full font-medium transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center ${
                     !formData.agreeToTerms
                       ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
                       : 'bg-primary-PARI-Red text-white hover:bg-primary-PARI-Red/90'
@@ -1832,7 +2150,25 @@ const InternPage = () => {
           </div>
         </div>
       </div>
+
+      {/* Floating Language Toggle */}
+      <LanguageToggle />
     </div>
+  );
+};
+
+const InternPage = () => {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    }>
+      <InternContent />
+    </Suspense>
   );
 };
 

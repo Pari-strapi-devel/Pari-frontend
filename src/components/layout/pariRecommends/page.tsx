@@ -24,7 +24,7 @@ interface Story {
     | undefined;
   headtitle: string;
   authors: string | string[]; // Changed from authors(authors: any): unknown
-  categories: string[] | undefined;
+  categories: { title: string; slug: string; }[] | undefined;
   title: string;
   description: string;
   imageUrl: string;
@@ -119,7 +119,7 @@ export interface ArticleWithLangSelection {
 export default function StoriesPage() {
   const [stories, setStories] = useState<Story[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const { language: currentLocale,  isLocaleSet } = useLocale();
+  const { language: currentLocale,  isLocaleSet, addLocaleToUrl } = useLocale();
   const searchParams = useSearchParams();
 
   // Add slider states
@@ -432,8 +432,10 @@ export default function StoriesPage() {
               slug: articleData.slug,
               categories:
                 articleData.categories?.data?.map(
-                  (cat: { attributes: { Title: string } }) =>
-                    cat.attributes.Title
+                  (cat: { attributes: { Title: string; slug: string } }) => ({
+                    title: cat.attributes.Title,
+                    slug: cat.attributes.slug
+                  })
                 ) || [],
               authors,
               languages: langs,
@@ -492,16 +494,16 @@ export default function StoriesPage() {
         <div className="flex justify-between sm:flex-row flex-col sm:items-center gap-5 mb-4">
           <div className="flex flex-row items-center gap-2">
             <Sparkle className="h-6 w-6 text-primary-PARI-Red" />
-            <h2 className="text-[13px] font-noto-sans uppercase text-grey-300 line-clamp-1 leading-[100%] letter-spacing-[-2%] font-semibold">
+            <h6 className="text-[13px] font-noto-sans uppercase text-grey-300 line-clamp-1 leading-[100%] letter-spacing-[-2%] font-semibold">
               {stories[0]?.headtitle}
-            </h2>
+            </h6>
           </div>
           
           <div className="flex items-center gap-3">
             {/* Add See All Stories button */}
-            <Link href="/articles">
-              <Button 
-                variant="secondary" 
+            <Link href={addLocaleToUrl("/articles")}>
+              <Button
+                variant="secondary"
                 className="text-sm h-[36px] md:flex hidden ring-[2px] rounded-[48px] text-primary-PARI-Red"
               >
                 {stories[0]?.sub_title || "See all stories"}

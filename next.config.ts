@@ -17,6 +17,10 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
+        hostname: 'merge.ruralindiaonline.org',
+      },
+      {
+        protocol: 'https',
         hostname: 'ruralindiaonline.org',
       },
     ],

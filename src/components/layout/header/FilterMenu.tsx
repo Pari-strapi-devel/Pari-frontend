@@ -7,6 +7,7 @@ import { X } from "lucide-react"
 import { CategoryCard, FilterOption } from './Category'
 import { FilterOptionsView } from './FilterOptionsView'
 import { useCategories } from './Category'
+import { useLocale } from '@/lib/locale'
 
 
 interface FilterMenuProps {
@@ -29,6 +30,7 @@ interface FilterState {
 
 export function FilterMenu({ isOpen, onClose }: FilterMenuProps) {
   const router = useRouter()
+  const { language: currentLocale } = useLocale()
   const [activeTab, setActiveTab] = useState<'cards' | 'filters'>('cards')
   const [selectedOptions, setSelectedOptions] = useState<FilterOption[]>([])
   const [filters, setFilters] = useState<FilterState>({
@@ -73,35 +75,39 @@ export function FilterMenu({ isOpen, onClose }: FilterMenuProps) {
     // Get existing query parameters
     const url = new URL(window.location.href);
     const params = new URLSearchParams(url.search);
-    
+
+    // Preserve locale if it exists
+    if (currentLocale && currentLocale !== 'en') {
+      params.set('locale', currentLocale);
+    }
+
     if (activeTab === 'cards' && selectedOptions.length > 0) {
-      // Get existing types if any
-      const existingTypes = params.get('types')?.split(',') || [];
+      // Use only the newly selected types (don't combine with existing)
       const newTypes = selectedOptions.map(opt => opt.path);
-      
-      // Combine existing and new types, removing duplicates
-      const allTypes = [...new Set([...existingTypes, ...newTypes])];
-      
-      // Update the URL
-      params.set('types', allTypes.join(','));
+
+      // Update the URL with only the new selections
+      params.set('types', newTypes.join(','));
       router.push(`/articles?${params.toString()}`);
+
+      // Clear selected options after confirming
+      setSelectedOptions([]);
       onClose();
     } else if (activeTab === 'filters' && hasActiveFilters()) {
       // Handle author filter
       if (filters.authorName) {
         params.set('author', filters.authorName);
       }
-      
+
       // Handle place filter
       if (filters.place) {
         params.set('location', filters.place);
       }
-      
+
       // Handle date ranges
       if (filters.dateRanges?.length) {
         params.set('dates', filters.dateRanges.join(','));
       }
-      
+
       // Handle content types
       if (filters.contentTypes?.length) {
         params.set('content', filters.contentTypes.join(','));
@@ -111,8 +117,11 @@ export function FilterMenu({ isOpen, onClose }: FilterMenuProps) {
       if (filters.languages?.length) {
         params.set('languages', filters.languages.join(','));
       }
-      
+
       router.push(`/articles?${params.toString()}`);
+
+      // Clear selected options after confirming
+      setSelectedOptions([]);
       onClose();
     }
   }
@@ -265,9 +274,9 @@ export function FilterMenu({ isOpen, onClose }: FilterMenuProps) {
                 {categories.map((category: CategoryCard) => (
                   <div
                     key={category.id}
-                    className={`group relative overflow-hidden rounded-lg h-[164px] shadow-sm hover:shadow-md transition-shadow duration-300 cursor-pointer ${
-                      selectedOptions.some(opt => opt.id === category.id.toString()) 
-                        ? ' ring-2 ring-primary-PARI-Red ' 
+                    className={`group relative overflow-hidden rounded-lg h-[200px] shadow-sm hover:shadow-md transition-shadow duration-300 cursor-pointer ${
+                      selectedOptions.some(opt => opt.id === category.id.toString())
+                        ? ' ring-2 ring-primary-PARI-Red '
                         : ''
                     }`}
                     onClick={() => handleOptionSelect({
@@ -303,7 +312,11 @@ export function FilterMenu({ isOpen, onClose }: FilterMenuProps) {
             <div className="p-4 border-t dark:bg-popover bg-popover">
               <div className="flex items-center justify-center text-primary-PARI-Red mb-3">
                 <span className="font-noto text-base font-medium leading-[160%] tracking-[-0.03em]">
-                  {activeTab === 'cards' ? `${selectedOptions.length} Filters Selected` : 'Active Filters'}
+                  {activeTab === 'cards'
+                    ? selectedOptions.length === 1
+                      ? '1 Filter selected'
+                      : `${selectedOptions.length} Filters selected`
+                    : 'Active Filters'}
                 </span>
                 {activeTab === 'filters' && (
                   <Button

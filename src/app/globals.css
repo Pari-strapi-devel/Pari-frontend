@@ -1,6 +1,7 @@
 @import "keen-slider/keen-slider.min.css";
 @import "tailwindcss";
 
+
 @plugin "tailwindcss-animate";
 
 @custom-variant dark (&:is(.dark *));
@@ -114,28 +115,186 @@
     @apply bg-background text-foreground;
   }
 
-  /* Ensure proper font rendering for Devanagari text */
+  h1 {
+     font-family: "Noto Sans";
+     line-height: 112%;
+     font-size: clamp(2.5rem, 3vw,  4.5rem);
+     letter-spacing: -0.06em;
+     font-variation-settings: 'wdth' 85, 'wght' 800;
+  }
+
+  h2 {
+     font-family: "Noto Sans";
+     line-height: 144%;
+     font-size: clamp(1.4rem, 1.2vw,  2rem);
+     letter-spacing: -0.04em;
+     font-variation-settings: 'wdth' 95;
+  }
+
+  h3 {
+     font-family: "Noto Sans";
+     line-height: 124%;
+     letter-spacing: -0.04em;
+     font-variation-settings: 'wdth' 90, 'wght' 800 ;
+  }
+
+  h4 {
+     font-family: "Noto Sans";
+  
+     line-height: 130%;
+     letter-spacing: -0.02em;
+     font-variation-settings: 'wdth' 90, 'wght' 700;
+  }
+
+  h5 {
+     font-family: "Noto Sans";
+     line-height: 136%;
+     letter-spacing: -0.03em;
+     font-variation-settings: 'wdth' 90, 'wght' 700;
+  }
+
+  h6 {
+     font-family: "Noto Sans";
+     line-height: 140%;
+     font-size: 14px;
+     /* letter-spacing: -0.05em; */
+     text-transform: uppercase;
+     font-variation-settings: 'wdth' 70 , 'wght' 600;
+  }
+
+  p {
+    font-family: "Noto Sans";
+    line-height: 168%;
+    font-size: clamp(.9rem, 1vw,  1.05rem);
+    letter-spacing: -0.02em;
+    font-variation-settings: 'wdth' 95, 'wght' 400;
+
+  }
+  /* Base Noto Sans font */
+  
+  .font-noto * {
+    font-family: var(--font-noto-sans, 'Noto Sans'), 'Noto Sans', sans-serif;
+   
+    text-rendering: optimizeLegibility;
+
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+
+.noto-sans {
+  font-family: "Noto Sans", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: weight;
+  font-style: normal;
+  font-variation-settings: 'wdth' 100;
+}
+  /* Devanagari (Hindi, Marathi) */
   .font-noto-devanagari,
   .font-noto-devanagari * {
     font-family: var(--font-noto-sans-devanagari), 'Noto Sans Devanagari', 'Noto Sans', sans-serif !important;
     font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+    font-size: clamp(3rem, 3vw,  4.5rem);
+    line-height: 112%;
+    font-variation-settings: 'wdth' 85, 'wght' 700;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
-  .font-noto,
-  .font-noto * {
-    font-family: var(--font-noto-sans), 'Noto Sans', sans-serif !important;
+  /* Telugu */
+  .font-noto-telugu,
+  .font-noto-telugu * {
+    font-family: var(--font-noto-sans-telugu), 'Noto Sans Telugu', 'Noto Sans', sans-serif !important;
     font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
-  /* Specific styles for Devanagari script */
-  .font-noto-devanagari {
-    unicode-range: U+0900-097F, U+1CD0-1CFF, U+200C-200D, U+20A8, U+20B9, U+25CC, U+A830-A839, U+A8E0-A8FF;
+  /* Tamil */
+  .font-noto-tamil,
+  .font-noto-tamil * {
+    font-family: var(--font-noto-sans-tamil), 'Noto Sans Tamil', 'Noto Sans', sans-serif !important;
+    font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+     font-size: clamp(3rem, 3vw,  4.5rem);
+    line-height: 112%;
+    font-variation-settings: 'wdth' 85, 'wght' 700;
+
+  }
+
+  /* Kannada */
+  .font-noto-kannada,
+  .font-noto-kannada * {
+    font-family: var(--font-noto-sans-kannada), 'Noto Sans Kannada', 'Noto Sans', sans-serif !important;
+    font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Bengali */
+  .font-noto-bengali,
+  .font-noto-bengali * {
+    font-family: var(--font-noto-sans-bengali), 'Noto Sans Bengali', 'Noto Sans', sans-serif !important;
+    font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Gujarati */
+  .font-noto-gujarati,
+  .font-noto-gujarati * {
+    font-family: var(--font-noto-sans-gujarati), 'Noto Sans Gujarati', 'Noto Sans', sans-serif !important;
+    font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Oriya (Odia) */
+  .font-noto-oriya,
+  .font-noto-oriya * {
+    font-family: var(--font-noto-sans-oriya), 'Noto Sans Oriya', 'Noto Sans', sans-serif !important;
+    font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Malayalam */
+  .font-noto-malayalam,
+  .font-noto-malayalam * {
+    font-family: var(--font-noto-sans-malayalam), 'Noto Sans Malayalam', 'Noto Sans', sans-serif !important;
+    font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Gurmukhi (Punjabi) */
+  .font-noto-gurmukhi,
+  .font-noto-gurmukhi * {
+    font-family: var(--font-noto-sans-gurmukhi), 'Noto Sans Gurmukhi', 'Noto Sans', sans-serif !important;
+    font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Arabic (Urdu) */
+  .font-noto-arabic,
+  .font-noto-arabic * {
+    font-family: var(--font-noto-sans-arabic), 'Noto Sans Arabic', 'Noto Sans', sans-serif !important;
+    font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    direction: rtl; /* Right-to-left for Arabic/Urdu */
   }
 }
 
@@ -376,3 +535,37 @@
   border-left-color: #374151;
   color: #d1d5db;
 }
+
+/* Columnar text content styling */
+.columnar-text-content p {
+  margin-bottom: 1.25rem;
+}
+
+.columnar-text-content p:last-child {
+  margin-bottom: 0;
+}
+
+.columnar-text-content strong,
+.columnar-text-content b {
+  font-weight: 700;
+}
+
+.columnar-text-content em,
+.columnar-text-content i {
+  font-style: italic;
+}
+
+.columnar-text-content br {
+  display: block;
+  content: "";
+  margin-top: 0.5rem;
+}
+
+.eyebrow {
+    color: var(--color-label);
+    text-transform: uppercase;
+    margin-bottom: var(--spacing-sm);
+    font-weight: 600;
+    font-variation-settings: 'wdth' 42.5;
+
+  }

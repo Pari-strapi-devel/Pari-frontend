@@ -11,9 +11,8 @@ import 'keen-slider/keen-slider.min.css'
 import { BASE_URL } from '@/config'
 import { useLocale } from '@/lib/locale'
 import qs from 'qs'
-import {  Category,  } from '../../ui/category';
+// import {  Category,  } from '../../ui/category';
 import { stripHtmlTags } from '@/utils/text'
-import { LanguageToggle } from '@/components/layout/header/LanguageToggle'
 
 
 export const getTextDirection = (langCode: string) => {
@@ -71,7 +70,7 @@ export function Hero() {
   const [weekDays, setWeekDays] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const { language } = useLocale()
+  const { language, addLocaleToUrl } = useLocale()
  
 
   // Add this function to handle language change
@@ -262,9 +261,9 @@ export function Hero() {
       {/* Date moved outside section - always visible */}
       <div className={`px-4 md:mt-[66px] mt-10 ${isVisible ? 'pb-4' : '-pb-1'} ${language === 'ur' ? 'text-right' : 'text-left'}`}>
         <div className={`sm:w-[90%] max-w-[1232px] mx-auto px-6 ${isVisible ? 'py-2' : 'py-1'}`}>
-          <span className="text-[15px] font-noto-sans text-grey-300 font-[600] leading-none tracking-[-0.02em] align-middle uppercase">
+          <h6 className=" text-grey-300 font-noto-sans ">
             { String(getCurrentDate(months as unknown as Record<string, string>, weekDays as unknown as Record<string, string>)) }
-          </span>
+          </h6>
         </div>
       </div>
 
@@ -286,22 +285,17 @@ export function Hero() {
                 </div>
                 <span className="text-sm font-medium">Dismiss</span>
               </Button>
-
-              {/* Add language toggle here */}
-              <div className="z-20">
-                <LanguageToggle />
-              </div>
             </div>
 
 
 
             <div className={`flex sm:justify-between flex-col sm:flex-row gap-4 pt-7 ${language === 'ur' ? 'sm:flex-row-reverse' : ''}`}>
               <div className={language === 'ur' ? 'text-right' : 'text-left'}>
-                <h2 className="text-[32px] font-noto-sans sm:text-[40px] md:text-[48px] lg:text-[56px] font-bold leading-[112%] tracking-[-0.04em] text-foreground">
+                <h1 className=" font-bold leading-[112%] tracking-[-0.04em] text-foreground">
                   {pariInfo[0]?.heading}
                   <br />
                   {pariInfo[0]?.sabHeading}
-                </h2>
+                </h1>
               </div>
               {/* <div className="flex items-end">
                 <Button
@@ -353,10 +347,10 @@ export function Hero() {
                 {pariInfo.map((info, index) => (
                   <a
                     key={info.id || index}
-                    href={info.url || '#'} // Add fallback to prevent null href
+                    href={addLocaleToUrl(info.url || '#')} // Add fallback to prevent null href and preserve locale
                     className="keen-slider__slide bg-none cursor-pointer block"
                   >
-                    <div className="flex flex-col rounded-lg h-[400px]  md:h-[456px] dark:bg-popover duration-200 relative group">
+                    <div className="flex flex-col rounded-lg h-[400px]  md:h-[406px] dark:bg-popover duration-200 relative group">
                       <div className="relative aspect-[16/9] min-h-[170px] w-full overflow-hidden rounded-lg">
                         <Image
                           src={info.image.data.attributes.url}
@@ -370,11 +364,11 @@ export function Hero() {
                       </div>
                       
                       <div className={`py-4 px-1 flex flex-col justify-between relative ${language === 'ur' ? 'text-right' : 'text-left'}`}>
-                        {info.categories && info.categories.length > 0 && (
+                        {/* {info.categories && info.categories.length > 0 && (
                           <div className={`flex flex-wrap gap-2 ${language === 'ur' ? 'justify-end' : ''}`}>
                             <Category name={info.categories[index % info.categories.length]} />
                           </div>
-                        )}
+                        )} */}
                        
                         <h3 className="font-noto-sans text-[20px] md:h-[70px] sm:text-[24px] md:text-[28px] font-bold leading-[124%] tracking-[-0.04em] mb-2 text-foreground line-clamp-1 sm:line-clamp-2">
                           {info.title}

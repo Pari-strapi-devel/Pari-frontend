@@ -56,7 +56,9 @@ export const useCategories = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const url = `${BASE_URL}api/categories?populate=*`;
+        // Increase pagination limit to fetch all categories (default is 25)
+        // Using pagination[limit] instead of pagination[pageSize] for Strapi v4
+        const url = `${BASE_URL}api/categories?populate=*&pagination[limit]=100`;
         const response = await fetch(url);
 
         if (!response.ok) {

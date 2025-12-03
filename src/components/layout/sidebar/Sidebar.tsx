@@ -110,15 +110,15 @@ export function Sidebar({
                       onClick={() => scrollToSection?.(section.id)}
                       className={`flex items-center w-full h-10 text-left px-2 p-1 rounded- transition-all duration-200 group relative ${
                         isActive
-                          ? 'text-primary-PARI-Red font-semibold border-l-4 border-primary-PARI-Red'
-                          : 'text-primary-PARI-Red  hover:bg-popover hover:text-gray-900 dark:hover:text-gray-100 cursor-pointer'
+                          ? 'text-primary-PARI-Red dark:text-white font-semibold border-l-4 border-primary-PARI-Red'
+                          : 'text-primary-PARI-Red dark:t  hover:bg-popover hover:text-gray-900 dark:hover:text-gray-100 cursor-pointer'
                       }`}
                     >
                       {showIcon && (
                         <div className="flex items-center w-8 h-8 mr-3 flex-shrink-0">
                           <div className={`flex items-center justify-center w-8 h-8 rounded-full transition-colors ${
                             isActive
-                              ? '  text-primary-PARI-Red dark:text-primary-PARI-Red'
+                              ? '  text-primary-PARI-Red dark:text-white'
                               : ''
                           }`}>
                             <IconComponent className="w-4 h-4" />
@@ -127,7 +127,7 @@ export function Sidebar({
                       )}
                       <span
                         className={`line-clamp-1 flex-1 ${
-                          isActive ? 'text-primary-PARI-Red' : 'text-grey-300'
+                          isActive ? 'text-primary-PARI-Red dark:text-white' : 'text-grey-300 dark:text-grey-300'
                         }`}
                         style={{
                           fontFamily: 'Noto Sans',
