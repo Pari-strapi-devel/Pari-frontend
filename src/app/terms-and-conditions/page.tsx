@@ -5,9 +5,6 @@ import { useLocale } from '@/lib/locale';
 import { LanguageToggle } from '@/components/layout/header/LanguageToggle';
 import axios from 'axios';
 
-// Force dynamic rendering for this page
-export const dynamic = 'force-dynamic';
-
 interface TermsPoint {
   id: number;
   text: string;

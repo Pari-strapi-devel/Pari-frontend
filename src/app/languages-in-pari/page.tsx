@@ -7,9 +7,6 @@ import qs from 'qs'
 import { BASE_URL, IMAGE_URL } from '@/config'
 import { useLocale } from '@/lib/locale'
 
-// Force dynamic rendering for this page
-export const dynamic = 'force-dynamic';
-
 interface Author {
   id: number
   AuthorName: string
