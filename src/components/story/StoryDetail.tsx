@@ -17,7 +17,7 @@ import { ArticleData } from '@/components/articles/ArticlesContent'
 import { StoryCard } from '@/components/layout/stories/StoryCard'
 import { FiShare2, FiMail } from 'react-icons/fi'
 import { FaXTwitter, FaFacebookF, FaInstagram, FaLinkedinIn } from 'react-icons/fa6'
-import { Printer, Image as ImageIcon } from 'lucide-react'
+import { Printer, Image as ImageIcon, ZoomIn } from 'lucide-react'
 
 // Labels for credits and donation (English only)
 const CREDIT_LABELS_EN: Record<string, string> = {
@@ -591,35 +591,43 @@ function stripHtmlCssWithStyledStrong(text: string): string {
   result = result.replace(/<em[^>]*>/gi, '<em>');
   result = result.replace(/<i[^>]*>/gi, '<i>');
 
-  // Step 4: Handle paragraph breaks and nbsp
-  result = result.replace(/<br\s*\/?>\s*&nbsp;\s*<\/p>/gi, '</p>');
+  // Step 4: Handle nbsp
   result = result.replace(/&nbsp;/gi, ' ');
 
-  // Step 5: Protect br tags before whitespace processing
+  // Step 5: Protect br tags before processing
   result = result.replace(/<br\s*\/?>/gi, '|||BR|||');
 
-  // Step 6: Convert paragraphs to line breaks
-  result = result.replace(/<\/p>\s*<p[^>]*>/gi, '|||BR||||||BR|||');
-  result = result.replace(/<p[^>]*>/gi, '');
-  result = result.replace(/<\/p>/gi, '');
-
-  // Step 7: Handle divs and spans
+  // Step 6: Clean up divs - remove opening div tags and replace closing divs with paragraph markers
   result = result.replace(/<div[^>]*>/gi, '');
-  result = result.replace(/<\/div>/gi, '|||BR|||');
+  result = result.replace(/<\/div>/gi, '|||PARA|||');
+
+  // Step 7: Clean up spans
   result = result.replace(/<span[^>]*>/gi, '');
   result = result.replace(/<\/span>/gi, '');
 
-  // Step 8: Clean up whitespace (now safe because br tags are protected)
+  // Step 8: Remove existing p tags and replace with paragraph markers
+  result = result.replace(/<\/p>\s*<p[^>]*>/gi, '|||PARA|||');
+  result = result.replace(/<p[^>]*>/gi, '');
+  result = result.replace(/<\/p>/gi, '|||PARA|||');
+
+  // Step 9: Clean up whitespace (but preserve BR markers)
   result = result.replace(/\s+/g, ' ');
 
-  // Step 9: Restore br tags
+  // Step 10: Restore br tags
   result = result.replace(/\|\|\|BR\|\|\|/g, '<br>');
 
-  // Step 10: Clean up whitespace around br tags
+  // Step 11: Clean up whitespace around br tags
   result = result.replace(/<br>\s+/g, '<br>');
   result = result.replace(/\s+<br>/g, '<br>');
 
-  return result.trim();
+  // Step 12: Split by paragraph markers and wrap each in <p> tags
+  const paragraphs = result.split('|||PARA|||')
+    .map(p => p.trim())
+    .filter(p => p.length > 0)
+    .map(p => `<p>${p}</p>`)
+    .join('');
+
+  return paragraphs;
 }
 
 // Content interfaces
@@ -725,6 +733,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
     instagrams: string[];
     linkedins: string[];
   }>>([])
+  const [showAllCategories, setShowAllCategories] = useState(false)
 
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -733,24 +742,47 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
   // Get locale from URL search params to trigger re-render on language change
   const urlLocale = searchParams?.get('locale') || 'en'
 
+  // Extract locale from slug (same logic as fetchStoryBySlug)
+  const getLocaleFromSlug = (slug: string): string => {
+    const localeMatch = slug.match(/-(en|hi|mr|ta|te|kn|ml|bn|gu|guj|pa|or|as|ur|bho|hne|chh|tam|tel|kan|mal|ben|ori|asm)$/)
+    const detectedLocale = localeMatch ? localeMatch[1] : 'en'
+
+    // Normalize 3-letter codes to 2-letter codes
+    const localeMap: { [key: string]: string } = {
+      'guj': 'gu',
+      'tam': 'ta',
+      'tel': 'te',
+      'kan': 'kn',
+      'mal': 'ml',
+      'ben': 'bn',
+      'ori': 'or',
+      'asm': 'as'
+    }
+
+    return localeMap[detectedLocale] || detectedLocale
+  }
+
+  // Get current article locale from slug
+  const currentArticleLocale = getLocaleFromSlug(slug)
+
   // State for credits modal - Always open by default
   const [showCreditsModal, setShowCreditsModal] = useState(true)
 
   // State for image modal
   const [showImageModal, setShowImageModal] = useState(false)
-  const [selectedImage, setSelectedImage] = useState<{ src: string; alt: string } | null>(null)
+  const [selectedImage, setSelectedImage] = useState<{ src: string; alt: string; caption?: string } | null>(null)
   const [imageScale, setImageScale] = useState(1)
   const [imagePosition, setImagePosition] = useState({ x: 0, y: 0 })
   const [isDragging, setIsDragging] = useState(false)
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
-  const [allContentImages, setAllContentImages] = useState<Array<{ src: string; alt: string }>>([])
+  const [allContentImages, setAllContentImages] = useState<Array<{ src: string; alt: string; caption?: string }>>([])
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [imageAnimating, setImageAnimating] = useState(false)
 
   // Collect all images from content when story loads
   useEffect(() => {
     if (story?.content) {
-      const images: Array<{ src: string; alt: string }> = []
+      const images: Array<{ src: string; alt: string; caption?: string }> = []
 
       story.content.forEach((paragraph) => {
         if (!paragraph || typeof paragraph !== 'object') return
@@ -761,22 +793,22 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
         if (obj.__component === 'shared.media' || obj.__component === 'modular-content.media') {
           const mediaImages = extractMultipleImages(paragraph)
           mediaImages.forEach(img => {
-            images.push({ src: img.url, alt: img.alt || img.caption || 'Article image' })
+            images.push({ src: img.url, alt: img.alt || img.caption || 'Article image', caption: img.caption })
           })
         } else if (obj.__component === 'modular-content.single-caption-mul-img') {
           const multiImages = extractMultipleImages(paragraph)
           multiImages.forEach(img => {
-            images.push({ src: img.url, alt: img.alt || img.caption || 'Article image' })
+            images.push({ src: img.url, alt: img.alt || img.caption || 'Article image', caption: img.caption })
           })
         } else if (obj.__component === 'modular-content.multiple-caption-mul-img') {
           const multiCaptionImages = extractMultipleImages(paragraph)
           multiCaptionImages.forEach(img => {
-            images.push({ src: img.url, alt: img.alt || img.caption || 'Article image' })
+            images.push({ src: img.url, alt: img.alt || img.caption || 'Article image', caption: img.caption })
           })
         } else if (obj.__component === 'shared.quote') {
           const quoteImageData = extractImageData(obj)
           if (quoteImageData) {
-            images.push({ src: quoteImageData.url, alt: quoteImageData.alt || 'Quote image' })
+            images.push({ src: quoteImageData.url, alt: quoteImageData.alt || 'Quote image', caption: quoteImageData.caption })
           }
         } else if (obj.__component === 'shared.rich-text') {
           // Extract images from rich text content
@@ -852,7 +884,8 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
 
           console.log('##Rohit_Rocks## Valid languages:', validLanguages)
           setAvailableLanguages(validLanguages)
-          setHasMultipleLanguages(validLanguages.length > 1)
+          // Show language button if there's at least 1 language available
+          setHasMultipleLanguages(validLanguages.length >= 1)
 
         }
 
@@ -1336,7 +1369,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
     setShowCard(true)
   }
 
-  const handleImageClick = (src: string, alt: string) => {
+  const handleImageClick = (src: string, alt: string, caption?: string) => {
     // Find the index of the clicked image
     const index = allContentImages.findIndex(img => img.src === src)
     console.log('##Rohit_Rocks## Image clicked:', src)
@@ -1349,11 +1382,11 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
     } else {
       // If image not found in array, add it and set as current
       console.log('##Rohit_Rocks## Image not found in array, adding it')
-      setAllContentImages(prev => [...prev, { src, alt }])
+      setAllContentImages(prev => [...prev, { src, alt, caption }])
       setCurrentImageIndex(allContentImages.length)
     }
 
-    setSelectedImage({ src, alt })
+    setSelectedImage({ src, alt, caption })
     setShowImageModal(true)
     setImageScale(1)
     setImagePosition({ x: 0, y: 0 })
@@ -1415,7 +1448,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
           showHeaderBar ? 'translate-y-0' : '-translate-y-full'
         }`}
       >
-        <div className="max-w-7xl mx-auto px-3 md:px-8 py-3 md:py-4 flex items-center justify-center gap-4 md:gap-12 relative">
+        <div className="max-w-7xl mx-auto px-3 md:px-8 py-3 md:py-4 flex items-center justify-center gap-12 md:gap-16 relative">
           {/* Audio Play */}
           {/* <button
             onClick={handleAudioToggle}
@@ -1501,7 +1534,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
               src={story.coverImage}
               alt={story.title}
               fill
-              className="object-cover object-center"
+              className="object-cover object-center md:rounded-none"
               priority
               unoptimized
             />
@@ -1511,14 +1544,14 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
 
       {/* White Card Overlay - Separate from content */}
       {showCard && (
-        <div className="relative -mt-48 mx-auto px-4 my-8 md:px-8 ">
+        <div className={`relative mx-auto px-4 my-8 md:px-8 ${story.coverImage ? '-mt-48' : ''}`}>
           <div className="bg-white dark:bg-popover rounded-3xl p-[2.5rem] lg:p-[4rem] shadow-[0px_4px_20px_0px_rgba(0,0,0,0.1)] relative mx-auto md:max-w-[43rem] lg:max-w-[57rem] xl:max-w-[61.75rem] 2xl:max-w-[76.5rem]"
            
           >
             {/* Close Button */}
             <button
               onClick={handleClose}
-              className={`absolute top-6 right-6 w-10 h-10 flex items-center justify-center rounded-full border-2 ${story.isStudent ? 'border-[#2F80ED] text-[#2F80ED] hover:bg-[#2F80ED]' : 'border-primary-PARI-Red text-primary-PARI-Red hover:bg-primary-PARI-Red'} hover:text-white transition-colors`}
+              className={`absolute md:top-6 top-2 right-2 md:right-6 w-10 h-10 flex items-center justify-center rounded-full border-2 ${story.isStudent ? 'border-[#2F80ED] text-[#2F80ED] hover:bg-[#2F80ED]' : 'border-primary-PARI-Red text-primary-PARI-Red hover:bg-primary-PARI-Red'} hover:text-white transition-colors`}
             >
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <line x1="5" y1="10" x2="15" y2="10" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
@@ -1543,22 +1576,98 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
             {/* Category Tags */}
             {story.categories && story.categories.length > 0 && (
               <div className="flex flex-wrap gap-2 mb-4">
-                {story.categories.map((category, index) => (
-                  <button
-                    key={index}
-                    onClick={() => {
-                      router.push(`/articles?types=${category.slug}`)
-                    }}
-                    className={`px-4 py-2 border ${story.isStudent ? 'border-[#2F80ED] text-[#2F80ED] hover:bg-[#2F80ED]' : 'border-primary-PARI-Red text-primary-PARI-Red hover:bg-primary-PARI-Red'} font-noto-sans rounded-full hover:text-white transition-colors cursor-pointer`}
-                    style={{
-                      fontSize: '14px',
-                      fontWeight: 400,
-                      lineHeight: '100%'
-                    }}
-                  >
-                    {category.title}
-                  </button>
-                ))}
+                {/* Desktop: Show all categories */}
+                <div className="hidden md:contents">
+                  {story.categories.map((category, index) => (
+                    <button
+                      key={index}
+                      onClick={() => {
+                        router.push(`/articles?types=${category.slug}`)
+                      }}
+                      className={`px-4 py-2 border ${story.isStudent ? 'border-[#2F80ED] text-[#2F80ED] hover:bg-[#2F80ED]' : 'border-primary-PARI-Red text-primary-PARI-Red hover:bg-primary-PARI-Red'} font-noto-sans rounded-full hover:text-white transition-colors cursor-pointer`}
+                      style={{
+                        fontSize: '14px',
+                        fontWeight: 400,
+                        lineHeight: '100%'
+                      }}
+                    >
+                      {category.title}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Mobile: Show with expand/collapse */}
+                <div className="md:hidden contents">
+                  {showAllCategories ? (
+                    // Show all categories
+                    <>
+                      {story.categories.map((category, index) => (
+                        <button
+                          key={index}
+                          onClick={() => {
+                            router.push(`/articles?types=${category.slug}`)
+                          }}
+                          className={`px-4 py-2 border ${story.isStudent ? 'border-[#2F80ED] text-[#2F80ED] hover:bg-[#2F80ED]' : 'border-primary-PARI-Red text-primary-PARI-Red hover:bg-primary-PARI-Red'} font-noto-sans rounded-full hover:text-white transition-colors cursor-pointer animate-slide-in-left`}
+                          style={{
+                            fontSize: '14px',
+                            fontWeight: 400,
+                            lineHeight: '100%'
+                          }}
+                        >
+                          {category.title}
+                        </button>
+                      ))}
+                      {/* Reset button */}
+                      {story.categories.length > 2 && (
+                        <button
+                          onClick={() => setShowAllCategories(false)}
+                          className={`px-4 py-2 border ${story.isStudent ? 'border-[#2F80ED] text-[#2F80ED] hover:bg-[#2F80ED]' : 'border-primary-PARI-Red text-primary-PARI-Red hover:bg-primary-PARI-Red'} font-noto-sans rounded-full hover:text-white transition-colors cursor-pointer`}
+                          style={{
+                            fontSize: '14px',
+                            fontWeight: 400,
+                            lineHeight: '100%'
+                          }}
+                        >
+                          -
+                        </button>
+                      )}
+                    </>
+                  ) : (
+                    // Show only first 2 categories
+                    <>
+                      {story.categories.slice(0, 2).map((category, index) => (
+                        <button
+                          key={index}
+                          onClick={() => {
+                            router.push(`/articles?types=${category.slug}`)
+                          }}
+                          className={`px-4 py-2 border ${story.isStudent ? 'border-[#2F80ED] text-[#2F80ED] hover:bg-[#2F80ED]' : 'border-primary-PARI-Red text-primary-PARI-Red hover:bg-primary-PARI-Red'} font-noto-sans rounded-full hover:text-white transition-colors cursor-pointer`}
+                          style={{
+                            fontSize: '14px',
+                            fontWeight: 400,
+                            lineHeight: '100%'
+                          }}
+                        >
+                          {category.title}
+                        </button>
+                      ))}
+                      {/* Show more button */}
+                      {story.categories.length > 2 && (
+                        <button
+                          onClick={() => setShowAllCategories(true)}
+                          className={`px-4 py-2 border ${story.isStudent ? 'border-[#2F80ED] text-[#2F80ED] hover:bg-[#2F80ED]' : 'border-primary-PARI-Red text-primary-PARI-Red hover:bg-primary-PARI-Red'} font-noto-sans rounded-full hover:text-white transition-colors cursor-pointer`}
+                          style={{
+                            fontSize: '14px',
+                            fontWeight: 400,
+                            lineHeight: '100%'
+                          }}
+                        >
+                          +{story.categories.length - 2}
+                        </button>
+                      )}
+                    </>
+                  )}
+                </div>
               </div>
             )}
 
@@ -1583,12 +1692,12 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
             <div className="w-full h-px bg-gray-200 dark:bg-gray-700 my-8 "></div>
 
             {/* Authors Info - Dynamic */}
-            <div className="flex items-end justify-between">
-              <div className={`grid grid-cols-1 gap-8 flex-1 ${groupedAuthors.length === 1 ? 'md:grid-cols-1' : groupedAuthors.length === 2 ? 'md:grid-cols-2' : 'md:grid-cols-3'}`}>
+            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+              <div className="grid grid-cols-2 md:flex md:flex-row gap-6 md:gap-12 flex-1">
                 {groupedAuthors.map((group, index) => (
                   <div key={index}>
                     <h6 className="text-gray-400 dark:text-gray-500 text-[14px] mb-2"
-                      
+
                     >
                       {group.title || getTranslatedLabel('author', currentLocale)}
                     </h6>
@@ -1603,10 +1712,10 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                         <span key={nameIndex}>
                           <button
                             onClick={() => {
-                              console.log('##Rohit_Rocks## Author clicked:', name)
+
                               router.push(`/articles?author=${encodeURIComponent(name)}`)
                             }}
-                            className="hover:text-primary-PARI-Red dark:hover:text-primary-PARI-Red transition-colors text-left"
+                            className={`transition-colors text-left ${story.isStudent ? 'hover:text-[#2F80ED] dark:hover:text-[#2F80ED]' : 'hover:text-primary-PARI-Red dark:hover:text-primary-PARI-Red'}`}
                           >
                             {name}
                           </button>
@@ -1630,7 +1739,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                     }
                   }, 100)
                 }}
-                className={`ml-8 px-6 py-3 border ${story.isStudent ? 'border-[#2F80ED] text-[#2F80ED] hover:bg-[#2F80ED]' : 'border-primary-PARI-Red text-primary-PARI-Red hover:bg-primary-PARI-Red'} rounded-full font-noto-sans hover:text-white transition-colors whitespace-nowrap`}
+                className={`w-full md:w-auto md:ml-8 px-6 py-3 border ${story.isStudent ? 'border-[#2F80ED] text-[#2F80ED] hover:bg-[#2F80ED]' : 'border-primary-PARI-Red text-primary-PARI-Red hover:bg-primary-PARI-Red'} rounded-full font-noto-sans hover:text-white transition-colors whitespace-nowrap`}
                 style={{
                   fontSize: '14px',
                   fontWeight: 400,
@@ -1671,81 +1780,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
         </div>
       )}
 
-   {!showHeaderBar && (
-     <div className="flex justify-center items-center gap-4 mt-8 mb-8">
-          {/* Photo Story Button */}
-          <button
-            onClick={handlePhotoClick}
-            className={`flex items-center gap-2 px-6 py-3 border ${story.isStudent ? 'border-[#2F80ED] text-[#2F80ED] hover:bg-[#2F80ED]' : 'border-primary-PARI-Red text-primary-PARI-Red hover:bg-primary-PARI-Red'} rounded-full font-noto-sans hover:text-white transition-colors`}
-            style={{
-              fontSize: '14px',
-              fontWeight: 400,
-              lineHeight: '100%'
-            }}
-          >
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5">
-              <rect x="3" y="3" width="14" height="14" rx="2" ry="2"/>
-              <circle cx="8" cy="8" r="2"/>
-              <path d="M17 13 L13 9 L5 17"/>
-            </svg>
-            Photo Story
-          </button>
-
-          {/* Share Button */}
-          <button
-            onClick={handleShare}
-            className={`flex items-center gap-2 px-6 py-3 border ${story.isStudent ? 'border-[#2F80ED] text-[#2F80ED] hover:bg-[#2F80ED]' : 'border-primary-PARI-Red text-primary-PARI-Red hover:bg-primary-PARI-Red'} rounded-full font-noto-sans hover:text-white transition-colors`}
-            style={{
-              fontSize: '14px',
-              fontWeight: 400,
-              lineHeight: '100%'
-            }}
-          >
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5">
-              <path d="M13 7 L18 2 M18 2 L18 7 M18 2 L10 10"/>
-              <path d="M15 11 L15 17 C15 17.5 14.5 18 14 18 L3 18 C2.5 18 2 17.5 2 17 L2 6 C2 5.5 2.5 5 3 5 L9 5"/>
-            </svg>
-            Share
-          </button>
-
-          {/* Print Button */}
-          <button
-            onClick={handlePrint}
-            className={`flex items-center gap-2 px-6 py-3 border ${story.isStudent ? 'border-[#2F80ED] text-[#2F80ED] hover:bg-[#2F80ED]' : 'border-primary-PARI-Red text-primary-PARI-Red hover:bg-primary-PARI-Red'} rounded-full font-noto-sans hover:text-white transition-colors`}
-            style={{
-              fontSize: '14px',
-              fontWeight: 400,
-              lineHeight: '100%'
-            }}
-          >
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5">
-              <path d="M5 6 L5 2 L15 2 L15 6"/>
-              <rect x="2" y="6" width="16" height="6" rx="1"/>
-              <rect x="5" y="10" width="10" height="8"/>
-            </svg>
-            Print
-          </button>
-
-          {/* Text Size Controls */}
-          <div className={`flex items-center gap-3 px-6 py-3 border ${story.isStudent ? 'border-[#2F80ED]' : 'border-primary-PARI-Red'} rounded-full`}>
-            <button
-              onClick={decreaseFontSize}
-              className={`${story.isStudent ? 'text-[#2F80ED] hover:text-[#2F80ED]/70' : 'text-primary-PARI-Red hover:text-primary-PARI-Red/70'} transition-opacity text-xl font-bold leading-none`}
-              title="Decrease Font Size"
-            >
-              −
-            </button>
-            <span className={`${story.isStudent ? 'text-[#2F80ED]' : 'text-primary-PARI-Red'} font-bold text-lg`}>T</span>
-            <button
-              onClick={increaseFontSize}
-              className={`${story.isStudent ? 'text-[#2F80ED] hover:text-[#2F80ED]/70' : 'text-primary-PARI-Red hover:text-primary-PARI-Red/70'} transition-opacity text-xl font-bold leading-none`}
-              title="Increase Font Size"
-            >
-              +
-            </button>
-          </div>
-        </div>
-   )}
+ 
       {/* Main Content - Always visible */}
       <div className="w-full mt-8 mx-auto  md:px-8">
         {story.content && story.content.length > 0 ? (
@@ -1802,8 +1837,8 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                             {allImageData.map((imageData, imgIndex) => (
                               <div key={`img-${index}-${imgIndex}`} className="space-y-3">
                                 <div
-                                  className="w-full h-[500px] md:h-[600px] cursor-pointer"
-                                  onClick={() => handleImageClick(imageData!.url, imageData!.alt || 'Article image')}
+                                  className="w-full h-[500px] md:h-[600px] cursor-pointer relative group"
+                                  onClick={() => handleImageClick(imageData!.url, imageData!.alt || 'Article image', imageData!.caption)}
                                 >
                                   <Image
                                     src={imageData!.url}
@@ -1813,6 +1848,10 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                     className="w-full h-full object-cover md:rounded-lg"
                                     unoptimized
                                   />
+                                  {/* Zoom Icon */}
+                                  <div className="absolute bottom-2 right-2 bg-black/60 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <ZoomIn className="w-5 h-5" />
+                                  </div>
                                 </div>
                                 {imageData!.caption && (
                                   <div className="mt-3 px-2">
@@ -1836,8 +1875,8 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                           {allImageData[0] && (
                             <div className="space-y-3">
                               <div
-                                className="w-full h-[500px] md:h-[600px] cursor-pointer"
-                                onClick={() => handleImageClick(allImageData[0]!.url, allImageData[0]!.alt || 'Article image')}
+                                className="w-full h-[500px] md:h-[600px] cursor-pointer relative group"
+                                onClick={() => handleImageClick(allImageData[0]!.url, allImageData[0]!.alt || 'Article image', allImageData[0]!.caption)}
                               >
                                 <Image
                                   src={allImageData[0]!.url}
@@ -1847,6 +1886,10 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                   className="w-full h-auto max-h-[600px] object-cover"
                                   unoptimized
                                 />
+                                {/* Zoom Icon */}
+                                <div className="absolute bottom-2 right-2 bg-black/60 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                                  <ZoomIn className="w-5 h-5" />
+                                </div>
                               </div>
                               {allImageData[0].caption && (
                                 <div className="mt-3">
@@ -1864,8 +1907,8 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                               {allImageData.slice(1).map((imageData, imgIndex) => (
                                 <div key={`img-${index}-${imgIndex + 1}`} className="space-y-3">
                                   <div
-                                    className="w-full h-[500px] md:h-[600px] cursor-pointer"
-                                    onClick={() => handleImageClick(imageData!.url, imageData!.alt || `Article image ${imgIndex + 2}`)}
+                                    className="w-full h-[500px] md:h-[600px] cursor-pointer relative group"
+                                    onClick={() => handleImageClick(imageData!.url, imageData!.alt || `Article image ${imgIndex + 2}`, imageData!.caption)}
                                   >
                                     <Image
                                       src={imageData!.url}
@@ -1875,6 +1918,10 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                       className="w-full h-full object-cover md:rounded-lg"
                                       unoptimized
                                     />
+                                    {/* Zoom Icon */}
+                                    <div className="absolute bottom-2 right-2 bg-black/60 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                                      <ZoomIn className="w-5 h-5" />
+                                    </div>
                                   </div>
                                   {imageData!.caption && (
                                     <div className="mt-3 px-2">
@@ -1904,8 +1951,28 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
 
                   return (
                     <div key={index} className="my-6 max-w-3xl mx-auto px-4 md:px-8 lg:px-10">
-                     
-                      <p
+                      <style jsx>{`
+                        .article-content-text {
+                          font-weight: 400;
+                        }
+                        .article-content-text :global(*) {
+                          font-weight: 400;
+                        }
+                        .article-content-text :global(p) {
+                          margin-bottom: 1rem;
+                        }
+                        .article-content-text :global(p),
+                        .article-content-text :global(div),
+                        .article-content-text :global(span),
+                        .article-content-text :global(a) {
+                          font-weight: 400;
+                        }
+                        .article-content-text :global(strong),
+                        .article-content-text :global(b) {
+                          font-weight: 700;
+                        }
+                      `}</style>
+                      <div
                         className="article-content-text text-foreground leading-relaxed"
                         style={{
                            fontFamily: 'Noto Sans',
@@ -1956,13 +2023,16 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                           const isStarsOnly = /^[\s*]+$/.test(strippedContent)
 
                           return (
-                            <div key={index} className="my-6 max-w-4xl mx-auto px-4 md:px-8 lg:px-10">
+                            <div key={index} className="my-6 max-w-3xl mx-auto px-4 md:px-8 lg:px-10">
                               <style jsx>{`
                                 .article-content-text {
                                   font-weight: 400;
                                 }
                                 .article-content-text :global(*) {
                                   font-weight: 400;
+                                }
+                                .article-content-text :global(p) {
+                                  margin-bottom: 1rem;
                                 }
                                 .article-content-text :global(p),
                                 .article-content-text :global(div),
@@ -2036,8 +2106,8 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                     {multipleImages.map((img, imgIndex) => (
                                       <div key={imgIndex} className="space-y-3">
                                         <div
-                                          className="w-full h-[500px] md:h-[600px] cursor-pointer"
-                                          onClick={() => handleImageClick(img.url, img.alt || `Image ${imgIndex + 1}`)}
+                                          className="w-full h-[500px] md:h-[600px] cursor-pointer relative group"
+                                          onClick={() => handleImageClick(img.url, img.alt || `Image ${imgIndex + 1}`, img.caption)}
                                         >
                                           <Image
                                             src={img.url}
@@ -2047,6 +2117,10 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                             className="w-full h-full object-cover md:rounded-lg"
                                             unoptimized
                                           />
+                                          {/* Zoom Icon */}
+                                          <div className="absolute bottom-2 right-2 bg-black/60 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <ZoomIn className="w-5 h-5" />
+                                          </div>
                                         </div>
                                       </div>
                                     ))}
@@ -2080,8 +2154,8 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                 {/* First image - full width */}
                                 <div className="space-y-3">
                                   <div
-                                    className="w-full h-[500px] md:h-[600px] cursor-pointer"
-                                    onClick={() => handleImageClick(multipleImages[0].url, multipleImages[0].alt || 'Image 1')}
+                                    className="w-full h-[500px] md:h-[600px] cursor-pointer relative group"
+                                    onClick={() => handleImageClick(multipleImages[0].url, multipleImages[0].alt || 'Image 1', multipleImages[0].caption)}
                                   >
                                     <Image
                                       src={multipleImages[0].url}
@@ -2091,6 +2165,10 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                       className="w-full h-auto max-h-[600px] object-cover"
                                       unoptimized
                                     />
+                                    {/* Zoom Icon */}
+                                    <div className="absolute bottom-2 right-2 bg-black/60 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                                      <ZoomIn className="w-5 h-5" />
+                                    </div>
                                   </div>
                                 </div>
 
@@ -2100,8 +2178,8 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                     {multipleImages.slice(1).map((img, imgIndex) => (
                                       <div key={imgIndex + 1} className="space-y-3">
                                         <div
-                                          className="w-full h-[500px] md:h-[600px] cursor-pointer"
-                                          onClick={() => handleImageClick(img.url, img.alt || `Image ${imgIndex + 2}`)}
+                                          className="w-full h-[500px] md:h-[600px] cursor-pointer relative group"
+                                          onClick={() => handleImageClick(img.url, img.alt || `Image ${imgIndex + 2}`, img.caption)}
                                         >
                                           <Image
                                             src={img.url}
@@ -2111,6 +2189,10 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                             className="w-full h-full object-cover md:rounded-lg"
                                             unoptimized
                                           />
+                                          {/* Zoom Icon */}
+                                          <div className="absolute bottom-2 right-2 bg-black/60 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <ZoomIn className="w-5 h-5" />
+                                          </div>
                                         </div>
                                       </div>
                                     ))}
@@ -2275,6 +2357,38 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                         // Extract Content array
                         const columnarContentArray = 'Content' in obj && Array.isArray(obj.Content) ? obj.Content : null
 
+                        console.log('##Rohit_Rocks## Columnar Text - Content Array Length:', columnarContentArray?.length)
+
+                        // Handle single column (when only 1 item in Content array)
+                        if (columnarContentArray && columnarContentArray.length === 1) {
+                          const singleColumn = columnarContentArray[0] as Record<string, unknown>
+                          const singleText = 'Paragraph' in singleColumn && typeof singleColumn.Paragraph === 'string' ? singleColumn.Paragraph : ''
+
+                          console.log('##Rohit_Rocks## Columnar Text (Single) - Text:', singleText.substring(0, 100))
+
+                          return (
+                            <div key={index} className="my-16 w-full flex justify-center">
+                              <div className="my-6 max-w-3xl mx-auto px-4">
+                                <div className="flex justify-center">
+                                  {/* Single Column */}
+                                  <div
+                                    className="text-foreground columnar-text-content max-w-2xl"
+                                    style={{
+                                      fontFamily: 'Noto Sans',
+                                      fontWeight: 400,
+                                      fontSize: `${fontSize}px`,
+                                      lineHeight: '170%',
+                                      letterSpacing: '-3%'
+                                    }}
+                                    dangerouslySetInnerHTML={{ __html: singleText }}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          )
+                        }
+
+                        // Handle two columns (when 2 or more items in Content array)
                         if (columnarContentArray && columnarContentArray.length >= 2) {
                           const leftColumn = columnarContentArray[0] as Record<string, unknown>
                           const rightColumn = columnarContentArray[1] as Record<string, unknown>
@@ -2284,7 +2398,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
 
                           return (
                             <div key={index} className="my-16 w-full flex justify-center">
-                              <div className="my-6 max-w-4xl mx-auto px-4 ">
+                              <div className="my-6 max-w-3xl mx-auto px-4 ">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                   {/* Left Column */}
                                   <div
@@ -2317,6 +2431,52 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                           )
                         }
 
+                        return null
+
+                      case 'modular-content.single-columnar-text':
+                        // Skip single columnar text if showing photos only
+                        if (showPhotos) return null
+
+                        // Debug logging
+                        console.log('##Rohit_Rocks## Single Columnar Text Component Found:', obj)
+                        console.log('##Rohit_Rocks## Has Content?', 'Content' in obj)
+                        console.log('##Rohit_Rocks## Content value:', obj.Content)
+
+                        // Extract Content array
+                        const singleColumnarContentArray = 'Content' in obj && Array.isArray(obj.Content) ? obj.Content : null
+
+                        console.log('##Rohit_Rocks## Single Columnar Content Array:', singleColumnarContentArray)
+
+                        if (singleColumnarContentArray && singleColumnarContentArray.length >= 1) {
+                          const singleColumn = singleColumnarContentArray[0] as Record<string, unknown>
+                          const singleText = 'Paragraph' in singleColumn && typeof singleColumn.Paragraph === 'string' ? singleColumn.Paragraph : ''
+
+                          console.log('##Rohit_Rocks## Single Column Data:', singleColumn)
+                          console.log('##Rohit_Rocks## Single Text:', singleText)
+
+                          return (
+                            <div key={index} className="my-16 w-full flex justify-center">
+                              <div className="my-6 max-w-3xl mx-auto px-4">
+                                <div className="flex justify-center">
+                                  {/* Single Column */}
+                                  <div
+                                    className="text-foreground columnar-text-content max-w-2xl"
+                                    style={{
+                                      fontFamily: 'Noto Sans',
+                                      fontWeight: 400,
+                                      fontSize: `${fontSize}px`,
+                                      lineHeight: '170%',
+                                      letterSpacing: '-3%'
+                                    }}
+                                    dangerouslySetInnerHTML={{ __html: singleText }}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          )
+                        }
+
+                        console.log('##Rohit_Rocks## Single Columnar Text - No valid content found')
                         return null
 
                       case 'modular-content.image':
@@ -2403,17 +2563,21 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                               <div key={index} className="my-16 w-full flex justify-center">
                                 <div className="w-full max-w-[768px] md:max-w-[768px] lg:max-w-[912px] xl:max-w-[970px] 2xl:max-w-[1016px]">
                                   <div
-                                    className="cursor-pointer"
-                                    onClick={() => handleImageClick(fullImgUrl, imgCaption || 'Article image')}
+                                    className="cursor-pointer relative group"
+                                    onClick={() => handleImageClick(fullImgUrl, imgCaption || 'Article image', imgCaption)}
                                   >
                                     <Image
                                       src={fullImgUrl}
                                       alt={imgCaption || 'Article image'}
                                       width={imgWidth || 1920}
                                       height={imgHeight || 1080}
-                                      className="rounded-lg shadow-md w-full h-auto max-h-[600px] object-cover"
+                                      className="md:rounded-lg shadow-md w-full h-auto max-h-[600px] object-cover"
                                       unoptimized
                                     />
+                                    {/* Zoom Icon */}
+                                    <div className="absolute bottom-2 right-2 bg-black/60 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                                      <ZoomIn className="w-5 h-5" />
+                                    </div>
                                   </div>
                                   {(imgCaption || imgPhotographer) && (
                                     <div className="mt-3 px-2">
@@ -2446,8 +2610,8 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                               <div className="w-full max-w-[768px] md:max-w-[768px] lg:max-w-[912px] xl:max-w-[970px] 2xl:max-w-[1016px] grid grid-cols-1 gap-4">
                                 <div className="space-y-3">
                                   <div
-                                    className="w-full cursor-pointer"
-                                    onClick={() => handleImageClick(fullWidthImageData.url, fullWidthImageData.alt || 'Full width image')}
+                                    className="w-full cursor-pointer relative group"
+                                    onClick={() => handleImageClick(fullWidthImageData.url, fullWidthImageData.alt || 'Full width image', fullWidthImageData.caption)}
                                   >
                                     <Image
                                       src={fullWidthImageData.url}
@@ -2457,6 +2621,10 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                       className="w-full h-auto max-h-[600px] object-cover"
                                       unoptimized
                                     />
+                                    {/* Zoom Icon */}
+                                    <div className="absolute bottom-2 right-2 bg-black/60 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                                      <ZoomIn className="w-5 h-5" />
+                                    </div>
                                   </div>
                                   {fullWidthImageData.caption && (
                                     <div className="mt-3">
@@ -2487,8 +2655,8 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                   {multCaptionImages.map((img, imgIndex) => (
                                     <div key={imgIndex} className="space-y-3">
                                       <div
-                                        className="w-full h-[500px] md:h-[600px] cursor-pointer"
-                                        onClick={() => handleImageClick(img.url, img.alt || `Image ${imgIndex + 1}`)}
+                                        className="w-full h-[500px] md:h-[600px] cursor-pointer relative group"
+                                        onClick={() => handleImageClick(img.url, img.alt || `Image ${imgIndex + 1}`, img.caption)}
                                       >
                                         <Image
                                           src={img.url}
@@ -2498,6 +2666,10 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                           className="w-full h-full object-cover md:rounded-lg"
                                           unoptimized
                                         />
+                                        {/* Zoom Icon */}
+                                        <div className="absolute bottom-2 right-2 bg-black/60 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                                          <ZoomIn className="w-5 h-5" />
+                                        </div>
                                       </div>
                                       {img.caption && (
                                         <div className="mt-3 px-2">
@@ -2520,8 +2692,8 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                 {/* First image - full width */}
                                 <div className="space-y-3">
                                   <div
-                                    className="w-full cursor-pointer"
-                                    onClick={() => handleImageClick(multCaptionImages[0].url, multCaptionImages[0].alt || 'Image 1')}
+                                    className="w-full cursor-pointer relative group"
+                                    onClick={() => handleImageClick(multCaptionImages[0].url, multCaptionImages[0].alt || 'Image 1', multCaptionImages[0].caption)}
                                   >
                                     <Image
                                       src={multCaptionImages[0].url}
@@ -2531,6 +2703,10 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                       className="w-full h-auto max-h-[600px] object-cover"
                                       unoptimized
                                     />
+                                    {/* Zoom Icon */}
+                                    <div className="absolute bottom-2 right-2 bg-black/60 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                                      <ZoomIn className="w-5 h-5" />
+                                    </div>
                                   </div>
                                   {multCaptionImages[0].caption && (
                                     <div className="mt-3 px-2">
@@ -2547,8 +2723,8 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                     {multCaptionImages.slice(1).map((img, imgIndex) => (
                                       <div key={imgIndex + 1} className="space-y-3">
                                         <div
-                                          className="w-full h-[300px] md:h-[400px] cursor-pointer"
-                                          onClick={() => handleImageClick(img.url, img.alt || `Image ${imgIndex + 2}`)}
+                                          className="w-full h-[300px] md:h-[400px] cursor-pointer relative group"
+                                          onClick={() => handleImageClick(img.url, img.alt || `Image ${imgIndex + 2}`, img.caption)}
                                         >
                                           <Image
                                             src={img.url}
@@ -2558,6 +2734,10 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                             className="w-full h-full object-cover md:rounded-lg"
                                             unoptimized
                                           />
+                                          {/* Zoom Icon */}
+                                          <div className="absolute bottom-2 right-2 bg-black/60 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <ZoomIn className="w-5 h-5" />
+                                          </div>
                                         </div>
                                         {img.caption && (
                                           <div className="mt-3 px-2">
@@ -2592,8 +2772,8 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                       <div key={imgIndex} className="space-y-3">
                                         {item.image && (
                                           <div
-                                            className="w-full h-[500px] md:h-[600px] cursor-pointer"
-                                            onClick={() => handleImageClick(item.image!.url, item.image!.alt || `Image ${imgIndex + 1}`)}
+                                            className="w-full h-[500px] md:h-[600px] cursor-pointer relative group"
+                                            onClick={() => handleImageClick(item.image!.url, item.image!.alt || `Image ${imgIndex + 1}`, item.caption)}
                                           >
                                             <Image
                                               src={item.image.url}
@@ -2603,6 +2783,10 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                               className="shadow-md w-full h-full object-cover md:rounded-lg"
                                               unoptimized
                                             />
+                                            {/* Zoom Icon */}
+                                            <div className="absolute bottom-2 right-2 bg-black/60 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                                              <ZoomIn className="w-5 h-5" />
+                                            </div>
                                           </div>
                                         )}
 
@@ -2653,17 +2837,21 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                 <div className="space-y-3">
                                   {columnarImages[0].image && (
                                     <div
-                                      className="cursor-pointer"
-                                      onClick={() => handleImageClick(columnarImages[0].image!.url, columnarImages[0].image!.alt || 'Image 1')}
+                                      className="cursor-pointer relative group"
+                                      onClick={() => handleImageClick(columnarImages[0].image!.url, columnarImages[0].image!.alt || 'Image 1', columnarImages[0].caption)}
                                     >
                                       <Image
                                         src={columnarImages[0].image.url}
                                         alt={columnarImages[0].image.alt || 'Image 1'}
                                         width={400}
                                         height={600}
-                                        className="rounded-lg shadow-md w-full h-auto max-h-[600px] object-cover"
+                                        className="md:rounded-lg shadow-md w-full h-auto max-h-[600px] object-cover"
                                         unoptimized
                                       />
+                                      {/* Zoom Icon */}
+                                      <div className="absolute bottom-2 right-2 bg-black/60 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <ZoomIn className="w-5 h-5" />
+                                      </div>
                                     </div>
                                   )}
 
@@ -2707,8 +2895,8 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                       <div key={imgIndex + 1} className="space-y-3">
                                         {item.image && (
                                           <div
-                                            className="w-full h-[300px] md:h-[400px] cursor-pointer"
-                                            onClick={() => handleImageClick(item.image!.url, item.image!.alt || `Image ${imgIndex + 2}`)}
+                                            className="w-full h-[300px] md:h-[400px] cursor-pointer relative group"
+                                            onClick={() => handleImageClick(item.image!.url, item.image!.alt || `Image ${imgIndex + 2}`, item.caption)}
                                           >
                                             <Image
                                               src={item.image.url}
@@ -2718,6 +2906,10 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                               className="shadow-md w-full h-full object-cover md:rounded-lg"
                                               unoptimized
                                             />
+                                            {/* Zoom Icon */}
+                                            <div className="absolute bottom-2 right-2 bg-black/60 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                                              <ZoomIn className="w-5 h-5" />
+                                            </div>
                                           </div>
                                         )}
 
@@ -2879,8 +3071,8 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                 {quoteImageData && (
                                   <div className="space-y-3">
                                     <div
-                                      className="w-full cursor-pointer"
-                                      onClick={() => handleImageClick(quoteImageData.url, quoteImageData.alt || 'Quote image')}
+                                      className="w-full cursor-pointer relative group"
+                                      onClick={() => handleImageClick(quoteImageData.url, quoteImageData.alt || 'Quote image', quoteImageData.caption)}
                                     >
                                       <Image
                                         src={quoteImageData.url}
@@ -2890,6 +3082,10 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                         className="w-full h-auto max-h-[600px] object-cover rounded-lg shadow-md"
                                         unoptimized
                                       />
+                                      {/* Zoom Icon */}
+                                      <div className="absolute bottom-2 right-2 bg-black/60 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <ZoomIn className="w-5 h-5" />
+                                      </div>
                                     </div>
                                     {quoteImageData.caption && (
                                       <div className="mt-3">
@@ -3262,7 +3458,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
 
       {/* Credits Section */}
       {showCreditsModal && (
-        <div id="credits-section" className="w-full bg-gray-50 dark:bg-gray-900 py-12 md:py-16">
+        <div id="credits-section" className="w-full bg-gray-50 dark:bg-gray-900 py-12 md:py-16 pb-24 md:pb-16">
           <div className="max-w-4xl mx-auto px-4 md:px-8">
             {/* Donate Section */}
             <div className="bg-white dark:bg-popover rounded-lg p-6 md:p-8 mb-8 shadow-sm">
@@ -3286,145 +3482,125 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
               </button>
             </div>
 
-            {/* All Authors - Dynamic - Grouped by Role */}
-            {groupedAuthors.map((group, index) => (
-              <div key={index} className="bg-white dark:bg-popover rounded-lg p-6 md:p-8 mb-6 shadow-sm">
-                <h3 className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-3 tracking-wider">
-                  {group.title || getTranslatedLabel('author', currentLocale)}
-                </h3>
-                <div className={`text-2xl font-bold mb-4 ${story.isStudent ? 'text-[#2F80ED]' : 'text-primary-PARI-Red'}`}>
-                  {group.names.map((name, nameIndex) => (
-                    <span key={nameIndex}>
-                      <button
-                        onClick={() => {
-                          console.log('##Rohit_Rocks## Author name clicked in credits:', name)
-                          router.push(`/articles?author=${encodeURIComponent(name)}`)
-                        }}
-                        className="hover:underline transition-all text-left"
-                      >
-                        <h3 className='text-2xl'>{name}</h3>
-                      </button>
-                      {nameIndex < group.names.length - 1 && ', '}
-                    </span>
-                  ))}
-                </div>
-                {/* Show bios for all authors in this group */}
-                {group.bios.filter(bio => bio).length > 0 && (
-                  <div className="space-y-4 mb-6">
-                    {group.bios.map((bio, bioIndex) => bio && (
-                      <div key={bioIndex}>
-                        {group.names.length > 1 && (
-                          <p className="font-semibold text-gray-900 dark:text-gray-100 mb-2">
-                            {group.names[bioIndex]}:
-                          </p>
-                        )}
+            {/* All Authors - Dynamic - Separate Cards */}
+            {groupedAuthors.map((group, groupIndex) => (
+              // Create separate card for each author in the group
+              group.names.map((name, authorIndex) => {
+                const bio = group.bios[authorIndex]
+                const email = group.emails[authorIndex]
+                const twitter = group.twitters[authorIndex]
+                const facebook = group.facebooks[authorIndex]
+                const instagram = group.instagrams[authorIndex]
+                const linkedin = group.linkedins[authorIndex]
+
+                const hasSocialLinks = email || twitter || facebook || instagram || linkedin
+
+                return (
+                  <div
+                    key={`${groupIndex}-${authorIndex}`}
+                    onClick={() => {
+                      router.push(`/articles?author=${encodeURIComponent(name)}`)
+                    }}
+                    className="bg-white dark:bg-popover rounded-lg p-6 md:p-8 mb-6 shadow-sm cursor-pointer hover:shadow-md transition-shadow"
+                  >
+                    <h3 className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-3 tracking-wider">
+                      {group.title || getTranslatedLabel('author', currentLocale)}
+                    </h3>
+                    <div className={`text-2xl font-bold mb-4 ${story.isStudent ? 'text-[#2F80ED]' : 'text-primary-PARI-Red'}`}>
+                      <h3 className='text-2xl'>{name}</h3>
+                    </div>
+
+                    {/* Show bio if available */}
+                    {bio && (
+                      <div className="mb-6">
                         <p
                           className="text-gray-700 dark:text-gray-300 leading-relaxed"
                           dangerouslySetInnerHTML={{ __html: stripHtmlCssWithStyledStrong(bio) }}
                         />
                       </div>
-                    ))}
+                    )}
+
+                    <div className="flex items-center gap-4">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation() // Prevent card click
+                          router.push(`/articles?author=${encodeURIComponent(name)}`)
+                        }}
+                        className={`px-6 py-2 border ${story.isStudent ? 'border-[#2F80ED] text-[#2F80ED] hover:bg-[#2F80ED]' : 'border-primary-PARI-Red text-primary-PARI-Red hover:bg-primary-PARI-Red'} rounded-full hover:text-white transition-colors text-sm font-medium flex items-center gap-2`}
+                      >
+                        {getTranslatedLabel('seeMoreStories', currentLocale)}
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                      </button>
+
+                      {/* Social Media Links - Dynamic from API */}
+                      {hasSocialLinks && (
+                        <div className="flex gap-3">
+                          {email && (
+                            <a
+                              href={`mailto:${email}`}
+                              onClick={(e) => e.stopPropagation()} // Prevent card click
+                              className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+                              title="Email"
+                            >
+                              <FiMail className="w-6 h-6" />
+                            </a>
+                          )}
+                          {instagram && (
+                            <a
+                              href={instagram}
+                              onClick={(e) => e.stopPropagation()} // Prevent card click
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+                              title="Instagram"
+                            >
+                              <FaInstagram className="w-6 h-6" />
+                            </a>
+                          )}
+                          {twitter && (
+                            <a
+                              href={twitter}
+                              onClick={(e) => e.stopPropagation()} // Prevent card click
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+                              title="Twitter/X"
+                            >
+                              <FaXTwitter className="w-6 h-6" />
+                            </a>
+                          )}
+                          {facebook && (
+                            <a
+                              href={facebook}
+                              onClick={(e) => e.stopPropagation()} // Prevent card click
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+                              title="Facebook"
+                            >
+                              <FaFacebookF className="w-6 h-6" />
+                            </a>
+                          )}
+                          {linkedin && (
+                            <a
+                              href={linkedin}
+                              onClick={(e) => e.stopPropagation()} // Prevent card click
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+                              title="LinkedIn"
+                            >
+                              <FaLinkedinIn className="w-6 h-6" />
+                            </a>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </div>
-                )}
-
-                <div className="flex items-center gap-4">
-                  <button
-                    onClick={() => {
-                      // If multiple authors, navigate to articles filtered by this role
-                      if (group.names.length > 1) {
-                        router.push(`/articles`)
-                      } else {
-                        router.push(`/authors/${group.names[0].toLowerCase().replace(/\s+/g, '-')}`)
-                      }
-                    }}
-                    className={`px-6 py-2 border ${story.isStudent ? 'border-[#2F80ED] text-[#2F80ED] hover:bg-[#2F80ED]' : 'border-primary-PARI-Red text-primary-PARI-Red hover:bg-primary-PARI-Red'} rounded-full hover:text-white transition-colors text-sm font-medium flex items-center gap-2`}
-                  >
-                    {getTranslatedLabel('seeMoreStories', currentLocale)}
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M5 12h14M12 5l7 7-7 7"/>
-                    </svg>
-                  </button>
-
-                  {/* Social Media Links - Dynamic from API */}
-                  {(() => {
-                    // Collect all unique social links from all authors in this group
-                    const allEmails = group.emails.filter(e => e)
-                    const allTwitters = group.twitters.filter(t => t)
-                    const allFacebooks = group.facebooks.filter(f => f)
-                    const allInstagrams = group.instagrams.filter(i => i)
-                    const allLinkedins = group.linkedins.filter(l => l)
-
-                    const hasSocialLinks = allEmails.length > 0 || allTwitters.length > 0 ||
-                                          allFacebooks.length > 0 || allInstagrams.length > 0 ||
-                                          allLinkedins.length > 0
-
-                    if (!hasSocialLinks) return null
-
-                    return (
-                      <div className="flex gap-3">
-                        {allEmails.map((email, idx) => (
-                          <a
-                            key={`email-${idx}`}
-                            href={`mailto:${email}`}
-                            className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
-                            title="Email"
-                          >
-                            <FiMail className="w-6 h-6" />
-                          </a>
-                        ))}
-                        {allInstagrams.map((instagram, idx) => (
-                          <a
-                            key={`instagram-${idx}`}
-                            href={instagram}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
-                            title="Instagram"
-                          >
-                            <FaInstagram className="w-6 h-6" />
-                          </a>
-                        ))}
-                        {allTwitters.map((twitter, idx) => (
-                          <a
-                            key={`twitter-${idx}`}
-                            href={twitter}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
-                            title="Twitter/X"
-                          >
-                            <FaXTwitter className="w-6 h-6" />
-                          </a>
-                        ))}
-                        {allFacebooks.map((facebook, idx) => (
-                          <a
-                            key={`facebook-${idx}`}
-                            href={facebook}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
-                            title="Facebook"
-                          >
-                            <FaFacebookF className="w-6 h-6" />
-                          </a>
-                        ))}
-                        {allLinkedins.map((linkedin, idx) => (
-                          <a
-                            key={`linkedin-${idx}`}
-                            href={linkedin}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
-                            title="LinkedIn"
-                          >
-                            <FaLinkedinIn className="w-6 h-6" />
-                          </a>
-                        ))}
-                      </div>
-                    )
-                  })()}
-                </div>
-              </div>
+                )
+              })
             ))}
           </div>
         </div>
@@ -3504,7 +3680,9 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                       const languageData = allLanguages.find(l => l.code === lang.code)
                       if (!languageData) return null
 
-                      const isSelected = currentLocale === lang.code
+                      // Use currentArticleLocale (extracted from slug) to check which language is currently being viewed
+                      // This matches the behavior of LanguageToggle which uses the site-wide locale
+                      const isSelected = currentArticleLocale === lang.code
                       const nativeName = languageData.names[1] || languageData.names[0]
                       const englishName = languageData.names[0]
 
@@ -3589,7 +3767,9 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                       const languageData = allLanguages.find(l => l.code === lang.code)
                       if (!languageData) return null
 
-                      const isSelected = currentLocale === lang.code
+                      // Use currentArticleLocale (extracted from slug) to check which language is currently being viewed
+                      // This matches the behavior of LanguageToggle which uses the site-wide locale
+                      const isSelected = currentArticleLocale === lang.code
                       const nativeName = languageData.names[1] || languageData.names[0]
                       const englishName = languageData.names[0]
 
@@ -3868,9 +4048,12 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
           </div>
 
           {/* Image Caption */}
-          {selectedImage.alt && (
+          {(selectedImage.caption || selectedImage.alt) && (
             <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black/70 text-white px-6 py-3 rounded-lg max-w-[90vw] text-center z-[100000]">
-              <p className="text-sm md:text-base">{selectedImage.alt}</p>
+              <div
+                className="text-sm md:text-base"
+                dangerouslySetInnerHTML={{ __html: stripHtmlCssWithStyledStrong(selectedImage.caption || selectedImage.alt) }}
+              />
             </div>
           )}
 
@@ -4846,6 +5029,14 @@ async function fetchStoryBySlug(slug: string) {
     const finalContent = Array.isArray(articleData.attributes.Modular_Content)
       ? articleData.attributes.Modular_Content
       : []
+
+    // Debug: Log all component types in Modular_Content
+    console.log('##Rohit_Rocks## Total Modular_Content items:', finalContent.length)
+    finalContent.forEach((item, index) => {
+      if (item && typeof item === 'object' && '__component' in item) {
+        console.log(`##Rohit_Rocks## Item ${index}: ${item.__component}`)
+      }
+    })
 
     const finalTitle = articleData.attributes.Title || "Untitled Story"
 

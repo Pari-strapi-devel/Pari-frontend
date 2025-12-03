@@ -773,7 +773,7 @@ console.log('Razorpay options:', options)
       <LanguageToggle />
 
       <div className="max-w-7xl mx-auto px-4 py-10 md:py-20">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-40">
           {/* Left Column - Main Content */}
           <div className="space-y-8">
             {/* Header */}

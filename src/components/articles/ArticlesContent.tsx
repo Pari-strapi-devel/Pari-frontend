@@ -205,6 +205,14 @@ export default function ArticlesContent() {
   const dates = searchParams?.get('dates') || null
   const content = searchParams?.get('content') || null
   const languages = searchParams?.get('languages') || null
+
+  // Log author parameter for debugging
+  useEffect(() => {
+    if (author) {
+      console.log('##Rohit_Rocks## Author parameter detected in URL:', author)
+      console.log('##Rohit_Rocks## Full URL search params:', searchParams?.toString())
+    }
+  }, [author, searchParams])
   
   // Reset to page 1 when filters change
   useEffect(() => {
@@ -665,6 +673,7 @@ export default function ArticlesContent() {
 
             if (author) {
               // Use axios params for author filter like search functionality
+              console.log('##Rohit_Rocks## Filtering articles by author:', author);
               const params: Record<string, string | number | boolean> = {
                 'filters[Authors][author_name][Name][$containsi]': author,
                 'pagination[page]': currentPage,
@@ -686,8 +695,9 @@ export default function ArticlesContent() {
                 'locale': currentLocale
               };
 
-              console.log('Making author filter API call with params:', params);
+              console.log('##Rohit_Rocks## Making author filter API call with params:', params);
               response = await axios.get(`${BASE_URL}api/articles`, { params });
+              console.log('##Rohit_Rocks## Articles returned for author:', response.data.data?.length || 0);
             } else {
               // Use the existing query structure for other filters
               const queryWithLocale = { ...query, locale: currentLocale };
@@ -706,23 +716,28 @@ export default function ArticlesContent() {
           }
           
           console.log('Number of articles returned:', allResults.length);
-          
+
           // Format the results
           const formattedStories = allResults.map((item: ArticleData) => {
             const attributes = item.attributes;
-            
+
             // Extract authors
             const authors = attributes.Authors
               ? 'data' in attributes.Authors
                 ? attributes.Authors.data?.map(
-                    (author: AuthorData) => 
+                    (author: AuthorData) =>
                       author.attributes?.author_name?.data?.attributes?.Name || 'PARI'
                   ) || ['PARI']
                 : (attributes.Authors as AuthorData[]).map(
-                    (author: AuthorData) => 
+                    (author: AuthorData) =>
                       author.author_name?.data?.attributes?.Name || 'PARI'
                   )
               : ['PARI'];
+
+            // Log authors if filtering by author
+            if (author) {
+              console.log('##Rohit_Rocks## Article:', attributes.Title, '| Authors:', authors.join(', '));
+            }
             
             // Extract localizations
             const localizations = attributes.localizations
