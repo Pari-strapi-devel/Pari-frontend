@@ -1534,7 +1534,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
               src={story.coverImage}
               alt={story.title}
               fill
-              className="object-cover object-center"
+              className="object-cover object-center md:rounded-none"
               priority
               unoptimized
             />
@@ -2470,7 +2470,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                       alt={imgCaption || 'Article image'}
                                       width={imgWidth || 1920}
                                       height={imgHeight || 1080}
-                                      className="rounded-lg shadow-md w-full h-auto max-h-[600px] object-cover"
+                                      className="md:rounded-lg shadow-md w-full h-auto max-h-[600px] object-cover"
                                       unoptimized
                                     />
                                     {/* Zoom Icon */}
@@ -2744,7 +2744,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                         alt={columnarImages[0].image.alt || 'Image 1'}
                                         width={400}
                                         height={600}
-                                        className="rounded-lg shadow-md w-full h-auto max-h-[600px] object-cover"
+                                        className="md:rounded-lg shadow-md w-full h-auto max-h-[600px] object-cover"
                                         unoptimized
                                       />
                                       {/* Zoom Icon */}
