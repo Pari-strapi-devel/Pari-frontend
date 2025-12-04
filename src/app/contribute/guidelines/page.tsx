@@ -319,27 +319,17 @@ const ContributeGuidelinesContent = () => {
             {/* Header */}
             <div className="mb-12">
               <h1
-                className={`text-foreground dark:text-white mb-6 ${fontClass}`}
-                style={{
-                  fontWeight: 700,
-                  fontSize: '49px',
-                  lineHeight: '112%',
-                  letterSpacing: '-4%'
-                }}
+                className={`text-foreground  mb-2 ${fontClass}`}
+               
               >
                 {guidelineData.attributes.Title}
               </h1>
-              <p
-                className={`text-discreet-text dark:text-gray-300 ${fontClass}`}
-                style={{
-                  fontWeight: 400,
-                  fontSize: '18px',
-                  lineHeight: '150%',
-                  letterSpacing: '-1%'
-                }}
+              <h2
+                className={`text-discreet-text  ${fontClass}`}
+                
               >
                 {guidelineData.attributes.Strap}
-              </p>
+              </h2>
             </div>
 
 
@@ -350,25 +340,15 @@ const ContributeGuidelinesContent = () => {
                 {/* Main Section */}
                 <section id={`section-${section.id}`} className="mb-12 scroll-mt-20">
                   <h3
-                    className={`text-foreground dark:text-white mb-6 ${fontClass}`}
-                    style={{
-                      fontWeight: 700,
-                      fontSize: '32px',
-                      lineHeight: '125%',
-                      letterSpacing: '-3%'
-                    }}
+                    className={`text-[28px] text-foreground  mb-2 ${fontClass}`}
+                   
                   >
                     {section.Title}
                   </h3>
                   {section.Content && (
                     <div
-                      className={`text-discreet-text dark:text-gray-300 mb-8 ${fontClass}`}
-                      style={{
-                        fontWeight: 400,
-                        fontSize: '16px',
-                        lineHeight: '175%',
-                        letterSpacing: '-1%'
-                      }}
+                      className={`text-discreet-text  mb-8 ${fontClass}`}
+                     
                     >
                       {renderHtmlContent(section.Content)}
                     </div>
@@ -378,17 +358,12 @@ const ContributeGuidelinesContent = () => {
                 {/* Subsections */}
                 {section.GuidelineSubsection.map((subsection) => (
                   <section key={subsection.id} id={`subsection-${subsection.id}`} className="mb-10 scroll-mt-20 pl-6 border-l-2 border-border dark:border-borderline">
-                    <h3
-                      className={`text-foreground dark:text-white mb-5 ${fontClass}`}
-                      style={{
-                        fontWeight: 700,
-                        fontSize: '24px',
-                        lineHeight: '130%',
-                        letterSpacing: '-2%'
-                      }}
+                    <h4
+                      className={`text-[24px] text-foreground  mb-2 ${fontClass}`}
+                     
                     >
                       {removeNumbering(subsection.Title)}
-                    </h3>
+                    </h4>
                     {subsection.Content && (
                       <div
                         className={`text-discreet-text dark:text-gray-300 ${fontClass}`}

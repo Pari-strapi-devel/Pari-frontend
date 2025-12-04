@@ -77,7 +77,7 @@ export function LibraryStory() {
                 </span>
               </div>
               
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6">
+              <h1 className="text-white mb-2">
                 {item?.attributes?.Title || 'Loading...'}
               </h1>
               

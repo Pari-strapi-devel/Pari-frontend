@@ -205,7 +205,7 @@ const TermsConditionsContent = () => {
 
         {/* Main Title */}
         {termsData && termsData.attributes.TOS_Banner_Section && (
-          <h1 className="font-noto font-bold text-[49px] leading-[112%] tracking-[-4%] text-foreground mb-8">
+          <h1 className="text-foreground mb-2">
             {termsData.attributes.TOS_Banner_Section.Banner_Title}
           </h1>
         )}

@@ -809,12 +809,12 @@ const VolunteerPageContent = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background py-10 md:py-10 px-4">
+    <div className="min-h-screen bg-background py-10 md:py-20 md:px-20 px-8">
       {/* Add floating language button */}
       <LanguageToggle />
 
       <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-2 md:gap-24 sm:gap-20 gap-8 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-2 lg:gap-40  gap-8 items-start">
           {/* Left Content Section */}
           <div className="md:px-8">
             {isLoadingPageData ? (
@@ -833,14 +833,14 @@ const VolunteerPageContent = () => {
               </div>
             ) : pageData ? (
               <>
-                <h1 className="text-4xl font-bold text-gray-900 dark:text-foreground mb-6">
+                <h1 className="text-foreground mb-2">
                   {pageData.attributes.Title}
                 </h1>
-                <p className="text-xl text-gray-600 dark:text-muted-foreground mb-6">
+                <h2 className=" text-discreet-text  mb-6">
                   {pageData.attributes.Strap}
-                </p>
+                </h2>
 
-                <div className="space-y-6 text-gray-600 dark:text-muted-foreground">
+                <div className="space-y-6 text-discreet-text ">
                   {renderModularContent(pageData.attributes.Modular_Content)}
                 </div>
               </>
@@ -924,9 +924,9 @@ const VolunteerPageContent = () => {
                 handleNextSection();
               }} className="space-y-6">
                 <div>
-                  <h3 className="text-sm font-medium text-gray-600 dark:text-muted-foreground mb-4 uppercase tracking-wide">
+                  <h6 className="  mb-4 ">
                     PERSONAL INFO
-                  </h3>
+                  </h6>
 
                   <div className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1091,9 +1091,9 @@ const VolunteerPageContent = () => {
                 handleNextSection();
               }} className="space-y-6">
                 <div>
-                  <h3 className="text-sm font-medium text-gray-600 dark:text-muted-foreground mb-4 uppercase tracking-wide">
+                  <h6 className="mb-4">
                     WHY VOLUNTEER
-                  </h3>
+                  </h6>
 
                   <div className="space-y-4">
                     <div>
@@ -1137,9 +1137,9 @@ const VolunteerPageContent = () => {
                 handleSubmitProfile();
               }} className="space-y-6">
                 <div>
-                  <h3 className="text-sm font-medium text-gray-600 dark:text-muted-foreground mb-4 uppercase tracking-wide">
+                  <h6 className="mb-4">
                     VOLUNTEERING DETAILS
-                  </h3>
+                  </h6>
 
                   <div className="space-y-6">
                     <div>
@@ -1280,7 +1280,7 @@ const VolunteerPageContent = () => {
                 <button
                   type="submit"
                   disabled={isSubmittingToBrevo || !formData.agreeToTerms}
-                  className={`w-full py-3 px-6 rounded-lg font-medium transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
+                  className={`w-full py-3 px-6 rounded-full font-medium transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
                     !formData.agreeToTerms
                       ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
                       : 'bg-primary-PARI-Red text-white hover:bg-primary-PARI-Red/90'

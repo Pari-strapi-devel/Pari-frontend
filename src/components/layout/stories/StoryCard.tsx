@@ -245,7 +245,7 @@ export function StoryCard({
              
 
               <div className="flex flex-col pt-3">
-                <div className="font-noto-sans text-[15px] pb-1 font-semibold leading-[170%] text-grey-300 tracking-[-0.04em] line-clamp-1">
+                <h5 className=" text-[15px] pb-1 text-grey-300 line-clamp-1">
                   {authors && authors.split(',').map((author, index) => (
                     <span key={index}>
                       <span
@@ -261,7 +261,7 @@ export function StoryCard({
                       {index < authors.split(',').length - 1 && ', '}
                     </span>
                   ))}
-                </div>
+                </h5>
 
                 <div className="flex items-center justify-between font-noto-sans text-sm text-">
                   <div className='flex flex-col'>

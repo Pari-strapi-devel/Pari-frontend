@@ -81,7 +81,7 @@ export function AudioVideoBigCard({
       href={`/article/${slug}`}
       className="group"
     >
-      <article className="grid grid-cols-1 md:grid-cols-2 justify-center gap-6 rounded-[8px] bg-background  transition-all duration-300 ">
+      <article className="grid grid-cols-1 md:grid-cols-2 justify-center md:gap-6 rounded-[8px] bg-background  transition-all duration-300 ">
         {/* Left side - Image */}
         <div className="relative h-[358px] rounded-2xl shadow-lg mb-8">
           <div className="relative h-full rounded-2xl overflow-hidden">
@@ -130,7 +130,7 @@ export function AudioVideoBigCard({
         </div>
 
         {/* Right side - Content */}
-        <div className="md:p-6 px-1 pb-6  flex flex-col mt-4 md:mt-0 lg:pr-36 gap-4">
+        <div className="md:p-6 px-1 md:pb-6  flex flex-col mt-4 md:mt-0 lg:pr-36 md:gap-4 gap-2">
         <div className="flex items-center gap-2 flex-wrap">
           {categories?.length > 0 && (
             <>
@@ -216,7 +216,7 @@ export function AudioVideoBigCard({
           )}
 
           <div className="flex flex-col  ">
-            <div className="font-noto-sans text-[15px] pb-1 font-semibold leading-[170%] text-grey-300 tracking-[-0.04em] line-clamp-1">
+            <h5 className=" text-[15px] pb-1 text-grey-300 line-clamp-1">
               {authors && authors.length > 0 ? (
                 authors.map((author, index) => (
                   <span key={index}>
@@ -236,7 +236,7 @@ export function AudioVideoBigCard({
               ) : (
                 'PARI'
               )}
-            </div>
+            </h5>
 
             <div className="font-noto-sans text-[14px] font-normal leading-[150%] tracking-[-0.03em] text-foreground flex items-center gap-1">
               {/* <span className="flex items-center gap-1">

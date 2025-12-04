@@ -148,11 +148,11 @@ export function PariLibrary() {
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2">
               <BookOpen className="h-6 w-6 text-primary-PARI-Red" />
-              <h6 className="text-[13px] font-noto-sans uppercase text-grey-300 leading-[100%] tracking-[-0.02em] font-semibold">
+              <h6 className="text-[13px] font-noto-sans uppercase text-grey-300 dark:text-discreet-text leading-[100%] tracking-[-0.02em] font-semibold">
                 {libraryData[0]?.sub_title}
               </h6>
             </div>
-            <h1 className="font-noto-sans md:text-[56px] text-[32px] font-bold leading-[122%] tracking-[-0.04em]">
+            <h1 className="text-foreground mb-2">
               {libraryData[0]?.headtitle}
             </h1>
             <p className="font-noto-sans max-w-[32.375rem] text-[16px] text-discreet-text font-normal leading-[170%] tracking-[-0.01em] ">
@@ -163,7 +163,7 @@ export function PariLibrary() {
           <div className="flex items-center h-full sm:pt-0 pt-6 gap-8">
             <Button 
               variant="secondary" 
-              className="text-sm h-[36px] ring-[2px] rounded-[48px] text-primary-PARI-Red"
+              className="text-sm h-[36px] ring-[1px] rounded-[48px] text-primary-PARI-Red"
             >
               {libraryData[0]?.Button}
               <ChevronRight className="h-4 w-4" />

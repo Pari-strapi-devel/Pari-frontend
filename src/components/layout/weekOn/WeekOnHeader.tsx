@@ -19,7 +19,7 @@ const WeekOnHeader: React.FC<WeekOnHeaderProps> = ({
 }) => {
   return (
     <div>
-        <div className="flex justify-between items-center mb-4">
+        <div className="flex justify-between items-center ">
             <div className='flex flex-row items-center gap-2'>
               {/* {header && (
                 <Image 
@@ -31,7 +31,7 @@ const WeekOnHeader: React.FC<WeekOnHeaderProps> = ({
                 />
               )} */}
               <CalendarDays className="h-6 w-7 text-primary-PARI-Red" />
-                <h6 className="text-[13px] font-noto-sans uppercase text-grey-300 leading-[100%] letter-spacing-[-2%] font-semibold">
+                <h6 className="text-[13px] font-noto-sans uppercase text-grey-300 dark:text-discreet-text leading-[100%] letter-spacing-[-2%] font-semibold">
                   {title}
                 </h6>
             </div>

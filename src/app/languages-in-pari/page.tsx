@@ -379,7 +379,7 @@ function LanguageUniverseContent() {
 
         {/* Title */}
         <h1
-          className="text-foreground mb-3"
+          className="text-foreground mb-2"
           style={{
             fontFamily: 'Noto Sans',
             fontWeight: 700,

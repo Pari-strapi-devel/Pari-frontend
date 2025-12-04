@@ -402,7 +402,7 @@ const BentoCard = ({
                 {title}
               </h3>
           <p className="text-discreet-text mb-4 line-clamp-2">{description}</p>
-          <div className="font-noto-sans font-semibold text-grey-300 text-[15px] mb-2 line-clamp-1">
+          <h5 className=" text-grey-300 text-[15px] mb-2 line-clamp-1">
             {authors && authors.length > 0 ? (
               authors.map((author, index) => (
                 <span key={index}>
@@ -422,7 +422,7 @@ const BentoCard = ({
             ) : (
               'PARI'
             )}
-          </div>
+          </h5>
           
           {/* Additional info */}
           <div className="flex flex-col font-noto-sans text-sm">

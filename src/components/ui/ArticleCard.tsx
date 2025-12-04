@@ -135,7 +135,7 @@ export function ArticleCard({
           )}
         <div>
         <div className="py-5 px-1 rounded-2xl">
-          <div className="flex flex-wrap gap-2 sm:mb-4 items-center justify-between">
+          <div className="flex flex-wrap gap-2 mb-2 items-center justify-between">
             <div className="flex items-center mt-4 gap-2">
             {categories?.length > 0 && (
               <>
@@ -205,7 +205,7 @@ export function ArticleCard({
           <div className=" ">
 
           <div className="flex flex-col md:h-[150px] h-[160px] gap-1 ">
-          <h3 className="font-noto-sans md:h-20 h-28 text-[28px] font-bold leading-[130%] tracking-[-0.04em] text-foreground line-clamp-">
+          <h3 className=" md:h-20 h-20 text-[1.975rem] text-foreground line-clamp-">
             {title}
           </h3>
           
@@ -216,7 +216,7 @@ export function ArticleCard({
               
           <div className="flex items-end justify-between font-noto-sans text-sm text-muted-foreground">
             <div>
-              <div className="font-noto-sans text-[15px] font-medium leading-[180%] line-clamp-1 tracking-[-0.02em] text-[#828282]">
+              <h5 className=" text-[15px]  line-clamp-1  text-grey-300">
                 {authors && authors.map((author, index) => (
                   <span key={index}>
                     <span
@@ -232,8 +232,8 @@ export function ArticleCard({
                     {index < authors.length - 1 && ', '}
                   </span>
                 ))}
-              </div>
-              <div className='flex gap-1 items-center w-fit text-primary-PARI-Red font-noto-sans text-[14px] font-medium leading-[160%] tracking-[-0.03em]'> 
+              </h5>
+              <div className='flex gap-1 items-center w-fit text-primary-PARI-Red pt-1'> 
                 {location && <p>{location}</p>}
                 {location && date && '•'}
                 {date && <p>{date}</p>}

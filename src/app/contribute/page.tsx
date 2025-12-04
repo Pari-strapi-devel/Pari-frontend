@@ -689,11 +689,11 @@ const ContributeContent = () => {
 
   return (
     <div
-      className={`min-h-screen bg-background py-10 md:py-20 px-4 ${fontClass}`}
+      className={`min-h-screen bg-background py-10 md:py-20 md:px-20 px-8 ${fontClass}`}
       dir={getTextDirection(currentLocale)}
     >
       <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-2  md:gap-20 sm:gap-20 gap-8 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-2  lg:gap-40  gap-10 items-start">
           {/* Left Content Section */}
           <div className="md:px-8">
             {isLoadingPageData ? (
@@ -724,7 +724,7 @@ const ContributeContent = () => {
                     const heroContent = getHeroContent();
                     return (
                       <>
-                        <h1 className=" text-foreground mb-2 ">
+                        <h1 className="text-foreground mb-2">
                           {heroContent.title}
                         </h1>
                         <h2 className=" text-muted-foreground mb-4">
@@ -734,7 +734,7 @@ const ContributeContent = () => {
                     );
                   })()}
                   <Link href="/contribute/guidelines">
-                    <button className="px-5 py-2 border-2 border-primary-PARI-Red text-primary-PARI-Red rounded-full hover:bg-primary-PARI-Red hover:text-white transition-colors duration-200 font-medium">
+                    <button className="px-5 py-2 border-1 border-primary-PARI-Red text-primary-PARI-Red rounded-full hover:bg-primary-PARI-Red hover:text-white transition-colors duration-200 font-medium">
                       See Content Guidelines
                     </button>
                   </Link>
@@ -765,13 +765,13 @@ const ContributeContent = () => {
 
           {/* Right Form Section */}
           <div className="bg-popover dark:bg-popover p-8 rounded-lg shadow-sm border border-border">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-semibold text-card-foreground">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-2xl text-card-foreground">
                 { 'Contribute content form'}
-              </h2>
+              </h3>
             </div>
 
-            <p className="text-muted-foreground mb-8">
+            <p className="text-muted-foreground mb-4">
               Help us build India&apos;s biggest archive by contributing your content
             </p>
 
@@ -807,9 +807,9 @@ const ContributeContent = () => {
             }} className="space-y-6">
               {/* Personal Info Section */}
               <div>
-                <h3 className="text-sm font-medium text-muted-foreground mb-4 uppercase tracking-wide">
+                <h6 className="text-grey-300 dark:text-discreet-text mb-4">
                   PERSONAL INFO
-                </h3>
+                </h6>
 
                 <div className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -933,9 +933,9 @@ const ContributeContent = () => {
 
               {/* Upload Content Section */}
               <div>
-                <h3 className="text-sm font-medium text-muted-foreground mb-4 uppercase tracking-wide">
+                <h6 className="text-grey-300 dark:text-discreet-text mb-4">
                   UPLOAD CONTENT
-                </h3>
+                </h6>
 
                 <div className="space-y-4">
                   <div>

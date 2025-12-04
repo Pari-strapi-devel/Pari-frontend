@@ -348,13 +348,13 @@ export function MakeInIndiaCard() {
           <div className='flex items-center justify-between'>
             <div className='flex items-center gap-2'>
               <Newspaper className="h-6 w-7 text-primary-PARI-Red" />
-              <h6 className=" text-grey-300 ">
+              <h6 className="text-grey-300 dark:text-discreet-text">
                 {strap}
               </h6>
             </div>
           </div>
           <div className="flex justify-between items-end">
-            <h1 className="font-noto-sans sm:text-[40px] md:text-[48px] lg:text-[56px] text-[32px] font-bold leading-[122%] tracking-[-0.04em]">
+            <h1 className="text-foreground mb-2">
               {sectionTitle}
             </h1>
             <div className="hidden md:flex items-end gap-3">
