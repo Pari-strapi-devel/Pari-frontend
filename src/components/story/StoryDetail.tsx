@@ -568,66 +568,47 @@ function groupAuthorsByRole(authors: Array<{
 }
 
 
-// Utility function to strip HTML/CSS elements from text while preserving formatting
+// Utility function to clean HTML while preserving original structure and tags
 function stripHtmlCssWithStyledStrong(text: string): string {
   if (typeof text !== 'string') return text;
 
   let result = text;
 
-  // Step 1: Remove style and script tags
+  // Only remove style and script tags (dangerous content)
   result = result.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '');
   result = result.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '');
 
-  // Step 2: Remove style and class attributes
-  result = result.replace(/style\s*=\s*"[^"]*"/gi, '');
-  result = result.replace(/style\s*=\s*'[^']*'/gi, '');
-  result = result.replace(/class\s*=\s*"[^"]*"/gi, '');
-  result = result.replace(/class\s*=\s*'[^']*'/gi, '');
+  // Remove inline style attributes only
+  result = result.replace(/\s*style\s*=\s*"[^"]*"/gi, '');
+  result = result.replace(/\s*style\s*=\s*'[^']*'/gi, '');
 
-  // Step 3: Clean up formatting tags (keep them, just remove attributes)
+  // Keep all original HTML tags: <p>, <strong>, <b>, <em>, <i>, <a>, <br>, etc.
+  // Just clean up any unwanted attributes from tags (except href for links)
+
+  // Clean p tags but keep them
+  result = result.replace(/<p[^>]*>/gi, '<p>');
+
+  // Clean strong/b/em/i tags but keep them
   result = result.replace(/<strong[^>]*>/gi, '<strong>');
-  // Don't keep <b> tags - they're not in the original content
-  result = result.replace(/<b[^>]*>[\s\S]*?<\/b>/gi, '');
+  result = result.replace(/<b[^>]*>/gi, '<b>');
   result = result.replace(/<em[^>]*>/gi, '<em>');
   result = result.replace(/<i[^>]*>/gi, '<i>');
 
-  // Step 4: Handle nbsp
+  // Keep <a> tags with href attribute
+  result = result.replace(/<a\s+[^>]*href\s*=\s*"([^"]*)"[^>]*>/gi, '<a href="$1">');
+  result = result.replace(/<a\s+[^>]*href\s*=\s*'([^']*)'[^>]*>/gi, '<a href="$1">');
+
+  // Clean br tags
+  result = result.replace(/<br\s*\/?>/gi, '<br>');
+
+  // Handle nbsp
   result = result.replace(/&nbsp;/gi, ' ');
 
-  // Step 5: Protect br tags before processing
-  result = result.replace(/<br\s*\/?>/gi, '|||BR|||');
+  // Remove div and span tags but keep their content
+  result = result.replace(/<\/?div[^>]*>/gi, '');
+  result = result.replace(/<\/?span[^>]*>/gi, '');
 
-  // Step 6: Clean up divs - remove opening div tags and replace closing divs with paragraph markers
-  result = result.replace(/<div[^>]*>/gi, '');
-  result = result.replace(/<\/div>/gi, '|||PARA|||');
-
-  // Step 7: Clean up spans
-  result = result.replace(/<span[^>]*>/gi, '');
-  result = result.replace(/<\/span>/gi, '');
-
-  // Step 8: Remove existing p tags and replace with paragraph markers
-  result = result.replace(/<\/p>\s*<p[^>]*>/gi, '|||PARA|||');
-  result = result.replace(/<p[^>]*>/gi, '');
-  result = result.replace(/<\/p>/gi, '|||PARA|||');
-
-  // Step 9: Clean up whitespace (but preserve BR markers)
-  result = result.replace(/\s+/g, ' ');
-
-  // Step 10: Restore br tags
-  result = result.replace(/\|\|\|BR\|\|\|/g, '<br>');
-
-  // Step 11: Clean up whitespace around br tags
-  result = result.replace(/<br>\s+/g, '<br>');
-  result = result.replace(/\s+<br>/g, '<br>');
-
-  // Step 12: Split by paragraph markers and wrap each in <p> tags
-  const paragraphs = result.split('|||PARA|||')
-    .map(p => p.trim())
-    .filter(p => p.length > 0)
-    .map(p => `<p>${p}</p>`)
-    .join('');
-
-  return paragraphs;
+  return result;
 }
 
 // Utility function to strip HTML/CSS without wrapping in <p> tags (for blockquotes, captions, etc.)
@@ -640,41 +621,33 @@ function stripHtmlCssNoParagraphs(text: string): string {
   result = result.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '');
   result = result.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '');
 
-  // Remove style and class attributes
-  result = result.replace(/style\s*=\s*"[^"]*"/gi, '');
-  result = result.replace(/style\s*=\s*'[^']*'/gi, '');
-  result = result.replace(/class\s*=\s*"[^"]*"/gi, '');
-  result = result.replace(/class\s*=\s*'[^']*'/gi, '');
+  // Remove inline style attributes only
+  result = result.replace(/\s*style\s*=\s*"[^"]*"/gi, '');
+  result = result.replace(/\s*style\s*=\s*'[^']*'/gi, '');
 
-  // Clean up formatting tags (keep them, just remove attributes)
+  // Keep formatting tags: strong, b, em, i
   result = result.replace(/<strong[^>]*>/gi, '<strong>');
-  result = result.replace(/<b[^>]*>[\s\S]*?<\/b>/gi, '');
+  result = result.replace(/<b[^>]*>/gi, '<b>');
   result = result.replace(/<em[^>]*>/gi, '<em>');
   result = result.replace(/<i[^>]*>/gi, '<i>');
+
+  // Keep <a> tags with href attribute
+  result = result.replace(/<a\s+[^>]*href\s*=\s*"([^"]*)"[^>]*>/gi, '<a href="$1">');
+  result = result.replace(/<a\s+[^>]*href\s*=\s*'([^']*)'[^>]*>/gi, '<a href="$1">');
+
+  // Clean br tags
+  result = result.replace(/<br\s*\/?>/gi, '<br>');
 
   // Handle nbsp
   result = result.replace(/&nbsp;/gi, ' ');
 
-  // Protect br tags before processing
-  result = result.replace(/<br\s*\/?>/gi, '|||BR|||');
+  // Remove div, span, p tags but keep content
+  result = result.replace(/<\/?div[^>]*>/gi, '');
+  result = result.replace(/<\/?span[^>]*>/gi, '');
+  result = result.replace(/<\/?p[^>]*>/gi, ' ');
 
-  // Remove div, span, p tags completely
-  result = result.replace(/<div[^>]*>/gi, '');
-  result = result.replace(/<\/div>/gi, ' ');
-  result = result.replace(/<span[^>]*>/gi, '');
-  result = result.replace(/<\/span>/gi, '');
-  result = result.replace(/<p[^>]*>/gi, '');
-  result = result.replace(/<\/p>/gi, ' ');
-
-  // Clean up whitespace
+  // Clean up extra whitespace
   result = result.replace(/\s+/g, ' ');
-
-  // Restore br tags
-  result = result.replace(/\|\|\|BR\|\|\|/g, '<br>');
-
-  // Clean up whitespace around br tags
-  result = result.replace(/<br>\s+/g, '<br>');
-  result = result.replace(/\s+<br>/g, '<br>');
 
   return result.trim();
 }
@@ -1520,7 +1493,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                 : story.isStudent
                   ? 'text-[#2F80ED] border-[#2F80ED]'
                   : 'text-primary-PARI-Red border-primary-PARI-Red'
-            } rounded-full cursor-pointer`}
+            } rounded-full p-2 cursor-pointer`}
             title="Toggle Photos"
           >
             <ImageIcon size={28} />
@@ -1545,19 +1518,19 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
           </button>
 
           {/* Font Size Controls */}
-          <div className={`flex items-center gap-2 md:gap-6 ${story.isStudent ? 'border-[#2F80ED]' : 'border-primary-PARI-Red'} cursor-pointer rounded-full`}>
+          <div className={`flex items-center  gap-2 md:gap-6 ${story.isStudent ? 'border-[#2F80ED]' : 'border-primary-PARI-Red'} cursor-pointer rounded-full`}>
             <button
               onClick={decreaseFontSize}
-              className={`${story.isStudent ? 'text-[#2F80ED]' : 'text-primary-PARI-Red'}  hover:opacity-70 transition-opacity font-bold leading-none`}
+              className={`${story.isStudent ? 'text-[#2F80ED]' : 'text-primary-PARI-Red'}  hover:opacity-70 transition-opacity font-medium cursor-pointer leading-none`}
               style={{ fontSize: '28px' }}
               title="Decrease Font Size"
             >
               −
             </button>
-            <span className={`${story.isStudent ? 'text-[#2F80ED]' : 'text-primary-PARI-Red'} font-bold`} style={{ fontSize: '24px' }}>T</span>
+            <span className={`${story.isStudent ? 'text-[#2F80ED]' : 'text-primary-PARI-Red'} font-medium`} style={{ fontSize: '24px' }}>T</span>
             <button
               onClick={increaseFontSize}
-              className={`${story.isStudent ? 'text-[#2F80ED]' : 'text-primary-PARI-Red'} hover:opacity-70 transition-opacity font-bold leading-none`}
+              className={`${story.isStudent ? 'text-[#2F80ED]' : 'text-primary-PARI-Red'} hover:opacity-70 transition-opacity font-medium cursor-pointer leading-none`}
               style={{ fontSize: '28px' }}
               title="Increase Font Size"
             >
@@ -2020,8 +1993,10 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
 
                   // Handle Strapi component types
                   if ('__component' in obj) {
-                    // Debug: log component type
-                    console.log('##Rohit_Rocks## Component type:', obj.__component, 'Data:', obj)
+                    // Debug: log component type and ALL keys in the object
+                    console.log('##Rohit_Rocks## Component type:', obj.__component)
+                    console.log('##Rohit_Rocks## Object keys:', Object.keys(obj))
+                    console.log('##Rohit_Rocks## Full Data:', JSON.stringify(obj, null, 2))
 
                     switch (obj.__component) {
                       case 'shared.rich-text':
@@ -2030,7 +2005,9 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                         // Skip text content if showing photos only
                         if (showPhotos) return null
 
-                        const textContent = obj.Paragraph || obj.Text || obj.content || obj.text || ''
+                        // Try all possible field names for text content
+                        const textContent = obj.Paragraph || obj.Text || obj.content || obj.text || obj.Body || obj.body || ''
+                        console.log('##Rohit_Rocks## Text content found:', typeof textContent === 'string' ? textContent.substring(0, 100) : 'NOT A STRING')
 
                         if (textContent && typeof textContent === 'string' && textContent.trim().length > 0) {
                           // Debug: Log original content for this article
@@ -2042,10 +2019,10 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                           // Check if content is only stars (asterisks)
                           const strippedContent = stripHtmlCssWithStyledStrong(textContent)
 
-                          // Debug: Log stripped content
-                          if (slug === 'in-kuno-park-no-one-gets-the-lions-share' && index < 3) {
-                            console.log('##Rohit_Rocks## Stripped content at index', index, ':', strippedContent.substring(0, 200))
-                          }
+                          // Debug: Log both original and stripped content
+                          console.log('##DEBUG## Original HTML:', textContent)
+                          console.log('##DEBUG## Stripped HTML:', strippedContent)
+                          console.log('##DEBUG## Has strong tag:', strippedContent.includes('<strong>'))
 
                           const isStarsOnly = /^[\s*]+$/.test(strippedContent)
 
@@ -2055,28 +2032,30 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                 .article-content-text {
                                   font-weight: 400;
                                 }
-                                .article-content-text :global(*) {
-                                  font-weight: 400;
-                                }
                                 .article-content-text :global(p) {
                                   margin-bottom: 1rem;
-                                }
-                                .article-content-text :global(p),
-                                .article-content-text :global(div),
-                                .article-content-text :global(span),
-                                .article-content-text :global(a) {
                                   font-weight: 400;
+                                }
+                                .article-content-text :global(a) {
+                                  color: #B91C1C;
+                                  text-decoration: underline;
+                                }
+                                .article-content-text :global(a:hover) {
+                                  color: #991B1B;
                                 }
                                 .article-content-text :global(strong),
                                 .article-content-text :global(b) {
-                                  font-weight: 700;
+                                  font-weight: 700 !important;
+                                }
+                                .article-content-text :global(em),
+                                .article-content-text :global(i) {
+                                  font-style: italic;
                                 }
                               `}</style>
                               <div
                                 className={`article-content-text text-discreet-text ${isStarsOnly ? 'text-center' : ''}`}
                                 style={{
                                   fontFamily: 'Noto Sans',
-                                  fontWeight: 400,
                                   fontSize: `${fontSize}px`,
                                   lineHeight: '170%',
                                   letterSpacing: '-3%'
@@ -2425,31 +2404,19 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
 
                           return (
                             <div key={index} className="my-12 w-full flex justify-center">
-                              <div className="my-6 max-w-3xl mx-auto px-4 ">
+                              <div className="my-6 max-w-3xl mx-auto  px-8 md:px-10 lg:px-16 ">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                   {/* Left Column */}
                                   <div
-                                    className="text-foreground columnar-text-content"
-                                    style={{
-                                      fontFamily: 'Noto Sans',
-                                      fontWeight: 400,
-                                      fontSize: `${fontSize}px`,
-                                      lineHeight: '170%',
-                                      letterSpacing: '-3%'
-                                    }}
+                                    className="text-foreground "
+                                    
                                     dangerouslySetInnerHTML={{ __html: leftText }}
                                   />
 
                                   {/* Right Column */}
                                   <div
-                                    className="text-foreground columnar-text-content"
-                                    style={{
-                                      fontFamily: 'Noto Sans',
-                                      fontWeight: 400,
-                                      fontSize: `${fontSize}px`,
-                                      lineHeight: '170%',
-                                      letterSpacing: '-3%'
-                                    }}
+                                    className="text-foreground "
+                                   
                                     dangerouslySetInnerHTML={{ __html: rightText }}
                                   />
                                 </div>
@@ -3478,7 +3445,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                 {getTranslatedLabel('donateToPARI', currentLocale)}
               </h3>
 
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+              <p className="text-discreet  mb-6">
                 {getTranslatedLabel('donateDisclaimer', currentLocale)}
               </p>
 
@@ -4711,6 +4678,12 @@ async function fetchStoryBySlug(slug: string) {
         },
         Modular_Content: {
           populate: {
+            // Text component fields
+            Text: true,
+            text: true,
+            Paragraph: true,
+            paragraph: true,
+            // Image related fields
             image: {
               populate: '*'
             },

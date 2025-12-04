@@ -10,7 +10,7 @@ import {
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu"
 import Image from 'next/image'
-import { ChevronDown, ChevronRight, Users, Video, Headphones, HandCoins, ScrollText, BookOpen, Camera, Newspaper, MessageCircle, Heart, GraduationCap, UserPlus } from "lucide-react"
+import { ChevronDown, ChevronRight, Users, Video, FileUp, Headphones, HandCoins, ScrollText, BookOpen, Camera, Newspaper, MessageCircle, FileText , GraduationCap, UserPlus } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from 'next/navigation'
 import { BASE_URL } from '@/config'
@@ -186,19 +186,19 @@ export function Navigation({ onLinkClick }: NavigationProps = {}) {
                   <div className="w-[270px] pr-4 pb-5 bg-white dark:bg-popover">
                     <LinkWithClose href="/articles" className="flex items-center gap-3 p-4 hover:bg-gray-100 dark:hover:bg-background border-b border-border cursor-pointer">
                       <Newspaper className="h-5 w-5 text-primary-PARI-Red" />
-                      <span className="font-medium">{getHeaderItemByIndex(0)?.subheader[0]?.name || 'All stories'}</span>
+                      <span className="font-medium text-md text-discreet-text">{getHeaderItemByIndex(0)?.subheader[0]?.name || 'All stories'}</span>
                     </LinkWithClose>
                     <LinkWithClose href="/articles?content=Video+Articles" className="flex items-center gap-3 p-4 hover:bg-gray-100 dark:hover:bg-background border-b border-border cursor-pointer">
                       <Video className="h-5 w-5 text-primary-PARI-Red" />
-                      <span className="font-medium">{getHeaderItemByIndex(0)?.subheader[1]?.name || 'Video stories'}</span>
+                      <span className="font-medium text-md text-discreet-text">{getHeaderItemByIndex(0)?.subheader[1]?.name || 'Video stories'}</span>
                     </LinkWithClose>
                     <LinkWithClose href="/articles?content=Audio+Articles" className="flex items-center gap-3 p-4 hover:bg-gray-100 dark:hover:bg-background border-b border-border cursor-pointer">
                       <Headphones className="h-5 w-5 text-primary-PARI-Red" />
-                      <span className="font-medium">{getHeaderItemByIndex(0)?.subheader[2]?.name || 'Audio stories'}</span>
+                      <span className="font-medium text-md text-discreet-text">{getHeaderItemByIndex(0)?.subheader[2]?.name || 'Audio stories'}</span>
                     </LinkWithClose>
                     <LinkWithClose href="/articles?content=Photo+Articles" className="flex items-center gap-3 p-4 hover:bg-gray-100 dark:hover:bg-background cursor-pointer">
                       <Camera className="h-5 w-5 text-primary-PARI-Red" />
-                      <span className="font-medium">{getHeaderItemByIndex(0)?.subheader[3]?.name || 'Photo stories'}</span>
+                      <span className="font-medium text-md text-discreet-text">{getHeaderItemByIndex(0)?.subheader[3]?.name || 'Photo stories'}</span>
                     </LinkWithClose>
                   </div>
                   <div className="w-[192px] h-[220px] relative">
@@ -295,15 +295,15 @@ export function Navigation({ onLinkClick }: NavigationProps = {}) {
                   <div className="w-[260px]  pr-4 bg-white dark:bg-popover border-border">
                     <LinkWithClose href="/team" className="flex items-center gap-3 p-6 hover:bg-gray-100 dark:hover:bg-background border-b border-border cursor-pointer">
                       <Users className="h-5 w-5 text-primary-PARI-Red" />
-                      <span className="font-medium">{getHeaderItemByIndex(3)?.subheader[1]?.name || 'Our Team'}</span>
+                      <span className="font-medium text-md text-discreet-text">{getHeaderItemByIndex(3)?.subheader[1]?.name || 'Our Team'}</span>
                     </LinkWithClose>
                     <LinkWithClose href="/award" className="flex items-center gap-3 p-6 hover:bg-gray-100 dark:hover:bg-background border-b border-border cursor-pointer">
                       <HandCoins className="h-5 w-5 text-primary-PARI-Red" />
-                      <span className="font-medium">{getHeaderItemByIndex(3)?.subheader[2]?.name || 'Contributors'}</span>
+                      <span className="font-medium text-md text-discreet-text">{getHeaderItemByIndex(3)?.subheader[2]?.name || 'Contributors'}</span>
                     </LinkWithClose>
                     <LinkWithClose href="/acknowledgements" className="flex items-center gap-3 p-6 hover:bg-gray-100 dark:hover:bg-background cursor-pointer">
                       <ScrollText className="h-5 w-5 text-primary-PARI-Red" />
-                      <span className="font-medium">{getHeaderItemByIndex(3)?.subheader[3]?.name || 'Acknowledgements'}</span>
+                      <span className="font-medium text-md text-discreet-text">{getHeaderItemByIndex(3)?.subheader[3]?.name || 'Acknowledgements'}</span>
                     </LinkWithClose>
                   </div>
                   <div className="w-[192px] h-[210px] relative">
@@ -329,24 +329,24 @@ export function Navigation({ onLinkClick }: NavigationProps = {}) {
                 <div className="flex h-[280px]">
                   <div className="w-[270px] pr-4 pb-5 bg-white dark:bg-popover">
                     <LinkWithClose href="/contribute" className="flex items-center gap-3 p-4 hover:bg-gray-100 dark:hover:bg-background border-b border-border cursor-pointer">
-                      <MessageCircle className="h-5 w-5 text-primary-PARI-Red" />
-                      <span className="font-medium">{getHeaderItemByIndex(4)?.subheader[0]?.name || 'Contact'}</span>
+                      <FileUp className="h-5 w-5 text-primary-PARI-Red" />
+                      <span className="font-medium text-md text-discreet-text">{getHeaderItemByIndex(4)?.subheader[0]?.name || 'Contact'}</span>
                     </LinkWithClose>
                     <LinkWithClose href="/contribute/guidelines" className="flex items-center gap-3 p-4 hover:bg-gray-100 dark:hover:bg-background border-b border-border cursor-pointer">
-                      <Heart className="h-5 w-5 text-primary-PARI-Red" />
-                      <span className="font-medium">{getHeaderItemByIndex(4)?.subheader[1]?.name || 'Donate'}</span>
+                      <FileText className="h-5 w-5 text-primary-PARI-Red" />
+                      <span className="font-medium text-md text-discreet-text">{getHeaderItemByIndex(4)?.subheader[1]?.name || 'Donate'}</span>
                     </LinkWithClose>
                     <LinkWithClose href="/volunteer" className="flex items-center gap-3 p-4 hover:bg-gray-100 dark:hover:bg-background border-b border-border cursor-pointer">
                       <UserPlus className="h-5 w-5 text-primary-PARI-Red" />
-                      <span className="font-medium">{getHeaderItemByIndex(4)?.subheader[2]?.name || 'Volunteer'}</span>
+                      <span className="font-medium text-md text-discreet-text">{getHeaderItemByIndex(4)?.subheader[2]?.name || 'Volunteer'}</span>
                     </LinkWithClose>
                     <LinkWithClose href="/intern-with-us" className="flex items-center gap-3 p-4 hover:bg-gray-100 dark:hover:bg-background border-b border-border cursor-pointer">
                       <GraduationCap className="h-5 w-5 text-primary-PARI-Red" />
-                      <span className="font-medium">{getHeaderItemByIndex(4)?.subheader[3]?.name || 'Intern'}</span>
+                      <span className="font-medium text-md text-discreet-text">{getHeaderItemByIndex(4)?.subheader[3]?.name || 'Intern'}</span>
                     </LinkWithClose>
                     <LinkWithClose href="/contact-us" className="flex items-center gap-3 p-4 hover:bg-gray-100 dark:hover:bg-background cursor-pointer">
                       <MessageCircle className="h-5 w-5 text-primary-PARI-Red" />
-                      <span className="font-medium">{getHeaderItemByIndex(4)?.subheader[4]?.name || 'Contact'}</span>
+                      <span className="font-medium text-md text-discreet-text">{getHeaderItemByIndex(4)?.subheader[4]?.name || 'Contact'}</span>
                     </LinkWithClose>
                   </div>
                   <div className="w-[215px] h-[278px] relative">
@@ -373,10 +373,10 @@ export function Navigation({ onLinkClick }: NavigationProps = {}) {
         {/* Stories Section */}
         <div className="border-b border-border">
           <div
-            className="p-4 flex justify-between items-center text-grey-300 cursor-pointer"
+            className="p-4 flex justify-between items-center  text-foreground cursor-pointer"
             onClick={() => toggleMobileItem('stories')}
           >
-            <h2 className="text-lg font-semibold">{getHeaderItemByIndex(0)?.title || 'Stories'}</h2>
+            <h2 className="text-md font-medium">{getHeaderItemByIndex(0)?.title || 'Stories'}</h2>
             {isMobileItemExpanded('stories') ?
               <ChevronDown className="h-5 w-5" /> :
               <ChevronRight className="h-5 w-5" />
@@ -388,26 +388,26 @@ export function Navigation({ onLinkClick }: NavigationProps = {}) {
             <div className="w-full bg-white dark:bg-popover border-border">
               <LinkWithClose href="/articles" className="flex items-center gap-3 p-4 hover:bg-gray-100 dark:hover:bg-background border-b border-border cursor-pointer">
                 <BookOpen className="h-5 w-5 text-primary-PARI-Red" />
-                <span className="font-medium">{getHeaderItemByIndex(0)?.subheader[0]?.name || 'All stories'}</span>
+                <span className="font-medium text-md text-discreet-text">{getHeaderItemByIndex(0)?.subheader[0]?.name || 'All stories'}</span>
               </LinkWithClose>
               <LinkWithClose href="/articles?content=Video+Articles" className="flex items-center gap-3 p-4 hover:bg-gray-100 dark:hover:bg-background border-b border-border cursor-pointer">
                 <Video className="h-5 w-5 text-primary-PARI-Red" />
-                <span className="font-medium">{getHeaderItemByIndex(0)?.subheader[1]?.name || 'Video stories'}</span>
+                <span className="font-medium text-md text-discreet-text">{getHeaderItemByIndex(0)?.subheader[1]?.name || 'Video stories'}</span>
               </LinkWithClose>
               <LinkWithClose href="/articles?content=Audio+Articles" className="flex items-center gap-3 p-4 hover:bg-gray-100 dark:hover:bg-background border-b border-border cursor-pointer">
                 <Headphones className="h-5 w-5 text-primary-PARI-Red" />
-                <span className="font-medium">{getHeaderItemByIndex(0)?.subheader[2]?.name || 'Audio stories'}</span>
+                <span className="font-medium text-md text-discreet-text">{getHeaderItemByIndex(0)?.subheader[2]?.name || 'Audio stories'}</span>
               </LinkWithClose>
               <LinkWithClose href="/articles?content=Photo+Articles" className="flex items-center gap-3 p-4 hover:bg-gray-100 dark:hover:bg-background cursor-pointer">
                 <Camera className="h-5 w-5 text-primary-PARI-Red" />
-                <span className="font-medium">{getHeaderItemByIndex(0)?.subheader[3]?.name || 'Photo stories'}</span>
+                <span className="font-medium text-md text-discreet-text">{getHeaderItemByIndex(0)?.subheader[3]?.name || 'Photo stories'}</span>
               </LinkWithClose>
             </div>
            <div className="w-full h-[180px] mt-1 relative">
             <LinkWithClose href="/language-universe" className="cursor-pointer">
               <div className="relative w-full h-full">
                 <Image
-                  src="/images/categories/navigation-imgs/Languages.jpeg"
+                  src="/images/categories/navigation-imgs/story-of-pari.jpeg"
                   alt="PARI Languages"
                   fill
                   className="object-cover rounded-[8px]"
@@ -423,10 +423,10 @@ export function Navigation({ onLinkClick }: NavigationProps = {}) {
         {/* Get Involved Section */}
         <div className="border-b border-border">
           <div
-            className="p-4 flex justify-between items-center text-grey-300 cursor-pointer"
+            className="p-4 flex justify-between items-center text-foreground cursor-pointer"
             onClick={() => toggleMobileItem('get-involved')}
           >
-            <h2 className="text-lg font-semibold">{getHeaderItemByIndex(4)?.title || 'Get Involved'}</h2>
+            <h2 className="text-md font-medium">{getHeaderItemByIndex(4)?.title || 'Get Involved'}</h2>
             {isMobileItemExpanded('get-involved') ?
               <ChevronDown className="h-5 w-5" /> :
               <ChevronRight className="h-5 w-5" />
@@ -437,24 +437,24 @@ export function Navigation({ onLinkClick }: NavigationProps = {}) {
             <div className="grid grid-cols-1 px-4 py-3 gap-2">
             <div className="w-full bg-white dark:bg-popover border-border">
               <LinkWithClose href="/contribute" className="flex items-center gap-3 p-4 hover:bg-gray-100 dark:hover:bg-background border-b border-border cursor-pointer">
-                <MessageCircle className="h-5 w-5 text-primary-PARI-Red" />
-                <span className="font-medium">{getHeaderItemByIndex(4)?.subheader[0]?.name || 'Contact'}</span>
+                <FileUp className="h-5 w-5 text-primary-PARI-Red" />
+                <span className="font-medium text-md text-discreet-text">{getHeaderItemByIndex(4)?.subheader[0]?.name || 'Contact'}</span>
               </LinkWithClose>
               <LinkWithClose href="/contribute/guidelines" className="flex items-center gap-3 p-4 hover:bg-gray-100 dark:hover:bg-background border-b border-border cursor-pointer">
-                <Heart className="h-5 w-5 text-primary-PARI-Red" />
-                <span className="font-medium">{getHeaderItemByIndex(4)?.subheader[1]?.name || 'Donate'}</span>
+                <FileText className="h-5 w-5 text-primary-PARI-Red" />
+                <span className="font-medium text-md text-discreet-text">{getHeaderItemByIndex(4)?.subheader[1]?.name || 'Donate'}</span>
               </LinkWithClose>
               <LinkWithClose href="/volunteer" className="flex items-center gap-3 p-4 hover:bg-gray-100 dark:hover:bg-background border-b border-border cursor-pointer">
                 <UserPlus className="h-5 w-5 text-primary-PARI-Red" />
-                <span className="font-medium">{getHeaderItemByIndex(4)?.subheader[2]?.name || 'Volunteer'}</span>
+                <span className="font-medium text-md text-discreet-text">{getHeaderItemByIndex(4)?.subheader[2]?.name || 'Volunteer'}</span>
               </LinkWithClose>
               <LinkWithClose href="/intern-with-us" className="flex items-center gap-3 p-4 hover:bg-gray-100 dark:hover:bg-background border-b border-border cursor-pointer">
                 <GraduationCap className="h-5 w-5 text-primary-PARI-Red" />
-                <span className="font-medium">{getHeaderItemByIndex(4)?.subheader[3]?.name || 'Intern'}</span>
+                <span className="text-discreet-text text-md font-medium">{getHeaderItemByIndex(4)?.subheader[3]?.name || 'Intern'}</span>
               </LinkWithClose>
               <LinkWithClose href="/contact-us" className="flex items-center gap-3 p-4 hover:bg-gray-100 dark:hover:bg-background cursor-pointer">
                 <MessageCircle className="h-5 w-5 text-primary-PARI-Red" />
-                <span className="font-medium">{getHeaderItemByIndex(4)?.subheader[4]?.name || 'Contact'}</span>
+                <span className="font-medium text-md text-discreet-text">{getHeaderItemByIndex(4)?.subheader[4]?.name || 'Contact'}</span>
               </LinkWithClose>
             </div>
            <div className="w-full h-[180px] mt-1 relative">
@@ -476,10 +476,10 @@ export function Navigation({ onLinkClick }: NavigationProps = {}) {
         {/* About Section */}
         <div className="border-b border-border">
           <div
-            className="p-4 flex justify-between items-center text-grey-300 cursor-pointer"
+            className="p-4 flex justify-between items-center text-foreground cursor-pointer"
             onClick={() => toggleMobileItem('about')}
           >
-            <h2 className="text-lg font-semibold">{getHeaderItemByIndex(3)?.title || 'About'}</h2>
+            <h2 className="text-md font-medium">{getHeaderItemByIndex(3)?.title || 'About'}</h2>
             {isMobileItemExpanded('about') ?
               <ChevronDown className="h-5 w-5" /> :
               <ChevronRight className="h-5 w-5" />
@@ -491,15 +491,15 @@ export function Navigation({ onLinkClick }: NavigationProps = {}) {
         <div className="w-full bg-white pr-4 dark:bg-popover border-border">
           <LinkWithClose href="/team" className="flex items-center gap-3 p-4 hover:bg-gray-100 dark:hover:bg-background border-b border-border cursor-pointer">
             <Users className="h-5 w-5 text-primary-PARI-Red" />
-            <span className="font-medium">{getHeaderItemByIndex(3)?.subheader[1]?.name || 'Our Team'}</span>
+            <span className="font-medium text-md text-discreet-text">{getHeaderItemByIndex(3)?.subheader[1]?.name || 'Our Team'}</span>
           </LinkWithClose>
           <LinkWithClose href="/contributors" className="flex items-center gap-3 p-4 hover:bg-gray-100 dark:hover:bg-background border-b border-border cursor-pointer">
             <HandCoins className="h-5 w-5 text-primary-PARI-Red" />
-            <span className="font-medium">{getHeaderItemByIndex(3)?.subheader[2]?.name || 'Contributors'}</span>
+            <span className="font-medium text-md text-discreet-text">{getHeaderItemByIndex(3)?.subheader[2]?.name || 'Contributors'}</span>
           </LinkWithClose>
           <LinkWithClose href="/acknowledgements" className="flex items-center gap-3 p-4 hover:bg-gray-100 dark:hover:bg-background border-b border-border cursor-pointer">
             <ScrollText className="h-5 w-5 text-primary-PARI-Red" />
-            <span className="font-medium">{getHeaderItemByIndex(3)?.subheader[3]?.name || 'Acknowledgements'}</span>
+            <span className="font-medium text-md text-discreet-text">{getHeaderItemByIndex(3)?.subheader[3]?.name || 'Acknowledgements'}</span>
           </LinkWithClose>
         </div>
         <div className="w-full h-[180px] border-border border-t mt-2 relative">
@@ -517,10 +517,10 @@ export function Navigation({ onLinkClick }: NavigationProps = {}) {
         {/* Resources Section */}
         <div className="border-b border-border">
           <div
-            className="p-4 flex justify-between items-center text-grey-300 cursor-pointer"
+            className="p-4 flex justify-between items-center text-foreground cursor-pointer"
             onClick={() => toggleMobileItem('resources')}
           >
-            <h2 className="text-lg font-semibold">{getHeaderItemByIndex(1)?.title || 'Resources'}</h2>
+            <h2 className="text-md font-medium">{getHeaderItemByIndex(1)?.title || 'Resources'}</h2>
             {isMobileItemExpanded('resources') ?
               <ChevronDown className="h-5 w-5" /> :
               <ChevronRight className="h-5 w-5" />
