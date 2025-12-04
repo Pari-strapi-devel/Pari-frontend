@@ -1902,7 +1902,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                 </div>
                                 {imageData!.caption && (
                                   <div className="mt-3 px-2">
-                                    <div className={`text-sm ${story.isStudent ? 'text-[#2F80ED]/80 dark:text-[#2F80ED]/80' : 'text-primary-PARI-Red/80 dark:text-primary-PARI-Red/80'} italic leading-relaxed`}>
+                                    <div className={`text-sm text-discreet-text `}>
                                       {imageData!.caption}
                                     </div>
                                   </div>
@@ -1972,7 +1972,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                   </div>
                                   {imageData!.caption && (
                                     <div className="mt-3 px-2">
-                                      <div className={`text-sm ${story.isStudent ? 'text-[#2F80ED]/80 dark:text-[#2F80ED]/80' : 'text-primary-PARI-Red/80 dark:text-primary-PARI-Red/80'} italic leading-relaxed`}>
+                                      <div className={`text-sm text-discreet-text`}>
                                         {imageData!.caption}
                                       </div>
                                     </div>
@@ -2155,7 +2155,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
 
                                   {/* Shared caption and credits below all images */}
                                   {(sharedCaption || singleCaptionCredits) && (
-                                    <div className="mt-3 px-2">
+                                    <div className="mt-3 md:px-10 px-8">
                                       {singleCaptionCredits && (
                                         <p className={`text-sm   mb-1`}>
                                         {singleCaptionCredits}
@@ -2163,7 +2163,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                       )}
                                       {sharedCaption && (
                                         <div
-                                          className={`text-sm ${story.isStudent ? 'text-[#2F80ED]/80 dark:text-[#2F80ED]/80' : 'text-primary-PARI-Red/80 dark:text-primary-PARI-Red/80'} italic leading-relaxed`}
+                                          className={`text-sm text-caption `}
                                           dangerouslySetInnerHTML={{ __html: stripHtmlCssWithStyledStrong(sharedCaption) }}
                                         />
                                       )}
@@ -2228,15 +2228,15 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
 
                                 {/* Shared caption and credits below all images */}
                                 {(sharedCaption || singleCaptionCredits) && (
-                                  <div className="mt-3 px-2">
+                                  <div className="mt-3 md:px-10 px-8">
                                     {singleCaptionCredits && (
-                                      <p className={`text-sm ${story.isStudent ? 'text-[#2F80ED] dark:text-[#2F80ED]' : 'text-primary-PARI-Red dark:text-pari-red'} font-bold mb-1`}>
-                                        Photo: {singleCaptionCredits}
+                                      <p className={`text-sm text-primary-PARI-Red  mb-1`}>
+                                        {singleCaptionCredits}
                                       </p>
                                     )}
                                     {sharedCaption && (
                                       <div
-                                        className={`text-sm ${story.isStudent ? 'text-[#2F80ED]/80 dark:text-[#2F80ED]/80' : 'text-primary-PARI-Red/80 dark:text-primary-PARI-Red/80'} italic leading-relaxed`}
+                                        className={`text-sm text-caption `}
                                         dangerouslySetInnerHTML={{ __html: stripHtmlCssWithStyledStrong(sharedCaption) }}
                                       />
                                     )}
@@ -2609,13 +2609,13 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                   {(imgCaption || imgPhotographer) && (
                                     <div className="mt-3 px-2">
                                       {imgPhotographer && (
-                                        <p className={`text-sm ${story.isStudent ? 'text-[#2F80ED] dark:text-[#2F80ED]' : 'text-primary-PARI-Red dark:text-pari-red'} font-bold mb-1`}>
-                                          Photo: {imgPhotographer}
+                                        <p className={`text-sm text-primary-PARI-Red mb-1`}>
+                                           {imgPhotographer}
                                         </p>
                                       )}
                                       {imgCaption && (
                                         <div
-                                          className={`text-sm ${story.isStudent ? 'text-[#2F80ED]/80 dark:text-[#2F80ED]/80' : 'text-primary-PARI-Red/80 dark:text-primary-PARI-Red/80'} italic leading-relaxed`}
+                                          className={`text-sm text-caption `}
                                           dangerouslySetInnerHTML={{ __html: stripHtmlCssWithStyledStrong(imgCaption) }}
                                         />
                                       )}
@@ -2700,7 +2700,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                       </div>
                                       {img.caption && (
                                         <div className="mt-3 px-2">
-                                          <p className={`text-sm ${story.isStudent ? 'text-[#2F80ED] dark:text-[#2F80ED]' : 'text-primary-PARI-Red dark:text-pari-red'} italic leading-relaxed`}>
+                                          <p className={`text-sm text-caption `}>
                                             {img.caption}
                                           </p>
                                         </div>
@@ -2737,7 +2737,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                   </div>
                                   {multCaptionImages[0].caption && (
                                     <div className="mt-3 px-2">
-                                      <p className={`text-sm ${story.isStudent ? 'text-[#2F80ED] dark:text-[#2F80ED]' : 'text-primary-PARI-Red dark:text-pari-red'} italic leading-relaxed`}>
+                                      <p className={`text-sm text-caption `}>
                                         {multCaptionImages[0].caption}
                                       </p>
                                     </div>
@@ -2768,7 +2768,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                         </div>
                                         {img.caption && (
                                           <div className="mt-3 px-2">
-                                            <p className={`text-sm ${story.isStudent ? 'text-[#2F80ED] dark:text-[#2F80ED]' : 'text-primary-PARI-Red dark:text-pari-red'} italic leading-relaxed`}>
+                                            <p className={`text-sm text-caption `}>
                                               {img.caption}
                                             </p>
                                           </div>
