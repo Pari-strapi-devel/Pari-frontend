@@ -675,8 +675,8 @@ const ContactForm = () => {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 lg:max-w-[1232px] max-w-2xl mx-auto px-4 lg:px-0 py-10 sm:py-12 lg:py-16">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-1 lg:gap-40 items-center min-h-[calc(100vh-10rem)] lg:min-h-[calc(100vh-40rem)]">
+      <div className="relative z-10 lg:max-w-[1232px] max-w-2xl mx-auto px-4 sm:px-6 lg:px-0 py-6 sm:py-10 lg:py-16">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-40 items-center min-h-[calc(100vh-10rem)] lg:min-h-[calc(100vh-40rem)]">
           {/* Left Content Section - Get in touch with us */}
           <div className="text-white flex flex-col justify-stretch h-full relative   space-y-8">
             {/* Main Title */}
@@ -765,8 +765,8 @@ const ContactForm = () => {
           </div>
 
           {/* Right Form Section */}
-          <div className='flex flex-col justify-center py-8 md:py-20  h-full'>
-          <div className="bg-white dark:bg-popover p-8 rounded-2xl w-full max-w-2xl mx-auto shadow-xl" style={{ boxShadow: '0px 4px 20px 0px rgba(0,0,0,0.1)' }}>
+          <div className='flex flex-col justify-center py-6 sm:py-8 md:py-20 h-full'>
+          <div className="bg-white dark:bg-popover p-4 sm:p-6 md:p-8 rounded-2xl w-full max-w-2xl mx-auto shadow-xl" style={{ boxShadow: '0px 4px 20px 0px rgba(0,0,0,0.1)' }}>
             <div className="mb-6">
               <h4 className="text-2xl font-bold text-gray-900 dark:text-foreground mb-2">
                 Contact us
@@ -992,9 +992,9 @@ const ContactForm = () => {
                     }}
                     className="space-y-4 sm:space-y-6"
                   >
-              <div className="space-y-6">
+              <div className="space-y-4 sm:space-y-6">
                 {/* First Name and Last Name Row */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="relative">
                     <FiUser className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-muted-foreground h-4 w-4" />
                     <input
@@ -1048,7 +1048,7 @@ const ContactForm = () => {
                 </div>
 
                 {/* Country, State, District Row */}
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   {/* Country dropdown - always visible and enabled */}
                   <select
                     name="country"

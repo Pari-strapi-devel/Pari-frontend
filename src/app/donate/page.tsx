@@ -772,8 +772,8 @@ console.log('Razorpay options:', options)
       {/* Add floating language button */}
       <LanguageToggle />
 
-      <div className="max-w-7xl mx-auto px-8 md:px-20 py-10 md:py-20">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10  lg:gap-40 ">
+      <div className="max-w-7xl mx-auto px-4 sm:px-8 md:px-20 py-6 sm:py-10 md:py-20">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-40">
           {/* Left Column - Main Content */}
           <div className="space-y-8">
             {/* Header */}
@@ -869,7 +869,7 @@ console.log('Razorpay options:', options)
 
           {/* Right Column - Donation Form */}
           <div className="space-y-4">
-            <div className="bg-white dark:bg-popover p-8 rounded-2xl border border-gray-300 dark:border-border h-fit sticky top-8 shadow-xl" style={{ boxShadow: '0px 4px 20px 0px rgba(0,0,0,0.1)' }}>
+            <div className="bg-white dark:bg-popover p-4 sm:p-6 md:p-8 rounded-2xl border border-gray-300 dark:border-border h-fit lg:sticky lg:top-8 shadow-xl" style={{ boxShadow: '0px 4px 20px 0px rgba(0,0,0,0.1)' }}>
             <div className="space-y-6">
             <h4 className="text-2xl font-bold text-gray-900 dark:text-foreground mb-4" style={{
               fontFamily: 'Noto Sans',
@@ -894,7 +894,7 @@ console.log('Razorpay options:', options)
               <div className="space-y-6">
               <form onSubmit={handleSubmit} className="space-y-4">
                 {/* Name Fields */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="relative">
                     <FiUser className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primary-PARI-Red h-4 w-4" />
                     <input
@@ -924,7 +924,7 @@ console.log('Razorpay options:', options)
                 </div>
 
                 {/* Email and Phone */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="relative">
                     <FiMail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primary-PARI-Red h-4 w-4" />
                     <input
@@ -999,7 +999,7 @@ console.log('Razorpay options:', options)
                 </div>
 
                 {/* State, City, Pincode */}
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   {/* State dropdown */}
                   <select
                     name="state"
@@ -1007,7 +1007,7 @@ console.log('Razorpay options:', options)
                     onChange={handleInputChange}
                     disabled={loadingStates}
                     required
-                    className="w-full px-4 py-3 border border-gray-300 dark:border-border rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-transparent outline-none bg-white dark:bg-background text-gray-900 dark:text-foreground disabled:opacity-50 appearance-none"
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-border rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-transparent outline-none bg-white dark:bg-background text-gray-900 dark:text-foreground disabled:opacity-50 appearance-none text-sm"
                     style={{
                       backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23B82929' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
                       backgroundRepeat: 'no-repeat',
@@ -1032,7 +1032,7 @@ console.log('Razorpay options:', options)
                     onChange={handleInputChange}
                     disabled={loadingDistricts || !formData.state.trim()}
                     required
-                    className="w-full px-4 py-3 border border-gray-300 dark:border-border rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-transparent outline-none bg-white dark:bg-background text-gray-900 dark:text-foreground disabled:opacity-50 disabled:cursor-not-allowed appearance-none"
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-border rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-transparent outline-none bg-white dark:bg-background text-gray-900 dark:text-foreground disabled:opacity-50 disabled:cursor-not-allowed appearance-none text-sm"
                     style={{
                       backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23B82929' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
                       backgroundRepeat: 'no-repeat',
@@ -1155,7 +1155,7 @@ console.log('Razorpay options:', options)
                   <button
                     type="submit"
                     disabled={isLoading || !formData.agreeToTerms}
-                    className={`w-full py-3 px-6 rounded-lg font-medium transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
+                    className={`w-full py-3 px-6 rounded-full font-medium transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
                       !formData.agreeToTerms
                         ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
                         : 'bg-primary-PARI-Red text-white hover:bg-primary-PARI-Red/90'
@@ -1256,11 +1256,11 @@ console.log('Razorpay options:', options)
                       <p className="text-green-700 dark:text-green-300">
                         <strong>Reference ID:</strong> {referenceId}
                       </p>
-                      <div className="bg-background p-4 rounded-lg border space-y-3">
-                        <div className="flex justify-between items-center">
-                          <span className="font-semibold">PAYABLE TO:</span>
+                      <div className="bg-background p-3 sm:p-4 rounded-lg border space-y-3">
+                        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-2">
+                          <span className="font-semibold text-sm sm:text-base">PAYABLE TO:</span>
                           <div className="flex items-center gap-2">
-                            <span>CounterMedia Trust</span>
+                            <span className="text-sm sm:text-base">CounterMedia Trust</span>
                             <button
                               onClick={() => copyToClipboard('CounterMedia Trust', 'payable')}
                               className="text-primary-PARI-Red hover:text-red-700"
@@ -1270,10 +1270,10 @@ console.log('Razorpay options:', options)
                           </div>
                         </div>
 
-                        <div className="flex justify-between items-center">
-                          <span className="font-semibold">BANK AND BRANCH:</span>
+                        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-2">
+                          <span className="font-semibold text-sm sm:text-base">BANK AND BRANCH:</span>
                           <div className="flex items-center gap-2">
-                            <span>HDFC Bank, Aundh</span>
+                            <span className="text-sm sm:text-base">HDFC Bank, Aundh</span>
                             <button
                               onClick={() => copyToClipboard('HDFC Bank, Aundh', 'bank')}
                               className="text-primary-PARI-Red hover:text-red-700"
@@ -1283,10 +1283,10 @@ console.log('Razorpay options:', options)
                           </div>
                         </div>
 
-                        <div className="flex justify-between items-center">
-                          <span className="font-semibold">ACCOUNT NUMBER:</span>
+                        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-2">
+                          <span className="font-semibold text-sm sm:text-base">ACCOUNT NUMBER:</span>
                           <div className="flex items-center gap-2">
-                            <span>50100091804541</span>
+                            <span className="text-sm sm:text-base">50100091804541</span>
                             <button
                               onClick={() => copyToClipboard('50100091804541', 'account')}
                               className="text-primary-PARI-Red hover:text-red-700"
@@ -1296,10 +1296,10 @@ console.log('Razorpay options:', options)
                           </div>
                         </div>
 
-                        <div className="flex justify-between items-center">
-                          <span className="font-semibold">IFSC CODE:</span>
+                        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-2">
+                          <span className="font-semibold text-sm sm:text-base">IFSC CODE:</span>
                           <div className="flex items-center gap-2">
-                            <span>HDFC0000052</span>
+                            <span className="text-sm sm:text-base">HDFC0000052</span>
                             <button
                               onClick={() => copyToClipboard('HDFC0000052', 'ifsc')}
                               className="text-primary-PARI-Red hover:text-red-700"

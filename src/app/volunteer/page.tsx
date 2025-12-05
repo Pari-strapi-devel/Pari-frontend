@@ -147,6 +147,25 @@ const VolunteerPageContent = () => {
   const [isLoadingVolunteerData, setIsLoadingVolunteerData] = useState(true);
   const [volunteerDataError, setVolunteerDataError] = useState<string | null>(null);
 
+  // Fallback values for contributions and time available
+  const fallbackContributions = [
+    'Translations',
+    'Writing',
+    'Photography',
+    'Video',
+    'Research',
+    'Social Media',
+    'Outreach',
+    'Fundraising',
+    'Other'
+  ];
+
+  const fallbackTimeAvailable = [
+    '1-5 hours/week',
+    '5-10 hours/week',
+    '10+ hours/week'
+  ];
+
   // Location data state
   const [countries, setCountries] = useState<Country[]>([]);
   const [states, setStates] = useState<State[]>([]);
@@ -1125,7 +1144,7 @@ const VolunteerPageContent = () => {
                   type="submit"
                   className="w-full bg-primary-PARI-Red text-white py-3 px-6 rounded-full font-medium hover:bg-primary-PARI-Red/90 transition-colors duration-200"
                 >
-                  Next Section
+                  Next section
                 </button>
               </form>
             )}
@@ -1147,7 +1166,7 @@ const VolunteerPageContent = () => {
                         How would you like to contribute to PARI? *
                       </label>
                       <div className={`grid grid-cols-1 md:grid-cols-3 gap-2 p-3 rounded-lg ${validationErrors.contributions ? 'border-2 border-primary-PARI-Red bg-red-50 dark:bg-red-900/10' : ''}`}>
-                        {volunteerApiData?.attributes.contributions?.map((contribution: string) => (
+                        {(volunteerApiData?.attributes.contributions?.length ? volunteerApiData.attributes.contributions : fallbackContributions).map((contribution: string) => (
                           <label key={contribution} className="flex items-center">
                             <input
                               type="checkbox"
@@ -1219,28 +1238,26 @@ const VolunteerPageContent = () => {
                       </>
                     )}
 
-                    {volunteerApiData?.attributes.time_available && (
-                      <div>
-                        <label className="block text-sm font-medium text-gray-600 dark:text-muted-foreground mb-3">
-                          Time available to commit?
-                        </label>
-                        <div className="flex gap-6">
-                          {volunteerApiData.attributes.time_available.map((option: string) => (
-                            <label key={option} className="flex items-center">
-                              <input
-                                type="radio"
-                                name="timeCommitment"
-                                value={option}
-                                checked={formData.timeCommitment === option}
-                                onChange={handleInputChange}
-                                className="mr-2 h-4 w-4 accent-primary-PARI-Red focus:ring-2 focus:ring-primary-PARI-Red border-gray-300 dark:border-border"
-                              />
-                              <span className="text-sm text-gray-900 dark:text-muted-foreground">{option}</span>
-                            </label>
-                          ))}
-                        </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-600 dark:text-muted-foreground mb-3">
+                        Time available to commit?
+                      </label>
+                      <div className="flex flex-wrap gap-6">
+                        {(volunteerApiData?.attributes.time_available?.length ? volunteerApiData.attributes.time_available : fallbackTimeAvailable).map((option: string) => (
+                          <label key={option} className="flex items-center">
+                            <input
+                              type="radio"
+                              name="timeCommitment"
+                              value={option}
+                              checked={formData.timeCommitment === option}
+                              onChange={handleInputChange}
+                              className="mr-2 h-4 w-4 accent-primary-PARI-Red focus:ring-2 focus:ring-primary-PARI-Red border-gray-300 dark:border-border"
+                            />
+                            <span className="text-sm text-gray-900 dark:text-muted-foreground">{option}</span>
+                          </label>
+                        ))}
                       </div>
-                    )}
+                    </div>
                   </div>
                 </div>
 
@@ -1286,7 +1303,7 @@ const VolunteerPageContent = () => {
                       : 'bg-primary-PARI-Red text-white hover:bg-primary-PARI-Red/90'
                   }`}
                 >
-                  {isSubmittingToBrevo ? 'Submitting...' : 'Submit Profile'}
+                  {isSubmittingToBrevo ? 'Submitting...' : 'Submit profile'}
                 </button>
               </form>
             )}

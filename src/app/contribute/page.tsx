@@ -689,11 +689,11 @@ const ContributeContent = () => {
 
   return (
     <div
-      className={`min-h-screen bg-background py-10 md:py-20 md:px-20 px-8 ${fontClass}`}
+      className={`min-h-screen bg-background py-6 sm:py-10 md:py-20 px-4 sm:px-8 md:px-20 ${fontClass}`}
       dir={getTextDirection(currentLocale)}
     >
       <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-2  lg:gap-40  gap-10 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-40 items-start">
           {/* Left Content Section */}
           <div className="md:px-8">
             {isLoadingPageData ? (
@@ -764,7 +764,7 @@ const ContributeContent = () => {
           </div>
 
           {/* Right Form Section */}
-          <div className="bg-popover dark:bg-popover p-8 rounded-lg shadow-sm border border-border">
+          <div className="bg-popover dark:bg-popover p-4 sm:p-6 md:p-8 rounded-lg shadow-sm border border-border">
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-2xl text-card-foreground">
                 { 'Contribute content form'}
@@ -812,7 +812,7 @@ const ContributeContent = () => {
                 </h6>
 
                 <div className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <input
                       type="text"
                       name="firstName"
@@ -820,7 +820,7 @@ const ContributeContent = () => {
                       value={formData.firstName}
                       onChange={handleInputChange}
                       required
-                      className="w-full px-4 py-3 border border-input rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-primary-PARI-Red outline-none bg-background"
+                      className="w-full px-4 py-3 border border-input rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-primary-PARI-Red outline-none bg-background text-sm"
                     />
                     <input
                       type="text"
@@ -829,11 +829,11 @@ const ContributeContent = () => {
                       value={formData.lastName}
                       onChange={handleInputChange}
                       required
-                      className="w-full px-4 py-3 border border-input rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-primary-PARI-Red outline-none bg-background"
+                      className="w-full px-4 py-3 border border-input rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-primary-PARI-Red outline-none bg-background text-sm"
                     />
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <input
                       type="email"
                       name="email"
@@ -841,7 +841,7 @@ const ContributeContent = () => {
                       value={formData.email}
                       onChange={handleInputChange}
                       required
-                      className="w-full px-4 py-3 border border-input rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-primary-PARI-Red outline-none bg-background"
+                      className="w-full px-4 py-3 border border-input rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-primary-PARI-Red outline-none bg-background text-sm"
                     />
                     <input
                       type="tel"
@@ -849,18 +849,18 @@ const ContributeContent = () => {
                       placeholder="Phone"
                       value={formData.phone}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 border border-input rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-primary-PARI-Red outline-none bg-background"
+                      className="w-full px-4 py-3 border border-input rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-primary-PARI-Red outline-none bg-background text-sm"
                     />
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     {/* Country dropdown - always visible and enabled */}
                     <select
                       name="country"
                       value={formData.country}
                       onChange={handleInputChange}
                       disabled={loadingCountries}
-                      className="w-full px-4 py-3 border border-input rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-primary-PARI-Red outline-none bg-background disabled:opacity-50"
+                      className="w-full px-4 py-3 border border-input rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-primary-PARI-Red outline-none bg-background disabled:opacity-50 text-sm"
                     >
                       <option value="">
                         {loadingCountries ? 'Loading countries...' : 'Country'}
@@ -887,7 +887,7 @@ const ContributeContent = () => {
                       value={formData.state}
                       onChange={handleInputChange}
                       disabled={loadingStates || !isIndiaSelected()}
-                      className="w-full px-4 py-3 border border-input rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-primary-PARI-Red outline-none bg-background disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full px-4 py-3 border border-input rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-primary-PARI-Red outline-none bg-background disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                     >
                       <option value="">
                         {loadingStates ? 'Loading states...' : 'State'}
@@ -905,7 +905,7 @@ const ContributeContent = () => {
                       value={formData.district}
                       onChange={handleInputChange}
                       disabled={loadingDistricts || !isIndiaSelected() || !formData.state.trim()}
-                      className="w-full px-4 py-3 border border-input rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-primary-PARI-Red outline-none bg-background disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full px-4 py-3 border border-input rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-primary-PARI-Red outline-none bg-background disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                     >
                       <option value="">
                         {loadingDistricts ? 'Loading districts...' : 'District'}
@@ -925,7 +925,7 @@ const ContributeContent = () => {
                       placeholder="Organisation / University / School name"
                       value={formData.organization}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 border border-input rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-primary-PARI-Red outline-none bg-background"
+                      className="w-full px-4 py-3 border border-input rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-primary-PARI-Red outline-none bg-background text-sm"
                     />
                   </div>
                 </div>
@@ -944,7 +944,7 @@ const ContributeContent = () => {
                       name="uploadFile"
                       onChange={handleFileChange}
                       accept=".tiff,.png,.jpg,.pdf,.docx,.txt,.mp3,.mp4,.wav"
-                      className="w-full px-4 py-3 border border-input rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-primary-PARI-Red outline-none bg-background file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary-PARI-Red file:text-white hover:file:bg-primary-PARI-Red/90"
+                      className="w-full px-4 py-3 border border-input rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-primary-PARI-Red outline-none bg-background file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary-PARI-Red file:text-white hover:file:bg-primary-PARI-Red/90 text-sm"
                     />
                     <p className="text-xs text-muted-foreground mt-2">
                       Supported formats: tiff, png, jpg, pdf, docx, txt, mp3, mp4, wav
@@ -954,7 +954,7 @@ const ContributeContent = () => {
                     </p>
                   </div>
 
-                  <div className="text-center text-muted-foreground">
+                  <div className="text-center text-muted-foreground text-sm">
                     <span>Or</span>
                   </div>
 
@@ -965,7 +965,7 @@ const ContributeContent = () => {
                       placeholder="Submit a link with your file"
                       value={formData.fileLink}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 border border-input rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-primary-PARI-Red outline-none bg-background"
+                      className="w-full px-4 py-3 border border-input rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-primary-PARI-Red outline-none bg-background text-sm"
                     />
                   </div>
                 </div>
