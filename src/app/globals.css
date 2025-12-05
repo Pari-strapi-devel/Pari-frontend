@@ -183,14 +183,14 @@
     line-height: 112%;
     font-size: clamp(2.5rem, 3vw,  4.5rem);
     letter-spacing: 0em; /* Devanagari usually has 0 letter-spacing */
-    font-variation-settings: 'wdth' 85, 'wght' 700;
+    font-variation-settings: 'wdth' 85, 'wght' 800;
   }
   [lang="hi"] h2, [lang="mr"] h2 {
     font-family: var(--font-noto-sans-devanagari), 'Noto Sans Devanagari', sans-serif !important;
     line-height: 144%;
     font-size: clamp(1.4rem, 1.2vw,  2rem);
     letter-spacing: 0em;
-    font-variation-settings: 'wdth' 95;
+    font-variation-settings: 'wdth' 95, ;
   }
   [lang="hi"] h3, [lang="mr"] h3 {
     font-family: var(--font-noto-sans-devanagari), 'Noto Sans Devanagari', sans-serif !important;

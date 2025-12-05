@@ -1,7 +1,50 @@
 "use client"
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import { useCallback, useMemo } from "react"
+import { useCallback, useMemo, useEffect } from "react"
+
+// Language configuration for styling control
+const LANGUAGE_CONFIG = {
+  en: { lang: 'en', dir: 'ltr' as const, fontClass: 'font-noto' },
+  hi: { lang: 'hi', dir: 'ltr' as const, fontClass: 'font-noto-devanagari' },
+  mr: { lang: 'mr', dir: 'ltr' as const, fontClass: 'font-noto-devanagari' },
+  te: { lang: 'te', dir: 'ltr' as const, fontClass: 'font-noto-telugu' },
+  ta: { lang: 'ta', dir: 'ltr' as const, fontClass: 'font-noto-tamil' },
+  kn: { lang: 'kn', dir: 'ltr' as const, fontClass: 'font-noto-kannada' },
+  bn: { lang: 'bn', dir: 'ltr' as const, fontClass: 'font-noto-bengali' },
+  gu: { lang: 'gu', dir: 'ltr' as const, fontClass: 'font-noto-gujarati' },
+  or: { lang: 'or', dir: 'ltr' as const, fontClass: 'font-noto-oriya' },
+  ml: { lang: 'ml', dir: 'ltr' as const, fontClass: 'font-noto-malayalam' },
+  pa: { lang: 'pa', dir: 'ltr' as const, fontClass: 'font-noto-gurmukhi' },
+  ur: { lang: 'ur', dir: 'rtl' as const, fontClass: 'font-noto-arabic' },
+  ar: { lang: 'ar', dir: 'rtl' as const, fontClass: 'font-noto-arabic' },
+  as: { lang: 'as', dir: 'ltr' as const, fontClass: 'font-noto-bengali' },
+  bho: { lang: 'bho', dir: 'ltr' as const, fontClass: 'font-noto-devanagari' },
+  hne: { lang: 'hne', dir: 'ltr' as const, fontClass: 'font-noto-devanagari' }
+} as const
+
+type LanguageCode = keyof typeof LANGUAGE_CONFIG
+
+// Helper functions for language styling
+export function getLanguageConfig(locale: string) {
+  return LANGUAGE_CONFIG[locale as LanguageCode] || LANGUAGE_CONFIG.en
+}
+
+export function getTextDirection(locale: string): 'ltr' | 'rtl' {
+  return getLanguageConfig(locale).dir
+}
+
+export function getFontClass(locale: string): string {
+  return getLanguageConfig(locale).fontClass
+}
+
+export function getLangAttribute(locale: string): string {
+  return getLanguageConfig(locale).lang
+}
+
+export function isRTL(locale: string): boolean {
+  return getTextDirection(locale) === 'rtl'
+}
 
 export function useLocale() {
   const router = useRouter()
@@ -46,11 +89,30 @@ export function useLocale() {
     }
   }, [searchparams])
 
+  // Apply lang and dir attributes to html element
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      const htmlElement = document.documentElement
+      const langAttr = getLangAttribute(language)
+      const dir = getTextDirection(language)
+
+      htmlElement.setAttribute('lang', langAttr)
+      htmlElement.setAttribute('dir', dir)
+
+      console.log('##Rohit_Rocks## Language attributes applied:', { locale: language, lang: langAttr, dir })
+    }
+  }, [language])
+
   return {
     language,
     setLanguage,
     isLocaleSet: !!searchparams?.get('locale'),
-    addLocaleToUrl
+    addLocaleToUrl,
+    // Language styling helpers
+    dir: getTextDirection(language),
+    fontClass: getFontClass(language),
+    langAttr: getLangAttribute(language),
+    isRTL: isRTL(language)
   }
 }
 
