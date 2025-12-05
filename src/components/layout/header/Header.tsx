@@ -15,6 +15,26 @@ import { BASE_URL } from '@/config'
 import { useLocale } from '@/lib/locale'
 import { useTheme } from 'next-themes'
 
+// Helper function to get current date
+const getCurrentDate = (monthsObj: Record<string, string>, weekDaysObj: Record<string, string>) => {
+  if (!monthsObj || !weekDaysObj) return '';
+
+  const currentDate = new Date();
+  const currentMonthIndex = currentDate.getMonth();
+  const currentDay = currentDate.toLocaleString('en-US', { weekday: 'long' }).toLowerCase();
+
+  // Map month index to month name in monthsObj
+  const monthNames = [
+    'january', 'february', 'march', 'april', 'may', 'june',
+    'july', 'august', 'september', 'october', 'november', 'december'
+  ];
+
+  const currentMonthName = monthsObj[monthNames[currentMonthIndex]];
+  const currentDayName = weekDaysObj[currentDay];
+
+  return `${currentDayName}, ${currentMonthName} ${currentDate.getDate()}, ${currentDate.getFullYear()}`.toUpperCase();
+};
+
 // Helper function to highlight matching text
 const highlightMatch = (text: string, query: string): JSX.Element => {
   if (!query || query.length < 1) return <>{text}</>;
@@ -79,10 +99,46 @@ export function Header() {
   const [showSuggestions, setShowSuggestions] = useState(false)
   const suggestionsRef = useRef<HTMLDivElement>(null)
 
+  // Add state for date data
+  const [months, setMonths] = useState<Record<string, string>>({})
+  const [weekDays, setWeekDays] = useState<Record<string, string>>({})
+
   // Handle mounting to prevent hydration mismatch
   useEffect(() => {
     setMounted(true)
   }, [])
+
+  // Fetch months and weekDays data
+  useEffect(() => {
+    const fetchDateData = async () => {
+      try {
+        const query = {
+          populate: {
+            Months: true,
+            week_days: true,
+          },
+          locale: language
+        }
+
+        const queryString = qs.stringify(query, {
+          encodeValuesOnly: true,
+          addQueryPrefix: false
+        })
+
+        const response = await axios.get(`${BASE_URL}api/home-page?${queryString}`)
+
+        const week_days = response.data?.data?.attributes?.week_days
+        const monthsData = response.data?.data?.attributes?.Months
+
+        setMonths(monthsData || {})
+        setWeekDays(week_days || {})
+      } catch (error) {
+        console.error('Error fetching date data:', error)
+      }
+    }
+
+    fetchDateData()
+  }, [language])
 
   // Add this function to handle search submission
   const handleSearch = (e?: React.FormEvent) => {
@@ -267,6 +323,14 @@ export function Header() {
           <div className="flex flex-col items-center justify-center w-full z-1000">
             {/* Complete Header Content - Centered as a unit */}
             <div className="flex flex-col items-center -mt-1 mx-auto">
+              {/* Date Section */}
+               <div className={`${language === 'ur' ? 'text-right' : 'text-left'}`}>
+        <div className=" max-w-[1232px] mx-auto px-6 ">
+          <h6 className="text-grey-300 dark:text-discreet-text font-noto-sans">
+            {String(getCurrentDate(months, weekDays))}
+          </h6>
+        </div>
+      </div>
               {/* Logo - Centered */}
               <div className="flex items-center justify-center mb-0">
                 <Link href={addLocaleToUrl("/")} className="flex-shrink-0">
@@ -284,6 +348,9 @@ export function Header() {
           </div>
         </div>
       </div>
+
+      {/* Date Section */}
+     
 
       {/* Sticky Navigation Header */}
       <header className={`border-b border-gray-200 dark:border-border dark:bg-popover bg-white transition-all duration-300 ${

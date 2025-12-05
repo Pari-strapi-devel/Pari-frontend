@@ -44,8 +44,6 @@ export interface PariInformation {
   id: number;
   heading: string;
   sabHeading: string;
-  weekDays: string[];
-  months: string[];
   title: string;
   url: string;
   ButtonText: string;
@@ -66,46 +64,17 @@ export function Hero() {
   const [loaded, setLoaded] = useState(false)
   const [isVisible, setIsVisible] = useState(true)
   const [pariInfo, setPariInfo] = useState<PariInformation[]>([])
-  const [months, setMonths] = useState([])
-  const [weekDays, setWeekDays] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const { language, addLocaleToUrl } = useLocale()
- 
-
-  // Add this function to handle language change
-  // const handleLanguageChange = (langCode: string) => {
-  //   setLanguage(langCode)
-  // }
-
-  const getCurrentDate = (monthsObj: Record<string, string>, weekDaysObj: Record<string, string>) => {
-    if (!monthsObj || !weekDaysObj) return '';
-    
-    const currentDate = new Date();
-    const currentMonthIndex = currentDate.getMonth();
-    const currentDay = currentDate.toLocaleString('en-US', { weekday: 'long' }).toLowerCase();
-    
-    // Map month index to month name in monthsObj
-    const monthNames = [
-      'january', 'february', 'march', 'april', 'may', 'june',
-      'july', 'august', 'september', 'october', 'november', 'december'
-    ];
-    
-    const currentMonthName = monthsObj[monthNames[currentMonthIndex]];
-    const currentDayName = weekDaysObj[currentDay];
-
-    return `${currentDayName}, ${currentMonthName} ${currentDate.getDate()}, ${currentDate.getFullYear()}`.toUpperCase();
-  };
 
   useEffect(() => {
     const fetchHomePageData = async () => {
       try {
         setIsLoading(true)
-        
+
         const query = {
           populate: {
-            Months: true,
-            week_days: true,
             fields: ['welcome_Title', 'welcome_subtitle', 'seeallStories'],
             pariInformation: {
               populate: {
@@ -126,34 +95,24 @@ export function Hero() {
           locale: language
         }
 
-        const queryString = qs.stringify(query, { 
+        const queryString = qs.stringify(query, {
           encodeValuesOnly: true,
-          addQueryPrefix: false 
+          addQueryPrefix: false
         })
-        
+
         const response = await axios.get(`${BASE_URL}api/home-page?${queryString}`)
-        
+
         // Get heading and seeallStories from the correct localization
         const attributes = response.data?.data?.attributes
         const welcomeTitle = attributes?.welcome_Title
         const welcomeSubtitle = attributes?.welcome_subtitle
         const seeallStories = attributes?.seeallStories
-        const week_days = response.data?.data?.attributes?.week_days
-        const months = response.data?.data?.attributes?.Months
-
-       
-    
-        // Set the state with the actual objects
-        setMonths(months || {})
-        setWeekDays(week_days || {})
 
         // Transform the data with proper localization handling
         const transformedData = response.data.data.attributes.pariInformation.map((info: {
           description: string;
           title: string;
           url: string;
-          Months: string[];
-          week_days: string[];
           ButtonText: string;
           localizations?: {
             data: Array<{
@@ -175,12 +134,12 @@ export function Hero() {
         }) => {
           // Get the localized content if available
           const localizedContent = info.localizations?.data?.find(
-            (l: { 
-              attributes: { 
-                locale: string; 
-                description?: string; 
-                title?: string; 
-                ButtonText?: string; 
+            (l: {
+              attributes: {
+                locale: string;
+                description?: string;
+                title?: string;
+                ButtonText?: string;
               }
             }) => l.attributes.locale === language
           )?.attributes
@@ -193,8 +152,6 @@ export function Hero() {
             heading: welcomeTitle || "Welcome to PARI",
             sabHeading: welcomeSubtitle || "Let's get you acquainted",
             seeallStories: seeallStories || "See all stories",
-            weekDays: week_days,
-            months: months,
             ButtonText: localizedContent?.ButtonText || info.ButtonText,
             image: {
               data: {
@@ -258,18 +215,11 @@ export function Hero() {
 
   return (
     <div className="relative font-notoSans">
-      {/* Date moved outside section - always visible */}
-      <div className={`px-4 md:mt-[66px] mt-10 ${isVisible ? 'pb-4' : '-pb-1'} ${language === 'ur' ? 'text-right' : 'text-left'}`}>
-        <div className={`sm:w-[90%] max-w-[1232px] mx-auto px-6 ${isVisible ? 'py-2' : 'py-1'}`}>
-          <h6 className="text-grey-300 dark:text-discreet-text font-noto-sans">
-            { String(getCurrentDate(months as unknown as Record<string, string>, weekDays as unknown as Record<string, string>)) }
-          </h6>
-        </div>
-      </div>
+   
 
       {/* Only hide the section when dismissed */}
       {isVisible && (
-        <section className="relative px-4 bg-background">
+        <section className="relative px-4 pt-10 md:pt-20 bg-background">
         <div className='shadow-[0px_1px_6px_0px_rgba(0,0,0,0.12)]
           font-notoSans rounded-[12px] bg-popover sm:w-[90%] max-w-[1232px] mx-auto'>
           <div className={` p-6 sm:p-6 md:p-8 lg:p-10 relative ${language === 'ur' ? 'flex flex-col ' : ''}`}>
