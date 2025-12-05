@@ -155,7 +155,7 @@ export function StoryDetailSkeleton() {
 export function PaintingDetailSkeleton() {
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="max-w-7xl mx-auto px-4 py-10 md:py-20">
         <div className="animate-pulse space-y-6">
           {/* Back Button */}
           <Skeleton className="h-6 w-32" />

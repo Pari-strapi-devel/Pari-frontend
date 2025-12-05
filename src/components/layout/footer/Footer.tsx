@@ -200,7 +200,7 @@ export function Footer() {
   return (
     <>
       <footer className="bg-white dark:bg-popover text-card-foreground px-5 py-8 sm:py-12 md:py-16">
-      <div className="max-w-[1232px] mx-auto px-4">
+      <div className="max-w-[1232px] mx-auto pb-10 md:pb-0 px-4">
         <div className="grid lg:grid-cols-3 grid-cols-1 gap-x-40">
           {/* First Column - Welcome & Newsletter */}
           <div>

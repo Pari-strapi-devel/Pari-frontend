@@ -61,6 +61,50 @@ interface HeaderApiResponse {
   };
 }
 
+// Fallback header data in case API fails - defined outside component to avoid re-creation
+const FALLBACK_HEADER_DATA: HeaderItem[] = [
+  {
+    id: 1,
+    title: 'Stories',
+    subheader: [
+      { id: 1, name: 'All stories', url: '/articles', description: null },
+      { id: 2, name: 'Video stories', url: '/articles?content=Video+Articles', description: null },
+      { id: 3, name: 'Audio stories', url: '/articles?content=Audio+Articles', description: null },
+      { id: 4, name: 'Photo stories', url: '/articles?content=Photo+Articles', description: null }
+    ],
+    image: { data: null }
+  },
+  {
+    id: 2,
+    title: 'Get involved',
+    subheader: [
+      { id: 1, name: 'Contribute', url: '/contribute', description: null },
+      { id: 2, name: 'Intern with us', url: '/intern-with-us', description: null },
+      { id: 3, name: 'Volunteer', url: '/volunteer', description: null }
+    ],
+    image: { data: null }
+  },
+  {
+    id: 3,
+    title: 'Resources',
+    subheader: [
+      { id: 1, name: 'Library', url: '/library', description: null },
+      { id: 2, name: 'Languages in PARI', url: '/languages-in-pari', description: null }
+    ],
+    image: { data: null }
+  },
+  {
+    id: 4,
+    title: 'About',
+    subheader: [
+      { id: 1, name: 'Story of PARI', url: '/story-of-pari', description: null },
+      { id: 2, name: 'Our Team', url: '/team', description: null },
+      { id: 3, name: 'Contact us', url: '/contact-us', description: null }
+    ],
+    image: { data: null }
+  }
+];
+
 export function Navigation({ onLinkClick }: NavigationProps = {}) {
   const { language } = useLocale()
   const pathname = usePathname()
@@ -79,10 +123,19 @@ export function Navigation({ onLinkClick }: NavigationProps = {}) {
     const fetchHeaderData = async () => {
       try {
         const response = await fetch(`${BASE_URL}api/header?populate[Header][populate]=*&locale=${language}`);
+
+        if (!response.ok) {
+          console.error('##Rohit_Rocks## Header API response not OK:', response.status);
+          setHeaderData(FALLBACK_HEADER_DATA);
+          return;
+        }
+
         const data: HeaderApiResponse = await response.json();
 
         // Check the structure of the data
         if (!data || !data.data) {
+          console.error('##Rohit_Rocks## No data in header API response');
+          setHeaderData(FALLBACK_HEADER_DATA);
           return;
         }
 
@@ -92,23 +145,27 @@ export function Navigation({ onLinkClick }: NavigationProps = {}) {
         if (Array.isArray(data.data)) {
           // If data.data is an array, find the English locale
           const englishData = data.data.find((item) => item.attributes?.locale === 'en') || data.data[0];
-         
+
           headerItems = englishData?.attributes?.Header;
         } else if (data.data.attributes) {
           // If data.data is an object with attributes
           headerItems = data.data.attributes.Header;
         } else {
-        
+          console.error('##Rohit_Rocks## Unexpected header data structure');
+          setHeaderData(FALLBACK_HEADER_DATA);
           return;
         }
 
         if (headerItems && Array.isArray(headerItems)) {
           setHeaderData(headerItems);
         } else {
+          console.error('##Rohit_Rocks## Header items not found, using fallback');
+          setHeaderData(FALLBACK_HEADER_DATA);
         }
 
       } catch (error) {
-        console.error('Error fetching header data:', error);
+        console.error('##Rohit_Rocks## Error fetching header data:', error);
+        setHeaderData(FALLBACK_HEADER_DATA);
       }
     };
 

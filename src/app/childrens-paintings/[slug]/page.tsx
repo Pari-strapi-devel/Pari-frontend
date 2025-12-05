@@ -142,7 +142,7 @@ export default function PaintingDetailPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="max-w-7xl mx-auto px-4 py-10 md:py-20">
         {/* Back Button */}
         <button
           onClick={() => router.push('/childrens-paintings')}
@@ -152,7 +152,7 @@ export default function PaintingDetailPage() {
           Back to Gallery
         </button>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-20">
           {/* Left Side - Image/Video */}
           <div className="space-y-4">
             {/* Image/Video Display */}

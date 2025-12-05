@@ -213,7 +213,7 @@ export default function ChildrensPaintingsPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-[1232px] mx-auto px-4 py-8">
+      <div className="max-w-[1232px] mx-auto px-4 py-10 md:py-20">
         {/* Header Section */}
         <div className="text-center mb-12">
           <p className="text-sm text-gray-600 dark:text-gray-400 mb-2 uppercase tracking-wider">
