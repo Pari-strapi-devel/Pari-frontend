@@ -6,12 +6,12 @@ import qs from 'qs'
 
 interface ArticleLayoutProps {
   children: React.ReactNode
-  params: { slug: string }
+  params: Promise<{ slug: string }>
 }
 
 // Generate metadata for the article page
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const { slug } = params
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params
 
   try {
     // Fetch article data for metadata
