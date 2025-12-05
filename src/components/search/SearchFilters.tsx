@@ -137,10 +137,23 @@ export function SearchFiltersSidebar({
                 </Button>
               )}
             </div>
+
+            {/* Mobile Apply Filter Button */}
+            <div className="md:hidden">
+              <Button
+                onClick={applyFilters}
+                size="sm"
+                className={`h-9 px-4 text-sm font-semibold bg-primary-PARI-Red hover:bg-primary-PARI-Red/90 text-white rounded-md shadow-md active:scale-95 transition-all duration-200 ${
+                  hasChanges ? 'ring-2 ring-primary-PARI-Red ring-offset-2' : ''
+                }`}
+              >
+                Apply
+              </Button>
+            </div>
           </div>
 
         {/* Filter Content */}
-        <div className={`px-6 md:px-5 pb-24 md:pb-5 pt-6 md:pt-4 overflow-y-auto flex-1 scrollbar-thin scrollbar-thumb-primary-PARI-Red/20 scrollbar-track-transparent ${isSticky ? 'md:mt-0' : ''}`}>
+        <div className={`px-6 md:px-5 pb-8 md:pb-5 pt-6 md:pt-4 overflow-y-auto flex-1 scrollbar-thin scrollbar-thumb-primary-PARI-Red/20 scrollbar-track-transparent ${isSticky ? 'md:mt-0' : ''}`}>
           <div className="space-y-7 md:space-y-6">
             {/* Author */}
             <div className="space-y-3 md:space-y-2">
@@ -252,18 +265,6 @@ export function SearchFiltersSidebar({
           {/* Content Type */}
 
           </div>
-        </div>
-
-        {/* Mobile Apply Filter Button - Fixed at bottom */}
-        <div className="md:hidden border-t border-border-line z-1000 dark:border-popover p-4 bg-popover/80 backdrop-blur-sm flex-shrink-0">
-          <Button
-            onClick={applyFilters}
-            className={`w-full h-14 text-base font-semibold bg-primary-PARI-Red hover:bg-primary-PARI-Red/90 text-white rounded-lg shadow-lg active:scale-95 transition-all duration-200 ${
-              hasChanges ? 'animate-pulse' : ''
-            }`}
-          >
-            Apply Filters
-          </Button>
         </div>
         </div>
       ) : (
