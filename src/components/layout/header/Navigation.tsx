@@ -404,7 +404,7 @@ export function Navigation({ onLinkClick }: NavigationProps = {}) {
               </LinkWithClose>
             </div>
            <div className="w-full h-[180px] mt-1 relative">
-            <LinkWithClose href="/language-universe" className="cursor-pointer">
+            <LinkWithClose href="/languages-in-pari" className="cursor-pointer">
               <div className="relative w-full h-full">
                 <Image
                   src="/images/categories/navigation-imgs/story-of-pari.jpeg"
@@ -493,7 +493,7 @@ export function Navigation({ onLinkClick }: NavigationProps = {}) {
             <Users className="h-5 w-5 text-primary-PARI-Red" />
             <span className="font-medium text-md text-discreet-text">{getHeaderItemByIndex(3)?.subheader[1]?.name || 'Our Team'}</span>
           </LinkWithClose>
-          <LinkWithClose href="/contributors" className="flex items-center gap-3 p-4 hover:bg-gray-100 dark:hover:bg-background border-b border-border cursor-pointer">
+          <LinkWithClose href="/award" className="flex items-center gap-3 p-4 hover:bg-gray-100 dark:hover:bg-background border-b border-border cursor-pointer">
             <HandCoins className="h-5 w-5 text-primary-PARI-Red" />
             <span className="font-medium text-md text-discreet-text">{getHeaderItemByIndex(3)?.subheader[2]?.name || 'Contributors'}</span>
           </LinkWithClose>
