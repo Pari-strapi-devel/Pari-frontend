@@ -7,6 +7,7 @@ import { FormErrorMessage, FormLoadingSpinner } from '@/components/forms/EZFormW
 import { useInternBrevo } from '@/hooks/useBrevo';
 import { LanguageToggle } from '@/components/layout/header/LanguageToggle';
 import { useLocale } from '@/lib/locale';
+import { FormPageSkeleton } from '@/components/skeletons/PageSkeletons';
 
 // API response interface for internship page data
 interface InternshipPageData {
@@ -1488,12 +1489,12 @@ const InternContent = () => {
           <div className="md:px-8">
             {isLoadingPageData ? (
               <div className="animate-pulse">
-                <div className="h-10 bg-gray-200 rounded mb-6"></div>
-                <div className="h-6 bg-gray-200 rounded mb-6"></div>
+                <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded mb-6"></div>
+                <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded mb-6"></div>
                 <div className="space-y-4">
-                  <div className="h-4 bg-gray-200 rounded"></div>
-                  <div className="h-4 bg-gray-200 rounded"></div>
-                  <div className="h-4 bg-gray-200 rounded"></div>
+                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
                 </div>
               </div>
             ) : pageError ? (
@@ -2159,14 +2160,7 @@ const InternContent = () => {
 
 const InternPage = () => {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading...</p>
-        </div>
-      </div>
-    }>
+    <Suspense fallback={<FormPageSkeleton />}>
       <InternContent />
     </Suspense>
   );

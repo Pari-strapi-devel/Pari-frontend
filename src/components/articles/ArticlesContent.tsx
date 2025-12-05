@@ -5,7 +5,7 @@ import { useSearchParams, useRouter } from 'next/navigation'
 import axios from 'axios'
 import qs from 'qs'
 import { StoryCard } from '@/components/layout/stories/StoryCard'
-
+import { Skeleton } from '@/components/ui/skeleton'
 import { BASE_URL } from '@/config'
 import { X,  ChevronLeft, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -1091,8 +1091,33 @@ export default function ArticlesContent() {
         </div>
         
         {isLoading ? (
-          <div className="flex justify-center items-center min-h-[400px]">
-            <p>Loading articles...</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {Array.from({ length: pageSize > 12 ? 12 : pageSize }).map((_, index) => (
+              <div key={index} className="animate-pulse">
+                {/* Image skeleton */}
+                <Skeleton className="w-full aspect-[4/3] rounded-lg mb-4" />
+
+                {/* Category tags skeleton */}
+                <div className="flex gap-2 mb-3">
+                  <Skeleton className="h-5 w-20 rounded-full" />
+                  <Skeleton className="h-5 w-16 rounded-full" />
+                </div>
+
+                {/* Title skeleton */}
+                <Skeleton className="h-6 w-full mb-2" />
+                <Skeleton className="h-6 w-4/5 mb-3" />
+
+                {/* Author skeleton */}
+                <Skeleton className="h-4 w-3/5 mb-2" />
+
+                {/* Location and date skeleton */}
+                <div className="flex items-center gap-2">
+                  <Skeleton className="h-4 w-24" />
+                  <Skeleton className="h-4 w-4 rounded-full" />
+                  <Skeleton className="h-4 w-20" />
+                </div>
+              </div>
+            ))}
           </div>
         ) : stories.length > 0 ? (
           <div className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 ${currentLocale === 'ur' ? 'rtl' : 'ltr'}`}>

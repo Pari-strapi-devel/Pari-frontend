@@ -262,7 +262,7 @@ export function Navigation({ onLinkClick }: NavigationProps = {}) {
                     </div>
                   </LinkWithClose>
 
-                  <LinkWithClose href="/adivasi-children-art" className="group block cursor-pointer">
+                  <LinkWithClose href="/childrens-paintings" className="group block cursor-pointer">
                     <div className="relative overflow-hidden rounded-md h-[210px]">
                       <Image
                         src="/images/categories/printing.png"
@@ -408,7 +408,7 @@ export function Navigation({ onLinkClick }: NavigationProps = {}) {
               <div className="relative w-full h-full">
                 <Image
                   src="/images/categories/navigation-imgs/story-of-pari.jpeg"
-                  alt="PARI Languages"
+                  alt="Story of PARI"
                   fill
                   className="object-cover rounded-[8px]"
                 />
@@ -562,7 +562,7 @@ export function Navigation({ onLinkClick }: NavigationProps = {}) {
              </div>
            </LinkWithClose>
 
-           <LinkWithClose href="/adivasi-children-art" className="group block cursor-pointer">
+           <LinkWithClose href="/childrens-paintings" className="group block cursor-pointer">
              <div className="relative overflow-hidden rounded-md h-[200px]">
                <Image
                  src="/images/categories/printing.png"

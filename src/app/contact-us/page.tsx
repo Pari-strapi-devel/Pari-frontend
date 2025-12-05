@@ -1,6 +1,7 @@
 import ContactForm from '../../components/contact/ContactForm'
 import { Metadata } from 'next'
 import { Suspense } from 'react'
+import { FormPageSkeleton } from '@/components/skeletons/PageSkeletons'
 
 export const metadata: Metadata = {
   title: 'Contact PARI | People\'s Archive of Rural India',
@@ -9,14 +10,7 @@ export const metadata: Metadata = {
 
 export default function ContactPage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-PARI-Red mx-auto mb-4"></div>
-          <p>Loading contact form...</p>
-        </div>
-      </div>
-    }>
+    <Suspense fallback={<FormPageSkeleton />}>
       <ContactForm />
     </Suspense>
   )

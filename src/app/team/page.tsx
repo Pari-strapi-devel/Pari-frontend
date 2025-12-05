@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { API_BASE_URL } from '@/utils/constants'
+import { TeamPageSkeleton } from '@/components/skeletons/PageSkeletons'
 
 import { X, Mail } from 'lucide-react'
 import { FaInstagram, FaXTwitter, FaFacebookF, FaLinkedinIn } from 'react-icons/fa6'
@@ -246,14 +247,7 @@ export default function TeamsPage() {
   }
 
   if (loading) {
-    return (
-      <div className="bg-background min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-PARI-Red"></div>
-          <p className="mt-4 text-foreground">Loading team members...</p>
-        </div>
-      </div>
-    )
+    return <TeamPageSkeleton />
   }
 
   return (
