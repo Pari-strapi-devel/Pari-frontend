@@ -356,11 +356,11 @@ export function AudioVideoBigCard({
     </div>
 
             <div className="flex items-center gap-2 pt-1 text-primary-PARI-Red font-noto-sans text-[14px] font-medium leading-[160%] tracking-[-0.03em] mt-auto">
-              {location && <span>{location}</span>}
+              {location && <span className="text-sm">{location}</span>}
               {location && date && <span>•</span>}
-              {date && <span>{date}</span>}
-              <span className="group-hover:translate-x-1 transition-transform duration-300">
-                <ArrowRight className="h-5 w-5" />
+              {date && <span className="text-sm">{date}</span>}
+              <span className="text-sm group-hover:translate-x-1 transition-transform duration-300">
+                <ArrowRight className="h-4 w-4" />
               </span>
             </div>
           </div>

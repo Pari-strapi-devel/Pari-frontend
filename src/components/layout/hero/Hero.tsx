@@ -291,7 +291,7 @@ export function Hero() {
 
             <div className={`flex sm:justify-between flex-col sm:flex-row gap-4 pt-7 ${language === 'ur' ? 'sm:flex-row-reverse' : ''}`}>
               <div className={language === 'ur' ? 'text-right' : 'text-left'}>
-                <h1 className="text-foreground mb-2">
+                <h1 className="text-foreground  mb-2">
                   {pariInfo[0]?.heading}
                   <br />
                   {pariInfo[0]?.sabHeading}
@@ -373,11 +373,11 @@ export function Hero() {
                         <h3 className="font-noto-sans text-[20px] md:h-[70px] sm:text-[24px] md:text-[28px] font-bold leading-[124%] tracking-[-0.04em] mb-2 text-foreground line-clamp-1 sm:line-clamp-2">
                           {info.title}
                         </h3>
-                        <p className="font-noto-sans text-[15px] font-normal leading-[170%] tracking-[-0.03em] text-discreet-text line-clamp-2 sm:line-clamp-3">
+                        <p className="line-clamp-2  text-discreet-text ">
                           {info.description}
                         </p>
                         
-                        <div className={`flex items-center pt-4 md:transform md:translate-y-4 md:opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100 md:transition-all md:duration-300 md:ease-out ${language === 'ur' ? 'flex-row-reverse' : ''}`}>
+                        <div className={`flex items-center md:pt-4 md:transform md:translate-y-4 md:opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100 md:transition-all md:duration-300 md:ease-out ${language === 'ur' ? 'flex-row-reverse' : ''}`}>
                           <span className={`flex items-center gap-2 py-2 text-primary-PARI-Red ${language === 'ur' ? 'flex-row-reverse' : ''}`}>
                             <span className='text-[14px] font-noto-sans font-medium leading-[160%] tracking-[-0.03em]'>{info.ButtonText}</span>
                             <span className="md:group-hover:translate-x-1 md:transition-transform md:duration-300">

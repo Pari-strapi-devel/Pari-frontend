@@ -429,11 +429,11 @@ const BentoCard = ({
 
             {(location || date) && (
               <div className="flex gap-1 items-center text-primary-PARI-Red font-noto-sans text-[14px] font-medium leading-[160%] tracking-[-0.03em]">
-                {location && <p>{location}</p>}
+                {location && <p className="text-sm">{location}</p>}
                 {location && date && <span>•</span>}
-                {date && <p>{date}</p>}
-                <span className="group-hover:translate-x-1 transition-transform duration-300">
-                  <ArrowRightIcon className="h-5 w-5" />
+                {date && <p className="text-sm">{date}</p>}
+                <span className="text-sm group-hover:translate-x-1 transition-transform duration-300">
+                  <ArrowRightIcon className="h-4 w-4" />
                 </span>
               </div>
             )}

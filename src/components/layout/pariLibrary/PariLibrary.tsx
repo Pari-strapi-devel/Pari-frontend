@@ -155,7 +155,7 @@ export function PariLibrary() {
             <h1 className="text-foreground mb-2">
               {libraryData[0]?.headtitle}
             </h1>
-            <p className="font-noto-sans max-w-[32.375rem] text-[16px] text-discreet-text font-normal leading-[170%] tracking-[-0.01em] ">
+            <p className=" max-w-[32.375rem]  text-discreet-text  ">
               {libraryData[0]?.headDescription}
             </p>
           </div>

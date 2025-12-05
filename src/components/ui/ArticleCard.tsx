@@ -209,7 +209,7 @@ export function ArticleCard({
             {title}
           </h3>
           
-          <p className="!font-noto-sans text-[16px] text-discreet-text font-normal max-w-[500px] leading-[170%] tracking-[-0.01em]  line-clamp-2">
+          <p className="text-discreet-text line-clamp-2">
             {description}
           </p>
           </div>
@@ -234,12 +234,12 @@ export function ArticleCard({
                 ))}
               </h5>
               <div className='flex gap-1 items-center w-fit text-primary-PARI-Red pt-1'> 
-                {location && <p>{location}</p>}
+                {location && <p className='text-sm'>{location}</p>}
                 {location && date && '•'}
-                {date && <p>{date}</p>}
-                {readMore && <p>{readMore}</p>}
-                <span className="group-hover:translate-x-1 transition-transform duration-300">
-                  <ArrowRight className="h-5 gap-2 w-5" />
+                {date && <p className='text-sm'>{date}</p>}
+                {readMore && <p className='text-sm'>{readMore}</p>}
+                <span className="text-sm group-hover:translate-x-1 transition-transform duration-300">
+                  <ArrowRight className="h-4 gap-2 w-4" />
                 </span>
               </div>
             </div>
