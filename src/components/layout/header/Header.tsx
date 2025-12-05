@@ -517,7 +517,7 @@ export function Header() {
                   width={60}
                   height={60}
                   priority
-                  className="h-10 w-10 object-contain"
+                  className="h-16 w-16 object-contain"
                 />
                
               </div>
