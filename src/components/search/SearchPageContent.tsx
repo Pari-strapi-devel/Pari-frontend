@@ -541,12 +541,12 @@ export default function SearchPageContent() {
             <div className="flex items-center justify-between mb-4">
               <h1 className="text-2xl sm:text-3xl font-bold">Search Results</h1>
               <Button
-                variant="outline"
+                variant="secondary"
                 onClick={() => setIsFilterOpen(!isFilterOpen)}
-                className="md:hidden flex items-center gap-2 h-10"
+                className="md:hidden flex items-center rounded-full p-2 gap-1.5 h-10 px-3 text-sm shadow-sm hover:shadow-md active:scale-95 transition-all duration-200"
               >
                 <Filter className="h-4 w-4" />
-                <span className="hidden sm:inline">Filters</span>
+                <span className="hidden sm:inline font-medium">Filters</span>
               </Button>
             </div>
 

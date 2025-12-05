@@ -875,6 +875,48 @@
   animation: slideIn 0.3s ease-out forwards;
 }
 
+/* Smooth scrollbar for filter sidebar */
+.scrollbar-thin {
+  scrollbar-width: thin;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
+.dark .scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+.dark .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+.scrollbar-thumb-primary-PARI-Red\/20::-webkit-scrollbar-thumb {
+  background-color: rgba(204, 0, 0, 0.2);
+}
+
+.dark .scrollbar-thumb-primary-PARI-Red\/20::-webkit-scrollbar-thumb {
+  background-color: rgba(204, 0, 0, 0.3);
+}
+
+.scrollbar-track-transparent::-webkit-scrollbar-track {
+  background: transparent;
+}
+
 /* Sticky header styles */
 .sticky-header-active {
   padding-top: 60px; /* Height of sticky header */
