@@ -6,6 +6,7 @@ import axios from 'axios'
 import qs from 'qs'
 import { BASE_URL, IMAGE_URL } from '@/config'
 import { useLocale } from '@/lib/locale'
+import { GenericPageSkeleton } from '@/components/skeletons/PageSkeletons'
 
 interface Author {
   id: number
@@ -332,14 +333,7 @@ function LanguageUniverseContent() {
   }
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-700 mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-400">Loading Language Universe...</p>
-        </div>
-      </div>
-    )
+    return <GenericPageSkeleton />
   }
 
   if (error || !article) {
@@ -454,14 +448,7 @@ function LanguageUniverseContent() {
 
 export default function LanguageUniversePage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-700 mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-400">Loading Language Universe...</p>
-        </div>
-      </div>
-    }>
+    <Suspense fallback={<GenericPageSkeleton />}>
       <LanguageUniverseContent />
     </Suspense>
   )

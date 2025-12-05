@@ -7,6 +7,7 @@ import { useEffect, useState, Suspense, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useLocale } from '@/lib/locale'
 import { LanguageToggle } from '@/components/layout/header/LanguageToggle'
+import { GenericPageSkeleton } from '@/components/skeletons/PageSkeletons'
 
 // Define interfaces for page-story-of-pari API
 interface ImageFormat {
@@ -349,14 +350,7 @@ function StoryOfPariContent() {
   }
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-background">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-PARI-Red mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-400">Loading Story of PARI...</p>
-        </div>
-      </div>
-    )
+    return <GenericPageSkeleton />
   }
 
   if (error || !page) {
@@ -615,14 +609,7 @@ function StoryOfPariContent() {
 
 export default function StoryOfPariPage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-background">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-PARI-Red mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-400">Loading Story of PARI...</p>
-        </div>
-      </div>
-    }>
+    <Suspense fallback={<GenericPageSkeleton />}>
       <StoryOfPariContent />
     </Suspense>
   )

@@ -12,32 +12,36 @@ import './globals.css'
 
 // import { PariLibraryStory } from '@/components/layout/pariLibrary/PariLibraryStory'
 import { AudioVideoCard } from '@/components/layout/audioVideo/AudioVideoCard'
+import { HomeCardSkeleton, LibraryGridSkeleton, AudioVideoCardSkeleton, HeroSectionSkeleton } from '@/components/skeletons/ArticleSkeletons'
+
+// Force dynamic rendering to prevent SSR issues with useSearchParams
+export const dynamic = 'force-dynamic'
 
 function HomeContent() {
   return (
 
     <div className="min-h-screen bg-background !scroll-y-auto">
 
-      <Suspense fallback={<div className="flex justify-center items-center min-h-[400px]">Loading hero...</div>}>
+      <Suspense fallback={<HeroSectionSkeleton />}>
         <Hero />
       </Suspense>
-      <Suspense fallback={<div className="flex justify-center items-center min-h-[200px]">Loading content...</div>}>
+      <Suspense fallback={<HomeCardSkeleton />}>
         <WeekOnCard />
       </Suspense>
 
       <div className="bg-[#EDEDED]  md:py-20 py-10 dark:bg-popover">
         <MakeInIndiaCard />
-        <Suspense fallback={<div className="flex justify-center items-center min-h-[400px]">Loading stories...</div>}>
+        <Suspense fallback={<div className="px-4 sm:px-6 lg:px-8"><HomeCardSkeleton /></div>}>
           <StoriesPage />
         </Suspense>
       </div>
       <div>
-        <Suspense fallback={<div className="flex justify-center items-center min-h-[300px]">Loading library...</div>}>
+        <Suspense fallback={<div className="px-4 sm:px-6 lg:px-8 py-8"><LibraryGridSkeleton /></div>}>
           <PariLibrary />
         </Suspense>
         {/* <PariLibraryStory /> */}
       </div>
-      <Suspense fallback={<div className="flex justify-center items-center min-h-[200px]">Loading audio/video...</div>}>
+      <Suspense fallback={<div className="px-4 sm:px-6 lg:px-8 py-8"><AudioVideoCardSkeleton /></div>}>
         <AudioVideoCard />
       </Suspense>
 
@@ -47,11 +51,7 @@ function HomeContent() {
 }
 
 export default function Home() {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <HomeContent />
-    </Suspense>
-  )
+  return <HomeContent />
 }
 
 

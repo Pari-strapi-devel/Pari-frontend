@@ -6,6 +6,7 @@ import { useVolunteerBrevo } from '@/hooks/useBrevo';
 import { languages } from '@/data/languages';
 import { LanguageToggle } from '@/components/layout/header/LanguageToggle';
 import { useLocale } from '@/lib/locale';
+import { FormPageSkeleton } from '@/components/skeletons/PageSkeletons';
 
 // Location data interfaces
 interface Country {
@@ -1316,7 +1317,7 @@ const VolunteerPageContent = () => {
 
 const VolunteerPage = () => {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<FormPageSkeleton />}>
       <VolunteerPageContent />
     </Suspense>
   );

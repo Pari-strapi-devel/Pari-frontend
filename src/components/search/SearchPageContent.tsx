@@ -10,6 +10,7 @@ import { languages as languagesList } from '@/data/languages'
 import { Button } from '@/components/ui/button'
 import { ChevronLeft, ChevronRight, Filter } from 'lucide-react'
 import { SearchFiltersSidebar, SearchFilters } from './SearchFilters'
+import { Skeleton } from '@/components/ui/skeleton'
 
 interface SearchResult {
   id: number;
@@ -586,11 +587,15 @@ export default function SearchPageContent() {
           </div>
 
         {isLoading ? (
-          <div className="flex justify-center items-center min-h-[300px] sm:min-h-[400px]">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-b-2 border-primary-PARI-Red mx-auto mb-4"></div>
-              <p className="text-sm sm:text-base">Searching...</p>
-            </div>
+          <div className={`grid grid-cols-1 sm:grid-cols-2 ${isFilterOpen ? 'lg:grid-cols-3' : 'lg:grid-cols-4'} gap-4 sm:gap-5 md:gap-6`}>
+            {[1, 2, 3, 4, 5, 6, 7, 8].map((item) => (
+              <div key={item} className="animate-pulse">
+                <Skeleton className="w-full h-48 rounded-lg mb-4" />
+                <Skeleton className="h-6 w-full mb-2" />
+                <Skeleton className="h-4 w-5/6 mb-2" />
+                <Skeleton className="h-4 w-4/6" />
+              </div>
+            ))}
           </div>
         ) : (
           <div className={`grid grid-cols-1 sm:grid-cols-2 ${isFilterOpen ? 'lg:grid-cols-3' : 'lg:grid-cols-4'} gap-4 sm:gap-5 md:gap-6`}>

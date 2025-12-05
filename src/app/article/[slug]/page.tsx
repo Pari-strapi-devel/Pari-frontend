@@ -3,6 +3,7 @@
 import { useParams, useSearchParams } from 'next/navigation'
 import { Suspense } from 'react'
 import StoryDetail from '../../../components/story/StoryDetail'
+import { StoryDetailSkeleton } from '@/components/skeletons/PageSkeletons'
 
 // This could be enhanced to generate metadata dynamically
 // export async function generateMetadata({ params }: { params: { slug: string } }) {
@@ -39,14 +40,7 @@ function StoryContent() {
 export default function StoryPage() {
   return (
     <div className="min-h-screen bg-background">
-      <Suspense fallback={
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-PARI-Red mx-auto mb-4"></div>
-            <p className="text-gray-600 dark:text-gray-400">Loading story...</p>
-          </div>
-        </div>
-      }>
+      <Suspense fallback={<StoryDetailSkeleton />}>
         <StoryContent />
       </Suspense>
     </div>

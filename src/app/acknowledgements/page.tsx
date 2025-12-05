@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import axios from 'axios'
+import { GenericPageSkeleton } from '@/components/skeletons/PageSkeletons'
 
 const API_BASE_URL = 'https://merge.ruralindiaonline.org'
 
@@ -67,14 +68,7 @@ export default function AcknowledgementsPage() {
   }, [fetchData])
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen bg-white dark:bg-gray-900 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">Loading Acknowledgements...</h1>
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900 dark:border-white mx-auto"></div>
-        </div>
-      </div>
-    )
+    return <GenericPageSkeleton />
   }
 
   if (error) {

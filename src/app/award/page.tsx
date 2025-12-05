@@ -354,6 +354,8 @@ export default function AwardPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [selectedYear, setSelectedYear] = useState<number>(2025)
+  const [pageTitle, setPageTitle] = useState<string>('')
+  const [pageStrap, setPageStrap] = useState<string>('')
 
   // Function to fetch award data from API
   const fetchAwardData = useCallback(async () => {
@@ -368,6 +370,10 @@ export default function AwardPage() {
 
       if (response.data && response.data.data) {
         const pageData = response.data.data.attributes
+
+        // Set page title and strap from API
+        setPageTitle(pageData.Title || '')
+        setPageStrap(pageData.Strap || '')
 
         // Check if Year data exists in the response
         if (pageData.Year && Array.isArray(pageData.Year)) {
@@ -409,10 +415,50 @@ export default function AwardPage() {
     return (
       <div className="dark:bg-propover bg-popover min-h-screen">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-8 sm:py-12 md:py-16">
-          <div className="flex items-center justify-center h-64">
-            <div className="text-center">
-              <div className="w-16 h-16 border-4 border-primary-PARI-Red border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-              <p className="text-lg font-medium text-gray-600 dark:text-gray-300">Loading award data...</p>
+          {/* Skeleton for Title and Subtitle */}
+          <div className="mb-8 sm:mb-12 md:mb-16 animate-pulse">
+            <div className="h-12 sm:h-14 md:h-16 bg-gray-200 dark:bg-gray-700 rounded-lg mb-4 w-3/4"></div>
+            <div className="h-6 sm:h-7 md:h-8 bg-gray-200 dark:bg-gray-700 rounded-lg w-full max-w-3xl"></div>
+          </div>
+
+          {/* Skeleton for Timeline and Content */}
+          <div className="flex flex-col md:flex-row md:items-start">
+            {/* Skeleton for Year Timeline */}
+            <div className="w-full md:w-36 flex md:flex-col mb-8 md:mb-0">
+              <div className="flex md:flex-col space-x-2 md:space-x-0 md:space-y-4 lg:space-y-6 overflow-x-auto md:overflow-x-visible pb-2 md:pb-0 animate-pulse">
+                {[1, 2, 3, 4, 5, 6].map((item) => (
+                  <div key={item} className="flex-shrink-0">
+                    <div className="w-12 h-7 sm:w-14 sm:h-8 md:w-16 md:h-8 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Skeleton for Award Content */}
+            <div className="flex-1 md:border-l border-border dark:border-[#444444] md:pl-8 pt-8 md:pt-0">
+              <div className="space-y-8 md:space-y-12 max-w-[900px] mx-auto animate-pulse">
+                {[1, 2, 3].map((item) => (
+                  <div key={item}>
+                    <div className="flex flex-col md:flex-row md:items-start">
+                      {/* Skeleton for Image */}
+                      <div className="w-full md:w-72 h-48 md:h-48 mb-4 md:mb-0 md:mr-8 flex-shrink-0">
+                        <div className="w-full h-full bg-gray-200 dark:bg-gray-700 rounded-xl"></div>
+                      </div>
+                      {/* Skeleton for Text Content */}
+                      <div className="flex-1 space-y-3">
+                        <div className="h-7 sm:h-8 md:h-9 bg-gray-200 dark:bg-gray-700 rounded-lg w-3/4"></div>
+                        <div className="space-y-2">
+                          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
+                          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
+                          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-5/6"></div>
+                        </div>
+                        <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded-full w-40 mt-4"></div>
+                      </div>
+                    </div>
+                    {item !== 3 && <div className="mt-6 md:mt-8 border-b border-border dark:border-[#444444]"></div>}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
@@ -450,18 +496,11 @@ export default function AwardPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-8 sm:py-12 md:py-16">
         {/* Main Title and Subtitle - Enhanced Styling */}
         <div className="mb-8 sm:mb-12 md:mb-16">
-          <h1 className=" mb-2">
-            
-             PARI&apos;s
-            
-            journalism prizes
-            awards and honours
+          <h1 className="mb-2">
+            {pageTitle }
           </h1>
-          <h2 className=" dark:text-discreet-text  max-w-3xl" 
-            >
-            PARI&apos;s won{' '}
-            82 journalism awards
-            since we began publishing in 2014.
+          <h2 className="dark:text-discreet-text max-w-3xl">
+            {pageStrap }
           </h2>
         </div>
 

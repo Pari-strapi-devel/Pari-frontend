@@ -18,6 +18,7 @@ import { StoryCard } from '@/components/layout/stories/StoryCard'
 import { FiShare2, FiMail, FiCopy, FiCheck } from 'react-icons/fi'
 import { FaXTwitter, FaFacebookF, FaInstagram, FaLinkedinIn, FaWhatsapp, FaTelegram } from 'react-icons/fa6'
 import { Printer, Image as ImageIcon, ZoomIn, X } from 'lucide-react'
+import { StoryDetailSkeleton } from '@/components/skeletons/PageSkeletons'
 
 // Labels for credits and donation (English only)
 const CREDIT_LABELS_EN: Record<string, string> = {
@@ -1376,14 +1377,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
   }, [showImageModal, handleCloseImageModal, handleNextImage, handlePrevImage])
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-center">
-          <div className={`animate-spin rounded-full h-12 w-12 border-b-2 ${story?.isStudent ? 'border-[#2F80ED]' : 'border-primary-PARI-Red'} mx-auto mb-4`}></div>
-          <p className="text-gray-600 dark:text-gray-400">Loading story...</p>
-        </div>
-      </div>
-    )
+    return <StoryDetailSkeleton />
   }
 
   if (error || !story) {

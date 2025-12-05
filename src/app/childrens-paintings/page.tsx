@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import axios from 'axios'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
+import { LibraryGridSkeleton } from '@/components/skeletons/ArticleSkeletons'
 
 
 const BASE_URL = 'https://merge.ruralindiaonline.org/v1/'
@@ -194,10 +195,9 @@ export default function ChildrensPaintingsPage() {
 
   if (isLoading || isLoadingPage) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-PARI-Red mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-400">Loading paintings...</p>
+      <div className="min-h-screen bg-background py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <LibraryGridSkeleton />
         </div>
       </div>
     )

@@ -6,6 +6,7 @@ import axios from 'axios'
 import { useDonationBrevo } from '@/hooks/useBrevo'
 import { LanguageToggle } from '@/components/layout/header/LanguageToggle'
 import { useLocale } from '@/lib/locale'
+import { FormPageSkeleton } from '@/components/skeletons/PageSkeletons'
 
 // Razorpay types
 interface RazorpayResponse {
@@ -1353,7 +1354,7 @@ console.log('Razorpay options:', options)
 
 export default function DonatePage() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<FormPageSkeleton />}>
       <DonatePageContent />
     </Suspense>
   )

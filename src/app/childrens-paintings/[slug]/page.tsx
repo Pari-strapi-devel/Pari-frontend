@@ -5,6 +5,8 @@ import axios from 'axios'
 import Image from 'next/image'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi'
+import { PaintingDetailSkeleton } from '@/components/skeletons/PageSkeletons'
+
 
 const BASE_URL = 'https://merge.ruralindiaonline.org/v1/'
 const IMAGE_BASE_URL = 'https://merge.ruralindiaonline.org'
@@ -116,14 +118,7 @@ export default function PaintingDetailPage() {
 
 
   if (isLoading) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-PARI-Red mx-auto mb-4"></div>
-          <p>Loading painting...</p>
-        </div>
-      </div>
-    )
+    return <PaintingDetailSkeleton />
   }
 
   if (error || !painting) {
