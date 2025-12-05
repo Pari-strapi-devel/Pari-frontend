@@ -3947,7 +3947,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
       {/* Full-Screen Image Modal with Zoom & Pan */}
       {showImageModal && selectedImage && (
         <div
-          className="fixed inset-0 z-[99999] bg-black bg-opacity-98 flex items-center justify-center"
+          className="fixed inset-0 z-[99999] bg-background/98 dark:bg-popover/98 flex items-center justify-center"
           onClick={(e) => {
             // Only close if clicking the background, not the buttons or image
             if (e.target === e.currentTarget) {
@@ -3961,12 +3961,17 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
               e.stopPropagation()
               handleCloseImageModal()
             }}
-            className="absolute top-4 right-4 z-[100001] w-12 h-12 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
+            className={`absolute top-3 right-3 md:top-4 md:right-4 z-[100001] w-14 h-14 md:w-12 md:h-12 flex items-center justify-center rounded-full transition-colors ${
+              story?.isStudent
+                ? 'bg-student-blue/20 hover:bg-student-blue/30 text-student-blue'
+                : 'bg-primary-PARI-Red/20 hover:bg-primary-PARI-Red/30 text-primary-PARI-Red'
+            }`}
             aria-label="Close image"
           >
             <svg
-              width="24"
-              height="24"
+              width="28"
+              height="28"
+              className="md:w-6 md:h-6"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -3979,70 +3984,76 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
             </svg>
           </button>
 
-          {/* Previous Image Button - Always show for debugging */}
+          {/* Previous Image Button */}
           <button
             type="button"
             onClick={(e) => {
               e.stopPropagation()
-              console.log('##Rohit_Rocks## Previous button clicked!')
-              console.log('##Rohit_Rocks## Total images:', allContentImages.length)
-              console.log('##Rohit_Rocks## Current index:', currentImageIndex)
               if (allContentImages.length > 1) {
                 handlePrevImage()
-              } else {
-                console.log('##Rohit_Rocks## Cannot navigate - only 1 image')
               }
             }}
-            className={`absolute left-4 top-1/2 -translate-y-1/2 z-[100001] w-14 h-14 md:w-16 md:h-16 flex items-center justify-center rounded-full bg-white/30 hover:bg-white/40 text-white transition-all shadow-2xl border-2 border-white/50 ${
-              allContentImages.length <= 1 ? 'opacity-30 cursor-not-allowed' : 'opacity-100 cursor-pointer hover:scale-110'
+            className={`absolute left-3 md:left-4 top-1/2 -translate-y-1/2 z-[100001] w-16 h-16 md:w-16 md:h-16 flex items-center justify-center rounded-full transition-all shadow-2xl border-2 ${
+              allContentImages.length <= 1
+                ? 'opacity-30 cursor-not-allowed'
+                : 'opacity-100 cursor-pointer hover:scale-110'
+            } ${
+              story?.isStudent
+                ? 'bg-student-blue/30 hover:bg-student-blue/40 text-student-blue border-student-blue/50'
+                : 'bg-primary-PARI-Red/30 hover:bg-primary-PARI-Red/40 text-primary-PARI-Red border-primary-PARI-Red/50'
             }`}
             aria-label="Previous image"
             title={`Previous image (←) - ${allContentImages.length} total images`}
             disabled={allContentImages.length <= 1}
           >
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="36" height="36" className="md:w-8 md:h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="15 18 9 12 15 6"></polyline>
             </svg>
           </button>
 
-          {/* Next Image Button - Always show for debugging */}
+          {/* Next Image Button */}
           <button
             type="button"
             onClick={(e) => {
               e.stopPropagation()
-              console.log('##Rohit_Rocks## Next button clicked!')
-              console.log('##Rohit_Rocks## Total images:', allContentImages.length)
-              console.log('##Rohit_Rocks## Current index:', currentImageIndex)
               if (allContentImages.length > 1) {
                 handleNextImage()
-              } else {
-                console.log('##Rohit_Rocks## Cannot navigate - only 1 image')
               }
             }}
-            className={`absolute right-4 top-1/2 -translate-y-1/2 z-[100001] w-14 h-14 md:w-16 md:h-16 flex items-center justify-center rounded-full bg-white/30 hover:bg-white/40 text-white transition-all shadow-2xl border-2 border-white/50 ${
-              allContentImages.length <= 1 ? 'opacity-30 cursor-not-allowed' : 'opacity-100 cursor-pointer hover:scale-110'
+            className={`absolute right-3 md:right-4 top-1/2 -translate-y-1/2 z-[100001] w-16 h-16 md:w-16 md:h-16 flex items-center justify-center rounded-full transition-all shadow-2xl border-2 ${
+              allContentImages.length <= 1
+                ? 'opacity-30 cursor-not-allowed'
+                : 'opacity-100 cursor-pointer hover:scale-110'
+            } ${
+              story?.isStudent
+                ? 'bg-student-blue/30 hover:bg-student-blue/40 text-student-blue border-student-blue/50'
+                : 'bg-primary-PARI-Red/30 hover:bg-primary-PARI-Red/40 text-primary-PARI-Red border-primary-PARI-Red/50'
             }`}
             aria-label="Next image"
             title={`Next image (→) - ${allContentImages.length} total images`}
             disabled={allContentImages.length <= 1}
           >
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="36" height="36" className="md:w-8 md:h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
           </button>
 
           {/* Zoom Controls */}
-          <div className="absolute top-4 left-4 z-[100000] flex flex-col gap-2">
+          <div className="absolute top-3 left-3 md:top-4 md:left-4 z-[100000] flex flex-col gap-2">
             <button
               onClick={(e) => {
                 e.stopPropagation()
                 handleZoomIn()
               }}
-              className="w-12 h-12 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
+              className={`w-14 h-14 md:w-12 md:h-12 flex items-center justify-center rounded-full transition-colors ${
+                story?.isStudent
+                  ? 'bg-student-blue/20 hover:bg-student-blue/30 text-student-blue'
+                  : 'bg-primary-PARI-Red/20 hover:bg-primary-PARI-Red/30 text-primary-PARI-Red'
+              }`}
               aria-label="Zoom in"
               title="Zoom in"
             >
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <svg width="28" height="28" className="md:w-6 md:h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <line x1="12" y1="8" x2="12" y2="16" />
                 <line x1="8" y1="12" x2="16" y2="12" />
               </svg>
@@ -4052,11 +4063,15 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                 e.stopPropagation()
                 handleZoomOut()
               }}
-              className="w-12 h-12 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
+              className={`w-14 h-14 md:w-12 md:h-12 flex items-center justify-center rounded-full transition-colors ${
+                story?.isStudent
+                  ? 'bg-student-blue/20 hover:bg-student-blue/30 text-student-blue'
+                  : 'bg-primary-PARI-Red/20 hover:bg-primary-PARI-Red/30 text-primary-PARI-Red'
+              }`}
               aria-label="Zoom out"
               title="Zoom out"
             >
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <svg width="28" height="28" className="md:w-6 md:h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <line x1="8" y1="12" x2="16" y2="12" />
               </svg>
             </button>
@@ -4065,7 +4080,11 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                 e.stopPropagation()
                 handleResetZoom()
               }}
-              className="w-12 h-12 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors text-xs"
+              className={`w-14 h-14 md:w-12 md:h-12 flex items-center justify-center rounded-full transition-colors text-sm md:text-xs font-semibold ${
+                story?.isStudent
+                  ? 'bg-student-blue/20 hover:bg-student-blue/30 text-student-blue'
+                  : 'bg-primary-PARI-Red/20 hover:bg-primary-PARI-Red/30 text-primary-PARI-Red'
+              }`}
               aria-label="Reset zoom"
               title="Reset zoom"
             >
@@ -4074,13 +4093,21 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
           </div>
 
           {/* Image Counter and Zoom Level */}
-          <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-[100000] flex flex-col items-center gap-2">
+          <div className="absolute top-3 md:top-4 left-1/2 transform -translate-x-1/2 z-[100000] flex flex-col items-center gap-2">
             {allContentImages.length > 1 && (
-              <div className="bg-black/70 text-white px-4 py-2 rounded-lg text-sm">
+              <div className={`px-5 py-2.5 md:px-4 md:py-2 rounded-lg text-base md:text-sm font-medium ${
+                story?.isStudent
+                  ? 'bg-student-blue/90 text-white'
+                  : 'bg-primary-PARI-Red/90 text-white'
+              }`}>
                 {currentImageIndex + 1} / {allContentImages.length}
               </div>
             )}
-            <div className="bg-black/70 text-white px-4 py-2 rounded-lg text-sm">
+            <div className={`px-5 py-2.5 md:px-4 md:py-2 rounded-lg text-base md:text-sm font-medium ${
+              story?.isStudent
+                ? 'bg-student-blue/90 text-white'
+                : 'bg-primary-PARI-Red/90 text-white'
+            }`}>
               {Math.round(imageScale * 100)}%
             </div>
           </div>
@@ -4138,29 +4165,24 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
             </div>
           </div>
 
-          {/* Image Caption */}
+          {/* Instructions - Positioned above caption */}
+       
+          {/* Image Caption - Positioned above instructions with dynamic spacing */}
           {(selectedImage.caption || selectedImage.alt) && (
-            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black/70 text-white px-6 py-3 rounded-lg max-w-[90vw] text-center z-[100000]">
+            <div
+              className={`absolute left-1/2 transform -translate-x-1/2 px-6 py-3 md:px-6 md:py-3 rounded-lg min-w-[350px] max-w-4xl text-center z-[100001] ${
+                story?.isStudent
+                  ? 'bg-student-blue/90 text-white'
+                  : 'bg-primary-PARI-Red/90 text-white'
+              }`}
+              style={{ bottom: imageScale > 1 ? '4.5rem' : '7rem' }}
+            >
               <div
-                className="text-sm md:text-base"
+                className="text-base md:text-base font-medium"
                 dangerouslySetInnerHTML={{ __html: stripHtmlCssWithStyledStrong(selectedImage.caption || selectedImage.alt) }}
               />
             </div>
           )}
-
-          {/* Instructions */}
-          <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 bg-black/50 text-white px-4 py-2 rounded-lg text-xs z-[100000] text-center">
-            {imageScale > 1 ? (
-              <p>Click and drag to pan</p>
-            ) : (
-              <div>
-                <p>Use zoom controls or scroll to zoom</p>
-                {allContentImages.length > 1 && (
-                  <p className="mt-1">← → arrows or buttons to navigate</p>
-                )}
-              </div>
-            )}
-          </div>
         </div>
       )}
 
