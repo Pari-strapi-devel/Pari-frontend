@@ -15,9 +15,9 @@ import axios from 'axios'
 import qs from 'qs'
 import { ArticleData } from '@/components/articles/ArticlesContent'
 import { StoryCard } from '@/components/layout/stories/StoryCard'
-import { FiShare2, FiMail } from 'react-icons/fi'
-import { FaXTwitter, FaFacebookF, FaInstagram, FaLinkedinIn } from 'react-icons/fa6'
-import { Printer, Image as ImageIcon, ZoomIn } from 'lucide-react'
+import { FiShare2, FiMail, FiCopy, FiCheck } from 'react-icons/fi'
+import { FaXTwitter, FaFacebookF, FaInstagram, FaLinkedinIn, FaWhatsapp, FaTelegram } from 'react-icons/fa6'
+import { Printer, Image as ImageIcon, ZoomIn, X } from 'lucide-react'
 
 // Labels for credits and donation (English only)
 const CREDIT_LABELS_EN: Record<string, string> = {
@@ -757,6 +757,10 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
   }>>([])
   const [showAllCategories, setShowAllCategories] = useState(false)
 
+  // State for share modal
+  const [showShareModal, setShowShareModal] = useState(false)
+  const [linkCopied, setLinkCopied] = useState(false)
+
   const router = useRouter()
   const searchParams = useSearchParams()
   const { language: currentLocale, addLocaleToUrl } = useLocale()
@@ -1350,16 +1354,48 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
   console.log('##Rohit_Rocks## Rendering story with isStudent:', story.isStudent)
 
   const handleShare = () => {
-    if (navigator.share) {
-      navigator.share({
-        title: story?.title,
-        url: window.location.href,
-      }).catch(() => {})
-    } else {
-      // Fallback: copy to clipboard
-      navigator.clipboard.writeText(window.location.href)
-      alert('Link copied to clipboard!')
-    }
+    setShowShareModal(true)
+  }
+
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(window.location.href)
+    setLinkCopied(true)
+    setTimeout(() => setLinkCopied(false), 2000)
+  }
+
+  const getShareUrl = () => window.location.href
+  const getShareTitle = () => story?.title || ''
+  const getShareDescription = () => story?.subtitle || ''
+
+  const shareToWhatsApp = () => {
+    const url = `https://wa.me/?text=${encodeURIComponent(getShareTitle() + ' - ' + getShareUrl())}`
+    window.open(url, '_blank')
+  }
+
+  const shareToFacebook = () => {
+    const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(getShareUrl())}`
+    window.open(url, '_blank')
+  }
+
+  const shareToTwitter = () => {
+    const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(getShareTitle())}&url=${encodeURIComponent(getShareUrl())}`
+    window.open(url, '_blank')
+  }
+
+  const shareToTelegram = () => {
+    const url = `https://t.me/share/url?url=${encodeURIComponent(getShareUrl())}&text=${encodeURIComponent(getShareTitle())}`
+    window.open(url, '_blank')
+  }
+
+  const shareToLinkedIn = () => {
+    const url = `https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(getShareUrl())}&title=${encodeURIComponent(getShareTitle())}&summary=${encodeURIComponent(getShareDescription())}`
+    window.open(url, '_blank')
+  }
+
+  const shareToEmail = () => {
+    const subject = encodeURIComponent(getShareTitle())
+    const body = encodeURIComponent(`Check out this story from PARI:\n\n${getShareTitle()}\n\n${getShareUrl()}`)
+    window.location.href = `mailto:?subject=${subject}&body=${body}`
   }
 
   const handlePrint = () => {
@@ -4067,6 +4103,200 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                 )}
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Share Modal */}
+      {showShareModal && (
+        <div
+          className="fixed inset-0 z-[99999] flex items-center justify-center p-4"
+          onClick={() => setShowShareModal(false)}
+        >
+          {/* Backdrop */}
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+
+          {/* Modal Content */}
+          <div
+            className="relative bg-white dark:bg-popover rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Close Button */}
+            <button
+              onClick={() => setShowShareModal(false)}
+              className="absolute top-4 right-4 z-10 w-8 h-8 flex items-center justify-center rounded-full bg-black/20 hover:bg-black/40 text-white transition-colors"
+            >
+              <X size={18} />
+            </button>
+
+            {/* Share Preview Card - YouTube Style */}
+            <div className="relative">
+              {/* Story Image */}
+              {story.coverImage && (
+                <div className="relative w-full h-48 overflow-hidden">
+                  <Image
+                    src={story.coverImage}
+                    alt={story.title}
+                    fill
+                    className="object-cover"
+                    unoptimized
+                  />
+                  {/* Gradient Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+
+                  {/* PARI Logo */}
+                  <div className="absolute top-3 left-3">
+                    <Image
+                      src="/images/header-logo/For-dark-mode/pari-english-dark.png"
+                      alt="PARI"
+                      width={80}
+                      height={30}
+                      className="h-6 w-auto"
+                      unoptimized
+                    />
+                  </div>
+
+                  {/* Title on Image */}
+                  <div className="absolute bottom-0 left-0 right-0 p-4">
+                    <h3 className="text-white text-lg font-semibold line-clamp-2 drop-shadow-lg">
+                      {story.title}
+                    </h3>
+                    {story.authors && story.authors.length > 0 && (
+                      <p className="text-white/80 text-sm mt-1">
+                        By {story.authors.map(a => a.name).slice(0, 2).join(', ')}
+                        {story.authors.length > 2 && ' & others'}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* No Cover Image Fallback */}
+              {!story.coverImage && (
+                <div className={`relative w-full h-48 ${story.isStudent ? 'bg-[#2F80ED]' : 'bg-primary-PARI-Red'} flex items-center justify-center`}>
+                  <div className="absolute top-3 left-3">
+                    <Image
+                      src="/images/header-logo/For-dark-mode/pari-english-dark.png"
+                      alt="PARI"
+                      width={80}
+                      height={30}
+                      className="h-6 w-auto"
+                      unoptimized
+                    />
+                  </div>
+                  <div className="p-4 text-center">
+                    <h3 className="text-white text-lg font-semibold line-clamp-3">
+                      {story.title}
+                    </h3>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Share Options */}
+            <div className="p-5">
+              <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-4">Share this story</h4>
+
+              {/* Social Share Buttons */}
+              <div className="grid grid-cols-4 gap-4 mb-6">
+                {/* WhatsApp */}
+                <button
+                  onClick={shareToWhatsApp}
+                  className="flex flex-col items-center gap-2 group"
+                >
+                  <div className="w-12 h-12 rounded-full bg-[#25D366] flex items-center justify-center text-white group-hover:scale-110 transition-transform shadow-lg">
+                    <FaWhatsapp size={24} />
+                  </div>
+                  <span className="text-xs text-gray-600 dark:text-gray-400">WhatsApp</span>
+                </button>
+
+                {/* Facebook */}
+                <button
+                  onClick={shareToFacebook}
+                  className="flex flex-col items-center gap-2 group"
+                >
+                  <div className="w-12 h-12 rounded-full bg-[#1877F2] flex items-center justify-center text-white group-hover:scale-110 transition-transform shadow-lg">
+                    <FaFacebookF size={22} />
+                  </div>
+                  <span className="text-xs text-gray-600 dark:text-gray-400">Facebook</span>
+                </button>
+
+                {/* Twitter/X */}
+                <button
+                  onClick={shareToTwitter}
+                  className="flex flex-col items-center gap-2 group"
+                >
+                  <div className="w-12 h-12 rounded-full bg-black flex items-center justify-center text-white group-hover:scale-110 transition-transform shadow-lg">
+                    <FaXTwitter size={22} />
+                  </div>
+                  <span className="text-xs text-gray-600 dark:text-gray-400">X</span>
+                </button>
+
+                {/* Telegram */}
+                <button
+                  onClick={shareToTelegram}
+                  className="flex flex-col items-center gap-2 group"
+                >
+                  <div className="w-12 h-12 rounded-full bg-[#0088cc] flex items-center justify-center text-white group-hover:scale-110 transition-transform shadow-lg">
+                    <FaTelegram size={24} />
+                  </div>
+                  <span className="text-xs text-gray-600 dark:text-gray-400">Telegram</span>
+                </button>
+
+                {/* LinkedIn */}
+                <button
+                  onClick={shareToLinkedIn}
+                  className="flex flex-col items-center gap-2 group"
+                >
+                  <div className="w-12 h-12 rounded-full bg-[#0A66C2] flex items-center justify-center text-white group-hover:scale-110 transition-transform shadow-lg">
+                    <FaLinkedinIn size={22} />
+                  </div>
+                  <span className="text-xs text-gray-600 dark:text-gray-400">LinkedIn</span>
+                </button>
+
+                {/* Email */}
+                <button
+                  onClick={shareToEmail}
+                  className="flex flex-col items-center gap-2 group"
+                >
+                  <div className="w-12 h-12 rounded-full bg-gray-600 flex items-center justify-center text-white group-hover:scale-110 transition-transform shadow-lg">
+                    <FiMail size={22} />
+                  </div>
+                  <span className="text-xs text-gray-600 dark:text-gray-400">Email</span>
+                </button>
+              </div>
+
+              {/* Copy Link Section */}
+              <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+                <div className="flex items-center gap-3 bg-gray-100 dark:bg-gray-800 rounded-lg p-3">
+                  <div className="flex-1 truncate text-sm text-gray-600 dark:text-gray-400">
+                    {typeof window !== 'undefined' ? window.location.href : ''}
+                  </div>
+                  <button
+                    onClick={handleCopyLink}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                      linkCopied
+                        ? 'bg-green-500 text-white'
+                        : story.isStudent
+                          ? 'bg-[#2F80ED] text-white hover:bg-[#2563EB]'
+                          : 'bg-primary-PARI-Red text-white hover:opacity-90'
+                    }`}
+                  >
+                    {linkCopied ? (
+                      <>
+                        <FiCheck size={16} />
+                        Copied!
+                      </>
+                    ) : (
+                      <>
+                        <FiCopy size={16} />
+                        Copy
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       )}
