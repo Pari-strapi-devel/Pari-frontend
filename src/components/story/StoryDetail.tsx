@@ -1367,7 +1367,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
   }
 
   const increaseFontSize = () => {
-    setFontSize(prev => Math.min(prev + 2, 25))
+    setFontSize(prev => Math.min(prev + 2, 40))
   }
 
   const decreaseFontSize = () => {
@@ -1462,6 +1462,17 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Global style to force font-size inheritance for article content */}
+      <style>{`
+        .article-content-text,
+        .article-content-text * {
+          font-size: inherit !important;
+        }
+        .article-content-text {
+          font-size: ${fontSize}px !important;
+        }
+      `}</style>
+
       {/* Reading Progress Line Bar */}
 
       {/* Sticky Header Bar - Appears while scrolling */}
@@ -1518,9 +1529,13 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
           </button>
 
           {/* Font Size Controls */}
-          <div className={`flex items-center  gap-2 md:gap-6 ${story.isStudent ? 'border-[#2F80ED]' : 'border-primary-PARI-Red'} cursor-pointer rounded-full`}>
+          <div className={`flex items-center  gap-2 md:gap-6 ${story.isStudent ? 'border-[#2F80ED]' : 'border-primary-PARI-Red'} rounded-full`}>
             <button
-              onClick={decreaseFontSize}
+              type="button"
+              onClick={() => {
+                console.log('##Rohit_Rocks## Decrease font clicked, current:', fontSize)
+                decreaseFontSize()
+              }}
               className={`${story.isStudent ? 'text-[#2F80ED]' : 'text-primary-PARI-Red'}  hover:opacity-70 transition-opacity font-medium cursor-pointer leading-none`}
               style={{ fontSize: '28px' }}
               title="Decrease Font Size"
@@ -1529,7 +1544,11 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
             </button>
             <span className={`${story.isStudent ? 'text-[#2F80ED]' : 'text-primary-PARI-Red'} font-medium`} style={{ fontSize: '24px' }}>T</span>
             <button
-              onClick={increaseFontSize}
+              type="button"
+              onClick={() => {
+                console.log('##Rohit_Rocks## Increase font clicked, current:', fontSize)
+                increaseFontSize()
+              }}
               className={`${story.isStudent ? 'text-[#2F80ED]' : 'text-primary-PARI-Red'} hover:opacity-70 transition-opacity font-medium cursor-pointer leading-none`}
               style={{ fontSize: '28px' }}
               title="Increase Font Size"
@@ -1714,7 +1733,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
 
             {/* Authors Info - Dynamic */}
             <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
-              <div className="grid grid-cols-2 md:flex md:flex-row gap-6 md:gap-12 flex-1">
+              <div className="grid grid-cols-1 md:flex md:flex-row gap-6 md:gap-12 flex-1">
                 {groupedAuthors.map((group, index) => (
                   <div key={index}>
                     <h6 className="text-grey-300 dark:text-discreet-text text-[14px] mb-2"
