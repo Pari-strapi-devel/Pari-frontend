@@ -861,6 +861,51 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
     return () => clearTimeout(timer)
   }, [])
 
+  // Update Open Graph meta tags for social sharing
+  useEffect(() => {
+    if (!story) return
+
+    const updateMetaTags = () => {
+      const currentUrl = window.location.href
+      const title = story.title || 'PARI - People\'s Archive of Rural India'
+      const description = story.subtitle || 'Stories from rural India'
+      const image = story.coverImage || `${window.location.origin}/images/header-logo/For-dark-mode/pari-english-dark.png`
+
+      // Update or create meta tags
+      const metaTags = [
+        { property: 'og:title', content: title },
+        { property: 'og:description', content: description },
+        { property: 'og:image', content: image },
+        { property: 'og:url', content: currentUrl },
+        { property: 'og:type', content: 'article' },
+        { property: 'og:site_name', content: 'PARI - People\'s Archive of Rural India' },
+        { name: 'twitter:card', content: 'summary_large_image' },
+        { name: 'twitter:title', content: title },
+        { name: 'twitter:description', content: description },
+        { name: 'twitter:image', content: image },
+      ]
+
+      metaTags.forEach(({ property, name, content }) => {
+        const selector = property ? `meta[property="${property}"]` : `meta[name="${name}"]`
+        let metaTag = document.querySelector(selector)
+
+        if (!metaTag) {
+          metaTag = document.createElement('meta')
+          if (property) metaTag.setAttribute('property', property)
+          if (name) metaTag.setAttribute('name', name)
+          document.head.appendChild(metaTag)
+        }
+
+        metaTag.setAttribute('content', content)
+      })
+
+      // Update page title
+      document.title = `${title} - PARI`
+    }
+
+    updateMetaTags()
+  }, [story])
+
   // Track scroll progress and header visibility
   useEffect(() => {
     const handleScroll = () => {
@@ -1368,8 +1413,20 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
   const getShareDescription = () => story?.subtitle || ''
 
   const shareToWhatsApp = () => {
-    const url = `https://wa.me/?text=${encodeURIComponent(getShareTitle() + ' - ' + getShareUrl())}`
-    window.open(url, '_blank')
+    // Create a rich text message with title, description, and URL
+    const title = getShareTitle()
+    const description = getShareDescription()
+    const url = getShareUrl()
+
+    // Format: Title + Description + URL (WhatsApp will auto-generate preview from URL's meta tags)
+    let message = `*${title}*`
+    if (description) {
+      message += `\n\n${description}`
+    }
+    message += `\n\n${url}`
+
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`
+    window.open(whatsappUrl, '_blank')
   }
 
   const shareToFacebook = () => {
