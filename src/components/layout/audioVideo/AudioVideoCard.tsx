@@ -314,14 +314,14 @@ export function AudioVideoCard() {
 
   return (
     <div className=" relative border-t-1 max-w-[1232px] border-[#D9D9D9] dark:border-[#444444] lg:px-0 px-4 mx-auto md:py-20 py-10 ">
-      <div className="flex md:justify-between max-w-[1232px] mx-auto sm:items-center flex-col sm:flex-row gap-5 mb-8">
+      <div className="flex justify-between max-w-[1232px] mx-auto sm:items-center  sm:flex-row gap-5 mb-8">
         <div className="flex items-center gap-2">
           {featuredStory.type === 'audio' ? (
             <Headphones className="h-7 w-7 text-primary-PARI-Red" />
           ) : (
             <CirclePlay className="h-6 w-6 text-primary-PARI-Red" />
           )}
-          <h6 className="text-[13px] font-noto-sans uppercase text-grey-300 leading-[100%] tracking-[-0.02em] font-semibold">
+          <h6 className="text-[13px] font-noto-sans uppercase text-grey-300 dark:text-discreet-text leading-[100%] tracking-[-0.02em] font-semibold">
             {featuredStory.headtitle}
           </h6>
         </div>
@@ -330,17 +330,17 @@ export function AudioVideoCard() {
           <Link href="articles?content=Video+Articles">
             <Button 
               variant="secondary" 
-              className="text-sm h-[36px]  ml-1 sm:ml-0  ring-[2px] rounded-[48px] text-primary-PARI-Red group"
+              className="text-sm h-[36px]  ml-1 sm:ml-0  ring-[1px] rounded-[48px] text-primary-PARI-Red group"
             >
-              {featuredStory.sub_title}
-              <ChevronRight className="h-4 w-4 ml-1" />
+              More stories
+              <ChevronRight className="h-4 w-4 " />
             </Button>
           </Link>
         </div>
       </div>
 
       {/* Featured Story */}
-      <div className="md:mb-6 max-w-[1232px] mx-auto mb-12 ">
+      <div className="md:mb-6 max-w-[1232px] mx-auto mb-8 ">
         <AudioVideoBigCard 
           {...featuredStory}
         />

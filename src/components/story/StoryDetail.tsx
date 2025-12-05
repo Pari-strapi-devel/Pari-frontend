@@ -568,66 +568,88 @@ function groupAuthorsByRole(authors: Array<{
 }
 
 
-// Utility function to strip HTML/CSS elements from text while preserving formatting
+// Utility function to clean HTML while preserving original structure and tags
 function stripHtmlCssWithStyledStrong(text: string): string {
   if (typeof text !== 'string') return text;
 
   let result = text;
 
-  // Step 1: Remove style and script tags
+  // Only remove style and script tags (dangerous content)
   result = result.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '');
   result = result.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '');
 
-  // Step 2: Remove style and class attributes
-  result = result.replace(/style\s*=\s*"[^"]*"/gi, '');
-  result = result.replace(/style\s*=\s*'[^']*'/gi, '');
-  result = result.replace(/class\s*=\s*"[^"]*"/gi, '');
-  result = result.replace(/class\s*=\s*'[^']*'/gi, '');
+  // Remove inline style attributes only
+  result = result.replace(/\s*style\s*=\s*"[^"]*"/gi, '');
+  result = result.replace(/\s*style\s*=\s*'[^']*'/gi, '');
 
-  // Step 3: Clean up formatting tags (keep them, just remove attributes)
+  // Keep all original HTML tags: <p>, <strong>, <b>, <em>, <i>, <a>, <br>, etc.
+  // Just clean up any unwanted attributes from tags (except href for links)
+
+  // Clean p tags but keep them
+  result = result.replace(/<p[^>]*>/gi, '<p>');
+
+  // Clean strong/b/em/i tags but keep them
   result = result.replace(/<strong[^>]*>/gi, '<strong>');
-  // Don't keep <b> tags - they're not in the original content
-  result = result.replace(/<b[^>]*>[\s\S]*?<\/b>/gi, '');
+  result = result.replace(/<b[^>]*>/gi, '<b>');
   result = result.replace(/<em[^>]*>/gi, '<em>');
   result = result.replace(/<i[^>]*>/gi, '<i>');
 
-  // Step 4: Handle nbsp
+  // Keep <a> tags with href attribute
+  result = result.replace(/<a\s+[^>]*href\s*=\s*"([^"]*)"[^>]*>/gi, '<a href="$1">');
+  result = result.replace(/<a\s+[^>]*href\s*=\s*'([^']*)'[^>]*>/gi, '<a href="$1">');
+
+  // Clean br tags
+  result = result.replace(/<br\s*\/?>/gi, '<br>');
+
+  // Handle nbsp
   result = result.replace(/&nbsp;/gi, ' ');
 
-  // Step 5: Protect br tags before processing
-  result = result.replace(/<br\s*\/?>/gi, '|||BR|||');
+  // Remove div and span tags but keep their content
+  result = result.replace(/<\/?div[^>]*>/gi, '');
+  result = result.replace(/<\/?span[^>]*>/gi, '');
 
-  // Step 6: Clean up divs - remove opening div tags and replace closing divs with paragraph markers
-  result = result.replace(/<div[^>]*>/gi, '');
-  result = result.replace(/<\/div>/gi, '|||PARA|||');
+  return result;
+}
 
-  // Step 7: Clean up spans
-  result = result.replace(/<span[^>]*>/gi, '');
-  result = result.replace(/<\/span>/gi, '');
+// Utility function to strip HTML/CSS without wrapping in <p> tags (for blockquotes, captions, etc.)
+function stripHtmlCssNoParagraphs(text: string): string {
+  if (typeof text !== 'string') return text;
 
-  // Step 8: Remove existing p tags and replace with paragraph markers
-  result = result.replace(/<\/p>\s*<p[^>]*>/gi, '|||PARA|||');
-  result = result.replace(/<p[^>]*>/gi, '');
-  result = result.replace(/<\/p>/gi, '|||PARA|||');
+  let result = text;
 
-  // Step 9: Clean up whitespace (but preserve BR markers)
+  // Remove style and script tags
+  result = result.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '');
+  result = result.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '');
+
+  // Remove inline style attributes only
+  result = result.replace(/\s*style\s*=\s*"[^"]*"/gi, '');
+  result = result.replace(/\s*style\s*=\s*'[^']*'/gi, '');
+
+  // Keep formatting tags: strong, b, em, i
+  result = result.replace(/<strong[^>]*>/gi, '<strong>');
+  result = result.replace(/<b[^>]*>/gi, '<b>');
+  result = result.replace(/<em[^>]*>/gi, '<em>');
+  result = result.replace(/<i[^>]*>/gi, '<i>');
+
+  // Keep <a> tags with href attribute
+  result = result.replace(/<a\s+[^>]*href\s*=\s*"([^"]*)"[^>]*>/gi, '<a href="$1">');
+  result = result.replace(/<a\s+[^>]*href\s*=\s*'([^']*)'[^>]*>/gi, '<a href="$1">');
+
+  // Clean br tags
+  result = result.replace(/<br\s*\/?>/gi, '<br>');
+
+  // Handle nbsp
+  result = result.replace(/&nbsp;/gi, ' ');
+
+  // Remove div, span, p tags but keep content
+  result = result.replace(/<\/?div[^>]*>/gi, '');
+  result = result.replace(/<\/?span[^>]*>/gi, '');
+  result = result.replace(/<\/?p[^>]*>/gi, ' ');
+
+  // Clean up extra whitespace
   result = result.replace(/\s+/g, ' ');
 
-  // Step 10: Restore br tags
-  result = result.replace(/\|\|\|BR\|\|\|/g, '<br>');
-
-  // Step 11: Clean up whitespace around br tags
-  result = result.replace(/<br>\s+/g, '<br>');
-  result = result.replace(/\s+<br>/g, '<br>');
-
-  // Step 12: Split by paragraph markers and wrap each in <p> tags
-  const paragraphs = result.split('|||PARA|||')
-    .map(p => p.trim())
-    .filter(p => p.length > 0)
-    .map(p => `<p>${p}</p>`)
-    .join('');
-
-  return paragraphs;
+  return result.trim();
 }
 
 // Content interfaces
@@ -702,7 +724,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
   } | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [fontSize, setFontSize] = useState(16)
+  const [fontSize, setFontSize] = useState(18)
   const [showPhotos, setShowPhotos] = useState(false)
   const [scrollProgress, setScrollProgress] = useState(0)
   const [showHeaderBar, setShowHeaderBar] = useState(false)
@@ -1471,7 +1493,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                 : story.isStudent
                   ? 'text-[#2F80ED] border-[#2F80ED]'
                   : 'text-primary-PARI-Red border-primary-PARI-Red'
-            } rounded-full cursor-pointer`}
+            } rounded-full p-2 cursor-pointer`}
             title="Toggle Photos"
           >
             <ImageIcon size={28} />
@@ -1496,19 +1518,19 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
           </button>
 
           {/* Font Size Controls */}
-          <div className={`flex items-center gap-2 md:gap-6 ${story.isStudent ? 'border-[#2F80ED]' : 'border-primary-PARI-Red'} cursor-pointer rounded-full`}>
+          <div className={`flex items-center  gap-2 md:gap-6 ${story.isStudent ? 'border-[#2F80ED]' : 'border-primary-PARI-Red'} cursor-pointer rounded-full`}>
             <button
               onClick={decreaseFontSize}
-              className={`${story.isStudent ? 'text-[#2F80ED]' : 'text-primary-PARI-Red'}  hover:opacity-70 transition-opacity font-bold leading-none`}
+              className={`${story.isStudent ? 'text-[#2F80ED]' : 'text-primary-PARI-Red'}  hover:opacity-70 transition-opacity font-medium cursor-pointer leading-none`}
               style={{ fontSize: '28px' }}
               title="Decrease Font Size"
             >
               −
             </button>
-            <span className={`${story.isStudent ? 'text-[#2F80ED]' : 'text-primary-PARI-Red'} font-bold`} style={{ fontSize: '24px' }}>T</span>
+            <span className={`${story.isStudent ? 'text-[#2F80ED]' : 'text-primary-PARI-Red'} font-medium`} style={{ fontSize: '24px' }}>T</span>
             <button
               onClick={increaseFontSize}
-              className={`${story.isStudent ? 'text-[#2F80ED]' : 'text-primary-PARI-Red'} hover:opacity-70 transition-opacity font-bold leading-none`}
+              className={`${story.isStudent ? 'text-[#2F80ED]' : 'text-primary-PARI-Red'} hover:opacity-70 transition-opacity font-medium cursor-pointer leading-none`}
               style={{ fontSize: '28px' }}
               title="Increase Font Size"
             >
@@ -1544,14 +1566,14 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
 
       {/* White Card Overlay - Separate from content */}
       {showCard && (
-        <div className={`relative mx-auto px-4 my-8 md:px-8 ${story.coverImage ? '-mt-48' : ''}`}>
-          <div className="bg-white dark:bg-popover rounded-3xl p-[2.5rem] lg:p-[4rem] shadow-[0px_4px_20px_0px_rgba(0,0,0,0.1)] relative mx-auto md:max-w-[43rem] lg:max-w-[57rem] xl:max-w-[61.75rem] 2xl:max-w-[76.5rem]"
+        <div className={`relative mx-auto px-4 my-16 md:px-8 ${story.coverImage ? '-mt-32' : ''}`}>
+          <div className="bg-white dark:bg-popover rounded-3xl p-[2.5rem]  lg:p-[4rem] shadow-[0px_4px_20px_0px_rgba(0,0,0,0.1)] relative mx-auto max-w-[768px] md:max-w-[768px] lg:max-w-[912px] xl:max-w-[970px] 2xl:max-w-[1016px] mx-auto"
            
           >
             {/* Close Button */}
             <button
               onClick={handleClose}
-              className={`absolute md:top-6 top-2 right-2 md:right-6 w-10 h-10 flex items-center justify-center rounded-full border-2 ${story.isStudent ? 'border-[#2F80ED] text-[#2F80ED] hover:bg-[#2F80ED]' : 'border-primary-PARI-Red text-primary-PARI-Red hover:bg-primary-PARI-Red'} hover:text-white transition-colors`}
+              className={`absolute md:top-6 top-2 right-2 md:right-6 w-10 h-10 flex items-center justify-center rounded-full border-1 ${story.isStudent ? 'border-[#2F80ED] text-[#2F80ED] hover:bg-[#2F80ED]' : 'border-primary-PARI-Red text-primary-PARI-Red hover:bg-primary-PARI-Red'} hover:text-white transition-colors`}
             >
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <line x1="5" y1="10" x2="15" y2="10" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
@@ -1566,8 +1588,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                 {story.location || 'SANGUR, PUNJAB'}
               </h6>
               <span className="text-gray-400 dark:text-[#8e8888]">|</span>
-              <h6 className="dark:text-[#8e8888] text-grey-300 text-[14px] "
-                
+              <h6 className="text-grey-300 dark:text-discreet-text text-[14px]"
               >
                 {formatDate(story.publishedDate)}
               </h6>
@@ -1673,7 +1694,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
 
             {/* Title */}
             <h1
-              className="font-noto-devanagari font-noto-tamil text-foreground mb-2"
+              className="text-foreground mb-2"
              
             >
               {story.title}
@@ -1696,8 +1717,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
               <div className="grid grid-cols-2 md:flex md:flex-row gap-6 md:gap-12 flex-1">
                 {groupedAuthors.map((group, index) => (
                   <div key={index}>
-                    <h6 className="text-gray-400 dark:text-gray-500 text-[14px] mb-2"
-
+                    <h6 className="text-grey-300 dark:text-discreet-text text-[14px] mb-2"
                     >
                       {group.title || getTranslatedLabel('author', currentLocale)}
                     </h6>
@@ -1782,7 +1802,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
 
  
       {/* Main Content - Always visible */}
-      <div className="w-full mt-8 mx-auto  md:px-8">
+      <div className="w-full lg:my-16 md:my-12 my-8 mx-auto  md:px-8">
         {story.content && story.content.length > 0 ? (
           <div>
               {(() => {
@@ -1832,7 +1852,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                     // For 2 or 4 images: use grid-cols-2
                     if (groupImageCount === 2 || groupImageCount === 4) {
                       return (
-                        <div key={`image-group-${index}`} className="my-16 w-full flex justify-center">
+                        <div key={`image-group-${index}`} className="my-12 my-8 w-full flex justify-center">
                           <div className="w-full max-w-[768px] md:max-w-[768px] lg:max-w-[912px] xl:max-w-[970px] 2xl:max-w-[1016px] grid grid-cols-1 md:grid-cols-2 gap-4">
                             {allImageData.map((imageData, imgIndex) => (
                               <div key={`img-${index}-${imgIndex}`} className="space-y-3">
@@ -1855,7 +1875,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                 </div>
                                 {imageData!.caption && (
                                   <div className="mt-3 px-2">
-                                    <div className={`text-sm ${story.isStudent ? 'text-[#2F80ED]/80 dark:text-[#2F80ED]/80' : 'text-primary-PARI-Red/80 dark:text-primary-PARI-Red/80'} italic leading-relaxed`}>
+                                    <div className={`text-sm text-discreet-text `}>
                                       {imageData!.caption}
                                     </div>
                                   </div>
@@ -1869,7 +1889,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
 
                     // For 1, 3, 5+ images: first image full width, then grid-cols-2 for remaining
                     return (
-                      <div key={`image-group-${index}`} className="my-16 w-full flex justify-center">
+                      <div key={`image-group-${index}`} className="my-12 w-full flex justify-center">
                         <div className="w-full max-w-[768px] md:max-w-[768px] lg:max-w-[912px] xl:max-w-[970px] 2xl:max-w-[1016px] space-y-4">
                           {/* First image - full width */}
                           {allImageData[0] && (
@@ -1893,7 +1913,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                               </div>
                               {allImageData[0].caption && (
                                 <div className="mt-3">
-                                  <p className="text-sm text-gray-600 dark:text-gray-400 italic leading-relaxed">
+                                  <p className="text-sm text-discreet-text italic leading-relaxed">
                                     {allImageData[0].caption}
                                   </p>
                                 </div>
@@ -1925,7 +1945,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                   </div>
                                   {imageData!.caption && (
                                     <div className="mt-3 px-2">
-                                      <div className={`text-sm ${story.isStudent ? 'text-[#2F80ED]/80 dark:text-[#2F80ED]/80' : 'text-primary-PARI-Red/80 dark:text-primary-PARI-Red/80'} italic leading-relaxed`}>
+                                      <div className={`text-sm text-discreet-text`}>
                                         {imageData!.caption}
                                       </div>
                                     </div>
@@ -1950,30 +1970,10 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                   }
 
                   return (
-                    <div key={index} className="my-6 max-w-3xl mx-auto px-4 md:px-8 lg:px-10">
-                      <style jsx>{`
-                        .article-content-text {
-                          font-weight: 400;
-                        }
-                        .article-content-text :global(*) {
-                          font-weight: 400;
-                        }
-                        .article-content-text :global(p) {
-                          margin-bottom: 1rem;
-                        }
-                        .article-content-text :global(p),
-                        .article-content-text :global(div),
-                        .article-content-text :global(span),
-                        .article-content-text :global(a) {
-                          font-weight: 400;
-                        }
-                        .article-content-text :global(strong),
-                        .article-content-text :global(b) {
-                          font-weight: 700;
-                        }
-                      `}</style>
+                    <div key={index} className="my-6 max-w-3xl mx-auto px-8 md:px-10 lg:px-16">
+                      
                       <div
-                        className="article-content-text text-foreground leading-relaxed"
+                        className="article-content-text text-discreet-text leading-relaxed"
                         style={{
                            fontFamily: 'Noto Sans',
                           fontWeight: 400,
@@ -1993,8 +1993,10 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
 
                   // Handle Strapi component types
                   if ('__component' in obj) {
-                    // Debug: log component type
-                    console.log('##Rohit_Rocks## Component type:', obj.__component, 'Data:', obj)
+                    // Debug: log component type and ALL keys in the object
+                    console.log('##Rohit_Rocks## Component type:', obj.__component)
+                    console.log('##Rohit_Rocks## Object keys:', Object.keys(obj))
+                    console.log('##Rohit_Rocks## Full Data:', JSON.stringify(obj, null, 2))
 
                     switch (obj.__component) {
                       case 'shared.rich-text':
@@ -2003,7 +2005,9 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                         // Skip text content if showing photos only
                         if (showPhotos) return null
 
-                        const textContent = obj.Paragraph || obj.Text || obj.content || obj.text || ''
+                        // Try all possible field names for text content
+                        const textContent = obj.Paragraph || obj.Text || obj.content || obj.text || obj.Body || obj.body || ''
+                        console.log('##Rohit_Rocks## Text content found:', typeof textContent === 'string' ? textContent.substring(0, 100) : 'NOT A STRING')
 
                         if (textContent && typeof textContent === 'string' && textContent.trim().length > 0) {
                           // Debug: Log original content for this article
@@ -2015,41 +2019,43 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                           // Check if content is only stars (asterisks)
                           const strippedContent = stripHtmlCssWithStyledStrong(textContent)
 
-                          // Debug: Log stripped content
-                          if (slug === 'in-kuno-park-no-one-gets-the-lions-share' && index < 3) {
-                            console.log('##Rohit_Rocks## Stripped content at index', index, ':', strippedContent.substring(0, 200))
-                          }
+                          // Debug: Log both original and stripped content
+                          console.log('##DEBUG## Original HTML:', textContent)
+                          console.log('##DEBUG## Stripped HTML:', strippedContent)
+                          console.log('##DEBUG## Has strong tag:', strippedContent.includes('<strong>'))
 
                           const isStarsOnly = /^[\s*]+$/.test(strippedContent)
 
                           return (
-                            <div key={index} className="my-6 max-w-3xl mx-auto px-4 md:px-8 lg:px-10">
+                            <div key={index} className="my-6 max-w-3xl mx-auto px-8 md:px-10 lg:px-16">
                               <style jsx>{`
                                 .article-content-text {
                                   font-weight: 400;
                                 }
-                                .article-content-text :global(*) {
-                                  font-weight: 400;
-                                }
                                 .article-content-text :global(p) {
                                   margin-bottom: 1rem;
-                                }
-                                .article-content-text :global(p),
-                                .article-content-text :global(div),
-                                .article-content-text :global(span),
-                                .article-content-text :global(a) {
                                   font-weight: 400;
+                                }
+                                .article-content-text :global(a) {
+                                  color: #B91C1C;
+                                  text-decoration: underline;
+                                }
+                                .article-content-text :global(a:hover) {
+                                  color: #991B1B;
                                 }
                                 .article-content-text :global(strong),
                                 .article-content-text :global(b) {
-                                  font-weight: 700;
+                                  font-weight: 700 !important;
+                                }
+                                .article-content-text :global(em),
+                                .article-content-text :global(i) {
+                                  font-style: italic;
                                 }
                               `}</style>
                               <div
-                                className={`article-content-text text-foreground ${isStarsOnly ? 'text-center' : ''}`}
+                                className={`article-content-text text-discreet-text ${isStarsOnly ? 'text-center' : ''}`}
                                 style={{
                                   fontFamily: 'Noto Sans',
-                                  fontWeight: 400,
                                   fontSize: `${fontSize}px`,
                                   lineHeight: '170%',
                                   letterSpacing: '-3%'
@@ -2100,7 +2106,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                           // For 2 or 4 images: use grid-cols-2
                           if (imageCount2 === 2 || imageCount2 === 4) {
                             return (
-                              <div key={index} className="my-16 w-full flex justify-center">
+                              <div key={index} className="my-12 w-full flex justify-center">
                                 <div className="w-full max-w-[768px] md:max-w-[768px] lg:max-w-[912px] xl:max-w-[970px] 2xl:max-w-[1016px]">
                                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     {multipleImages.map((img, imgIndex) => (
@@ -2128,15 +2134,15 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
 
                                   {/* Shared caption and credits below all images */}
                                   {(sharedCaption || singleCaptionCredits) && (
-                                    <div className="mt-3 px-2">
+                                    <div className="mt-3 md:px-10 px-8">
                                       {singleCaptionCredits && (
-                                        <p className={`text-sm ${story.isStudent ? 'text-[#2F80ED] dark:text-[#2F80ED]' : 'text-primary-PARI-Red dark:text-pari-red'} font-bold mb-1`}>
-                                          Photo: {singleCaptionCredits}
+                                        <p className={`text-sm   mb-1`}>
+                                        {singleCaptionCredits}
                                         </p>
                                       )}
                                       {sharedCaption && (
                                         <div
-                                          className={`text-sm ${story.isStudent ? 'text-[#2F80ED]/80 dark:text-[#2F80ED]/80' : 'text-primary-PARI-Red/80 dark:text-primary-PARI-Red/80'} italic leading-relaxed`}
+                                          className={`text-sm text-caption `}
                                           dangerouslySetInnerHTML={{ __html: stripHtmlCssWithStyledStrong(sharedCaption) }}
                                         />
                                       )}
@@ -2149,12 +2155,12 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
 
                           // For 1, 3, 5+ images: first image full width, then grid-cols-2 for remaining
                           return (
-                            <div key={index} className="my-16 w-full flex justify-center">
+                            <div key={index} className="my-12 w-full flex justify-center">
                               <div className="w-full max-w-[768px] md:max-w-[768px] lg:max-w-[912px] xl:max-w-[970px] 2xl:max-w-[1016px] space-y-4">
                                 {/* First image - full width */}
                                 <div className="space-y-3">
                                   <div
-                                    className="w-full h-[500px] md:h-[600px] cursor-pointer relative group"
+                                    className="w-full cursor-pointer relative group"
                                     onClick={() => handleImageClick(multipleImages[0].url, multipleImages[0].alt || 'Image 1', multipleImages[0].caption)}
                                   >
                                     <Image
@@ -2162,7 +2168,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                       alt={multipleImages[0].alt || 'Image 1'}
                                       width={multipleImages[0].width || 1920}
                                       height={multipleImages[0].height || 1080}
-                                      className="w-full h-auto max-h-[600px] object-cover"
+                                      className="w-full h-auto max-h-[600px] object-cover md:rounded-lg"
                                       unoptimized
                                     />
                                     {/* Zoom Icon */}
@@ -2178,7 +2184,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                     {multipleImages.slice(1).map((img, imgIndex) => (
                                       <div key={imgIndex + 1} className="space-y-3">
                                         <div
-                                          className="w-full h-[500px] md:h-[600px] cursor-pointer relative group"
+                                          className="w-full cursor-pointer relative group"
                                           onClick={() => handleImageClick(img.url, img.alt || `Image ${imgIndex + 2}`, img.caption)}
                                         >
                                           <Image
@@ -2201,15 +2207,15 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
 
                                 {/* Shared caption and credits below all images */}
                                 {(sharedCaption || singleCaptionCredits) && (
-                                  <div className="mt-3 px-2">
+                                  <div className="mt-3 md:px-10 px-8">
                                     {singleCaptionCredits && (
-                                      <p className={`text-sm ${story.isStudent ? 'text-[#2F80ED] dark:text-[#2F80ED]' : 'text-primary-PARI-Red dark:text-pari-red'} font-bold mb-1`}>
-                                        Photo: {singleCaptionCredits}
+                                      <p className={`text-sm text-primary-PARI-Red  mb-1`}>
+                                        {singleCaptionCredits}
                                       </p>
                                     )}
                                     {sharedCaption && (
                                       <div
-                                        className={`text-sm ${story.isStudent ? 'text-[#2F80ED]/80 dark:text-[#2F80ED]/80' : 'text-primary-PARI-Red/80 dark:text-primary-PARI-Red/80'} italic leading-relaxed`}
+                                        className={`text-sm text-caption `}
                                         dangerouslySetInnerHTML={{ __html: stripHtmlCssWithStyledStrong(sharedCaption) }}
                                       />
                                     )}
@@ -2278,7 +2284,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                               <div className="relative max-w-[768px] md:max-w-[768px] lg:max-w-[912px] xl:max-w-[970px] 2xl:max-w-[1016px] mx-auto" style={{ aspectRatio: '16/9' }}>
                                 <iframe
                                   src={finalEmbedUrl}
-                                  className="w-full h-full rounded-lg shadow-md"
+                                  className="w-full h-full md:rounded-lg shadow-md"
                                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                   allowFullScreen
                                   title="Embedded video"
@@ -2314,7 +2320,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                           }
 
                           return (
-                            <div key={index} className="my-16 w-full flex justify-center">
+                            <div key={index} className="my-12 w-full flex justify-center">
                               <div className="w-full max-w-[768px] md:max-w-[768px] lg:max-w-[912px] xl:max-w-[970px] 2xl:max-w-[1016px]">
                                 <div className="w-full bg-gray-100 dark:bg-gray-800 rounded-lg p-4">
                                   <iframe
@@ -2367,7 +2373,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                           console.log('##Rohit_Rocks## Columnar Text (Single) - Text:', singleText.substring(0, 100))
 
                           return (
-                            <div key={index} className="my-16 w-full flex justify-center">
+                            <div key={index} className="my-12 w-full flex justify-center">
                               <div className="my-6 max-w-3xl mx-auto px-4">
                                 <div className="flex justify-center">
                                   {/* Single Column */}
@@ -2397,32 +2403,20 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                           const rightText = 'Paragraph' in rightColumn && typeof rightColumn.Paragraph === 'string' ? rightColumn.Paragraph : ''
 
                           return (
-                            <div key={index} className="my-16 w-full flex justify-center">
-                              <div className="my-6 max-w-3xl mx-auto px-4 ">
+                            <div key={index} className="my-12 w-full flex justify-center">
+                              <div className="my-6 max-w-3xl mx-auto  px-8 md:px-10 lg:px-16 ">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                   {/* Left Column */}
                                   <div
-                                    className="text-foreground columnar-text-content"
-                                    style={{
-                                      fontFamily: 'Noto Sans',
-                                      fontWeight: 400,
-                                      fontSize: `${fontSize}px`,
-                                      lineHeight: '170%',
-                                      letterSpacing: '-3%'
-                                    }}
+                                    className="text-foreground "
+                                    
                                     dangerouslySetInnerHTML={{ __html: leftText }}
                                   />
 
                                   {/* Right Column */}
                                   <div
-                                    className="text-foreground columnar-text-content"
-                                    style={{
-                                      fontFamily: 'Noto Sans',
-                                      fontWeight: 400,
-                                      fontSize: `${fontSize}px`,
-                                      lineHeight: '170%',
-                                      letterSpacing: '-3%'
-                                    }}
+                                    className="text-foreground "
+                                   
                                     dangerouslySetInnerHTML={{ __html: rightText }}
                                   />
                                 </div>
@@ -2455,7 +2449,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                           console.log('##Rohit_Rocks## Single Text:', singleText)
 
                           return (
-                            <div key={index} className="my-16 w-full flex justify-center">
+                            <div key={index} className="my-12 w-full flex justify-center">
                               <div className="my-6 max-w-3xl mx-auto px-4">
                                 <div className="flex justify-center">
                                   {/* Single Column */}
@@ -2560,7 +2554,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                             const fullImgUrl = imgUrl.startsWith('http') ? imgUrl : `${API_BASE_URL}${imgUrl}`
 
                             return (
-                              <div key={index} className="my-16 w-full flex justify-center">
+                              <div key={index} className="my-12 w-full flex justify-center">
                                 <div className="w-full max-w-[768px] md:max-w-[768px] lg:max-w-[912px] xl:max-w-[970px] 2xl:max-w-[1016px]">
                                   <div
                                     className="cursor-pointer relative group"
@@ -2582,13 +2576,13 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                   {(imgCaption || imgPhotographer) && (
                                     <div className="mt-3 px-2">
                                       {imgPhotographer && (
-                                        <p className={`text-sm ${story.isStudent ? 'text-[#2F80ED] dark:text-[#2F80ED]' : 'text-primary-PARI-Red dark:text-pari-red'} font-bold mb-1`}>
-                                          Photo: {imgPhotographer}
+                                        <p className={`text-sm text-primary-PARI-Red mb-1`}>
+                                           {imgPhotographer}
                                         </p>
                                       )}
                                       {imgCaption && (
                                         <div
-                                          className={`text-sm ${story.isStudent ? 'text-[#2F80ED]/80 dark:text-[#2F80ED]/80' : 'text-primary-PARI-Red/80 dark:text-primary-PARI-Red/80'} italic leading-relaxed`}
+                                          className={`text-sm text-caption `}
                                           dangerouslySetInnerHTML={{ __html: stripHtmlCssWithStyledStrong(imgCaption) }}
                                         />
                                       )}
@@ -2606,7 +2600,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
 
                         if (fullWidthImageData) {
                           return (
-                            <div key={index} className="my-16 w-full flex justify-center">
+                            <div key={index} className="my-12 w-full flex justify-center">
                               <div className="w-full max-w-[768px] md:max-w-[768px] lg:max-w-[912px] xl:max-w-[970px] 2xl:max-w-[1016px] grid grid-cols-1 gap-4">
                                 <div className="space-y-3">
                                   <div
@@ -2650,7 +2644,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                           // For 2 or 4 images: use grid-cols-2
                           if (imageCount === 2 || imageCount === 4) {
                             return (
-                              <div key={index} className="my-16 w-full flex justify-center">
+                              <div key={index} className="my-12 w-full flex justify-center">
                                 <div className="w-full max-w-[768px] md:max-w-[768px] lg:max-w-[912px] xl:max-w-[970px] 2xl:max-w-[1016px] grid grid-cols-1 md:grid-cols-2 gap-4">
                                   {multCaptionImages.map((img, imgIndex) => (
                                     <div key={imgIndex} className="space-y-3">
@@ -2673,7 +2667,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                       </div>
                                       {img.caption && (
                                         <div className="mt-3 px-2">
-                                          <p className={`text-sm ${story.isStudent ? 'text-[#2F80ED] dark:text-[#2F80ED]' : 'text-primary-PARI-Red dark:text-pari-red'} italic leading-relaxed`}>
+                                          <p className={`text-sm text-caption `}>
                                             {img.caption}
                                           </p>
                                         </div>
@@ -2687,7 +2681,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
 
                           // For 1, 3, 5+ images: first image full width, then grid-cols-2 for remaining
                           return (
-                            <div key={index} className="my-16 w-full flex justify-center">
+                            <div key={index} className="my-12 w-full flex justify-center">
                               <div className="w-full max-w-[768px] md:max-w-[768px] lg:max-w-[912px] xl:max-w-[970px] 2xl:max-w-[1016px] space-y-4">
                                 {/* First image - full width */}
                                 <div className="space-y-3">
@@ -2710,7 +2704,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                   </div>
                                   {multCaptionImages[0].caption && (
                                     <div className="mt-3 px-2">
-                                      <p className={`text-sm ${story.isStudent ? 'text-[#2F80ED] dark:text-[#2F80ED]' : 'text-primary-PARI-Red dark:text-pari-red'} italic leading-relaxed`}>
+                                      <p className={`text-sm text-caption `}>
                                         {multCaptionImages[0].caption}
                                       </p>
                                     </div>
@@ -2741,7 +2735,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                         </div>
                                         {img.caption && (
                                           <div className="mt-3 px-2">
-                                            <p className={`text-sm ${story.isStudent ? 'text-[#2F80ED] dark:text-[#2F80ED]' : 'text-primary-PARI-Red dark:text-pari-red'} italic leading-relaxed`}>
+                                            <p className={`text-sm text-caption `}>
                                               {img.caption}
                                             </p>
                                           </div>
@@ -2765,7 +2759,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                           // For 2 or 4 images: use grid-cols-2
                           if (columnarImageCount === 2 || columnarImageCount === 4) {
                             return (
-                              <div key={index} className={showPhotos ? "mb-16 w-full flex justify-center" : "my-16 w-full flex justify-center"}>
+                              <div key={index} className={showPhotos ? "mb-16 w-full flex justify-center" : "my-12 w-full flex justify-center"}>
                                 <div className="w-full max-w-[768px] md:max-w-[768px] lg:max-w-[912px] xl:max-w-[970px] 2xl:max-w-[1016px]">
                                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     {columnarImages.map((item, imgIndex) => (
@@ -2791,18 +2785,18 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                         )}
 
                                         {item.credits && (
-                                          <div className={`mt-3 px-2 ${showPhotos ? 'md:px-4 lg:px-8' : ''}`}>
-                                            <p className={`text-sm ${story.isStudent ? 'text-[#2F80ED] dark:text-[#2F80ED]' : 'text-primary-PARI-Red dark:text-pari-red'} font-bold mb-1`}>
-                                              Photo: {item.credits}
+                                          <div className={`mt-3 mb-2 md:px-1 px-8 ${showPhotos ? 'md:px-4 lg:px-8' : ''}`}>
+                                            <p className={`text-sm text-primary-PARI-Red mb-1`}>
+                                              {item.credits}
                                             </p>
                                           </div>
                                         )}
 
                                         {/* Individual caption for each image */}
                                         {item.caption && (
-                                          <div className={`mt-1 px-2 ${showPhotos ? 'md:px-4 lg:px-8' : ''}`}>
+                                          <div className={`mt-1 md:px-1 px-8 ${showPhotos ? 'md:px-4 lg:px-8' : ''}`}>
                                             <div
-                                              className={`text-sm ${story.isStudent ? 'text-[#2F80ED]/80 dark:text-[#2F80ED]/80' : 'text-primary-PARI-Red/80 dark:text-primary-PARI-Red/80'} italic leading-relaxed`}
+                                              className={`text-sm text-caption  leading-relaxed`}
                                               dangerouslySetInnerHTML={{ __html: stripHtmlCssWithStyledStrong(item.caption) }}
                                             />
                                           </div>
@@ -2831,7 +2825,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
 
                           // For 1, 3, 5+ images: first image full width, then grid-cols-2 for remaining
                           return (
-                            <div key={index} className={showPhotos ? "mb-8 w-full flex justify-center" : "my-16 w-full flex justify-center"}>
+                            <div key={index} className={showPhotos ? "mb-8 w-full flex justify-center" : "my-12 w-full flex justify-center"}>
                               <div className="w-full max-w-[768px] md:max-w-[768px] lg:max-w-[912px] xl:max-w-[970px] 2xl:max-w-[1016px] space-y-4">
                                 {/* First image - full width */}
                                 <div className="space-y-3">
@@ -2856,18 +2850,18 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                   )}
 
                                   {columnarImages[0].credits && (
-                                    <div className={`mt-3 px-2 ${showPhotos ? 'md:px-4 lg:px-8' : ''}`}>
-                                      <p className={`text-sm ${story.isStudent ? 'text-[#2F80ED] dark:text-[#2F80ED]' : 'text-primary-PARI-Red dark:text-pari-red'} font-bold mb-1`}>
-                                        Photo: {columnarImages[0].credits}
+                                    <div className={`mt-3 mb-2 md:px-10 px-8 ${showPhotos ? 'md:px-4 lg:px-8' : ''}`}>
+                                      <p className={`text-sm text-primary-PARI-Red mb-1`}>
+                                      {columnarImages[0].credits}
                                       </p>
                                     </div>
                                   )}
 
                                   {/* Individual caption for first image */}
                                   {columnarImages[0].caption && (
-                                    <div className={`mt-1 px-2 ${showPhotos ? 'md:px-4 lg:px-8' : ''}`}>
+                                    <div className={`mt-1 md:px-10  px-8 ${showPhotos ? 'md:px-4 lg:px-8' : ''}`}>
                                       <div
-                                        className={`text-sm ${story.isStudent ? 'text-[#2F80ED]/80 dark:text-[#2F80ED]/80' : 'text-primary-PARI-Red/80 dark:text-primary-PARI-Red/80'} italic leading-relaxed`}
+                                        className={`text-sm text-caption leading-relaxed`}
                                         dangerouslySetInnerHTML={{ __html: stripHtmlCssWithStyledStrong(columnarImages[0].caption) }}
                                       />
                                     </div>
@@ -2914,18 +2908,18 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                         )}
 
                                         {item.credits && (
-                                          <div className={`mt-3 px-2 ${showPhotos ? 'md:px-4 lg:px-8' : ''}`}>
-                                            <p className={`text-sm ${story.isStudent ? 'text-[#2F80ED] dark:text-[#2F80ED]' : 'text-pari-red dark:text-pari-red'} font-medium mb-1`}>
-                                              Photo: {item.credits}
+                                          <div className={`mt-3 mb-2 md:px-1 ${showPhotos ? 'md:px-4 lg:px-8' : ''}`}>
+                                            <p className={`text-sm text-primary-PARI-Red mb-1`}>
+                                             {item.credits}
                                             </p>
                                           </div>
                                         )}
 
                                         {/* Individual caption for each remaining image */}
                                         {item.caption && (
-                                          <div className={`mt-1 px-2 ${showPhotos ? 'md:px-4 lg:px-8' : ''}`}>
+                                          <div className={`mt-1 md:px-1 ${showPhotos ? 'md:px-4 lg:px-8' : ''}`}>
                                             <div
-                                              className={`text-sm ${story.isStudent ? 'text-[#2F80ED]/80 dark:text-[#2F80ED]/80' : 'text-primary-PARI-Red/80 dark:text-primary-PARI-Red/80'} italic leading-relaxed`}
+                                              className={`text-sm text-caption  leading-relaxed`}
                                               dangerouslySetInnerHTML={{ __html: stripHtmlCssWithStyledStrong(item.caption) }}
                                             />
                                           </div>
@@ -3048,21 +3042,14 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                               <div className="max-w-[768px] md:max-w-[768px] lg:max-w-[912px] xl:max-w-[970px] 2xl:max-w-[1016px] mx-auto">
                                 {/* Quote with quotation mark */}
                                 {quoteText && (
-                                  <div className="relative mb-8">
+                                  <div className="relative  my-12 max-w-3xl mx-auto px-8 md:px-10   ">
                                     {/* Large quotation mark */}
-                                    <div className={`text-8xl font-serif leading-none ${story.isStudent ? 'text-[#2F80ED]' : 'text-primary-PARI-Red'} mb-4`}>
+                                    <div className={` text-[5rem] leading-0 font-serif text-primary-PARI-Red pt-9  `}>
                                       &ldquo;
                                     </div>
                                     <blockquote
-                                      className={`${story.isStudent ? 'text-[#2F80ED]' : 'text-primary-PARI-Red'} -mt-12 pl-12`}
-                                      style={{
-                                        fontFamily: 'Noto Sans',
-                                        fontWeight: 400,
-                                        fontSize: `${Math.min(fontSize + 3, 21)}px`,
-                                        lineHeight: '160%',
-                                        letterSpacing: '-0.01em'
-                                      }}
-                                      dangerouslySetInnerHTML={{ __html: stripHtmlCssWithStyledStrong(quoteText) }}
+                                      className="quote"
+                                      dangerouslySetInnerHTML={{ __html: stripHtmlCssNoParagraphs(quoteText) }}
                                     />
                                   </div>
                                 )}
@@ -3079,7 +3066,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                         alt={quoteImageData.alt || 'Quote image'}
                                         width={quoteImageData.width || 1920}
                                         height={quoteImageData.height || 1080}
-                                        className="w-full h-auto max-h-[600px] object-cover rounded-lg shadow-md"
+                                        className="w-full h-auto max-h-[600px] object-cover md:rounded-lg  shadow-md"
                                         unoptimized
                                       />
                                       {/* Zoom Icon */}
@@ -3088,10 +3075,8 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                       </div>
                                     </div>
                                     {quoteImageData.caption && (
-                                      <div className="mt-3">
-                                        <p className="text-sm text-gray-600 dark:text-gray-400 italic leading-relaxed">
-                                          {quoteImageData.caption}
-                                        </p>
+                                      <div className="mt-3 text-sm text-gray-600 dark:text-gray-400 italic leading-relaxed">
+                                        {quoteImageData.caption}
                                       </div>
                                     )}
                                   </div>
@@ -3115,18 +3100,12 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                 {/* Quote with quotation mark */}
                                 <div className="relative">
                                   {/* Large quotation mark */}
-                                  <div className="text-8xl font-serif leading-none text-primary-PARI-Red mb-4">
+                                  <div className="text-8xl font-serif leading-none quote mb-4">
                                     &ldquo;
                                   </div>
                                   <blockquote
-                                    className="text-primary-PARI-Red -mt-12 pl-12"
-                                    style={{
-                                      fontFamily: 'Noto Sans',
-                                      fontWeight: 400,
-                                      fontSize: `${Math.min(fontSize + 3, 21)}px`,
-                                      lineHeight: '160%',
-                                      letterSpacing: '-0.01em'
-                                    }}
+                                    className="quote"
+                                   
                                     dangerouslySetInnerHTML={{ __html: stripHtmlCssWithStyledStrong(simpleQuoteText) }}
                                   />
                                 </div>
@@ -3458,15 +3437,15 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
 
       {/* Credits Section */}
       {showCreditsModal && (
-        <div id="credits-section" className="w-full bg-gray-50 dark:bg-gray-900 py-12 md:py-16 pb-24 md:pb-16">
-          <div className="max-w-4xl mx-auto px-4 md:px-8">
+        <div id="credits-section" className="w-full bg-[#ececec] dark:bg-[#1e1e1e] py-12 md:py-16  md:pb-16">
+          <div className="max-w-3xl mx-auto px-4 md:px-8">
             {/* Donate Section */}
             <div className="bg-white dark:bg-popover rounded-lg p-6 md:p-8 mb-8 shadow-sm">
               <h3 className={`text-2xl mb-4 ${story.isStudent ? 'text-[#2F80ED]' : 'text-primary-PARI-Red'}`}>
                 {getTranslatedLabel('donateToPARI', currentLocale)}
               </h3>
 
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+              <p className="text-discreet  mb-6">
                 {getTranslatedLabel('donateDisclaimer', currentLocale)}
               </p>
 
@@ -3503,18 +3482,18 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                     }}
                     className="bg-white dark:bg-popover rounded-lg p-6 md:p-8 mb-6 shadow-sm cursor-pointer hover:shadow-md transition-shadow"
                   >
-                    <h3 className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-3 tracking-wider">
+                    <h6 className="">
                       {group.title || getTranslatedLabel('author', currentLocale)}
-                    </h3>
-                    <div className={`text-2xl font-bold mb-4 ${story.isStudent ? 'text-[#2F80ED]' : 'text-primary-PARI-Red'}`}>
-                      <h3 className='text-2xl'>{name}</h3>
+                    </h6>
+                    <div className={`text-2xl font-bold mb-4 ${story.isStudent ? 'text-[#2F80ED]' : 'text-foreground'}`}>
+                      <h3 className='text-2xl '>{name}</h3>
                     </div>
 
                     {/* Show bio if available */}
                     {bio && (
                       <div className="mb-6">
                         <p
-                          className="text-gray-700 dark:text-gray-300 leading-relaxed"
+                          className="text-discreet-text leading-relaxed"
                           dangerouslySetInnerHTML={{ __html: stripHtmlCssWithStyledStrong(bio) }}
                         />
                       </div>
@@ -4699,6 +4678,12 @@ async function fetchStoryBySlug(slug: string) {
         },
         Modular_Content: {
           populate: {
+            // Text component fields
+            Text: true,
+            text: true,
+            Paragraph: true,
+            paragraph: true,
+            // Image related fields
             image: {
               populate: '*'
             },

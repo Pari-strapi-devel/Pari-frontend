@@ -37,9 +37,10 @@ const notoSansDevanagari = Noto_Sans_Devanagari({
 
 const notoSansTelugu = Noto_Sans_Telugu({
   subsets: ['telugu', 'latin'],
-  weight: ['300', '400', '500', '600', '700', '800', '900'],
+ 
   variable: '--font-noto-sans-telugu',
   display: 'swap',
+  axes: ['wdth'],
   preload: true
 });
 
@@ -54,58 +55,65 @@ const notoSansTamil = Noto_Sans_Tamil({
 
 const notoSansKannada = Noto_Sans_Kannada({
   subsets: ['kannada', 'latin'],
-  weight: ['300', '400', '500', '600', '700', '800', '900'],
+ 
   variable: '--font-noto-sans-kannada',
   display: 'swap',
-  preload: true
+  preload: true,
+  axes: ['wdth'],
 });
 
 const notoSansBengali = Noto_Sans_Bengali({
   subsets: ['bengali', 'latin'],
-  weight: ['300', '400', '500', '600', '700', '800', '900'],
+ 
   variable: '--font-noto-sans-bengali',
   display: 'swap',
-  preload: true
+  preload: true,
+  axes: ['wdth'],
 });
 
 const notoSansGujarati = Noto_Sans_Gujarati({
   subsets: ['gujarati', 'latin'],
-  weight: ['300', '400', '500', '600', '700', '800', '900'],
+ 
   variable: '--font-noto-sans-gujarati',
   display: 'swap',
-  preload: true
+  preload: true,
+  axes: ['wdth'],
 });
 
 const notoSansOriya = Noto_Sans_Oriya({
   subsets: ['oriya', 'latin'],
-  weight: ['300', '400', '500', '600', '700', '800', '900'],
+ 
   variable: '--font-noto-sans-oriya',
   display: 'swap',
-  preload: true
+  preload: true,
+  axes: ['wdth'],
 });
 
 const notoSansMalayalam = Noto_Sans_Malayalam({
   subsets: ['malayalam', 'latin'],
-  weight: ['300', '400', '500', '600', '700', '800', '900'],
+ 
   variable: '--font-noto-sans-malayalam',
   display: 'swap',
-  preload: true
+  preload: true,
+  axes: ['wdth'],
 });
 
 const notoSansGurmukhi = Noto_Sans_Gurmukhi({
   subsets: ['gurmukhi', 'latin'],
-  weight: ['300', '400', '500', '600', '700', '800', '900'],
+ 
   variable: '--font-noto-sans-gurmukhi',
   display: 'swap',
-  preload: true
+  preload: true,
+  axes: ['wdth'],
 });
 
 const notoSansArabic = Noto_Sans_Arabic({
   subsets: ['arabic'],
-  weight: ['300', '400', '500', '600', '700', '800', '900'],
+ 
   variable: '--font-noto-sans-arabic',
   display: 'swap',
-  preload: true
+  preload: true,
+  axes: ['wdth'],
 });
 
 

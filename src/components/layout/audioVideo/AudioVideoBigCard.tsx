@@ -81,9 +81,9 @@ export function AudioVideoBigCard({
       href={`/article/${slug}`}
       className="group"
     >
-      <article className="grid grid-cols-1 md:grid-cols-2 justify-center gap-6 rounded-[8px] overflow-hidden bg-background  transition-all duration-300 ">
+      <article className="grid grid-cols-1 md:grid-cols-2 justify-center md:gap-6 rounded-[8px] bg-background  transition-all duration-300 ">
         {/* Left side - Image */}
-        <div className="relative h-[358px] rounded-2xl shadow-lg">
+        <div className="relative h-[358px] rounded-2xl shadow-lg mb-8">
           <div className="relative h-full rounded-2xl overflow-hidden">
             <Image
               src={imageUrl}
@@ -108,11 +108,11 @@ export function AudioVideoBigCard({
 
           {/* Language button - half on image, half outside */}
           {availableLanguages && availableLanguages.length > 1 && !isSheetOpen && (
-            <div className="absolute -bottom-[18px] left-1/2 transform -translate-x-1/2 z-[1000]">
+            <div className="absolute -bottom-[18px] left-1/2 transform -translate-x-1/2 z-[9]">
               <Button
                 variant="outline"
                 size="sm"
-                className={`flex items-center gap-2 h-[36px] ring-0 outline-none rounded-[48px] bg-white/80 dark:bg-background  cursor-pointer shadow-lg
+                className={`flex items-center gap-2 h-[36px] z-30 ring-0 outline-none rounded-[48px] bg-white/80 dark:bg-background  cursor-pointer shadow-lg
                   ${isStudentArticle
                     ? 'text-student-blue hover:bg-student-blue hover:text-white border-student-blue'
                     : 'text-primary-PARI-Red hover:bg-primary-PARI-Red outline-none border-none hover:text-white '}`}
@@ -130,7 +130,7 @@ export function AudioVideoBigCard({
         </div>
 
         {/* Right side - Content */}
-        <div className="md:p-6 px-1 pb-6  flex flex-col mt-4 md:mt-0 lg:pr-36 gap-4">
+        <div className="md:p-6 px-1 md:pb-6  flex flex-col mt-4 md:mt-0 lg:pr-36 md:gap-4 gap-2">
         <div className="flex items-center gap-2 flex-wrap">
           {categories?.length > 0 && (
             <>
@@ -216,7 +216,7 @@ export function AudioVideoBigCard({
           )}
 
           <div className="flex flex-col  ">
-            <div className="font-noto-sans text-[15px] pb-1 font-semibold leading-[170%] text-grey-300 tracking-[-0.04em] line-clamp-1">
+            <h5 className=" text-[15px] pb-1 text-grey-300 line-clamp-1">
               {authors && authors.length > 0 ? (
                 authors.map((author, index) => (
                   <span key={index}>
@@ -236,7 +236,7 @@ export function AudioVideoBigCard({
               ) : (
                 'PARI'
               )}
-            </div>
+            </h5>
 
             <div className="font-noto-sans text-[14px] font-normal leading-[150%] tracking-[-0.03em] text-foreground flex items-center gap-1">
               {/* <span className="flex items-center gap-1">
@@ -260,7 +260,7 @@ export function AudioVideoBigCard({
 
                     {/* Bottom Sheet */}
                     <div
-                      className="fixed inset-x-0 bottom-0 md:inset-0 md:flex md:items-center md:justify-center z-[10000] transform transition-transform duration-300 flex ease-out"
+                      className="fixed inset-x-0 bottom-0 md:inset-0 md:flex md:items-center md:justify-center z-[5000] transform transition-transform duration-300 flex ease-out"
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
@@ -356,11 +356,11 @@ export function AudioVideoBigCard({
     </div>
 
             <div className="flex items-center gap-2 pt-1 text-primary-PARI-Red font-noto-sans text-[14px] font-medium leading-[160%] tracking-[-0.03em] mt-auto">
-              {location && <span>{location}</span>}
+              {location && <span className="text-sm">{location}</span>}
               {location && date && <span>•</span>}
-              {date && <span>{date}</span>}
-              <span className="group-hover:translate-x-1 transition-transform duration-300">
-                <ArrowRight className="h-5 w-5" />
+              {date && <span className="text-sm">{date}</span>}
+              <span className="text-sm group-hover:translate-x-1 transition-transform duration-300">
+                <ArrowRight className="h-4 w-4" />
               </span>
             </div>
           </div>

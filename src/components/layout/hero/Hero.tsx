@@ -251,7 +251,7 @@ export function Hero() {
     setIsVisible(false)
   }
 
-  if (isLoading) return <div className="flex justify-center items-center min-h-[400px]">Loading...</div>
+  if (isLoading) return <div className="flex justify-center items-center min-h-[300px]">Loading...</div>
   if (error) return <div className="text-primary-PARI-Red text-center">{error}</div>
 
   // Add language selection handler
@@ -261,7 +261,7 @@ export function Hero() {
       {/* Date moved outside section - always visible */}
       <div className={`px-4 md:mt-[66px] mt-10 ${isVisible ? 'pb-4' : '-pb-1'} ${language === 'ur' ? 'text-right' : 'text-left'}`}>
         <div className={`sm:w-[90%] max-w-[1232px] mx-auto px-6 ${isVisible ? 'py-2' : 'py-1'}`}>
-          <h6 className=" text-grey-300 font-noto-sans ">
+          <h6 className="text-grey-300 dark:text-discreet-text font-noto-sans">
             { String(getCurrentDate(months as unknown as Record<string, string>, weekDays as unknown as Record<string, string>)) }
           </h6>
         </div>
@@ -291,7 +291,7 @@ export function Hero() {
 
             <div className={`flex sm:justify-between flex-col sm:flex-row gap-4 pt-7 ${language === 'ur' ? 'sm:flex-row-reverse' : ''}`}>
               <div className={language === 'ur' ? 'text-right' : 'text-left'}>
-                <h1 className=" font-bold leading-[112%] tracking-[-0.04em] text-foreground">
+                <h1 className="text-foreground  mb-2">
                   {pariInfo[0]?.heading}
                   <br />
                   {pariInfo[0]?.sabHeading}
@@ -350,7 +350,7 @@ export function Hero() {
                     href={addLocaleToUrl(info.url || '#')} // Add fallback to prevent null href and preserve locale
                     className="keen-slider__slide bg-none cursor-pointer block"
                   >
-                    <div className="flex flex-col rounded-lg h-[400px]  md:h-[406px] dark:bg-popover duration-200 relative group">
+                    <div className="flex flex-col rounded-lg h-[350px]  md:h-[406px] dark:bg-popover duration-200 relative group">
                       <div className="relative aspect-[16/9] min-h-[170px] w-full overflow-hidden rounded-lg">
                         <Image
                           src={info.image.data.attributes.url}
@@ -373,14 +373,14 @@ export function Hero() {
                         <h3 className="font-noto-sans text-[20px] md:h-[70px] sm:text-[24px] md:text-[28px] font-bold leading-[124%] tracking-[-0.04em] mb-2 text-foreground line-clamp-1 sm:line-clamp-2">
                           {info.title}
                         </h3>
-                        <p className="font-noto-sans text-[15px] font-normal leading-[170%] tracking-[-0.03em] text-discreet-text line-clamp-2 sm:line-clamp-3">
+                        <p className="line-clamp-2  text-discreet-text ">
                           {info.description}
                         </p>
                         
-                        <div className={`transform translate-y-4 flex items-center pt-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 ease-out ${language === 'ur' ? 'flex-row-reverse' : ''}`}>
+                        <div className={`flex items-center md:pt-4 md:transform md:translate-y-4 md:opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100 md:transition-all md:duration-300 md:ease-out ${language === 'ur' ? 'flex-row-reverse' : ''}`}>
                           <span className={`flex items-center gap-2 py-2 text-primary-PARI-Red ${language === 'ur' ? 'flex-row-reverse' : ''}`}>
                             <span className='text-[14px] font-noto-sans font-medium leading-[160%] tracking-[-0.03em]'>{info.ButtonText}</span>
-                            <span className="group-hover:translate-x-1 transition-transform duration-300">
+                            <span className="md:group-hover:translate-x-1 md:transition-transform md:duration-300">
                               <ArrowRight className="h-5 w-5" />
                             </span>
                           </span>

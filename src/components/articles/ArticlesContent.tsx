@@ -966,7 +966,7 @@ export default function ArticlesContent() {
              
             </div>
           )}
-            <div className={`flex flex-wrap gap-6 mb-6 ${currentLocale === 'ur' ? 'flex-row-reverse' : ''}`}>
+            <div className={`flex flex-wrap gap-4 mb-4 ${currentLocale === 'ur' ? 'flex-row-reverse' : ''}`}>
               {activeFilters.types?.map(type => (
                 <div key={`type-${type}`} className={`flex items-center ring-1 text-primary-PARI-Red ring-primary-PARI-Red bg-background rounded-full px-3 py-1 ${currentLocale === 'ur' ? 'flex-row-reverse' : ''}`}>
                   <span className="text-sm mr-2"> {type}</span>

@@ -490,11 +490,11 @@ export default function StoriesPage() {
 
   return (
     <div className=" relative overflow-hidden   ">
-      <div className="pb-4 max-w-[1232px] border-t-1 lg:px-0  px-4  border-[#D9D9D9] dark:border-[#444444] md:pt-12 pt-10 mx-auto relative z-10">
-        <div className="flex justify-between sm:flex-row flex-col sm:items-center gap-5 mb-4">
+      <div className="pb-4 max-w-[1232px] border-t-1 lg:px-0  px-4  border-[#D9D9D9] dark:border-border md:pt-12 pt-10 mx-auto relative z-10">
+        <div className="flex justify-between sm:flex-row flex-col sm:items-center md:gap-5  md:mb-4">
           <div className="flex flex-row items-center gap-2">
             <Sparkle className="h-6 w-6 text-primary-PARI-Red" />
-            <h6 className="text-[13px] font-noto-sans uppercase text-grey-300 line-clamp-1 leading-[100%] letter-spacing-[-2%] font-semibold">
+            <h6 className="text-grey-300 dark:text-discreet-text">
               {stories[0]?.headtitle}
             </h6>
           </div>
@@ -504,7 +504,7 @@ export default function StoriesPage() {
             <Link href={addLocaleToUrl("/articles")}>
               <Button
                 variant="secondary"
-                className="text-sm h-[36px] md:flex hidden ring-[2px] rounded-[48px] text-primary-PARI-Red"
+                className="text-sm h-[36px] md:flex hidden ring-[1px] rounded-[48px] text-primary-PARI-Red"
               >
                 {stories[0]?.sub_title || "See all stories"}
                 <ChevronRight className="h-5 w-5 ml-1" />

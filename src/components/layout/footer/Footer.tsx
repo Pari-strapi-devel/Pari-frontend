@@ -219,7 +219,7 @@ export function Footer() {
               <h5 className="font-noto-sans text-[18px]  text-foreground mb-2">
                {title}
               </h5>
-              <p className="font-noto-sans text-[15px] text-[#4F4F4F] font-normal leading-[150%] tracking-[-0.03em] mb-10">
+              <p className="font-noto-sans text-[15px] text-discreet-text  font-normal leading-[150%] tracking-[-0.03em] mb-10">
                 {description}
               </p>
             </div>
@@ -277,7 +277,7 @@ export function Footer() {
                     <nav className="space-y-3 gap-y-2 flex flex-col">
                       <Link
                         href={addLocaleToUrl(footerLink.link || '/')}
-                        className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors group font-noto-sans text-[15px] leading-[170%] tracking-[-0.03em]"
+                        className="flex items-center gap-2 text-discreet-text hover:text-foreground transition-colors group font-noto-sans text-[15px] leading-[170%] tracking-[-0.03em]"
                       >
                         {/* {iconUrl && (
                           <div className="w-[20px] h-[20px] flex items-center justify-center flex-shrink-0">

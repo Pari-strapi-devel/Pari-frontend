@@ -238,14 +238,14 @@ export function StoryCard({
                 </div>
               </div>
             ) : null}
-              <h3 className="font-noto-sans flex h-[50px] text-[18px] font-semibold leading-[136%] tracking-[-0.04em] text-foreground !line-clamp-2">
+              <h4 className="font-noto-sans pt-2 flex  text-[18px] font-semibold leading-[136%] tracking-[-0.04em]  text-foreground  line-clamp-2">
                 {title}
-              </h3>
+              </h4>
 
              
 
               <div className="flex flex-col pt-3">
-                <div className="font-noto-sans text-[15px] pb-1 font-semibold leading-[170%] text-grey-300 tracking-[-0.04em] line-clamp-1">
+                <h5 className=" text-[15px] pb-1 text-grey-300 line-clamp-1">
                   {authors && authors.split(',').map((author, index) => (
                     <span key={index}>
                       <span
@@ -261,7 +261,7 @@ export function StoryCard({
                       {index < authors.split(',').length - 1 && ', '}
                     </span>
                   ))}
-                </div>
+                </h5>
 
                 <div className="flex items-center justify-between font-noto-sans text-sm text-">
                   <div className='flex flex-col'>
@@ -272,10 +272,10 @@ export function StoryCard({
                     </div>
 
                     <div className="flex gap-1 justify-start items-center text-student-blue font-noto-sans text-[14px] font-medium leading-[160%] tracking-[-0.03em]">
-                      <p className="flex-shrink-1 line-clamp-1">{location}</p>•
-                      <p className="flex-shrink-0">{date}</p>
-                      <span className="text-xl group-hover:translate-x-1 transition-transform duration-300"> 
-                        <ArrowRight className="h-5 w-5" />
+                      <p className="flex-shrink-1 text-sm line-clamp-1">{location}</p>•
+                      <p className="flex-shrink-0 text-sm">{date}</p>
+                      <span className="text-sm group-hover:translate-x-1 transition-transform duration-300"> 
+                        <ArrowRight className="h-4 w-4" />
                       </span>
                     </div>
                   </div>
@@ -284,7 +284,7 @@ export function StoryCard({
             </div>
           ) : (
             <div className="py-6 flex min-h-[180px] items-start bg-popover rounded-b-[16px] justify-between flex-col px-4">
-              <h4 className="font-noto-sans pt-2 flex  text-[18px] font-semibold leading-[136%] tracking-[-0.04em]  text-foreground  !line-clamp-2">
+              <h4 className="font-noto-sans pt-2 flex  text-[18px] font-semibold leading-[136%] tracking-[-0.04em]  text-foreground  line-clamp-2">
                 {title}
               </h4>
 
@@ -318,10 +318,10 @@ export function StoryCard({
                     </div>
 
                     <div className="flex gap-1 justify-start items-center text-primary-PARI-Red font-noto-sans text-[14px] font-medium leading-[160%] tracking-[-0.03em]">
-                      <p className="flex-shrink-1 line-clamp-1" >{location}</p>•
-                      <p className="flex-shrink-0">{date}</p>
-                      <span className="text-xl group-hover:translate-x-1  transition-transform duration-300"> 
-                        <ArrowRight className="h-5 w-5" />
+                      <p className="flex-shrink-1 text-sm  line-clamp-1" >{location}</p>•
+                      <p className="flex-shrink-0 text-sm">{date}</p>
+                      <span className="text-sm  group-hover:translate-x-1  transition-transform duration-300"> 
+                        <ArrowRight className="h-4 w-4" />
                       </span>
                     </div>
                   </div>

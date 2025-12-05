@@ -1481,9 +1481,9 @@ const InternContent = () => {
 
 
   return (
-    <div className="min-h-screen bg-background py-10 md:py-20 px-4" dir={textDirection}>
+    <div className="min-h-screen bg-background py-10 md:py-20 md:px-20 px-8" dir={textDirection}>
       <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-2 md:gap-40 gap-8 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-2 lg:gap-40  gap-8 items-start">
           {/* Left Content Section */}
           <div className="md:px-8">
             {isLoadingPageData ? (
@@ -1505,14 +1505,14 @@ const InternContent = () => {
                 {/* Language Indicator */}
                 
 
-                <h1 className="text-4xl font-bold text-foreground mb-6">
+                <h1 className="text-foreground mb-2">
                   {pageData.attributes.Title}
                 </h1>
-                <p className="text-xl text-muted-foreground mb-6">
+                <h2 className="text-discreet-text mb-4">
                   {pageData.attributes.Strap}
-                </p>
+                </h2>
 
-                <div className="space-y-6 text-muted-foreground">
+                <div className="space-y-6 text-discreet-text">
                   {renderModularContent(pageData.attributes.Modular_Content)}
                 </div>
               </>
@@ -1525,12 +1525,12 @@ const InternContent = () => {
 
           {/* Right Form Section */}
           <div className="bg-popover dark:bg-popover p-8 rounded-lg shadow-sm border border-border">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-semibold text-card-foreground">
+            <div className="flex items-center justify-between ">
+              <h3 className="text-2xl  text-card-foreground">
                 {currentStep === 1 && 'Internship form'}
                 {currentStep === 2 && 'Internship form'}
                 {currentStep === 3 && 'Profile form'}
-              </h2>
+              </h3>
               <div className="flex items-center space-x-3">
                
                 <div className="relative w-10 h-10">
@@ -1563,17 +1563,17 @@ const InternContent = () => {
               </div>
             </div>
 
-            <p className="text-muted-foreground mb-8">
+            <h2 className="text-discreet-text mb-8">
               Help us best assess your skills for PARI
-            </p>
+            </h2>
 
             {/* Step 1: Personal Info */}
             {currentStep === 1 && (
               <div className="space-y-6">
                 <div>
-                  <h3 className="text-sm font-medium text-muted-foreground mb-4 uppercase tracking-wide">
+                  <h6 className="text-grey-300 dark:text-discreet-text mb-4">
                     PERSONAL INFO
-                  </h3>
+                  </h6>
 
                   <div className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1711,12 +1711,12 @@ const InternContent = () => {
             {currentStep === 2 && (
               <div className="space-y-6">
                 <div>
-                  <h3 className="text-sm font-medium text-muted-foreground mb-4 uppercase tracking-wide">
+                  <h6 className="text-grey-300 dark:text-discreet-text mb-4">
                     INTERNSHIP DETAILS
-                  </h3>
+                  </h6>
 
                   <div className="space-y-4">
-                    <div>
+                    <div className='mb-8'>
                       <p className="text-sm text-muted-foreground mb-3">
                         Proposed Dates of internship (minimum period is 60 days)*
                         <br />
@@ -1956,9 +1956,9 @@ const InternContent = () => {
             {currentStep === 3 && (
               <div className="space-y-6">
                 <div>
-                  <h3 className="text-sm font-medium text-muted-foreground mb-4 uppercase tracking-wide">
+                  <h6 className="text-grey-300 dark:text-discreet-text mb-4">
                     UPLOAD DOCUMENTS
-                  </h3>
+                  </h6>
 
                   <div className="space-y-4">
                     <div>

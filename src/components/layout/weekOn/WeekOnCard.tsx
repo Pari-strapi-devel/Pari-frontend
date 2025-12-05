@@ -393,7 +393,7 @@ export function WeekOnCard() {
   return (
     <section className="py-10 md:py-12 px-4 relative overflow-hidden">
       <div className="max-w-[1232px] mx-auto">
-        <div className="fflex justify-between sm:flex-row  flex-col sm:items-center gap-5 mb-6">
+        <div className="flex justify-between sm:flex-row   items-center gap-5 mb-6">
           <WeekOnHeader 
             header={header}
             title={thisWeekData?.ThisWeek_On_Pari_Title || "This Week on PARI"}
@@ -417,7 +417,7 @@ export function WeekOnCard() {
             <Link href="/articles" >
               <Button 
                 variant="secondary" 
-                className="text-sm h-[36px] md:flex hidden ring-[2px] rounded-[48px]  mr-4"
+                className="text-sm h-[36px] md:flex hidden ring-[1px] rounded-[48px]  mr-4"
               >
                 {seeAllStories || "See all stories"}
                 <ChevronRight className="h-5 w-5 ml-1" />

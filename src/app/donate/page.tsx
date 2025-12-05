@@ -772,13 +772,13 @@ console.log('Razorpay options:', options)
       {/* Add floating language button */}
       <LanguageToggle />
 
-      <div className="max-w-7xl mx-auto px-4 py-10 md:py-20">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-40">
+      <div className="max-w-7xl mx-auto px-8 md:px-20 py-10 md:py-20">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10  lg:gap-40 ">
           {/* Left Column - Main Content */}
           <div className="space-y-8">
             {/* Header */}
             <div>
-              <h1 className=" text-foreground mb-6" >
+              <h1 className="text-foreground mb-2" >
                 {pageData?.attributes?.PageTitle || 'Donate to PARI'}
               </h1>
               <h2 className=" text-discreet-text mb-2" >
@@ -788,7 +788,7 @@ console.log('Razorpay options:', options)
 
             {/* Video or Image */}
             {pageData?.attributes?.VideoURL ? (
-              <div className="w-full h-64 rounded-lg overflow-hidden">
+              <div className="w-full h-100 rounded-lg overflow-hidden">
                 <iframe
                   src={pageData.attributes.VideoURL.replace('watch?v=', 'embed/')}
                   className="w-full h-full border-0"

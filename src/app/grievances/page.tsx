@@ -201,7 +201,7 @@ const GrievanceContent = () => {
         {/* Main Header */}
         <div className="mb-12">
           <h1
-            className="text-foreground dark:text-white mb-6"
+            className="text-foreground dark:text-white mb-2"
             style={{
               fontFamily: 'Noto Sans',
               fontWeight: 700,

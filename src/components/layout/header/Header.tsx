@@ -262,7 +262,7 @@ export function Header() {
   return (
     <>
       {/* Top Header with Logo and Title */}
-      <div className="main-header-section bg-white dark:bg-popover md:pb-6 py-5 md:pt-2 border-b border-border dark:border-borderline">
+      <div className="main-header-section bg-white dark:bg-popover md:py-8 py-5  border-b border-border dark:border-borderline">
         <div className="container mx-auto px-4 top-0 max-w-[1282px]">
           <div className="flex flex-col items-center justify-center w-full z-1000">
             {/* Complete Header Content - Centered as a unit */}
@@ -313,10 +313,10 @@ export function Header() {
                   <Image
                     src="/pari-logo.png"
                     alt="PARI Logo"
-                    width={60}
-                    height={60}
+                    width={70}
+                    height={70}
                     priority
-                    className="h-10 w-10 object-contain"
+                    className="h-12 w-12 md:w-16 md:h-16 object-contain"
                   />
                 </Link>
               )}

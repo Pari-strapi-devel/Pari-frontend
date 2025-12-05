@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import qs from 'qs';
 import { BASE_URL } from '@/config';
@@ -15,134 +15,30 @@ import { useBrevo } from '@/hooks/useBrevo';
 import { useLocale } from '@/lib/locale';
 import { LanguageToggle } from '@/components/layout/header/LanguageToggle';
 
-// Translation map for contact form static text
-const contactTranslations: { [locale: string]: { [key: string]: string } } = {
-  'en': {
-    'getInTouch': 'Get in touch',
-    'loveToHear': "We'd love to hear from you.",
-    'coverYourCountry': 'Cover your country',
-    'coverDescription': "India's biggest archive of itself needs everyone to participate. Join us in building a unique national knowledge repository on rural India.",
-    'volunteer': 'Volunteer',
-    'volunteerDescription': 'We need your support',
-    'intern': 'Intern',
-    'internDescription': 'We need your support',
-    'donate': 'Donate',
-    'donateDescription': "We can do this without governments – and will. We can't do it without you.",
-    'address': 'Address',
-    'mailingAddress': 'Mailing address:',
-    'addressLine1': 'P. Sainath',
-    'addressLine2': 'People\'s Archive of Rural India',
-    'addressLine3': '27/43 Sagar Sangam',
-    'addressLine4': 'Bandra (West)',
-    'addressLine5': 'Mumbai 400050',
-    'addressLine6': 'Maharashtra, India'
-  },
-  'hi': {
-    'getInTouch': 'संपर्क करें',
-    'loveToHear': 'हम आपसे सुनना चाहते हैं।',
-    'coverYourCountry': 'अपने देश को कवर करें',
-    'coverDescription': 'भारत के सबसे बड़े अभिलेखागार में सभी की भागीदारी की आवश्यकता है। ग्रामीण भारत पर एक अनूठा राष्ट्रीय ज्ञान भंडार बनाने में हमारे साथ जुड़ें।',
-    'volunteer': 'स्वयंसेवक',
-    'volunteerDescription': 'हमें आपके समर्थन की आवश्यकता है',
-    'intern': 'इंटर्न',
-    'internDescription': 'हमें आपके समर्थन की आवश्यकता है',
-    'donate': 'दान करें',
-    'donateDescription': 'हम सरकारों के बिना यह कर सकते हैं - और करेंगे। हम आपके बिना यह नहीं कर सकते।',
-    'address': 'पता',
-    'mailingAddress': 'डाक पता:',
-    'addressLine1': 'पी. साईनाथ',
-    'addressLine2': 'पीपुल्स आर्काइव ऑफ रूरल इंडिया',
-    'addressLine3': '27/43 सागर संगम',
-    'addressLine4': 'बांद्रा (पश्चिम)',
-    'addressLine5': 'मुंबई 400050',
-    'addressLine6': 'महाराष्ट्र, भारत'
-  },
-  'mr': {
-    'getInTouch': 'संपर्क साधा',
-    'loveToHear': 'आम्हाला तुमच्याकडून ऐकायला आवडेल।',
-    'coverYourCountry': 'तुमच्या देशाचे कव्हरेज करा',
-    'coverDescription': 'भारताच्या सर्वात मोठ्या संग्रहालयात सर्वांचा सहभाग आवश्यक आहे। ग्रामीण भारतावर एक अनोखा राष्ट्रीय ज्ञान भांडार तयार करण्यात आमच्यासोबत सामील व्हा।',
-    'volunteer': 'स्वयंसेवक',
-    'volunteerDescription': 'आम्हाला तुमच्या समर्थनाची गरज आहे',
-    'intern': 'इंटर्न',
-    'internDescription': 'आम्हाला तुमच्या समर्थनाची गरज आहे',
-    'donate': 'देणगी द्या',
-    'donateDescription': 'आम्ही सरकारांशिवाय हे करू शकतो - आणि करू. आम्ही तुमच्याशिवाय हे करू शकत नाही।',
-    'address': 'पत्ता',
-    'mailingAddress': 'टपाल पत्ता:',
-    'addressLine1': 'पी. साईनाथ',
-    'addressLine2': 'पीपुल्स आर्काइव्ह ऑफ रुरल इंडिया',
-    'addressLine3': '27/43 सागर संगम',
-    'addressLine4': 'बांद्रा (पश्चिम)',
-    'addressLine5': 'मुंबई 400050',
-    'addressLine6': 'महाराष्ट्र, भारत'
-  },
-  'bn': {
-    'getInTouch': 'যোগাযোগ করুন',
-    'loveToHear': 'আমরা আপনার কাছ থেকে শুনতে চাই।',
-    'coverYourCountry': 'আপনার দেশকে কভার করুন',
-    'coverDescription': 'ভারতের সবচেয়ে বড় আর্কাইভে সবার অংশগ্রহণ প্রয়োজন। গ্রামীণ ভারতের উপর একটি অনন্য জাতীয় জ্ঞান ভাণ্ডার তৈরিতে আমাদের সাথে যোগ দিন।',
-    'volunteer': 'স্বেচ্ছাসেবক',
-    'volunteerDescription': 'আমাদের আপনার সহায়তা প্রয়োজন',
-    'intern': 'ইন্টার্ন',
-    'internDescription': 'আমাদের আপনার সহায়তা প্রয়োজন',
-    'donate': 'দান করুন',
-    'donateDescription': 'আমরা সরকার ছাড়াই এটি করতে পারি - এবং করব। আমরা আপনি ছাড়া এটি করতে পারি না।',
-    'address': 'ঠিকানা',
-    'mailingAddress': 'ডাক ঠিকানা:',
-    'addressLine1': 'পি. সাইনাথ',
-    'addressLine2': 'পিপলস আর্কাইভ অফ রুরাল ইন্ডিয়া',
-    'addressLine3': '২৭/৪৩ সাগর সঙ্গম',
-    'addressLine4': 'বান্দ্রা (পশ্চিম)',
-    'addressLine5': 'মুম্বাই ৪০০০৫০',
-    'addressLine6': 'মহারাষ্ট্র, ভারত'
-  },
-  'or': {
-    'getInTouch': 'ଯୋଗାଯୋଗ କରନ୍ତୁ',
-    'loveToHear': 'ଆମେ ଆପଣଙ୍କଠାରୁ ଶୁଣିବାକୁ ଭଲ ପାଇବୁ।',
-    'coverYourCountry': 'ଆପଣଙ୍କ ଦେଶକୁ କଭର କରନ୍ତୁ',
-    'coverDescription': 'ଭାରତର ସବୁଠାରୁ ବଡ଼ ଅଭିଲେଖାଗାରରେ ସମସ୍ତଙ୍କର ଅଂଶଗ୍ରହଣ ଆବଶ୍ୟକ। ଗ୍ରାମୀଣ ଭାରତ ଉପରେ ଏକ ଅନନ୍ୟ ଜାତୀୟ ଜ୍ଞାନ ଭଣ୍ଡାର ନିର୍ମାଣରେ ଆମ ସହିତ ଯୋଗ ଦିଅନ୍ତୁ।',
-    'volunteer': 'ସ୍ୱେଚ୍ଛାସେବୀ',
-    'volunteerDescription': 'ଆମକୁ ଆପଣଙ୍କ ସହାୟତା ଦରକାର',
-    'intern': 'ଇଣ୍ଟର୍ନ',
-    'internDescription': 'ଆମକୁ ଆପଣଙ୍କ ସହାୟତା ଦରକାର',
-    'donate': 'ଦାନ କରନ୍ତୁ',
-    'donateDescription': 'ଆମେ ସରକାର ବିନା ଏହା କରିପାରିବା - ଏବଂ କରିବୁ। ଆମେ ଆପଣଙ୍କ ବିନା ଏହା କରିପାରିବୁ ନାହିଁ।',
-    'address': 'ଠିକଣା',
-    'mailingAddress': 'ଡାକ ଠିକଣା:',
-    'addressLine1': 'ପି. ସାଇନାଥ',
-    'addressLine2': 'ପିପୁଲ୍ସ ଆର୍କାଇଭ୍ ଅଫ୍ ରୁରାଲ୍ ଇଣ୍ଡିଆ',
-    'addressLine3': '୨୭/୪୩ ସାଗର ସଙ୍ଗମ',
-    'addressLine4': 'ବାନ୍ଦ୍ରା (ପଶ୍ଚିମ)',
-    'addressLine5': 'ମୁମ୍ବାଇ ୪୦୦୦୫୦',
-    'addressLine6': 'ମହାରାଷ୍ଟ୍ର, ଭାରତ'
-  },
-  'ur': {
-    'getInTouch': 'رابطہ کریں',
-    'loveToHear': 'ہم آپ سے سننا پسند کریں گے۔',
-    'coverYourCountry': 'اپنے ملک کو کور کریں',
-    'coverDescription': 'ہندوستان کے سب سے بڑے آرکائیو میں سب کی شرکت ضروری ہے۔ دیہی ہندوستان پر ایک منفرد قومی علمی ذخیرہ بنانے میں ہمارے ساتھ شامل ہوں۔',
-    'volunteer': 'رضاکار',
-    'volunteerDescription': 'ہمیں آپ کی حمایت کی ضرورت ہے',
-    'intern': 'انٹرن',
-    'internDescription': 'ہمیں آپ کی حمایت کی ضرورت ہے',
-    'donate': 'عطیہ دیں',
-    'donateDescription': 'ہم حکومتوں کے بغیر یہ کر سکتے ہیں - اور کریں گے۔ ہم آپ کے بغیر یہ نہیں کر سکتے۔',
-    'address': 'پتہ',
-    'mailingAddress': 'ڈاک کا پتہ:',
-    'addressLine1': 'پی. سائی ناتھ',
-    'addressLine2': 'پیپلز آرکائیو آف رورل انڈیا',
-    'addressLine3': '27/43 ساگر سنگم',
-    'addressLine4': 'بندرا (مغرب)',
-    'addressLine5': 'ممبئی 400050',
-    'addressLine6': 'مہاراشٹر، ہندوستان'
-  }
-};
+// Interface for contact page data from API
+interface ContactPanel {
+  id: number;
+  Title: string;
+  Description: string;
+  icon?: {
+    data: {
+      attributes: {
+        url: string;
+      };
+    } | null;
+  };
+}
 
-// Helper function to get translated text
-const getTranslatedText = (key: string, locale: string): string => {
-  return contactTranslations[locale]?.[key] || contactTranslations['en'][key] || key;
-};
+interface ContactPageData {
+  id: number;
+  attributes: {
+    Title: string;
+    strap: string;
+    Address: string;
+    locale: string;
+    ContactPanels?: ContactPanel[];
+  };
+}
 
 // Location data interfaces
 interface Country {
@@ -282,8 +178,8 @@ const ContactForm = () => {
   const [thisWeekData, setThisWeekData] = useState<ThisWeekOnPariData | null>(null);
   const [isLoadingThisWeek, setIsLoadingThisWeek] = useState(true);
 
-
-
+  // State for contact page content from API
+  const [contactPageData, setContactPageData] = useState<ContactPageData | null>(null);
 
 
   const [formData, setFormData] = useState({
@@ -369,6 +265,51 @@ const ContactForm = () => {
     fetchThisWeekData();
   }, [language]);
 
+  // Fetch contact page data from API
+  const fetchContactPageData = useCallback(async () => {
+    try {
+      console.log('##Rohit_Rocks## Fetching contact page data for locale:', language);
+
+      // Fetch with locale parameter
+      const apiUrl = `${BASE_URL}api/page-contact?populate=deep,3&locale=${language}`;
+      const response = await axios.get<{ data: ContactPageData; meta: Record<string, unknown> }>(apiUrl);
+
+      if (response.data?.data) {
+        console.log('##Rohit_Rocks## Contact page data loaded:', {
+          title: response.data.data.attributes.Title,
+          strap: response.data.data.attributes.strap,
+          locale: response.data.data.attributes.locale,
+          panelsCount: response.data.data.attributes.ContactPanels?.length || 0
+        });
+        setContactPageData(response.data.data);
+      } else {
+        // Fallback to English if locale not found
+        console.log('##Rohit_Rocks## No data for locale, falling back to English');
+        const fallbackUrl = `${BASE_URL}api/page-contact?populate=deep,3&locale=en`;
+        const fallbackResponse = await axios.get<{ data: ContactPageData; meta: Record<string, unknown> }>(fallbackUrl);
+        if (fallbackResponse.data?.data) {
+          setContactPageData(fallbackResponse.data.data);
+        }
+      }
+    } catch (error) {
+      console.error('##Rohit_Rocks## Error fetching contact page data:', error);
+      // Try fallback to English on error
+      try {
+        const fallbackUrl = `${BASE_URL}api/page-contact?populate=deep,3&locale=en`;
+        const fallbackResponse = await axios.get<{ data: ContactPageData; meta: Record<string, unknown> }>(fallbackUrl);
+        if (fallbackResponse.data?.data) {
+          setContactPageData(fallbackResponse.data.data);
+        }
+      } catch (fallbackError) {
+        console.error('##Rohit_Rocks## Fallback also failed:', fallbackError);
+      }
+    }
+  }, [language]);
+
+  useEffect(() => {
+    fetchContactPageData();
+  }, [fetchContactPageData]);
+
   // Fetch articles on component mount
   useEffect(() => {
     const fetchArticles = async () => {
@@ -399,6 +340,7 @@ const ContactForm = () => {
 
         const queryString = qs.stringify(query, { encodeValuesOnly: true });
         const response = await axios.get(`${BASE_URL}api/articles?${queryString}`);
+        console.log('##Rohit_Rocks## Articles API response:', response.data);
 
         if (response.data?.data) {
           setArticles(response.data.data);
@@ -418,7 +360,7 @@ const ContactForm = () => {
     const itemsToRotate = thisWeekData?.article_with_lang_selection_1?.length || articles.length;
     
     if (itemsToRotate > 1) {
-      console.log('Starting rotation with', itemsToRotate, 'items');
+    
       
       const interval = setInterval(() => {
         setCurrentImageIndex((prevIndex) => {
@@ -436,7 +378,7 @@ const ContactForm = () => {
 
   // Set mounted to true after component mounts to prevent hydration mismatch
   useEffect(() => {
-    console.log('##Rohit_Rocks## ContactForm component mounted');
+   
     setMounted(true);
   }, []);
 
@@ -740,10 +682,10 @@ const ContactForm = () => {
             {/* Main Title */}
             <div className="space-y-2">
               <h1 className=" mb-2" >
-                {getTranslatedText('getInTouch', language)}
+                {contactPageData?.attributes?.Title || 'Get in touch'}
               </h1>
               <h2 className="" >
-                {getTranslatedText('loveToHear', language)}
+                {contactPageData?.attributes?.strap || "We'd love to hear from you."}
               </h2>
             </div>
 
@@ -756,11 +698,11 @@ const ContactForm = () => {
                     <div className="flex items-center space-x-2">
                       <FiEdit3 className="h-5 w-5 text-white hover:text-white transition-colors duration-300" />
                       <h3 className="text-xl font-bold text-white hover:text-white transition-colors duration-300" style={{ fontFamily: 'Noto Sans', fontWeight: 700 }}>
-                        {getTranslatedText('coverYourCountry', language)}
+                        {contactPageData?.attributes?.ContactPanels?.[0]?.Title || 'Cover your country'}
                       </h3>
                     </div>
                     <p className="text-sm text-white leading-relaxed  hover:text-white/90 transition-colors duration-300" style={{ fontFamily: 'Noto Sans', fontWeight: 400 }}>
-                      {getTranslatedText('coverDescription', language)}
+                      {contactPageData?.attributes?.ContactPanels?.[0]?.Description || "India's biggest archive of itself needs everyone to participate. Join us in building a unique national knowledge repository on rural India."}
                     </p>
                   </div>
                 </div>
@@ -773,11 +715,11 @@ const ContactForm = () => {
                     <div className="flex items-center space-x-2">
                       <FiUsers className="h-5 w-5 text-white hover:text-white transition-colors duration-300" />
                       <h3 className="text-xl font-bold text-white hover:text-white transition-colors duration-300" style={{ fontFamily: 'Noto Sans', fontWeight: 700 }}>
-                        {getTranslatedText('volunteer', language)}
+                        {contactPageData?.attributes?.ContactPanels?.[1]?.Title || 'Volunteer'}
                       </h3>
                     </div>
                     <p className="text-sm text-white leading-relaxed  hover:text-white/90 transition-colors duration-300" style={{ fontFamily: 'Noto Sans', fontWeight: 400 }}>
-                      {getTranslatedText('volunteerDescription', language)}
+                      {contactPageData?.attributes?.ContactPanels?.[1]?.Description || 'We need your support'}
                     </p>
                   </div>
                 </div>
@@ -790,11 +732,11 @@ const ContactForm = () => {
                     <div className="flex items-center space-x-3">
                       <FiBookOpen className="h-6 w-6 text-white hover:text-white transition-colors duration-300" />
                       <h3 className="text-xl font-bold text-white hover:text-white transition-colors duration-300" style={{ fontFamily: 'Noto Sans', fontWeight: 700 }}>
-                        {getTranslatedText('intern', language)}
+                        {contactPageData?.attributes?.ContactPanels?.[2]?.Title || 'Intern'}
                       </h3>
                     </div>
                     <p className="text-sm text-white leading-relaxed  hover:text-white/90 transition-colors duration-300" style={{ fontFamily: 'Noto Sans', fontWeight: 400 }}>
-                      {getTranslatedText('internDescription', language)}
+                      {contactPageData?.attributes?.ContactPanels?.[2]?.Description || 'We need your support'}
                     </p>
                   </div>
                 </div>
@@ -807,11 +749,11 @@ const ContactForm = () => {
                     <div className="flex items-center space-x-3">
                       <FiHeart className="h-6 w-6 text-white hover:text-white transition-colors duration-300" />
                       <h3 className="text-xl font-bold text-white hover:text-white transition-colors duration-300" style={{ fontFamily: 'Noto Sans', fontWeight: 700 }}>
-                        {getTranslatedText('donate', language)}
+                        {contactPageData?.attributes?.ContactPanels?.[3]?.Title || 'Donate'}
                       </h3>
                     </div>
                     <p className="text-sm text-white leading-relaxed  hover:text-white/90 transition-colors duration-300" style={{ fontFamily: 'Noto Sans', fontWeight: 400 }}>
-                      {getTranslatedText('donateDescription', language)}
+                      {contactPageData?.attributes?.ContactPanels?.[3]?.Description || "We can do this without governments – and will. We can't do it without you."}
                     </p>
                   </div>
                 </div>
@@ -819,7 +761,7 @@ const ContactForm = () => {
             </div>
 
             {/* NOW ON PARI and Address Section */}
-           
+
           </div>
 
           {/* Right Form Section */}
@@ -1305,7 +1247,7 @@ const ContactForm = () => {
          <div className="border-t border-white/50 mt-5 pt-12  flex md:flex-row flex-col md:gap-40 gap-6">
               {/* NOW ON PARI Section */}
               <div className="space-y-4 text-white w-full">
-                <h6 className="" >
+                <h6 className="text-grey-300 dark:text-discreet-text">
                   NOW ON PARI
                 </h6>
 
@@ -1394,18 +1336,13 @@ const ContactForm = () => {
 
               {/* Address Section */}
               <div className="space-y-2 w-full">
-                <h6 className=" text-white" style={{ fontFamily: 'Noto Sans', fontWeight: 700 }}>
-                  {getTranslatedText('address', language)}
-                </h6>
-                <div className="text-sm text-white opacity-90 leading-relaxed" style={{ fontFamily: 'Noto Sans', fontWeight: 400 }}>
-                  <div>
-                    {getTranslatedText('addressLine1', language)},
-                    <br />
-                    {getTranslatedText('addressLine2', language)}, {getTranslatedText('addressLine3', language)},
-                    <br />
-                    {getTranslatedText('addressLine4', language)}, {getTranslatedText('addressLine5', language)}, {getTranslatedText('addressLine6', language)}
-                  </div>
-                </div>
+                <div
+                  className="text-sm text-white opacity-90 leading-relaxed"
+                  style={{ fontFamily: 'Noto Sans', fontWeight: 400 }}
+                  dangerouslySetInnerHTML={{
+                    __html: contactPageData?.attributes?.Address || '<p>Mailing address:<br>27/43 Sagar Sangam, Bandra Reclamation,<br>Bandra West, Mumbai, Maharashtra- 400050</p>'
+                  }}
+                />
               </div>
             </div>
       </div>
