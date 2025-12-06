@@ -21,6 +21,32 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  transpilePackages: [
+    '@radix-ui/react-checkbox',
+    '@radix-ui/react-collapsible',
+    '@radix-ui/react-dialog',
+    '@radix-ui/react-dropdown-menu',
+    '@radix-ui/react-icons',
+    '@radix-ui/react-label',
+    '@radix-ui/react-navigation-menu',
+    '@radix-ui/react-select',
+    '@radix-ui/react-slot',
+  ],
+  webpack: (config) => {
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@radix-ui/react-checkbox': require.resolve('@radix-ui/react-checkbox'),
+      '@radix-ui/react-collapsible': require.resolve('@radix-ui/react-collapsible'),
+      '@radix-ui/react-dialog': require.resolve('@radix-ui/react-dialog'),
+      '@radix-ui/react-dropdown-menu': require.resolve('@radix-ui/react-dropdown-menu'),
+      '@radix-ui/react-icons': require.resolve('@radix-ui/react-icons'),
+      '@radix-ui/react-label': require.resolve('@radix-ui/react-label'),
+      '@radix-ui/react-navigation-menu': require.resolve('@radix-ui/react-navigation-menu'),
+      '@radix-ui/react-select': require.resolve('@radix-ui/react-select'),
+      '@radix-ui/react-slot': require.resolve('@radix-ui/react-slot'),
+    };
+    return config;
+  },
 };
 
 export default nextConfig;

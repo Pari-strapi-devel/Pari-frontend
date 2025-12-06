@@ -1709,8 +1709,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                     <button
                       key={index}
                       onClick={() => {
-                        // Clear any existing filters and navigate with fresh state
-                        window.location.href = `/articles?types=${category.slug}`
+                        router.push(`/articles?types=${category.slug}`)
                       }}
                       className={`px-4 py-2 border ${story.isStudent ? 'border-[#2F80ED] text-[#2F80ED] hover:bg-[#2F80ED]' : 'border-primary-PARI-Red text-primary-PARI-Red hover:bg-primary-PARI-Red'} font-noto-sans rounded-full hover:text-white transition-colors cursor-pointer`}
                       style={{
@@ -1733,8 +1732,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                         <button
                           key={index}
                           onClick={() => {
-                            // Clear any existing filters and navigate with fresh state
-                            window.location.href = `/articles?types=${category.slug}`
+                            router.push(`/articles?types=${category.slug}`)
                           }}
                           className={`px-4 py-2 border ${story.isStudent ? 'border-[#2F80ED] text-[#2F80ED] hover:bg-[#2F80ED]' : 'border-primary-PARI-Red text-primary-PARI-Red hover:bg-primary-PARI-Red'} font-noto-sans rounded-full hover:text-white transition-colors cursor-pointer animate-slide-in-left`}
                           style={{
@@ -1768,8 +1766,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                         <button
                           key={index}
                           onClick={() => {
-                            // Clear any existing filters and navigate with fresh state
-                            window.location.href = `/articles?types=${category.slug}`
+                            router.push(`/articles?types=${category.slug}`)
                           }}
                           className={`px-4 py-2 border ${story.isStudent ? 'border-[#2F80ED] text-[#2F80ED] hover:bg-[#2F80ED]' : 'border-primary-PARI-Red text-primary-PARI-Red hover:bg-primary-PARI-Red'} font-noto-sans rounded-full hover:text-white transition-colors cursor-pointer`}
                           style={{
@@ -1841,8 +1838,8 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                         <span key={nameIndex}>
                           <button
                             onClick={() => {
-                              // Clear any existing filters and navigate with fresh state
-                              window.location.href = `/articles?author=${encodeURIComponent(name)}`
+
+                              router.push(`/articles?author=${encodeURIComponent(name)}`)
                             }}
                             className={`transition-colors text-left ${story.isStudent ? 'hover:text-[#2F80ED] dark:hover:text-[#2F80ED]' : 'hover:text-primary-PARI-Red dark:hover:text-primary-PARI-Red'}`}
                           >
@@ -4664,6 +4661,28 @@ function extractImageData(paragraph: FilterableContentItem): {
     }
   }
 
+  // Check for full_width_image field
+  if ('full_width_image' in obj && obj.full_width_image && typeof obj.full_width_image === 'object') {
+    const imageObj = obj.full_width_image as Record<string, unknown>
+
+    if ('data' in imageObj && imageObj.data && typeof imageObj.data === 'object') {
+      const imageData = imageObj.data as Record<string, unknown>
+      if ('attributes' in imageData && imageData.attributes && typeof imageData.attributes === 'object') {
+        const attrs = imageData.attributes as Record<string, unknown>
+        if ('url' in attrs && typeof attrs.url === 'string') {
+          const finalCaption = componentCaption || (typeof attrs.caption === 'string' ? attrs.caption : undefined)
+          return {
+            url: `${API_BASE_URL}${attrs.url}`,
+            alt: typeof attrs.alternativeText === 'string' ? attrs.alternativeText : undefined,
+            caption: finalCaption,
+            width: typeof attrs.width === 'number' ? attrs.width : undefined,
+            height: typeof attrs.height === 'number' ? attrs.height : undefined,
+          }
+        }
+      }
+    }
+  }
+
   // Check for direct URL field
   if ('url' in obj && typeof obj.url === 'string') {
     return {
@@ -5034,6 +5053,9 @@ async function fetchStoryBySlug(slug: string) {
               populate: '*'
             },
             Image: {
+              populate: '*'
+            },
+            full_width_image: {
               populate: '*'
             },
             columnar_images: {
