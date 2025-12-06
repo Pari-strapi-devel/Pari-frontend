@@ -179,7 +179,7 @@ export const NewsletterBottomSheet: React.FC<NewsletterBottomSheetProps> = ({
 
     // Try to fetch from API and merge with imported data
     try {
-      const response = await fetch(`https://merge.ruralindiaonline.org/v1/api/languages?locale=${currentLanguage || 'en'}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://production.ruralindiaonline.org'}/v1/api/languages?locale=${currentLanguage || 'en'}`, {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
@@ -245,7 +245,7 @@ export const NewsletterBottomSheet: React.FC<NewsletterBottomSheetProps> = ({
       console.log('##Rohit_Rocks## Fetching newsletter data from API');
 
       // Try fetch first (like other successful API calls in the codebase)
-      const response = await fetch('https://merge.ruralindiaonline.org/v1/api/newsletter?populate=*', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://production.ruralindiaonline.org'}/v1/api/newsletter?populate=*`, {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
@@ -395,7 +395,7 @@ export const NewsletterBottomSheet: React.FC<NewsletterBottomSheetProps> = ({
 
       // Submit to PARI newsletter API
       try {
-        const apiResponse = await axios.post('https://merge.ruralindiaonline.org/v1/api/newslatters', newsletterPayload, {
+        const apiResponse = await axios.post(`${process.env.NEXT_PUBLIC_API_URL || 'https://production.ruralindiaonline.org'}/v1/api/newslatters`, newsletterPayload, {
           headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json'

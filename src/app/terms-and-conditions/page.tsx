@@ -84,7 +84,7 @@ const TermsConditionsContent = () => {
         setError(null);
 
         console.log('##Rohit_Rocks## Fetching terms data for locale:', currentLocale);
-        const apiUrl = `https://merge.ruralindiaonline.org/v1/api/terms-of-service?populate=*&locale=${currentLocale}`;
+        const apiUrl = `${process.env.NEXT_PUBLIC_API_URL || 'https://production.ruralindiaonline.org'}/v1/api/terms-of-service?populate=*&locale=${currentLocale}`;
         const response = await axios.get<TermsResponse>(apiUrl);
         console.log('##Rohit_Rocks## Terms API response:', response.data);
 
@@ -99,7 +99,7 @@ const TermsConditionsContent = () => {
         // Fallback to English if locale not found
         if (axios.isAxiosError(err) && err.response?.status === 404 && currentLocale !== 'en') {
           try {
-            const fallbackUrl = 'https://merge.ruralindiaonline.org/v1/api/terms-of-service?populate=*&locale=en';
+            const fallbackUrl = `${process.env.NEXT_PUBLIC_API_URL || 'https://production.ruralindiaonline.org'}/v1/api/terms-of-service?populate=*&locale=en`;
             const fallbackResponse = await axios.get<TermsResponse>(fallbackUrl);
 
             if (fallbackResponse.data.data) {

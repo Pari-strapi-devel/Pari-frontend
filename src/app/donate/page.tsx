@@ -318,7 +318,7 @@ function DonatePageContent() {
     // Try to fetch the requested locale first
     if (!pageDataLoaded) {
       try {
-        const url = `https://merge.ruralindiaonline.org/v1/api/page-donate?populate=*&locale=${currentLocale}`
+        const url = `${process.env.NEXT_PUBLIC_API_URL || 'https://production.ruralindiaonline.org'}/v1/api/page-donate?populate=*&locale=${currentLocale}`
         console.log('##Rohit_Rocks## Fetching from URL:', url)
 
         const response = await axios.get<{ data: PageContentData; meta: Record<string, unknown> }>(url)
@@ -344,7 +344,7 @@ function DonatePageContent() {
     if (!pageDataLoaded && currentLocale !== 'en') {
       try {
         console.log('##Rohit_Rocks## Falling back to English...')
-        const fallbackUrl = `https://merge.ruralindiaonline.org/v1/api/page-donate?populate=*&locale=en`
+        const fallbackUrl = `${process.env.NEXT_PUBLIC_API_URL || 'https://production.ruralindiaonline.org'}/v1/api/page-donate?populate=*&locale=en`
         const fallbackResponse = await axios.get<{ data: PageContentData; meta: Record<string, unknown> }>(fallbackUrl)
 
         if (fallbackResponse.data.data) {
@@ -623,7 +623,7 @@ console.log('Razorpay options:', options)
     try {
       console.log('##Rohit_Rocks## Submitting form data:', formDataToSubmit)
 
-      const response = await fetch('https://merge.ruralindiaonline.org/v1/api/donate-submits', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://production.ruralindiaonline.org'}/v1/api/donate-submits`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

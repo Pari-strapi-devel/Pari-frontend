@@ -23,7 +23,7 @@ const WeekOnHeader: React.FC<WeekOnHeaderProps> = ({
             <div className='flex flex-row items-center gap-2'>
               {/* {header && (
                 <Image 
-                  src={ header || "https://merge.ruralindiaonline.org/v1/uploads/stand_2aa0fa18b2.svg"} // Removed extra quotes
+                  src={ header || `${process.env.NEXT_PUBLIC_API_URL || 'https://production.ruralindiaonline.org'}/v1/uploads/stand_2aa0fa18b2.svg`} // Removed extra quotes
                   alt={title} 
                   width={24}
                   height={24}

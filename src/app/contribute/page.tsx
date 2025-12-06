@@ -9,6 +9,7 @@ import { useContributeBrevo } from '@/hooks/useBrevo';
 import { LanguageToggle } from '@/components/layout/header/LanguageToggle';
 import { useLocale } from '@/lib/locale';
 import Link from 'next/link';
+import { API_BASE_URL } from '@/utils/constants';
 
 // Location data interfaces
 interface Country {
@@ -386,7 +387,7 @@ const ContributeContent = () => {
 
         // Fetch all pages and find "Cover your country" by title
         const listResponse = await axios.get<{ data: ContributePageData[]; meta: Record<string, unknown> }>(
-          `https://merge.ruralindiaonline.org/v1/api/pages?filters[Title][$eq]=Cover your country&populate=deep,3&locale=en`
+          `${API_BASE_URL}/v1/api/pages?filters[Title][$eq]=Cover your country&populate=deep,3&locale=en`
         );
 
         if (!listResponse.data.data || listResponse.data.data.length === 0) {
@@ -414,7 +415,7 @@ const ContributeContent = () => {
             console.log('##Rohit_Rocks## Found localization for', currentLocale, ', fetching full data...');
             try {
               const localeResponse = await axios.get<{ data: ContributePageData; meta: Record<string, unknown> }>(
-                `https://merge.ruralindiaonline.org/v1/api/pages/${localization.id}?populate=deep,3`
+                `${API_BASE_URL}/v1/api/pages/${localization.id}?populate=deep,3`
               );
               console.log('##Rohit_Rocks## Localized content:', {
                 Title: localeResponse.data.data.attributes.Title,
@@ -595,7 +596,7 @@ const ContributeContent = () => {
 
       console.log('##Rohit_Rocks## Uploading file:', file.name);
 
-      const response = await fetch('https://merge.ruralindiaonline.org/v1/api/upload', {
+      const response = await fetch(`${API_BASE_URL}/v1/api/upload`, {
         method: 'POST',
         body: formData
       });

@@ -105,7 +105,7 @@ const GrievanceContent = () => {
         setIsLoading(true);
         setError(null);
 
-        const apiUrl = `https://merge.ruralindiaonline.org/v1/api/grievance?populate=*&locale=${currentLocale}`;
+        const apiUrl = `${process.env.NEXT_PUBLIC_API_URL || 'https://production.ruralindiaonline.org'}/v1/api/grievance?populate=*&locale=${currentLocale}`;
         const response = await axios.get<ApiResponse>(apiUrl);
 
         if (response.data.data) {
@@ -119,7 +119,7 @@ const GrievanceContent = () => {
         // Fallback to English if locale not found
         if (axios.isAxiosError(err) && err.response?.status === 404 && currentLocale !== 'en') {
           try {
-            const fallbackUrl = 'https://merge.ruralindiaonline.org/v1/api/grievance?populate=*&locale=en';
+            const fallbackUrl = `${process.env.NEXT_PUBLIC_API_URL || 'https://production.ruralindiaonline.org'}/v1/api/grievance?populate=*&locale=en`;
             const fallbackResponse = await axios.get<ApiResponse>(fallbackUrl);
             
             if (fallbackResponse.data.data) {

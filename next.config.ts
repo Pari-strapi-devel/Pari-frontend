@@ -5,15 +5,7 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'beta4.ruralindiaonline.org',
-      },
-      {
-        protocol: 'https',
-        hostname: 'beta.ruralindiaonline.org',
-      },
-      {
-        protocol: 'https',
-        hostname: 'dev.ruralindiaonline.org',
+        hostname: 'production.ruralindiaonline.org',
       },
       {
         protocol: 'https',

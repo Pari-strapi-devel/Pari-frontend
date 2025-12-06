@@ -87,7 +87,7 @@ const ContributeGuidelinesContent = () => {
     const fetchGuidelineData = async () => {
       try {
         setLoading(true);
-        const apiUrl = `https://merge.ruralindiaonline.org/v1/api/page-contributor-guideline?populate=deep&locale=${currentLocale}`;
+        const apiUrl = `${process.env.NEXT_PUBLIC_API_URL || 'https://production.ruralindiaonline.org'}/v1/api/page-contributor-guideline?populate=deep&locale=${currentLocale}`;
 
         const response = await fetch(apiUrl);
 
@@ -101,7 +101,7 @@ const ContributeGuidelinesContent = () => {
         // Fallback to English if the requested locale fails
         if (currentLocale !== 'en') {
           try {
-            const fallbackResponse = await fetch('https://merge.ruralindiaonline.org/v1/api/page-contributor-guideline?populate=deep&locale=en');
+            const fallbackResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://production.ruralindiaonline.org'}/v1/api/page-contributor-guideline?populate=deep&locale=en`);
             if (fallbackResponse.ok) {
               const fallbackData: ApiResponse = await fallbackResponse.json();
               setGuidelineData(fallbackData.data);

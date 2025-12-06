@@ -5,10 +5,11 @@ import axios from 'axios'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { LibraryGridSkeleton } from '@/components/skeletons/ArticleSkeletons'
+import { API_BASE_URL } from '@/utils/constants'
 
 
-const BASE_URL = 'https://merge.ruralindiaonline.org/v1/'
-const IMAGE_BASE_URL = 'https://merge.ruralindiaonline.org'
+const BASE_URL = `${API_BASE_URL}/v1/`
+const IMAGE_BASE_URL = API_BASE_URL
 
 interface ImageFormat {
   url: string

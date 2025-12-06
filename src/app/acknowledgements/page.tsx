@@ -3,8 +3,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import axios from 'axios'
 import { GenericPageSkeleton } from '@/components/skeletons/PageSkeletons'
-
-const API_BASE_URL = 'https://merge.ruralindiaonline.org'
+import { API_BASE_URL } from '@/utils/constants'
 
 interface AcknowledgementGroup {
   id: number

@@ -6,10 +6,11 @@ import Image from 'next/image'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi'
 import { PaintingDetailSkeleton } from '@/components/skeletons/PageSkeletons'
+import { API_BASE_URL } from '@/utils/constants'
 
 
-const BASE_URL = 'https://merge.ruralindiaonline.org/v1/'
-const IMAGE_BASE_URL = 'https://merge.ruralindiaonline.org'
+const BASE_URL = `${API_BASE_URL}/v1/`
+const IMAGE_BASE_URL = API_BASE_URL
 
 interface ImageFormat {
   url: string

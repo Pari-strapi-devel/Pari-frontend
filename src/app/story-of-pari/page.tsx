@@ -395,7 +395,7 @@ function StoryOfPariContent() {
     if (authorImagePath.startsWith('http')) {
       authorImageUrl = authorImagePath
     } else {
-      authorImageUrl = `https://merge.ruralindiaonline.org${authorImagePath}`
+      authorImageUrl = `${process.env.NEXT_PUBLIC_API_URL || 'https://production.ruralindiaonline.org'}${authorImagePath}`
     }
   }
 

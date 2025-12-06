@@ -7,6 +7,7 @@ import { languages } from '@/data/languages';
 import { LanguageToggle } from '@/components/layout/header/LanguageToggle';
 import { useLocale } from '@/lib/locale';
 import { FormPageSkeleton } from '@/components/skeletons/PageSkeletons';
+import { API_BASE_URL } from '@/utils/constants';
 
 // Location data interfaces
 interface Country {
@@ -188,7 +189,7 @@ const VolunteerPageContent = () => {
 
         // First, fetch all pages and find "Volunteer" by title
         const listResponse = await axios.get<{ data: VolunteerPageData[]; meta: Record<string, unknown> }>(
-          `https://merge.ruralindiaonline.org/v1/api/pages?filters[Title][$eq]=Volunteer&populate=deep,3&locale=en`
+          `${API_BASE_URL}/v1/api/pages?filters[Title][$eq]=Volunteer&populate=deep,3&locale=en`
         );
 
         if (!listResponse.data.data || listResponse.data.data.length === 0) {
@@ -216,7 +217,7 @@ const VolunteerPageContent = () => {
             console.log('##Rohit_Rocks## Found localization for', currentLocale, ', fetching full data...');
             try {
               const localeResponse = await axios.get<{ data: VolunteerPageData; meta: Record<string, unknown> }>(
-                `https://merge.ruralindiaonline.org/v1/api/pages/${localization.id}?populate=deep,3`
+                `${API_BASE_URL}/v1/api/pages/${localization.id}?populate=deep,3`
               );
               console.log('##Rohit_Rocks## Localized content:', {
                 Title: localeResponse.data.data.attributes.Title,
@@ -255,7 +256,7 @@ const VolunteerPageContent = () => {
         console.log('##Rohit_Rocks## Fetching volunteer API data');
 
         // Try the form-volunteer endpoint (similar to contribute page pattern)
-        const response = await axios.get<VolunteerApiResponse>('https://merge.ruralindiaonline.org/v1/api/form-volunteer', {
+        const response = await axios.get<VolunteerApiResponse>(`${API_BASE_URL}/v1/api/form-volunteer`, {
           headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json'
@@ -777,7 +778,7 @@ const VolunteerPageContent = () => {
     try {
       // Submit to volunteer API
       console.log('##Rohit_Rocks## Submitting to volunteer API...');
-      await axios.post('https://merge.ruralindiaonline.org/v1/api/volunteer-submits', volunteerData, {
+      await axios.post(`${API_BASE_URL}/v1/api/volunteer-submits`, volunteerData, {
         headers: {
           'Content-Type': 'application/json'
         }

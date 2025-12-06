@@ -8,6 +8,7 @@ import { useInternBrevo } from '@/hooks/useBrevo';
 import { LanguageToggle } from '@/components/layout/header/LanguageToggle';
 import { useLocale } from '@/lib/locale';
 import { FormPageSkeleton } from '@/components/skeletons/PageSkeletons';
+import { API_BASE_URL } from '@/utils/constants';
 
 // API response interface for internship page data
 interface InternshipPageData {
@@ -720,7 +721,7 @@ const InternContent = () => {
   // Fetch degree enumeration data from content-type schema
   const fetchDegreeEnumeration = useCallback(async () => {
     try {
-      const response = await fetch('https://merge.ruralindiaonline.org/v1/api/content-type-builder/content-types', {
+      const response = await fetch(`${API_BASE_URL}/v1/api/content-type-builder/content-types`, {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
@@ -762,7 +763,7 @@ const InternContent = () => {
       setIsLoadingContributions(true);
       setContributionError(null);
 
-      const response = await fetch('https://merge.ruralindiaonline.org/v1/api/internship-page?populate=*', {
+      const response = await fetch(`${API_BASE_URL}/v1/api/internship-page?populate=*`, {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
@@ -819,7 +820,7 @@ const InternContent = () => {
 
       // Fallback: try with axios
       try {
-        const axiosResponse = await axios.get('https://merge.ruralindiaonline.org/v1/api/internship-page?populate=*');
+        const axiosResponse = await axios.get(`${API_BASE_URL}/v1/api/internship-page?populate=*`);
 
         if (axiosResponse.data && axiosResponse.data.data) {
           setInternshipPageData(axiosResponse.data.data);
@@ -878,7 +879,7 @@ const InternContent = () => {
 
       // First, fetch all pages and find "Intern" by title
       const listResponse = await axios.get<{ data: InternPageData[]; meta: Record<string, unknown> }>(
-        `https://merge.ruralindiaonline.org/v1/api/pages?filters[Title][$eq]=Intern&populate=deep,3&locale=en`
+        `${API_BASE_URL}/v1/api/pages?filters[Title][$eq]=Intern&populate=deep,3&locale=en`
       );
 
       if (!listResponse.data.data || listResponse.data.data.length === 0) {
@@ -906,7 +907,7 @@ const InternContent = () => {
           console.log('##Rohit_Rocks## Found localization for', currentLocale, ', fetching full data...');
           try {
             const localeResponse = await axios.get<InternPageResponse>(
-              `https://merge.ruralindiaonline.org/v1/api/pages/${localization.id}?populate=deep,3`
+              `${API_BASE_URL}/v1/api/pages/${localization.id}?populate=deep,3`
             );
             console.log('##Rohit_Rocks## Localized content:', {
               Title: localeResponse.data.data.attributes.Title,
@@ -1291,7 +1292,7 @@ const InternContent = () => {
 
       console.log('##Rohit_Rocks## Uploading file:', file.name);
 
-      const response = await fetch('https://merge.ruralindiaonline.org/v1/api/upload', {
+      const response = await fetch(`${API_BASE_URL}/v1/api/upload`, {
         method: 'POST',
         body: formData
       });
@@ -1316,7 +1317,7 @@ const InternContent = () => {
     try {
       console.log('##Rohit_Rocks## Submitting to internship API:', applicationData);
 
-      const response = await fetch('https://merge.ruralindiaonline.org/v1/api/internships', {
+      const response = await fetch(`${API_BASE_URL}/v1/api/internships`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
