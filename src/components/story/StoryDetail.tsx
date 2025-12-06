@@ -1689,7 +1689,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                     <button
                       key={index}
                       onClick={() => {
-                        router.push(`/articles?types=${category.slug}`)
+                        window.location.href = `/articles?types=${category.slug}`
                       }}
                       className={`px-4 py-2 border ${story.isStudent ? 'border-[#2F80ED] text-[#2F80ED] hover:bg-[#2F80ED]' : 'border-primary-PARI-Red text-primary-PARI-Red hover:bg-primary-PARI-Red'} font-noto-sans rounded-full hover:text-white transition-colors cursor-pointer`}
                       style={{
@@ -1712,7 +1712,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                         <button
                           key={index}
                           onClick={() => {
-                            router.push(`/articles?types=${category.slug}`)
+                            window.location.href = `/articles?types=${category.slug}`
                           }}
                           className={`px-4 py-2 border ${story.isStudent ? 'border-[#2F80ED] text-[#2F80ED] hover:bg-[#2F80ED]' : 'border-primary-PARI-Red text-primary-PARI-Red hover:bg-primary-PARI-Red'} font-noto-sans rounded-full hover:text-white transition-colors cursor-pointer animate-slide-in-left`}
                           style={{
@@ -1746,7 +1746,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                         <button
                           key={index}
                           onClick={() => {
-                            router.push(`/articles?types=${category.slug}`)
+                            window.location.href = `/articles?types=${category.slug}`
                           }}
                           className={`px-4 py-2 border ${story.isStudent ? 'border-[#2F80ED] text-[#2F80ED] hover:bg-[#2F80ED]' : 'border-primary-PARI-Red text-primary-PARI-Red hover:bg-primary-PARI-Red'} font-noto-sans rounded-full hover:text-white transition-colors cursor-pointer`}
                           style={{
@@ -1818,8 +1818,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                         <span key={nameIndex}>
                           <button
                             onClick={() => {
-
-                              router.push(`/articles?author=${encodeURIComponent(name)}`)
+                              window.location.href = `/articles?author=${encodeURIComponent(name)}`
                             }}
                             className={`transition-colors text-left ${story.isStudent ? 'hover:text-[#2F80ED] dark:hover:text-[#2F80ED]' : 'hover:text-primary-PARI-Red dark:hover:text-primary-PARI-Red'}`}
                           >
