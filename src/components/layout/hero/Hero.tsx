@@ -223,14 +223,14 @@ export function Hero() {
         <div className='shadow-[0px_1px_6px_0px_rgba(0,0,0,0.12)]
           font-notoSans rounded-[12px] bg-popover sm:w-[90%] max-w-[1232px] mx-auto'>
           <div className={` p-6 sm:p-6 md:p-8 lg:p-10 relative ${language === 'ur' ? 'flex flex-col ' : ''}`}>
-            <div className={`flex justify-between ${language === 'ur' ? 'flex-row-reverse' : ''}`}>
+            <div className={`flex justify-between ${language === 'ur' ? 'flex-row' : ''}`}>
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={handleDismiss}
                 className="z-20 w-fit cursor-pointer hover:text-primary-PARI-Red transition-all duration-200 text-primary-PARI-Red rounded-full flex items-center gap-2 py-6 group"
               >
-                <div className={`hover:bg-primary-PARI-Red h-8 w-8 rounded-full flex items-center justify-center hover:text-white ${language === 'ur' ? 'sm:flex-row-reverse' : ''}`}>
+                <div className={`hover:bg-primary-PARI-Red h-8 w-8 rounded-full flex items-center justify-center hover:text-white ${language === 'ur' ? 'sm:flex-row' : ''}`}>
                   <X className="h-6 w-6 hover:bg-primary-PARI-Red cursor-pointer transition-transform duration-200" />
                 </div>
                 <span className="text-sm font-medium">Dismiss</span>
@@ -239,7 +239,7 @@ export function Hero() {
 
 
 
-            <div className={`flex sm:justify-between flex-col sm:flex-row gap-4 pt-7 ${language === 'ur' ? 'sm:flex-row-reverse' : ''}`}>
+            <div className={`flex sm:justify-between flex-col sm:flex-row gap-4 pt-7 ${language === 'ur' ? 'sm:flex-row' : ''}`}>
               <div className={language === 'ur' ? 'text-right' : 'text-left'}>
                 <h1 className="text-foreground  mb-2">
                   {pariInfo[0]?.heading}

@@ -176,6 +176,7 @@ export function WeekOnCard() {
   const [thisWeekData, setThisWeekData] = useState<ApiResponse['data']['attributes']['thisWeekOnPari'] | null>(null)
   const [seeAllStories, setSeeAllStories] = useState<string>("See all stories");
   const { language } = useLocale()
+  const isRTL = language === 'ur'
 
   const [sliderRef, instanceRef] = useKeenSlider({
     initial: 0,
@@ -412,43 +413,52 @@ export function WeekOnCard() {
         
         </div>
         
-        <div className="relative mt-4">
-          <div className="absolute right-0 top-[-60px]  flex items-center gap-4 z-10">
-            <Link href="/articles" >
-              <Button 
-                variant="secondary" 
-                className="text-sm h-[36px] md:flex hidden ring-[1px] rounded-[48px]  mr-4"
-              >
-                {seeAllStories || "See all stories"}
-                <ChevronRight className="h-5 w-5 ml-1" />
-              </Button>
-            </Link>
-            <div className=" gap-4 hidden md:flex">
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={(e) => {
-                e.stopPropagation()
-                instanceRef.current?.prev()
-              }}
-              className="bg-white dark:bg-popover hover:bg-primary-PARI-Red text-primary-PARI-Red hover:text-white rounded-full cursor-pointer w-10 h-10"
-            >
-              <ChevronLeft className="h-5 w-5" />
-            </Button>
+        <div className="relative  mt-4">
+          <div className={`absolute top-[-60px] z-10 ${isRTL ? 'left-0' : 'right-0'}`}>
+            <div className={`flex items-center gap-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
+              <Link href="/articles" >
+                <Button
+                  variant="secondary"
+                  className="text-sm h-[36px] md:flex hidden ring-[1px] rounded-[48px]"
+                >
+                  {seeAllStories || "See all stories"}
+                  <ChevronRight className="h-5 w-5 ml-1" />
+                </Button>
+              </Link>
+              <div className="gap-4 hidden md:flex">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    
+                      instanceRef.current?.next()
+                   
+                      instanceRef.current?.prev()
+                    
+                  }}
+                  className="bg-white dark:bg-popover hover:bg-primary-PARI-Red text-primary-PARI-Red hover:text-white rounded-full cursor-pointer w-10 h-10"
+                >
+                  <ChevronLeft className="h-5 w-5" />
+                </Button>
 
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={(e) => {
-                e.stopPropagation()
-                instanceRef.current?.next()
-              }}
-              className="bg-white dark:bg-popover hover:bg-primary-PARI-Red text-primary-PARI-Red hover:text-white rounded-full cursor-pointer w-10 h-10"
-            >
-              <ChevronRight className="h-5 w-5" />
-            </Button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    
+                      instanceRef.current?.prev()
+                 
+                      instanceRef.current?.next()
+                    
+                  }}
+                  className="bg-white dark:bg-popover hover:bg-primary-PARI-Red text-primary-PARI-Red hover:text-white rounded-full cursor-pointer w-10 h-10"
+                >
+                  <ChevronRight className="h-5 w-5" />
+                </Button>
+              </div>
             </div>
-        
           </div>
           
           <div ref={sliderRef} className="keen-slider  !overflow-visible">
