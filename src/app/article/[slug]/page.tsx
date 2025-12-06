@@ -16,13 +16,14 @@ import { StoryDetailSkeleton } from '@/components/skeletons/PageSkeletons'
 function StoryContent() {
   const params = useParams()
   const searchParams = useSearchParams()
-  const slug = params?.slug as string
+  const rawSlug = params?.slug as string
+
+  // Decode the slug to handle non-English characters (e.g., Marathi, Hindi, etc.)
+  const slug = rawSlug ? decodeURIComponent(rawSlug) : ''
 
   // Force re-render when locale changes by including it in a key
   const locale = searchParams?.get('locale') || 'en'
   const key = `${slug}-${locale}`
-
-  console.log('##Rohit_Rocks## StoryContent rendering with slug:', slug, 'locale:', locale, 'key:', key)
 
   if (!slug) {
     return (

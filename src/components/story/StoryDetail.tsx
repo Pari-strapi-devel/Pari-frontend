@@ -769,28 +769,8 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
   // Get locale from URL search params to trigger re-render on language change
   const urlLocale = searchParams?.get('locale') || 'en'
 
-  // Extract locale from slug (same logic as fetchStoryBySlug)
-  const getLocaleFromSlug = (slug: string): string => {
-    const localeMatch = slug.match(/-(en|hi|mr|ta|te|kn|ml|bn|gu|guj|pa|or|as|ur|bho|hne|chh|tam|tel|kan|mal|ben|ori|asm)$/)
-    const detectedLocale = localeMatch ? localeMatch[1] : 'en'
-
-    // Normalize 3-letter codes to 2-letter codes
-    const localeMap: { [key: string]: string } = {
-      'guj': 'gu',
-      'tam': 'ta',
-      'tel': 'te',
-      'kan': 'kn',
-      'mal': 'ml',
-      'ben': 'bn',
-      'ori': 'or',
-      'asm': 'as'
-    }
-
-    return localeMap[detectedLocale] || detectedLocale
-  }
-
-  // Get current article locale from slug
-  const currentArticleLocale = getLocaleFromSlug(slug)
+  // Get current article locale from story data (will be set after story loads)
+  const currentArticleLocale = story?.storyLocale || 'en'
 
   // State for credits modal - Always open by default
   const [showCreditsModal, setShowCreditsModal] = useState(true)
@@ -4935,41 +4915,33 @@ function extractColumnarImages(paragraph: FilterableContentItem, locale: string 
 }
 
 // Function to fetch story by slug
-// Note: Strapi requires locale parameter to search for localized content
+// Note: Slugs are now in the same language/script as the article title
+// Each localized version has its own unique slug without language suffix
 async function fetchStoryBySlug(slug: string) {
   try {
-    // Extract locale from slug (e.g., "article-name-hi" -> "hi", "article-name-en" -> "en")
-    // Common locale codes: en, hi, mr, ta, te, kn, ml, bn, gu/guj, pa, or, as, ur, bho, hne, chh
-    // Support both 2-letter (gu) and 3-letter (guj) codes
-    const localeMatch = slug.match(/-(en|hi|mr|ta|te|kn|ml|bn|gu|guj|pa|or|as|ur|bho|hne|chh|tam|tel|kan|mal|ben|ori|asm)$/)
-    let detectedLocale = localeMatch ? localeMatch[1] : null
-
-    // Normalize 3-letter codes to 2-letter codes
-    // Also normalize alternative locale codes to match Strapi configuration
-    const localeMap: { [key: string]: string } = {
-      'guj': 'gu',
-      'tam': 'ta',
-      'tel': 'te',
-      'kan': 'kn',
-      'mal': 'ml',
-      'ben': 'bn',
-      'ori': 'or',
-      'asm': 'as',
-      'chh': 'hne'  // Chhattisgarhi: normalize 'chh' to 'hne' (Strapi locale code)
-    }
-
-    if (detectedLocale && localeMap[detectedLocale]) {
-      detectedLocale = localeMap[detectedLocale]
-    }
-
+    // First, try to find the article by slug in the main locale (English)
+    // Then check if the slug matches any localization
     const query = {
       filters: {
-        slug: {
-          $eq: slug
-        }
+        $or: [
+          // Search in main article slug
+          {
+            slug: {
+              $eq: slug
+            }
+          },
+          // Search in localizations slug
+          {
+            localizations: {
+              slug: {
+                $eq: slug
+              }
+            }
+          }
+        ]
       },
-      // Only add locale if detected from slug, otherwise search all locales
-      ...(detectedLocale ? { locale: detectedLocale } : {}),
+      // Populate localizations to get all language versions
+      locale: 'all', // Get all locales
       populate: {
         Cover_image: {
           fields: ['url']
@@ -5129,59 +5101,43 @@ async function fetchStoryBySlug(slug: string) {
     const response = await axios.get(apiUrl)
 
     if (!response.data?.data || response.data.data.length === 0) {
+      throw new Error('Story not found')
+    }
 
-      // If we used a locale filter and it failed, try again WITHOUT locale filter
-      if (detectedLocale) {
-        const retryQuery = {
+    let articleData = response.data.data[0] as ExtendedArticleData
+
+    // Check if the slug matches the main article or a localization
+    if (articleData.attributes.slug !== slug) {
+      // The slug matches a localization, not the main article
+      // Find which localization matches
+      const matchingLocalization = articleData.attributes.localizations?.data?.find(
+        (loc) => loc.attributes?.slug === slug
+      )
+
+      if (matchingLocalization && matchingLocalization.attributes) {
+        const localeToFetch = matchingLocalization.attributes.locale
+
+        // Fetch the full article data for this specific locale
+        const localizedQuery = {
           filters: {
             slug: {
               $eq: slug
             }
           },
-          // No locale filter - search all locales
-          populate: query.populate
+          locale: localeToFetch,
+          populate: query.populate // Use the same populate structure
         }
 
-        const retryQueryString = qs.stringify(retryQuery, { encodeValuesOnly: true })
-        const retryApiUrl = `${BASE_URL}api/articles?${retryQueryString}`
+        const localizedQueryString = qs.stringify(localizedQuery, { encodeValuesOnly: true })
+        const localizedApiUrl = `${BASE_URL}api/articles?${localizedQueryString}`
 
-        try {
-          const retryResponse = await axios.get(retryApiUrl)
+        const localizedResponse = await axios.get(localizedApiUrl)
 
-          if (retryResponse.data?.data && retryResponse.data.data.length > 0) {
-            // Use the retry response instead
-            response.data = retryResponse.data
-          }
-        } catch {
-          // Retry request failed
+        if (localizedResponse.data?.data?.[0]) {
+          articleData = localizedResponse.data.data[0] as ExtendedArticleData
         }
-      }
-
-      // If still no data after retry, try partial search
-      if (!response.data?.data || response.data.data.length === 0) {
-        try {
-          const partialQuery = {
-            filters: {
-              slug: {
-                $contains: slug.split('-').slice(0, 3).join('-') // Search first 3 words
-              }
-            },
-            fields: ['slug', 'Title', 'locale'],
-            pagination: { limit: 10 }
-          }
-          const partialQueryString = qs.stringify(partialQuery, { encodeValuesOnly: true })
-          const partialUrl = `${BASE_URL}api/articles?${partialQueryString}`
-
-          await axios.get(partialUrl)
-        } catch {
-          // Partial search also failed
-        }
-
-        throw new Error('Story not found')
       }
     }
-
-    const articleData = response.data.data[0] as ExtendedArticleData
 
     // Format author data - fetch from authors API for complete details
     const authors: Array<{
@@ -5197,7 +5153,6 @@ async function fetchStoryBySlug(slug: string) {
 
     // Get story locale first
     const storyLocale = articleData.attributes.locale || 'en'
-    console.log('##Rohit_Rocks## Story locale for author fetch:', storyLocale)
 
     if (articleData.attributes.Authors && Array.isArray(articleData.attributes.Authors)) {
       // Helper function to fetch author details from authors API
@@ -5208,10 +5163,9 @@ async function fetchStoryBySlug(slug: string) {
               populate: '*'
             }
           })
-          console.log('##Rohit_Rocks## Author details fetched:', authorResponse.data.data.attributes)
           return authorResponse.data.data.attributes
         } catch (error) {
-          console.error('##Rohit_Rocks## Error fetching author details:', error)
+          console.error('Error fetching author details:', error)
           return null
         }
       }
@@ -5238,17 +5192,8 @@ async function fetchStoryBySlug(slug: string) {
         const bioField = bioFieldMap[locale] || 'Bio'
         const localizedBio = authorDetails[bioField]
 
-        console.log('##Rohit_Rocks## Looking for bio in field:', bioField, 'for locale:', locale)
-        console.log('##Rohit_Rocks## Available fields in authorDetails:', Object.keys(authorDetails))
-        console.log('##Rohit_Rocks## Found bio in', bioField, ':', localizedBio ? 'Yes' : 'No')
-        if (localizedBio) {
-          console.log('##Rohit_Rocks## Bio content preview:', localizedBio.substring(0, 50) + '...')
-        }
-
         // Return localized bio if exists, otherwise fallback to English Bio or Description
-        const finalBio = localizedBio || authorDetails.Bio || authorDetails.Description || ''
-        console.log('##Rohit_Rocks## Final bio being used:', finalBio ? finalBio.substring(0, 50) + '...' : 'No bio found')
-        return finalBio
+        return localizedBio || authorDetails.Bio || authorDetails.Description || ''
       }
 
       // Loop through all authors dynamically
