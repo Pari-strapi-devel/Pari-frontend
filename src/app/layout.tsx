@@ -14,7 +14,7 @@ import {
   Noto_Sans_Oriya,
   Noto_Sans_Malayalam,
   Noto_Sans_Gurmukhi,
-  Noto_Sans_Arabic
+  Noto_Nastaliq_Urdu
 } from 'next/font/google';
 import { Header } from '@/components/layout/header/Header'
 import { LanguageToggle } from '@/components/layout/header/LanguageToggle'
@@ -107,13 +107,11 @@ const notoSansGurmukhi = Noto_Sans_Gurmukhi({
   axes: ['wdth'],
 });
 
-const notoSansArabic = Noto_Sans_Arabic({
-  subsets: ['arabic'],
- 
-  variable: '--font-noto-sans-arabic',
+const notoNastaliqUrdu = Noto_Nastaliq_Urdu({
+  subsets: ['arabic'], // Nastaliq is used for Urdu, which is an Arabic script
+  variable: '--font-noto-nastaliq-urdu',
   display: 'swap',
   preload: true,
-  axes: ['wdth'],
 });
 
 
@@ -140,7 +138,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
       <meta name="algolia-site-verification"  content="F5CD6E39238D1785" />
      </head>
       <body
-        className={`${notoSans.variable} ${notoSansDevanagari.variable} ${notoSansTelugu.variable} ${notoSansTamil.variable} ${notoSansKannada.variable} ${notoSansBengali.variable} ${notoSansGujarati.variable} ${notoSansOriya.variable} ${notoSansMalayalam.variable} ${notoSansGurmukhi.variable} ${notoSansArabic.variable} font-noto antialiased`}
+        className={`${notoSans.variable} ${notoSansDevanagari.variable} ${notoSansTelugu.variable} ${notoSansTamil.variable} ${notoSansKannada.variable} ${notoSansBengali.variable} ${notoSansGujarati.variable} ${notoSansOriya.variable} ${notoSansMalayalam.variable} ${notoSansGurmukhi.variable} ${notoNastaliqUrdu.variable} font-noto antialiased`}
         suppressHydrationWarning
       >
         <ThemeProvider

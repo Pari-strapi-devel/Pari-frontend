@@ -321,7 +321,7 @@ export function AudioVideoCard() {
           ) : (
             <CirclePlay className="h-6 w-6 text-primary-PARI-Red" />
           )}
-          <h6 className="text-[13px] font-noto-sans uppercase text-grey-300 dark:text-discreet-text leading-[100%] tracking-[-0.02em] font-semibold">
+          <h6 className="text-grey-300 dark:text-discreet-text">
             {featuredStory.headtitle}
           </h6>
         </div>

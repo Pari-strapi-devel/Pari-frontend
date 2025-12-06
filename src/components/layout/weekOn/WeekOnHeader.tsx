@@ -31,7 +31,7 @@ const WeekOnHeader: React.FC<WeekOnHeaderProps> = ({
                 />
               )} */}
               <CalendarDays className="h-6 w-7 text-primary-PARI-Red" />
-                <h6 className="text-[13px] font-noto-sans uppercase text-grey-300 dark:text-discreet-text leading-[100%] letter-spacing-[-2%] font-semibold">
+                <h6 className="text-grey-300 dark:text-discreet-text">
                   {title}
                 </h6>
             </div>
