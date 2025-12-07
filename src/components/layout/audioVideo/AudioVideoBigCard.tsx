@@ -260,7 +260,7 @@ export function AudioVideoBigCard({
 
                     {/* Bottom Sheet */}
                     <div
-                      className="fixed inset-x-0 bottom-0 md:inset-0 md:flex md:items-center md:justify-center z-[5000] transform transition-transform duration-300 flex ease-out"
+                      className="fixed inset-x-0 bottom-0 md:inset-0 md:flex md:items-center md:justify-center z-[10000] transform transition-transform duration-300 flex ease-out"
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
