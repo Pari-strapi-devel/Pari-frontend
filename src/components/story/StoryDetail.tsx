@@ -1732,7 +1732,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                   alt={allImageData[0]!.alt || 'Article image'}
                                   width={allImageData[0]!.width || 1920}
                                   height={allImageData[0]!.height || 1080}
-                                  className="w-full h-auto max-h-[600px] object-cover"
+                                  className="w-full h-auto max-h-[600px] object-cover md:rounded-lg"
                                   unoptimized
                                 />
                                 {/* Zoom Icon */}
@@ -2086,7 +2086,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                           }
 
                           return (
-                            <div key={index} className="my-6">
+                            <div key={index} className="my-12">
                               <div className="relative max-w-[768px] md:max-w-[768px] lg:max-w-[912px] xl:max-w-[970px] 2xl:max-w-[1016px] mx-auto" style={{ aspectRatio: '16/9' }}>
                                 <iframe
                                   src={finalEmbedUrl}
@@ -2403,7 +2403,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                       alt={fullWidthImageData.alt || 'Full width image'}
                                       width={fullWidthImageData.width || 1920}
                                       height={fullWidthImageData.height || 1080}
-                                      className="w-full h-auto max-h-[600px] object-cover"
+                                      className="w-full h-auto max-h-[600px] object-cover md:rounded-lg"
                                       unoptimized
                                     />
                                     {/* Zoom Icon */}
@@ -2485,7 +2485,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                       alt={multCaptionImages[0].alt || 'Image 1'}
                                       width={multCaptionImages[0].width || 1920}
                                       height={multCaptionImages[0].height || 1080}
-                                      className="w-full h-auto max-h-[600px] object-cover"
+                                      className="w-full h-auto max-h-[600px] object-cover md:rounded-lg"
                                       unoptimized
                                     />
                                     {/* Zoom Icon */}
@@ -2963,7 +2963,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                             src={anthologyImageData.url}
                                             alt={anthologyTitle}
                                             fill
-                                            className="object-cover rounded-md"
+                                            className="object-cover md:rounded-lg"
                                           />
                                         </div>
                                       </Link>
@@ -3141,7 +3141,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                               src={pageRefArticle.imageUrl}
                                               alt={pageRefArticle.title}
                                               fill
-                                              className="object-cover"
+                                              className="object-cover md:rounded-lg"
                                             />
                                           </div>
                                         </Link>
@@ -3916,7 +3916,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                     src={story.coverImage}
                     alt={story.title}
                     fill
-                    className="object-cover"
+                    className="object-cover md:rounded-lg"
                     unoptimized
                   />
                   {/* Gradient Overlay */}

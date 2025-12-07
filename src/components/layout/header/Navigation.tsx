@@ -259,11 +259,11 @@ export function Navigation({ onLinkClick }: NavigationProps = {}) {
                     </LinkWithClose>
                   </div>
                   <div className="w-[192px] h-[220px] relative">
-                    <LinkWithClose href="/story-of-pari" className="cursor-pointer">
+                    <LinkWithClose href="/languages-in-pari" className="cursor-pointer">
                       <div className="relative w-full h-full">
                         <Image
-                          src="/images/categories/navigation-imgs/Story-of-pari.jpeg"
-                          alt="Story of Pari"
+                          src="/images/categories/navigation-imgs/languages.jpeg"
+                          alt="Languages in Pari"
                           fill
                           className="object-cover rounded-[8px]"
                         />
@@ -364,10 +364,10 @@ export function Navigation({ onLinkClick }: NavigationProps = {}) {
                     </LinkWithClose>
                   </div>
                   <div className="w-[192px] h-[210px] relative">
-                    <LinkWithClose href="/languages-in-pari" className="cursor-pointer">
+                    <LinkWithClose href="/story-of-pari" className="cursor-pointer">
                     <Image
-                      src="/images/categories/navigation-imgs/Languages.jpeg"
-                      alt="Languages in Pari"
+                      src="/images/categories/navigation-imgs/pari-story.png"
+                      alt="Story of Pari"
                       fill
                       className="object-cover rounded-[8px]"
                     />
@@ -464,8 +464,8 @@ export function Navigation({ onLinkClick }: NavigationProps = {}) {
             <LinkWithClose href="/languages-in-pari" className="cursor-pointer">
               <div className="relative w-full h-full">
                 <Image
-                  src="/images/categories/navigation-imgs/story-of-pari.jpeg"
-                  alt="Story of PARI"
+                  src="/images/categories/navigation-imgs/Languages.jpeg"
+                  alt="Languages in Pari"
                   fill
                   className="object-cover rounded-[8px]"
                 />
@@ -561,7 +561,7 @@ export function Navigation({ onLinkClick }: NavigationProps = {}) {
         </div>
         <div className="w-full h-[180px] border-border border-t mt-2 relative">
           <Image
-            src="/images/categories/navigation-imgs/Languages.jpeg"
+            src="/images/categories/navigation-imgs/pari-story.png"
             alt="About PARI"
             fill
             className="object-cover bg rounded-[8px]"
