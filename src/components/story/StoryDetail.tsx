@@ -17,7 +17,7 @@ import { ArticleData } from '@/components/articles/ArticlesContent'
 import { StoryCard } from '@/components/layout/stories/StoryCard'
 import { FiShare2, FiMail, FiCopy, FiCheck } from 'react-icons/fi'
 import { FaXTwitter, FaFacebookF, FaInstagram, FaLinkedinIn, FaWhatsapp, FaTelegram } from 'react-icons/fa6'
-import { Printer, Image as ImageIcon, ZoomIn, X } from 'lucide-react'
+import { Printer, Image as ImageIcon, ZoomIn, X, Captions, CaptionsOff } from 'lucide-react'
 import { StoryDetailSkeleton } from '@/components/skeletons/PageSkeletons'
 
 // Labels for credits and donation (English only)
@@ -458,7 +458,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
   } | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [fontSize, setFontSize] = useState(18)
+  const [fontSize, setFontSize] = useState(19)
   const [showPhotos, setShowPhotos] = useState(false)
   const [scrollProgress, setScrollProgress] = useState(0)
   const [showHeaderBar, setShowHeaderBar] = useState(false)
@@ -518,6 +518,8 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
   const [allContentImages, setAllContentImages] = useState<Array<{ src: string; alt: string; caption?: string }>>([])
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [imageAnimating, setImageAnimating] = useState(false)
+  const [showOriginalSize, setShowOriginalSize] = useState(false)
+  const [showCaption, setShowCaption] = useState(true)
 
   // Collect all images from content when story loads - memoized
   const allImages = useMemo(() => {
@@ -1042,6 +1044,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
     setSelectedImage(null)
     setImageScale(1)
     setImagePosition({ x: 0, y: 0 })
+    setShowOriginalSize(false)
   }, [])
 
   const handleNextImage = useCallback(() => {
@@ -1052,6 +1055,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
     setSelectedImage(allContentImages[nextIndex])
     setImageScale(1)
     setImagePosition({ x: 0, y: 0 })
+    setShowOriginalSize(false)
   }, [allContentImages, currentImageIndex])
 
   const handlePrevImage = useCallback(() => {
@@ -1062,6 +1066,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
     setSelectedImage(allContentImages[prevIndex])
     setImageScale(1)
     setImagePosition({ x: 0, y: 0 })
+    setShowOriginalSize(false)
   }, [allContentImages, currentImageIndex])
 
   // Handle image click - memoized
@@ -1081,6 +1086,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
     setShowImageModal(true)
     setImageScale(1)
     setImagePosition({ x: 0, y: 0 })
+    setShowOriginalSize(false)
     setImageAnimating(true)
     setTimeout(() => setImageAnimating(false), 1500) // Animation duration
   }, [allContentImages])
@@ -1162,6 +1168,15 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
     setFontSize(prev => Math.max(prev - 2, 14))
   }, [])
 
+  // Calculate font size percentage (14px = 0%, 24px = 100%)
+  // const fontSizePercentage = useMemo(() => {
+  //   const min = 14
+  //   const max = 24
+  //   const percentage = Math.round(((fontSize - min) / (max - min)) * 100)
+  //   console.log('##Rohit_Rocks## fontSize:', fontSize, 'percentage:', percentage)
+  //   return percentage
+  // }, [fontSize])
+
   const handlePhotoClick = useCallback(() => {
     setShowPhotos(!showPhotos)
   }, [showPhotos])
@@ -1177,6 +1192,17 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
   const handleResetZoom = useCallback(() => {
     setImageScale(1)
     setImagePosition({ x: 0, y: 0 })
+    setShowOriginalSize(false)
+  }, [])
+
+  // const handleOriginalSize = useCallback(() => {
+  //   setImageScale(1)
+  //   setImagePosition({ x: 0, y: 0 })
+  //   setShowOriginalSize(true)
+  // }, [])
+
+  const handleToggleCaption = useCallback(() => {
+    setShowCaption(prev => !prev)
   }, [])
 
   // Keyboard navigation for image modal
@@ -1311,7 +1337,12 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
           </button>
 
           {/* Font Size Controls */}
-          <div className={`flex items-center  gap-2 md:gap-6 ${story.isStudent ? 'border-[#2F80ED]' : 'border-primary-PARI-Red'} rounded-full`}>
+          <div className="relative flex items-center gap-4 md:gap-6">
+            {/* Percentage Badge */}
+            {/* <div className={`absolute -top-6 left-1/2 transform -translate-x-1/2 ${story.isStudent ? 'bg-[#2F80ED]' : 'bg-primary-PARI-Red'} text-white px-2 py-0.5 rounded-full text-xs font-medium`}>
+              {fontSizePercentage}%
+            </div> */}
+
             <button
               type="button"
               onClick={() => {
@@ -3627,20 +3658,20 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                 handlePrevImage()
               }
             }}
-            className={`absolute left-3 md:left-4 top-1/2 -translate-y-1/2 z-[100001] w-16 h-16 md:w-16 md:h-16 flex items-center justify-center rounded-full transition-all shadow-2xl border-2 ${
+            className={`absolute left-3 md:left-4 top-1/2 -translate-y-1/2 z-[100001] w-12 h-12 md:w-12 md:h-12 flex items-center justify-center rounded-full transition-all shadow-2xl  ${
               allContentImages.length <= 1
                 ? 'opacity-30 cursor-not-allowed'
                 : 'opacity-100 cursor-pointer hover:scale-110'
             } ${
               story?.isStudent
-                ? 'bg-student-blue/30 hover:bg-student-blue/40 text-student-blue border-student-blue/50'
-                : 'bg-primary-PARI-Red/30 hover:bg-primary-PARI-Red/40 text-primary-PARI-Red border-primary-PARI-Red/50'
+                ? 'bg-student-blue/40 hover:bg-student-blue/40 text-student-blue border-student-blue/50'
+                : 'bg-primary-PARI-Red/40 hover:bg-primary-PARI-Red/40 text-primary-PARI-Red border-primary-PARI-Red/50'
             }`}
             aria-label="Previous image"
             title={`Previous image (←) - ${allContentImages.length} total images`}
             disabled={allContentImages.length <= 1}
           >
-            <svg width="36" height="36" className="md:w-8 md:h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="32" height="32" className="md:w-8 md:h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="15 18 9 12 15 6"></polyline>
             </svg>
           </button>
@@ -3654,20 +3685,20 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                 handleNextImage()
               }
             }}
-            className={`absolute right-3 md:right-4 top-1/2 -translate-y-1/2 z-[100001] w-16 h-16 md:w-16 md:h-16 flex items-center justify-center rounded-full transition-all shadow-2xl border-2 ${
+            className={`absolute right-3 md:right-4 top-1/2 -translate-y-1/2 z-[100001] w-12 h-12 md:w-12 md:h-12 flex items-center justify-center rounded-full transition-all shadow-2xl  ${
               allContentImages.length <= 1
                 ? 'opacity-30 cursor-not-allowed'
                 : 'opacity-100 cursor-pointer hover:scale-110'
             } ${
               story?.isStudent
-                ? 'bg-student-blue/30 hover:bg-student-blue/40 text-student-blue border-student-blue/50'
-                : 'bg-primary-PARI-Red/30 hover:bg-primary-PARI-Red/40 text-primary-PARI-Red border-primary-PARI-Red/50'
+                ? 'bg-student-blue/40 hover:bg-student-blue/40 text-student-blue border-student-blue/50'
+                : 'bg-primary-PARI-Red/40 hover:bg-primary-PARI-Red/40 text-primary-PARI-Red border-primary-PARI-Red/50'
             }`}
             aria-label="Next image"
             title={`Next image (→) - ${allContentImages.length} total images`}
             disabled={allContentImages.length <= 1}
           >
-            <svg width="36" height="36" className="md:w-8 md:h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="32" height="32" className="md:w-8 md:h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
           </button>
@@ -3720,10 +3751,44 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                   : 'bg-primary-PARI-Red/20 hover:bg-primary-PARI-Red/30 text-primary-PARI-Red'
               }`}
               aria-label="Reset zoom"
-              title="Reset zoom"
+              title="Reset zoom to fit screen"
             >
               1:1
             </button>
+            {/* <button
+              onClick={(e) => {
+                e.stopPropagation()
+                handleOriginalSize()
+              }}
+              className={`w-14 h-14 md:w-auto md:h-12 md:px-3 flex items-center justify-center rounded-full transition-colors text-[10px] md:text-xs font-semibold ${
+                story?.isStudent
+                  ? 'bg-student-blue/20 hover:bg-student-blue/30 text-student-blue'
+                  : 'bg-primary-PARI-Red/20 hover:bg-primary-PARI-Red/30 text-primary-PARI-Red'
+              }`}
+              aria-label="Original size"
+              title="Show original image size"
+            >
+              <span className="hidden md:inline">Original</span>
+              <span className="md:hidden">Orig</span>
+            </button> */}
+            {/* Only show caption toggle button if there's a caption */}
+            {selectedImage.caption && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  handleToggleCaption()
+                }}
+                className={`w-14 h-14 md:w-auto md:h-12 md:px-3 flex items-center justify-center rounded-full transition-colors text-[10px] md:text-xs font-semibold ${
+                  story?.isStudent
+                    ? 'bg-student-blue/20 hover:bg-student-blue/30 text-student-blue'
+                    : 'bg-primary-PARI-Red/20 hover:bg-primary-PARI-Red/30 text-primary-PARI-Red'
+                }`}
+                aria-label={showCaption ? "Hide caption" : "Show caption"}
+                title={showCaption ? "Hide caption" : "Show caption"}
+              >
+                {showCaption ? <CaptionsOff size={28} className="md:w-6 md:h-6" /> : <Captions size={28} className="md:w-6 md:h-6" />}
+              </button>
+            )}
           </div>
 
           {/* Image Counter and Zoom Level */}
@@ -3785,12 +3850,12 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                 width={0}
                 height={0}
                 sizes="100vw"
-                className="max-w-[95vw] max-h-[95vh] w-auto h-auto object-contain"
+                className="w-auto h-auto object-contain"
                 style={{
                   width: 'auto',
                   height: 'auto',
-                  maxWidth: imageScale === 1 ? '95vw' : 'none',
-                  maxHeight: imageScale === 1 ? '95vh' : 'none',
+                  maxWidth: showOriginalSize ? 'none' : (imageScale === 1 ? '95vw' : 'none'),
+                  maxHeight: showOriginalSize ? 'none' : (imageScale === 1 ? '95vh' : 'none'),
                   animation: imageAnimating ? 'imageZoomAnimation 1.5s ease-in-out' : 'none',
                 }}
                 unoptimized
@@ -3800,20 +3865,20 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
           </div>
 
           {/* Instructions - Positioned above caption */}
-       
-          {/* Image Caption - Positioned above instructions with dynamic spacing */}
-          {(selectedImage.caption || selectedImage.alt) && (
+
+          {/* Image Caption - Only show if there's an actual caption (not just alt text) */}
+          {showCaption && selectedImage.caption && (
             <div
               className={`absolute left-1/2 transform -translate-x-1/2 px-6 py-3 md:px-6 md:py-3 rounded-lg min-w-[350px] max-w-4xl text-center z-[100001] ${
                 story?.isStudent
-                  ? 'bg-student-blue/90 text-white'
-                  : 'bg-primary-PARI-Red/90 text-white'
+                  ? 'bg-student-blue/40 text-white'
+                  : 'bg-primary-PARI-Red/40 text-white'
               }`}
-              style={{ bottom: imageScale > 1 ? '4.5rem' : '7rem' }}
+              style={{ bottom: imageScale > 1 ? '4.5rem' : '3rem ' }}
             >
               <div
                 className="text-base md:text-base font-medium"
-                dangerouslySetInnerHTML={{ __html: stripHtmlCssWithStyledStrong(selectedImage.caption || selectedImage.alt) }}
+                dangerouslySetInnerHTML={{ __html: stripHtmlCssWithStyledStrong(selectedImage.caption) }}
               />
             </div>
           )}
