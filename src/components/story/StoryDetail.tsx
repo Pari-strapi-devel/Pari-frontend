@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useMemo } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -42,275 +42,8 @@ const CREDIT_LABELS_EN: Record<string, string> = {
   confirmAndPay: 'Confirm & Pay',
 }
 
-
-/*
-// Translation map for credits section labels
-const creditsTranslations: { [locale: string]: { [key: string]: string } } = {
-  'en': {
-    'author': 'AUTHOR',
-    'editor': 'EDITOR',
-    'photoEditor': 'PHOTO EDITOR',
-    'seeAllCredits': 'See all credits',
-    'seeMoreStories': 'See more stories',
-    'donateToPARI': 'Donate to PARI',
-    'donateDisclaimer': 'All donors will be entitled to tax exemptions under Section-80G of the Income Tax Act. Please double check your email address before submitting.',
-    'online': 'Online',
-    'cheque': 'Cheque',
-    'bankTransfer': 'Bank Transfer',
-    'monthly': 'Monthly',
-    'yearly': 'Yearly',
-    'oneTime': 'One-time',
-    'nameOnAadhar': 'Name as on Aadhar card',
-    'phoneNumber': 'Phone number',
-    'emailAddress': 'Email address',
-    'citizenConfirm': 'I confirm that I am a citizen of India',
-    'confirmAndPay': 'Confirm & Pay'
-  },
-  'hi': {
-    'author': 'लेखक',
-    'editor': 'संपादक',
-    'photoEditor': 'फोटो संपादक',
-    'seeAllCredits': 'सभी क्रेडिट देखें',
-    'seeMoreStories': 'और कहानियां देखें',
-    'donateToPARI': 'पारी को दान करें',
-    'donateDisclaimer': 'सभी दानकर्ता आयकर अधिनियम की धारा 80जी के तहत कर छूट के हकदार होंगे। कृपया सबमिट करने से पहले अपना ईमेल पता दोबारा जांच लें।',
-    'online': 'ऑनलाइन',
-    'cheque': 'चेक',
-    'bankTransfer': 'बैंक ट्रांसफर',
-    'monthly': 'मासिक',
-    'yearly': 'वार्षिक',
-    'oneTime': 'एक बार',
-    'nameOnAadhar': 'आधार कार्ड पर नाम',
-    'phoneNumber': 'फोन नंबर',
-    'emailAddress': 'ईमेल पता',
-    'citizenConfirm': 'मैं पुष्टि करता हूं कि मैं भारत का नागरिक हूं',
-    'confirmAndPay': 'पुष्टि करें और भुगतान करें'
-  },
-  'mr': {
-    'author': 'लेखक',
-    'editor': 'संपादक',
-    'photoEditor': 'फोटो संपादक',
-    'seeAllCredits': 'सर्व क्रेडिट पहा',
-    'seeMoreStories': 'अधिक कथा पहा',
-    'donateToPARI': 'पारीला देणगी द्या',
-    'donateDisclaimer': 'सर्व देणगीदार आयकर कायद्याच्या कलम 80जी अंतर्गत कर सवलतीसाठी पात्र असतील. कृपया सबमिट करण्यापूर्वी आपला ईमेल पत्ता तपासा.',
-    'online': 'ऑनलाइन',
-    'cheque': 'धनादेश',
-    'bankTransfer': 'बँक हस्तांतरण',
-    'monthly': 'मासिक',
-    'yearly': 'वार्षिक',
-    'oneTime': 'एकदा',
-    'nameOnAadhar': 'आधार कार्डवरील नाव',
-    'phoneNumber': 'फोन नंबर',
-    'emailAddress': 'ईमेल पत्ता',
-    'citizenConfirm': 'मी पुष्टी करतो की मी भारताचा नागरिक आहे',
-    'confirmAndPay': 'पुष्टी करा आणि पैसे द्या'
-  },
-  'bn': {
-    'author': 'লেখক',
-    'editor': 'সম্পাদক',
-    'photoEditor': 'ফটো সম্পাদক',
-    'seeAllCredits': 'সমস্ত ক্রেডিট দেখুন',
-    'seeMoreStories': 'আরও গল্প দেখুন',
-    'donateToPARI': 'পারিকে দান করুন',
-    'donateDisclaimer': 'সমস্ত দাতা আয়কর আইনের ধারা 80জি-এর অধীনে কর ছাড়ের অধিকারী হবেন। দয়া করে জমা দেওয়ার আগে আপনার ইমেল ঠিকানা দুবার পরীক্ষা করুন।',
-    'online': 'অনলাইন',
-    'cheque': 'চেক',
-    'bankTransfer': 'ব্যাংক স্থানান্তর',
-    'monthly': 'মাসিক',
-    'yearly': 'বার্ষিক',
-    'oneTime': 'একবার',
-    'nameOnAadhar': 'আধার কার্ডে নাম',
-    'phoneNumber': 'ফোন নম্বর',
-    'emailAddress': 'ইমেল ঠিকানা',
-    'citizenConfirm': 'আমি নিশ্চিত করছি যে আমি ভারতের নাগরিক',
-    'confirmAndPay': 'নিশ্চিত করুন এবং পেমেন্ট করুন'
-  },
-  'ta': {
-    'author': 'ஆசிரியர்',
-    'editor': 'தொகுப்பாளர்',
-    'photoEditor': 'புகைப்பட தொகுப்பாளர்',
-    'seeAllCredits': 'அனைத்து வரவுகளையும் காண்க',
-    'seeMoreStories': 'மேலும் கதைகளைக் காண்க',
-    'donateToPARI': 'பாரிக்கு நன்கொடை அளிக்கவும்',
-    'donateDisclaimer': 'அனைத்து நன்கொடையாளர்களும் வருமான வரிச் சட்டத்தின் பிரிவு 80ஜி-யின் கீழ் வரி விலக்குகளுக்கு தகுதியுடையவர்கள். சமர்ப்பிக்கும் முன் உங்கள் மின்னஞ்சல் முகவரியை இருமுறை சரிபார்க்கவும்.',
-    'online': 'ஆன்லைன்',
-    'cheque': 'காசோலை',
-    'bankTransfer': 'வங்கி பரிமாற்றம்',
-    'monthly': 'மாதாந்திர',
-    'yearly': 'ஆண்டு',
-    'oneTime': 'ஒரு முறை',
-    'nameOnAadhar': 'ஆதார் அட்டையில் உள்ள பெயர்',
-    'phoneNumber': 'தொலைபேசி எண்',
-    'emailAddress': 'மின்னஞ்சல் முகவரி',
-    'citizenConfirm': 'நான் இந்தியாவின் குடிமகன் என்பதை உறுதிப்படுத்துகிறேன்',
-    'confirmAndPay': 'உறுதிப்படுத்தி பணம் செலுத்துங்கள்'
-  },
-  'te': {
-    'author': 'రచయిత',
-    'editor': 'సంపాదకుడు',
-    'photoEditor': 'ఫోటో ఎడిటర్',
-    'seeAllCredits': 'అన్ని క్రెడిట్‌లను చూడండి',
-    'seeMoreStories': 'మరిన్ని కథలను చూడండి',
-    'donateToPARI': 'పారికి విరాళం ఇవ్వండి',
-    'donateDisclaimer': 'దాతలందరూ ఆదాయపు పన్ను చట్టంలోని సెక్షన్ 80జి కింద పన్ను మినహాయింపులకు అర్హులు. దయచేసి సమర్పించే ముందు మీ ఇమెయిల్ చిరునామాను రెండుసార్లు తనిఖీ చేయండి.',
-    'online': 'ఆన్‌లైన్',
-    'cheque': 'చెక్కు',
-    'bankTransfer': 'బ్యాంక్ బదిలీ',
-    'monthly': 'నెలవారీ',
-    'yearly': 'వార్షిక',
-    'oneTime': 'ఒకసారి',
-    'nameOnAadhar': 'ఆధార్ కార్డులో పేరు',
-    'phoneNumber': 'ఫోన్ నంబర్',
-    'emailAddress': 'ఇమెయిల్ చిరునామా',
-    'citizenConfirm': 'నేను భారతదేశ పౌరుడిని అని నిర్ధారిస్తున్నాను',
-    'confirmAndPay': 'నిర్ధారించండి మరియు చెల్లించండి'
-  },
-  'kn': {
-    'author': 'ಲೇಖಕ',
-    'editor': 'ಸಂಪಾದಕ',
-    'photoEditor': 'ಫೋಟೋ ಸಂಪಾದಕ',
-    'seeAllCredits': 'ಎಲ್ಲಾ ಕ್ರೆಡಿಟ್‌ಗಳನ್ನು ನೋಡಿ',
-    'seeMoreStories': 'See more stories',
-    'donateToPARI': 'Donate to PARI',
-    'donateDisclaimer': 'All donors will be entitled to tax exemptions under Section-80G of the Income Tax Act. Please double check your email address before submitting.',
-    'online': 'Online',
-    'cheque': 'Cheque',
-    'bankTransfer': 'Bank Transfer',
-    'monthly': 'Monthly',
-    'yearly': 'Yearly',
-    'oneTime': 'One-time',
-    'nameOnAadhar': 'Name as on Aadhar card',
-    'phoneNumber': 'Phone number',
-    'emailAddress': 'Email address',
-    'citizenConfirm': 'I confirm that I am a citizen of India',
-    'confirmAndPay': 'Confirm & Pay'
-  },
-  'ml': {
-    'author': 'രചയിതാവ്',
-    'editor': 'എഡിറ്റർ',
-    'photoEditor': 'ഫോട്ടോ എഡിറ്റർ',
-    'seeAllCredits': 'എല്ലാ ക്രെഡിറ്റുകളും കാണുക',
-    'seeMoreStories': 'See more stories',
-    'donateToPARI': 'Donate to PARI',
-    'donateDisclaimer': 'All donors will be entitled to tax exemptions under Section-80G of the Income Tax Act. Please double check your email address before submitting.',
-    'online': 'Online',
-    'cheque': 'Cheque',
-    'bankTransfer': 'Bank Transfer',
-    'monthly': 'Monthly',
-    'yearly': 'Yearly',
-    'oneTime': 'One-time',
-    'nameOnAadhar': 'Name as on Aadhar card',
-    'phoneNumber': 'Phone number',
-    'emailAddress': 'Email address',
-    'citizenConfirm': 'I confirm that I am a citizen of India',
-    'confirmAndPay': 'Confirm & Pay'
-  },
-  'gu': {
-    'author': 'લેખક',
-    'editor': 'સંપાદક',
-    'photoEditor': 'ફોટો સંપાદક',
-    'seeAllCredits': 'બધા ક્રેડિટ જુઓ',
-    'seeMoreStories': 'See more stories',
-    'donateToPARI': 'Donate to PARI',
-    'donateDisclaimer': 'All donors will be entitled to tax exemptions under Section-80G of the Income Tax Act. Please double check your email address before submitting.',
-    'online': 'Online',
-    'cheque': 'Cheque',
-    'bankTransfer': 'Bank Transfer',
-    'monthly': 'Monthly',
-    'yearly': 'Yearly',
-    'oneTime': 'One-time',
-    'nameOnAadhar': 'Name as on Aadhar card',
-    'phoneNumber': 'Phone number',
-    'emailAddress': 'Email address',
-    'citizenConfirm': 'I confirm that I am a citizen of India',
-    'confirmAndPay': 'Confirm & Pay'
-  },
-  'pa': {
-    'author': 'ਲੇਖਕ',
-    'editor': 'ਸੰਪਾਦਕ',
-    'photoEditor': 'ਫੋਟੋ ਸੰਪਾਦਕ',
-    'seeAllCredits': 'ਸਾਰੇ ਕ੍ਰੈਡਿਟ ਦੇਖੋ',
-    'seeMoreStories': 'See more stories',
-    'donateToPARI': 'Donate to PARI',
-    'donateDisclaimer': 'All donors will be entitled to tax exemptions under Section-80G of the Income Tax Act. Please double check your email address before submitting.',
-    'online': 'Online',
-    'cheque': 'Cheque',
-    'bankTransfer': 'Bank Transfer',
-    'monthly': 'Monthly',
-    'yearly': 'Yearly',
-    'oneTime': 'One-time',
-    'nameOnAadhar': 'Name as on Aadhar card',
-    'phoneNumber': 'Phone number',
-    'emailAddress': 'Email address',
-    'citizenConfirm': 'I confirm that I am a citizen of India',
-    'confirmAndPay': 'Confirm & Pay'
-  },
-  'or': {
-    'author': 'ଲେଖକ',
-    'editor': 'ସମ୍ପାଦକ',
-    'photoEditor': 'ଫଟୋ ସମ୍ପାଦକ',
-    'seeAllCredits': 'ସମସ୍ତ କ୍ରେଡିଟ୍ ଦେଖନ୍ତୁ',
-    'seeMoreStories': 'ଅଧିକ କାହାଣୀ ଦେଖନ୍ତୁ',
-    'donateToPARI': 'ପାରିକୁ ଦାନ କରନ୍ତୁ',
-    'donateDisclaimer': 'ସମସ୍ତ ଦାତା ଆୟକର ଆଇନର ଧାରା 80ଜି ଅଧୀନରେ କର ଛାଡ଼ ପାଇବାକୁ ହକଦାର ହେବେ। ଦୟାକରି ଦାଖଲ କରିବା ପୂର୍ବରୁ ଆପଣଙ୍କର ଇମେଲ ଠିକଣା ଦୁଇଥର ଯାଞ୍ଚ କରନ୍ତୁ।',
-    'online': 'ଅନଲାଇନ୍',
-    'cheque': 'ଚେକ୍',
-    'bankTransfer': 'ବ୍ୟାଙ୍କ ସ୍ଥାନାନ୍ତର',
-    'monthly': 'ମାସିକ',
-    'yearly': 'ବାର୍ଷିକ',
-    'oneTime': 'ଥରେ',
-    'nameOnAadhar': 'ଆଧାର କାର୍ଡରେ ନାମ',
-    'phoneNumber': 'ଫୋନ୍ ନମ୍ବର',
-    'emailAddress': 'ଇମେଲ୍ ଠିକଣା',
-    'citizenConfirm': 'ମୁଁ ନିଶ୍ଚିତ କରୁଛି ଯେ ମୁଁ ଭାରତର ନାଗରିକ',
-    'confirmAndPay': 'ନିଶ୍ଚିତ କରନ୍ତୁ ଏବଂ ଦେୟ ଦିଅନ୍ତୁ'
-  },
-  'as': {
-    'author': 'লেখক',
-    'editor': 'সম্পাদক',
-    'photoEditor': 'ফটো সম্পাদক',
-    'seeAllCredits': 'সকলো ক্ৰেডিট চাওক',
-    'seeMoreStories': 'See more stories',
-    'donateToPARI': 'Donate to PARI',
-    'donateDisclaimer': 'All donors will be entitled to tax exemptions under Section-80G of the Income Tax Act. Please double check your email address before submitting.',
-    'online': 'Online',
-    'cheque': 'Cheque',
-    'bankTransfer': 'Bank Transfer',
-    'monthly': 'Monthly',
-    'yearly': 'Yearly',
-    'oneTime': 'One-time',
-    'nameOnAadhar': 'Name as on Aadhar card',
-    'phoneNumber': 'Phone number',
-    'emailAddress': 'Email address',
-    'citizenConfirm': 'I confirm that I am a citizen of India',
-    'confirmAndPay': 'Confirm & Pay'
-  },
-  'ur': {
-    'author': 'مصنف',
-    'editor': 'ایڈیٹر',
-    'photoEditor': 'فوٹو ایڈیٹر',
-    'seeAllCredits': 'تمام کریڈٹ دیکھیں',
-    'seeMoreStories': 'مزید کہانیاں دیکھیں',
-    'donateToPARI': 'پاری کو عطیہ دیں',
-    'donateDisclaimer': 'تمام عطیہ دہندگان انکم ٹیکس ایکٹ کی دفعہ 80جی کے تحت ٹیکس میں چھوٹ کے حقدار ہوں گے۔ براہ کرم جمع کرانے سے پہلے اپنا ای میل پتہ دوبارہ چیک کریں۔',
-    'online': 'آن لائن',
-    'cheque': 'چیک',
-    'bankTransfer': 'بینک ٹرانسفر',
-    'monthly': 'ماہانہ',
-    'yearly': 'سالانہ',
-    'oneTime': 'ایک بار',
-    'nameOnAadhar': 'آدھار کارڈ پر نام',
-    'phoneNumber': 'فون نمبر',
-    'emailAddress': 'ای میل پتہ',
-    'citizenConfirm': 'میں تصدیق کرتا ہوں کہ میں ہندوستان کا شہری ہوں',
-    'confirmAndPay': 'تصدیق کریں اور ادائیگی کریں'
-  }
-}
-*/
-
 // Helper function to get label
-function getTranslatedLabel(key: string, _locale: string): string {
+const getTranslatedLabel = (key: string, _locale: string): string => {
   void _locale
   return CREDIT_LABELS_EN[key] || key
 }
@@ -786,53 +519,56 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [imageAnimating, setImageAnimating] = useState(false)
 
-  // Collect all images from content when story loads
-  useEffect(() => {
-    if (story?.content) {
-      const images: Array<{ src: string; alt: string; caption?: string }> = []
+  // Collect all images from content when story loads - memoized
+  const allImages = useMemo(() => {
+    if (!story?.content) return []
 
-      story.content.forEach((paragraph) => {
-        if (!paragraph || typeof paragraph !== 'object') return
+    const images: Array<{ src: string; alt: string; caption?: string }> = []
 
-        const obj = paragraph as ExtendedContentItem
+    story.content.forEach((paragraph) => {
+      if (!paragraph || typeof paragraph !== 'object') return
 
-        // Extract images from different component types
-        if (obj.__component === 'shared.media' || obj.__component === 'modular-content.media') {
-          const mediaImages = extractMultipleImages(paragraph)
-          mediaImages.forEach(img => {
-            images.push({ src: img.url, alt: img.alt || img.caption || 'Article image', caption: img.caption })
-          })
-        } else if (obj.__component === 'modular-content.single-caption-mul-img') {
-          const multiImages = extractMultipleImages(paragraph)
-          multiImages.forEach(img => {
-            images.push({ src: img.url, alt: img.alt || img.caption || 'Article image', caption: img.caption })
-          })
-        } else if (obj.__component === 'modular-content.multiple-caption-mul-img') {
-          const multiCaptionImages = extractMultipleImages(paragraph)
-          multiCaptionImages.forEach(img => {
-            images.push({ src: img.url, alt: img.alt || img.caption || 'Article image', caption: img.caption })
-          })
-        } else if (obj.__component === 'shared.quote') {
-          const quoteImageData = extractImageData(obj)
-          if (quoteImageData) {
-            images.push({ src: quoteImageData.url, alt: quoteImageData.alt || 'Quote image', caption: quoteImageData.caption })
-          }
-        } else if (obj.__component === 'shared.rich-text') {
-          // Extract images from rich text content
-          const content = obj.content || obj.text || obj.Text || ''
-          const imgRegex = /<img[^>]+src="([^">]+)"[^>]*alt="([^"]*)"[^>]*>/g
-          let match
-          while ((match = imgRegex.exec(content)) !== null) {
-            images.push({ src: match[1], alt: match[2] || 'Article image' })
-          }
+      const obj = paragraph as ExtendedContentItem
+
+      // Extract images from different component types
+      if (obj.__component === 'shared.media' || obj.__component === 'modular-content.media') {
+        const mediaImages = extractMultipleImages(paragraph)
+        mediaImages.forEach(img => {
+          images.push({ src: img.url, alt: img.alt || img.caption || 'Article image', caption: img.caption })
+        })
+      } else if (obj.__component === 'modular-content.single-caption-mul-img') {
+        const multiImages = extractMultipleImages(paragraph)
+        multiImages.forEach(img => {
+          images.push({ src: img.url, alt: img.alt || img.caption || 'Article image', caption: img.caption })
+        })
+      } else if (obj.__component === 'modular-content.multiple-caption-mul-img') {
+        const multiCaptionImages = extractMultipleImages(paragraph)
+        multiCaptionImages.forEach(img => {
+          images.push({ src: img.url, alt: img.alt || img.caption || 'Article image', caption: img.caption })
+        })
+      } else if (obj.__component === 'shared.quote') {
+        const quoteImageData = extractImageData(obj)
+        if (quoteImageData) {
+          images.push({ src: quoteImageData.url, alt: quoteImageData.alt || 'Quote image', caption: quoteImageData.caption })
         }
-      })
+      } else if (obj.__component === 'shared.rich-text') {
+        // Extract images from rich text content
+        const content = obj.content || obj.text || obj.Text || ''
+        const imgRegex = /<img[^>]+src="([^">]+)"[^>]*alt="([^"]*)"[^>]*>/g
+        let match
+        while ((match = imgRegex.exec(content)) !== null) {
+          images.push({ src: match[1], alt: match[2] || 'Article image' })
+        }
+      }
+    })
 
-      console.log('##Rohit_Rocks## Total images collected for modal navigation:', images.length)
-      console.log('##Rohit_Rocks## Images:', images)
-      setAllContentImages(images)
-    }
+    return images
   }, [story?.content])
+
+  // Update state when images change
+  useEffect(() => {
+    setAllContentImages(allImages)
+  }, [allImages])
 
   // Stop animation after 5 seconds
   useEffect(() => {
@@ -914,16 +650,12 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
       try {
         setIsLoading(true)
 
-        console.log('##Rohit_Rocks## Loading story with slug:', slug, 'URL locale:', urlLocale, 'currentLocale:', currentLocale)
         const fetchedStory = await fetchStoryBySlug(slug)
-        console.log('##Rohit_Rocks## Fetched story:', fetchedStory.title)
-        console.log('##Rohit_Rocks## Available languages:', fetchedStory.availableLanguages)
         setStory(fetchedStory)
 
         // Group authors by role
         if (fetchedStory.authors && fetchedStory.authors.length > 0) {
           const grouped = groupAuthorsByRole(fetchedStory.authors)
-          console.log('##Rohit_Rocks## Grouped authors:', grouped)
           setGroupedAuthors(grouped)
         }
 
@@ -934,7 +666,6 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
             lang.code && lang.slug && allLanguages.find(l => l.code === lang.code)
           )
 
-          console.log('##Rohit_Rocks## Valid languages:', validLanguages)
           setAvailableLanguages(validLanguages)
           // Show language button if there's at least 1 language available
           setHasMultipleLanguages(validLanguages.length >= 1)
@@ -953,50 +684,43 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
     }
   }, [slug, urlLocale, currentLocale])
 
-  // Fetch related stories dynamically based on author, title, and category
-  useEffect(() => {
-    const fetchRelatedStories = async () => {
-      if (!story) {
-        setRelatedStories([])
-        return
-      }
+  // Fetch related stories dynamically based on author, title, and category - memoized
+  const fetchRelatedStories = useCallback(async () => {
+    if (!story) {
+      setRelatedStories([])
+      return
+    }
 
-      try {
-        // First, try to use manually curated related stories from API
-        if (story.relatedStoriesData && story.relatedStoriesData.length > 0) {
-          console.log('##Rohit_Rocks## Total related stories from API:', story.relatedStoriesData.length)
+    try {
+      // First, try to use manually curated related stories from API
+      if (story.relatedStoriesData && story.relatedStoriesData.length > 0) {
+        // Create a map to track unique articles by their ID
+        // This helps us avoid showing the same article in different languages
+        const uniqueArticleIds = new Set<number>()
+        const seenSlugs = new Set<string>()
 
-          // Create a map to track unique articles by their ID
-          // This helps us avoid showing the same article in different languages
-          const uniqueArticleIds = new Set<number>()
-          const seenSlugs = new Set<string>()
+        // Filter to show only English language stories and avoid duplicates
+        const englishStories = story.relatedStoriesData.filter((article: ArticleData) => {
+          const locale = article.attributes.locale || 'en'
+          const articleId = article.id
+          const slug = article.attributes.slug
 
-          // Filter to show only English language stories and avoid duplicates
-          const englishStories = story.relatedStoriesData.filter((article: ArticleData) => {
-            const locale = article.attributes.locale || 'en'
-            const articleId = article.id
-            const slug = article.attributes.slug
+          // Skip if not English
+          if (locale !== 'en') {
+            return false
+          }
 
-            console.log('##Rohit_Rocks## Article:', article.attributes.Title, '| Locale:', locale, '| ID:', articleId, '| Slug:', slug)
+          // Skip if we've already seen this article ID or a very similar slug
+          // (to avoid showing translations of the same article)
+          const baseSlug = slug.replace(/-(en|hi|mr|ta|te|kn|ml|bn|gu|guj|pa|or|as|ur|bho|hne|chh)$/, '')
+          if (uniqueArticleIds.has(articleId) || seenSlugs.has(baseSlug)) {
+            return false
+          }
 
-            // Skip if not English
-            if (locale !== 'en') {
-              return false
-            }
-
-            // Skip if we've already seen this article ID or a very similar slug
-            // (to avoid showing translations of the same article)
-            const baseSlug = slug.replace(/-(en|hi|mr|ta|te|kn|ml|bn|gu|guj|pa|or|as|ur|bho|hne|chh)$/, '')
-            if (uniqueArticleIds.has(articleId) || seenSlugs.has(baseSlug)) {
-              return false
-            }
-
-            uniqueArticleIds.add(articleId)
-            seenSlugs.add(baseSlug)
-            return true
-          })
-
-          console.log('##Rohit_Rocks## English stories after filter:', englishStories.length)
+          uniqueArticleIds.add(articleId)
+          seenSlugs.add(baseSlug)
+          return true
+        })
 
           const formattedStories = englishStories.slice(0, 4).map((article: ArticleData) => {
             const attrs = article.attributes
@@ -1305,10 +1029,12 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
         console.error('Error fetching related stories:', error)
         setRelatedStories([])
       }
-    }
-
-    fetchRelatedStories()
   }, [story, currentLocale])
+
+  // Call fetchRelatedStories when story or locale changes
+  useEffect(() => {
+    fetchRelatedStories()
+  }, [fetchRelatedStories])
 
   // Callback functions for image modal navigation
   const handleCloseImageModal = useCallback(() => {
@@ -1337,6 +1063,121 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
     setImageScale(1)
     setImagePosition({ x: 0, y: 0 })
   }, [allContentImages, currentImageIndex])
+
+  // Handle image click - memoized
+  const handleImageClick = useCallback((src: string, alt: string, caption?: string) => {
+    // Find the index of the clicked image
+    const index = allContentImages.findIndex(img => img.src === src)
+
+    if (index !== -1) {
+      setCurrentImageIndex(index)
+    } else {
+      // If image not found in array, add it and set as current
+      setAllContentImages(prev => [...prev, { src, alt, caption }])
+      setCurrentImageIndex(allContentImages.length)
+    }
+
+    setSelectedImage({ src, alt, caption })
+    setShowImageModal(true)
+    setImageScale(1)
+    setImagePosition({ x: 0, y: 0 })
+    setImageAnimating(true)
+    setTimeout(() => setImageAnimating(false), 1500) // Animation duration
+  }, [allContentImages])
+
+  // Share and utility handlers - memoized
+  const handleShare = useCallback(() => {
+    setShowShareModal(true)
+  }, [])
+
+  const handleCopyLink = useCallback(() => {
+    navigator.clipboard.writeText(window.location.href)
+    setLinkCopied(true)
+    setTimeout(() => setLinkCopied(false), 2000)
+  }, [])
+
+  const shareToWhatsApp = useCallback(() => {
+    const title = story?.title || ''
+    const description = story?.subtitle || ''
+    const url = window.location.href
+
+    let message = `*${title}*`
+    if (description) {
+      message += `\n\n${description}`
+    }
+    message += `\n\n${url}`
+
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`
+    window.open(whatsappUrl, '_blank')
+  }, [story?.title, story?.subtitle])
+
+  const shareToFacebook = useCallback(() => {
+    const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`
+    window.open(url, '_blank')
+  }, [])
+
+  const shareToTwitter = useCallback(() => {
+    const title = story?.title || ''
+    const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(window.location.href)}`
+    window.open(url, '_blank')
+  }, [story?.title])
+
+  const shareToTelegram = useCallback(() => {
+    const title = story?.title || ''
+    const url = `https://t.me/share/url?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(title)}`
+    window.open(url, '_blank')
+  }, [story?.title])
+
+  const shareToLinkedIn = useCallback(() => {
+    const title = story?.title || ''
+    const description = story?.subtitle || ''
+    const url = `https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(window.location.href)}&title=${encodeURIComponent(title)}&summary=${encodeURIComponent(description)}`
+    window.open(url, '_blank')
+  }, [story?.title, story?.subtitle])
+
+  const shareToEmail = useCallback(() => {
+    const title = story?.title || ''
+    const subject = encodeURIComponent(title)
+    const body = encodeURIComponent(`Check out this story from PARI:\n\n${title}\n\n${window.location.href}`)
+    window.location.href = `mailto:?subject=${subject}&body=${body}`
+  }, [story?.title])
+
+  const handlePrint = useCallback(() => {
+    window.print()
+  }, [])
+
+  const handleZoomIn = useCallback(() => {
+    setImageScale(prev => Math.min(prev + 0.5, 5))
+  }, [])
+
+  const handleZoomOut = useCallback(() => {
+    setImageScale(prev => Math.max(prev - 0.5, 0.5))
+  }, [])
+
+  const increaseFontSize = useCallback(() => {
+    setFontSize(prev => Math.min(prev + 2, 24))
+  }, [])
+
+  const decreaseFontSize = useCallback(() => {
+    setFontSize(prev => Math.max(prev - 2, 14))
+  }, [])
+
+  const handlePhotoClick = useCallback(() => {
+    setShowPhotos(!showPhotos)
+  }, [showPhotos])
+
+  const handleClose = useCallback(() => {
+    setShowCard(false)
+  }, [])
+
+  const handleToggleCard = useCallback(() => {
+    setShowCard(true)
+  }, [])
+
+  const handleResetZoom = useCallback(() => {
+    setImageScale(1)
+    setImagePosition({ x: 0, y: 0 })
+  }, [])
 
   // Keyboard navigation for image modal
   useEffect(() => {
@@ -1368,132 +1209,6 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
         </div>
       </div>
     )
-  }
-
-  console.log('##Rohit_Rocks## Rendering story with isStudent:', story.isStudent)
-
-  const handleShare = () => {
-    setShowShareModal(true)
-  }
-
-  const handleCopyLink = () => {
-    navigator.clipboard.writeText(window.location.href)
-    setLinkCopied(true)
-    setTimeout(() => setLinkCopied(false), 2000)
-  }
-
-  const getShareUrl = () => window.location.href
-  const getShareTitle = () => story?.title || ''
-  const getShareDescription = () => story?.subtitle || ''
-
-  const shareToWhatsApp = () => {
-    // Create a rich text message with title, description, and URL
-    const title = getShareTitle()
-    const description = getShareDescription()
-    const url = getShareUrl()
-
-    // Format: Title + Description + URL (WhatsApp will auto-generate preview from URL's meta tags)
-    let message = `*${title}*`
-    if (description) {
-      message += `\n\n${description}`
-    }
-    message += `\n\n${url}`
-
-    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`
-    window.open(whatsappUrl, '_blank')
-  }
-
-  const shareToFacebook = () => {
-    const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(getShareUrl())}`
-    window.open(url, '_blank')
-  }
-
-  const shareToTwitter = () => {
-    const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(getShareTitle())}&url=${encodeURIComponent(getShareUrl())}`
-    window.open(url, '_blank')
-  }
-
-  const shareToTelegram = () => {
-    const url = `https://t.me/share/url?url=${encodeURIComponent(getShareUrl())}&text=${encodeURIComponent(getShareTitle())}`
-    window.open(url, '_blank')
-  }
-
-  const shareToLinkedIn = () => {
-    const url = `https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(getShareUrl())}&title=${encodeURIComponent(getShareTitle())}&summary=${encodeURIComponent(getShareDescription())}`
-    window.open(url, '_blank')
-  }
-
-  const shareToEmail = () => {
-    const subject = encodeURIComponent(getShareTitle())
-    const body = encodeURIComponent(`Check out this story from PARI:\n\n${getShareTitle()}\n\n${getShareUrl()}`)
-    window.location.href = `mailto:?subject=${subject}&body=${body}`
-  }
-
-  const handlePrint = () => {
-    window.print()
-  }
-
-  const increaseFontSize = () => {
-    setFontSize(prev => Math.min(prev + 2, 40))
-  }
-
-  const decreaseFontSize = () => {
-    setFontSize(prev => Math.max(prev - 2, 11))
-  }
-
-  const handlePhotoClick = () => {
-    setShowPhotos(!showPhotos)
-  }
-
-  // const handleAudioToggle = () => {
-  //   setIsAudioPlaying(!isAudioPlaying)
-  //   // TODO: Implement actual audio playback functionality
-  // }
-
-  const handleClose = () => {
-    setShowCard(false)
-  }
-
-  const handleToggleCard = () => {
-    setShowCard(true)
-  }
-
-  const handleImageClick = (src: string, alt: string, caption?: string) => {
-    // Find the index of the clicked image
-    const index = allContentImages.findIndex(img => img.src === src)
-    console.log('##Rohit_Rocks## Image clicked:', src)
-    console.log('##Rohit_Rocks## Found at index:', index)
-    console.log('##Rohit_Rocks## Total images in array:', allContentImages.length)
-    console.log('##Rohit_Rocks## All images:', allContentImages)
-
-    if (index !== -1) {
-      setCurrentImageIndex(index)
-    } else {
-      // If image not found in array, add it and set as current
-      console.log('##Rohit_Rocks## Image not found in array, adding it')
-      setAllContentImages(prev => [...prev, { src, alt, caption }])
-      setCurrentImageIndex(allContentImages.length)
-    }
-
-    setSelectedImage({ src, alt, caption })
-    setShowImageModal(true)
-    setImageScale(1)
-    setImagePosition({ x: 0, y: 0 })
-    setImageAnimating(true)
-    setTimeout(() => setImageAnimating(false), 1500) // Animation duration
-  }
-
-  const handleZoomIn = () => {
-    setImageScale(prev => Math.min(prev + 0.5, 5))
-  }
-
-  const handleZoomOut = () => {
-    setImageScale(prev => Math.max(prev - 0.5, 0.5))
-  }
-
-  const handleResetZoom = () => {
-    setImageScale(1)
-    setImagePosition({ x: 0, y: 0 })
   }
 
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -1600,7 +1315,6 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
             <button
               type="button"
               onClick={() => {
-                console.log('##Rohit_Rocks## Decrease font clicked, current:', fontSize)
                 decreaseFontSize()
               }}
               className={`${story.isStudent ? 'text-[#2F80ED]' : 'text-primary-PARI-Red'}  hover:opacity-70 transition-opacity font-medium cursor-pointer leading-none`}
@@ -1613,7 +1327,6 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
             <button
               type="button"
               onClick={() => {
-                console.log('##Rohit_Rocks## Increase font clicked, current:', fontSize)
                 increaseFontSize()
               }}
               className={`${story.isStudent ? 'text-[#2F80ED]' : 'text-primary-PARI-Red'} hover:opacity-70 transition-opacity font-medium cursor-pointer leading-none`}
@@ -2048,12 +1761,6 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                   if (typeof item === 'string' && item.trim().length > 0) {
                   if (showPhotos) return null
 
-                  // Debug: Log string content for this article
-                  if (slug === 'in-kuno-park-no-one-gets-the-lions-share' && index < 3) {
-                    console.log('##Rohit_Rocks## String content at index', index, ':', item.substring(0, 200))
-                    console.log('##Rohit_Rocks## After strip:', stripHtmlCssWithStyledStrong(item).substring(0, 200))
-                  }
-
                   return (
                     <div key={index} className="my-6 max-w-3xl mx-auto px-8 md:px-10 lg:px-16">
                       
@@ -2078,11 +1785,6 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
 
                   // Handle Strapi component types
                   if ('__component' in obj) {
-                    // Debug: log component type and ALL keys in the object
-                    console.log('##Rohit_Rocks## Component type:', obj.__component)
-                    console.log('##Rohit_Rocks## Object keys:', Object.keys(obj))
-                    console.log('##Rohit_Rocks## Full Data:', JSON.stringify(obj, null, 2))
-
                     switch (obj.__component) {
                       case 'shared.rich-text':
                       case 'modular-content.text':
@@ -2092,22 +1794,10 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
 
                         // Try all possible field names for text content
                         const textContent = obj.Paragraph || obj.Text || obj.content || obj.text || obj.Body || obj.body || ''
-                        console.log('##Rohit_Rocks## Text content found:', typeof textContent === 'string' ? textContent.substring(0, 100) : 'NOT A STRING')
 
                         if (textContent && typeof textContent === 'string' && textContent.trim().length > 0) {
-                          // Debug: Log original content for this article
-                          if (slug === 'in-kuno-park-no-one-gets-the-lions-share' && index < 3) {
-                            console.log('##Rohit_Rocks## RAW HTML from Strapi at index', index, ':', textContent)
-                            console.log('##Rohit_Rocks## Original content at index', index, ':', textContent.substring(0, 200))
-                          }
-
                           // Check if content is only stars (asterisks)
                           const strippedContent = stripHtmlCssWithStyledStrong(textContent)
-
-                          // Debug: Log both original and stripped content
-                          console.log('##DEBUG## Original HTML:', textContent)
-                          console.log('##DEBUG## Stripped HTML:', strippedContent)
-                          console.log('##DEBUG## Has strong tag:', strippedContent.includes('<strong>'))
 
                           const isStarsOnly = /^[\s*]+$/.test(strippedContent)
 
@@ -2448,14 +2138,10 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                         // Extract Content array
                         const columnarContentArray = 'Content' in obj && Array.isArray(obj.Content) ? obj.Content : null
 
-                        console.log('##Rohit_Rocks## Columnar Text - Content Array Length:', columnarContentArray?.length)
-
                         // Handle single column (when only 1 item in Content array)
                         if (columnarContentArray && columnarContentArray.length === 1) {
                           const singleColumn = columnarContentArray[0] as Record<string, unknown>
                           const singleText = 'Paragraph' in singleColumn && typeof singleColumn.Paragraph === 'string' ? singleColumn.Paragraph : ''
-
-                          console.log('##Rohit_Rocks## Columnar Text (Single) - Text:', singleText.substring(0, 100))
 
                           return (
                             <div key={index} className="my-12 w-full flex justify-center">
@@ -2516,22 +2202,12 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                         // Skip single columnar text if showing photos only
                         if (showPhotos) return null
 
-                        // Debug logging
-                        console.log('##Rohit_Rocks## Single Columnar Text Component Found:', obj)
-                        console.log('##Rohit_Rocks## Has Content?', 'Content' in obj)
-                        console.log('##Rohit_Rocks## Content value:', obj.Content)
-
                         // Extract Content array
                         const singleColumnarContentArray = 'Content' in obj && Array.isArray(obj.Content) ? obj.Content : null
-
-                        console.log('##Rohit_Rocks## Single Columnar Content Array:', singleColumnarContentArray)
 
                         if (singleColumnarContentArray && singleColumnarContentArray.length >= 1) {
                           const singleColumn = singleColumnarContentArray[0] as Record<string, unknown>
                           const singleText = 'Paragraph' in singleColumn && typeof singleColumn.Paragraph === 'string' ? singleColumn.Paragraph : ''
-
-                          console.log('##Rohit_Rocks## Single Column Data:', singleColumn)
-                          console.log('##Rohit_Rocks## Single Text:', singleText)
 
                           return (
                             <div key={index} className="my-12 w-full flex justify-center">
@@ -2555,7 +2231,6 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                           )
                         }
 
-                        console.log('##Rohit_Rocks## Single Columnar Text - No valid content found')
                         return null
 
                       case 'modular-content.image':
@@ -3038,18 +2713,12 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                         // Skip if showing photos only
                         if (showPhotos) return null
 
-                        console.log('##Rohit_Rocks## Video with quote component found:', obj)
-
                         // Try different field name variations for video URL
                         const videoWithQuoteUrl = ('Video' in obj && typeof obj.Video === 'string' ? obj.Video :
                                                    'video' in obj && typeof obj.video === 'string' ? obj.video :
                                                    'video_embed_url' in obj && typeof obj.video_embed_url === 'string' ? obj.video_embed_url : null)
                         const videoQuoteText = 'Quote' in obj && typeof obj.Quote === 'string' ? obj.Quote : null
                         const videoWithQuoteCaption = 'Video_caption' in obj && typeof obj.Video_caption === 'string' ? obj.Video_caption : null
-
-                        console.log('##Rohit_Rocks## Video URL:', videoWithQuoteUrl)
-                        console.log('##Rohit_Rocks## Quote text:', videoQuoteText)
-                        console.log('##Rohit_Rocks## Caption:', videoWithQuoteCaption)
 
                         if (videoWithQuoteUrl) {
                           // Convert YouTube watch URL to embed URL
@@ -3312,9 +2981,6 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                         // Skip if showing photos only
                         if (showPhotos) return null
 
-                        // Debug log to see what data we're getting
-                        console.log('##Rohit_Rocks## page-reference-with-text data:', obj)
-
                         // Extract text content
                         const pageRefText = 'Text_Content' in obj && typeof obj.Text_Content === 'string' ? obj.Text_Content : null
 
@@ -3502,7 +3168,6 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                         return null
 
                       default:
-                        console.log('##Rohit_Rocks## Unhandled component type:', obj.__component, 'Data:', obj)
                         return null
                     }
                   }
@@ -3754,9 +3419,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                         <button
                           key={lang.code}
                           onClick={() => {
-                            console.log('##Rohit_Rocks## Mobile - Language changed to:', lang.code, 'with slug:', lang.slug)
                             const newUrl = addLocaleToUrl(`/article/${lang.slug}`)
-                            console.log('##Rohit_Rocks## Mobile - Navigating to:', newUrl)
                             router.push(newUrl)
                             setShowLanguageSelector(false)
                           }}
@@ -3841,9 +3504,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                         <button
                           key={lang.code}
                           onClick={() => {
-                            console.log('##Rohit_Rocks## Desktop - Language changed to:', lang.code, 'with slug:', lang.slug)
                             const newUrl = addLocaleToUrl(`/article/${lang.slug}`)
-                            console.log('##Rohit_Rocks## Desktop - Navigating to:', newUrl)
                             router.push(newUrl)
                             setShowLanguageSelector(false)
                           }}
@@ -4488,11 +4149,6 @@ function extractImageData(paragraph: FilterableContentItem): {
   } else if ('Caption' in obj && typeof obj.Caption === 'string') {
     componentCaption = obj.Caption
   }
-
-  // Debug: Log caption extraction
-  console.log('##Rohit_Rocks## extractImageData - Component:', obj.__component)
-  console.log('##Rohit_Rocks## extractImageData - Component caption:', componentCaption)
-  console.log('##Rohit_Rocks## extractImageData - Full object:', obj)
 
   // Check for direct image properties
   if ('image' in obj && obj.image && typeof obj.image === 'object') {
@@ -5266,7 +4922,6 @@ async function fetchStoryBySlug(slug: string) {
         slug: cat.attributes.slug || ''
       })
     ) || []
-    console.log('##Rohit_Rocks## Categories fetched:', categories)
 
     // Get location
     const location = articleData.attributes.location?.data?.attributes?.name ||
@@ -5306,26 +4961,13 @@ async function fetchStoryBySlug(slug: string) {
       ? articleData.attributes.Modular_Content
       : []
 
-    // Debug: Log all component types in Modular_Content
-    console.log('##Rohit_Rocks## Total Modular_Content items:', finalContent.length)
-    finalContent.forEach((item, index) => {
-      if (item && typeof item === 'object' && '__component' in item) {
-        console.log(`##Rohit_Rocks## Item ${index}: ${item.__component}`)
-      }
-    })
-
     const finalTitle = articleData.attributes.Title || "Untitled Story"
 
     // Extract Related_stories data
-
     const relatedStoriesData = articleData.attributes.Related_stories?.data || []
 
     // Extract is_student field
     const isStudent = Boolean(articleData.attributes.is_student)
-    console.log('##Rohit_Rocks## API is_student:', articleData.attributes.is_student, '| Boolean:', isStudent)
-
-    // Story locale already extracted earlier for author fetching
-    console.log('##Rohit_Rocks## Story locale (final):', storyLocale)
 
     return {
       title: finalTitle,
