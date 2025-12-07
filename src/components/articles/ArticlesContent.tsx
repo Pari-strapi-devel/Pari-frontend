@@ -168,6 +168,7 @@ export default function ArticlesContent() {
     content?: string[];
     languages?: string[];
   }>({})
+  const [categoryTitles, setCategoryTitles] = useState<Record<string, string>>({})
 
   // Add pagination state
   const [currentPage, setCurrentPage] = useState(1)
@@ -243,6 +244,44 @@ export default function ArticlesContent() {
 
     setActiveFilters(filters);
   }, [types, author, location, dates, content, languages]);
+
+  // Fetch category titles for the slugs
+  useEffect(() => {
+    const fetchCategoryTitles = async () => {
+      if (!types) return;
+
+      const categorySlugs = types.split(',');
+      const titles: Record<string, string> = {};
+
+      try {
+        // Fetch all categories
+        const response = await axios.get(`${BASE_URL}api/categories`, {
+          params: {
+            'filters[slug][$in]': categorySlugs,
+            'fields[0]': 'Title',
+            'fields[1]': 'slug',
+            'pagination[limit]': 100
+          }
+        });
+
+        // Map slugs to titles
+        response.data.data.forEach((category: { attributes: { slug: string; Title: string } }) => {
+          titles[category.attributes.slug] = category.attributes.Title;
+        });
+
+        setCategoryTitles(titles);
+      } catch (error) {
+        console.error('Error fetching category titles:', error);
+        // Fallback: use slugs as titles
+        categorySlugs.forEach(slug => {
+          titles[slug] = slug;
+        });
+        setCategoryTitles(titles);
+      }
+    };
+
+    fetchCategoryTitles();
+  }, [types]);
 
   // Function to clear all filters
   const clearFilters = () => {
@@ -969,7 +1008,7 @@ export default function ArticlesContent() {
             <div className={`flex flex-wrap gap-4 mb-4 ${currentLocale === 'ur' ? 'flex-row-reverse' : ''}`}>
               {activeFilters.types?.map(type => (
                 <div key={`type-${type}`} className={`flex items-center ring-1 text-primary-PARI-Red ring-primary-PARI-Red bg-background rounded-full px-3 py-1 ${currentLocale === 'ur' ? 'flex-row-reverse' : ''}`}>
-                  <span className="text-sm mr-2"> {type}</span>
+                  <span className="text-sm mr-2">{categoryTitles[type] || type}</span>
                   <Button
                     variant="ghost"
                     size="icon"
@@ -978,9 +1017,9 @@ export default function ArticlesContent() {
                   >
                     <X className="h-3 w-3 text-primary-PARI-Red" />
                   </Button>
-                  
+
                 </div>
-                
+
               ))}
                {hasActiveFilters && (
               <Button

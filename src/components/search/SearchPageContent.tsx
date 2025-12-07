@@ -8,7 +8,7 @@ import { BASE_URL } from '@/config'
 import { useLocale } from '@/lib/locale'
 import { languages as languagesList } from '@/data/languages'
 import { Button } from '@/components/ui/button'
-import { ChevronLeft, ChevronRight, Filter } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Filter, X } from 'lucide-react'
 import { SearchFiltersSidebar, SearchFilters } from './SearchFilters'
 import { Skeleton } from '@/components/ui/skeleton'
 
@@ -135,6 +135,13 @@ export default function SearchPageContent() {
   const [isFilterOpen, setIsFilterOpen] = useState<boolean>(false)
   const [filters, setFilters] = useState<SearchFilters>({})
 
+  // Function to clear a specific filter
+  const clearFilter = (filterKey: keyof SearchFilters) => {
+    const newFilters = { ...filters }
+    delete newFilters[filterKey]
+    setFilters(newFilters)
+  }
+
   // Update page size based on screen width (responsive like articles page)
   useEffect(() => {
     const handleResize = () => {
@@ -249,6 +256,12 @@ export default function SearchPageContent() {
         filterIndex++
       }
 
+      // Category filter
+      if (filters.category) {
+        searchParams[`filters[$and][${filterIndex}][categories][Title][$containsi]`] = filters.category
+        filterIndex++
+      }
+
       console.log('##Rohit_Rocks## Final API params being sent:', searchParams);
       console.log('##Rohit_Rocks## Full API URL will be:', `${BASE_URL}api/articles`);
 
@@ -323,10 +336,12 @@ export default function SearchPageContent() {
               ? `${BASE_URL.replace('/v1/', '')}${item.attributes.Cover_image.data.attributes.url}`
               : '/images/placeholder.jpg',
             slug: item.attributes.slug || '',
-            categories: item.attributes.categories?.data?.map((cat: { attributes: { Title: string; slug?: string } }) => ({
-              title: cat.attributes.Title,
-              slug: cat.attributes.slug
-            })) || [],
+            categories: item.attributes.categories?.data
+              ?.map((cat: { attributes: { Title: string; slug?: string } }) => ({
+                title: cat.attributes.Title || 'Uncategorized',
+                slug: cat.attributes.slug || cat.attributes.Title?.toLowerCase().replace(/\s+/g, '-') || 'uncategorized'
+              }))
+              .filter((cat: { title: string; slug: string }) => cat.title && cat.slug) || [],
             authors: authors,
             localizations: localizations.map((loc: { attributes: { locale: string; title: string; slug: string } }) => ({
               locale: loc.attributes.locale,
@@ -566,6 +581,65 @@ export default function SearchPageContent() {
                         Results include articles from all available languages. Use language selection on each card to view in different languages.
                       </p>
                     )}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Active Filters Display */}
+            {(filters.category || filters.author || filters.location || filters.dateFrom || filters.dateTo) && (
+              <div className="flex flex-wrap gap-2 mt-4">
+                {filters.category && (
+                  <div className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-background border-2 border-primary-PARI-Red text-primary-PARI-Red rounded-full text-sm font-medium">
+                    <span>{filters.category}</span>
+                    <button
+                      onClick={() => clearFilter('category')}
+                      className="hover:bg-primary-PARI-Red/10 rounded-full p-0.5 transition-colors"
+                      aria-label="Remove category filter"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                )}
+                {filters.author && (
+                  <div className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-background border-2 border-primary-PARI-Red text-primary-PARI-Red rounded-full text-sm font-medium">
+                    <span>Author: {filters.author}</span>
+                    <button
+                      onClick={() => clearFilter('author')}
+                      className="hover:bg-primary-PARI-Red/10 rounded-full p-0.5 transition-colors"
+                      aria-label="Remove author filter"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                )}
+                {filters.location && (
+                  <div className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-background border-2 border-primary-PARI-Red text-primary-PARI-Red rounded-full text-sm font-medium">
+                    <span>Location: {filters.location}</span>
+                    <button
+                      onClick={() => clearFilter('location')}
+                      className="hover:bg-primary-PARI-Red/10 rounded-full p-0.5 transition-colors"
+                      aria-label="Remove location filter"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                )}
+                {(filters.dateFrom || filters.dateTo) && (
+                  <div className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-background border-2 border-primary-PARI-Red text-primary-PARI-Red rounded-full text-sm font-medium">
+                    <span>
+                      Date: {filters.dateFrom || '...'} to {filters.dateTo || '...'}
+                    </span>
+                    <button
+                      onClick={() => {
+                        clearFilter('dateFrom')
+                        clearFilter('dateTo')
+                      }}
+                      className="hover:bg-primary-PARI-Red/10 rounded-full p-0.5 transition-colors"
+                      aria-label="Remove date filter"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
                   </div>
                 )}
               </div>

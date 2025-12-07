@@ -13,6 +13,7 @@ export interface SearchFilters {
   location?: string
   language?: string
   contentType?: string[]
+  category?: string
 }
 
 interface SearchFiltersProps {
@@ -264,6 +265,25 @@ export function SearchFiltersSidebar({
               value={tempFilters.location || ''}
               onChange={(e) => {
                 const newFilters = { ...tempFilters, location: e.target.value }
+                setTempFilters(newFilters)
+                // Auto-apply on desktop
+                if (window.innerWidth >= 768) {
+                  onFiltersChange(newFilters)
+                }
+              }}
+              onKeyDown={handleKeyDown}
+              className="text-base md:text-sm h-14 md:h-12 focus-visible:ring-primary-PARI-Red focus-visible:ring-2 transition-all"
+            />
+          </div>
+
+          {/* Category */}
+          <div className="space-y-3 md:space-y-2">
+            <label className="text-base md:text-sm font-semibold text-foreground block">Category</label>
+            <Input
+              placeholder="Enter category"
+              value={tempFilters.category || ''}
+              onChange={(e) => {
+                const newFilters = { ...tempFilters, category: e.target.value }
                 setTempFilters(newFilters)
                 // Auto-apply on desktop
                 if (window.innerWidth >= 768) {
