@@ -1101,6 +1101,50 @@
   margin-top: 0.5rem;
 }
 
+/* Page reference text content styling */
+.page-ref-text-content {
+  font-family: 'Noto Sans', sans-serif !important;
+  font-weight: 400 !important;
+  font-size: 15px !important;
+  line-height: 170% !important;
+  letter-spacing: -0.03em !important;
+}
+
+.page-ref-text-content p,
+.page-ref-text-content div,
+.page-ref-text-content span {
+  font-family: 'Noto Sans', sans-serif !important;
+  font-weight: 400 !important;
+  font-size: 15px !important;
+  line-height: 170% !important;
+  letter-spacing: -0.03em !important;
+  margin-bottom: 1rem;
+}
+
+.page-ref-text-content p:last-child {
+  margin-bottom: 0;
+}
+
+.page-ref-text-content h2
+{
+  font-family: 'Noto Sans', sans-serif !important;
+  font-weight: 700 !important;
+ 
+  letter-spacing: -0.03em !important;
+  color: var(--primary-PARI-Red) !important;
+  margin-bottom: 1rem;
+}
+
+.page-ref-text-content em,
+.page-ref-text-content i {
+  font-family: 'Noto Sans', sans-serif !important;
+  font-weight: 400 !important;
+  font-size: 15px !important;
+  line-height: 170% !important;
+  letter-spacing: -0.03em !important;
+  font-style: italic;
+}
+
 .eyebrow {
     color: var(--color-label);
     text-transform: uppercase;

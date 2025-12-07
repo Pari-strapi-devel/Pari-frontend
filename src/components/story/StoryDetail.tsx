@@ -3037,11 +3037,13 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                         // Skip if showing photos only
                         if (showPhotos) return null
 
+                        console.log('##Rohit_Rocks## page-reference-with-text data:', obj)
+
                         // Extract text content
                         const pageRefText = 'Text_Content' in obj && typeof obj.Text_Content === 'string' ? obj.Text_Content : null
 
-                        // Extract article number (optional)
-                        const pageRefNumber = 'number' in obj && typeof obj.number === 'number' ? obj.number : null
+                        // Extract direct image from component
+                        const pageRefDirectImage = extractImageData(obj)
 
                         // Extract article relation data
                         let pageRefArticle: {
@@ -3148,54 +3150,63 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                           }
                         }
 
-                        if (pageRefText || pageRefArticle) {
-                          return (
-                            <div key={index} className="my-16">
-                              <div className="max-w-[768px] md:max-w-[768px] lg:max-w-[912px] xl:max-w-[970px] 2xl:max-w-[1016px] mx-auto px-4 md:px-8">
-                              
+                        // Show card if we have article data OR text content OR direct image
+                        if (pageRefArticle || pageRefText || pageRefDirectImage) {
+                          const displayImage = pageRefArticle?.imageUrl || (pageRefDirectImage ? pageRefDirectImage.url : null)
+                          const displayTitle = pageRefArticle?.title || ''
+                          const displaySlug = pageRefArticle?.slug || '#'
 
-                                {/* Article card - matching the screenshot design */}
-                                {pageRefArticle && (
-                                  <div className="flex flex-col md:flex-row gap-4 mb-8 pb-8 border-b border-gray-200 dark:border-gray-700">
-                                    {/* Left side - Image, title, and location */}
-                                    <div className="flex-shrink-0 w-full md:w-56">
-                                      {pageRefArticle.imageUrl && (
-                                        <Link href={`/article/${pageRefArticle.slug}`}>
-                                          <div className="relative w-full h-48 md:h-40 mb-2">
-                                            <Image
-                                              src={pageRefArticle.imageUrl}
-                                              alt={pageRefArticle.title}
-                                              fill
-                                              className="object-cover md:rounded-lg"
-                                            />
-                                          </div>
+                          return (
+                            <div key={index} className="my-6">
+                              <div className="max-w-[768px] md:max-w-[768px] lg:max-w-[912px] xl:max-w-[970px] 2xl:max-w-[1016px] mx-auto">
+                                <div className="flex flex-col md:flex-row gap-6 mb-8">
+                                  {/* Left side - Image with title below */}
+                                  {displayImage && (
+                                    <div className="flex-shrink-0 w-full md:w-64">
+                                      <Link href={`/article/${displaySlug}`}>
+                                        <div className="relative w-full h-64 md:h-80 mb-3">
+                                          <Image
+                                            src={displayImage}
+                                            alt={displayTitle || 'Article image'}
+                                            fill
+                                            className="object-cover"
+                                          />
+                                        </div>
+                                      </Link>
+                                      {displayTitle && (
+                                        <Link href={`/article/${displaySlug}`}>
+                                          <h3 className="text-base font-semibold text-foreground leading-tight">
+                                            {displayTitle}
+                                          </h3>
                                         </Link>
                                       )}
-                                      <div className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-1">
-                                        {pageRefArticle.title}
-                                      </div>
-                                      {pageRefArticle.location && (
-                                        <div className="text-sm text-gray-600 dark:text-gray-400">
-                                          {pageRefArticle.location}
-                                        </div>
-                                      )}
                                     </div>
+                                  )}
 
-                                    {/* Right side - Numbered title, description, date, and author */}
-                                    <div className="flex-1">
-                                      <Link href={`/article/${pageRefArticle.slug}`}>
-                                        <h3 className="text-xl md:text-2xl font-bold text-primary-PARI-Red dark:text-primary-PARI-Red mb-3 hover:underline">
-                                          {pageRefNumber && `${pageRefNumber}. `}{pageRefArticle.title}
-                                        </h3>
+                                  {/* Right side - Content */}
+                                  <div className="flex-1">
+                                    {displayTitle && (
+                                      <Link href={`/article/${displaySlug}`}>
+                                        <h2 className="text-xl md:text-2xl font-bold mb-6 !text-primary-PARI-Red hover:underline leading-tight">
+                                          {displayTitle}
+                                        </h2>
                                       </Link>
+                                    )}
 
-                                      {pageRefArticle.strap && (
-                                        <p className="text-gray-700 dark:text-gray-300 mb-4 leading-relaxed text-base">
-                                          {pageRefArticle.strap}
-                                        </p>
-                                      )}
+                                    {/* Text content */}
+                                    {pageRefText && (
+                                      <>
+                                        {console.log('##Rohit_Rocks## pageRefText HTML:', stripHtmlCssWithStyledStrong(pageRefText))}
+                                        <div
+                                          className="mb-4 text-foreground page-ref-text-content"
+                                          dangerouslySetInnerHTML={{ __html: stripHtmlCssWithStyledStrong(pageRefText) }}
+                                        />
+                                      </>
+                                    )}
 
-                                      <div className="flex flex-wrap items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                                    {/* Date and Author */}
+                                    {pageRefArticle && (pageRefArticle.date || pageRefArticle.authors) && (
+                                      <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                                         {pageRefArticle.date && (
                                           <span>
                                             {new Date(pageRefArticle.date).toLocaleDateString('en-US', {
@@ -3209,14 +3220,14 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                           <span>|</span>
                                         )}
                                         {pageRefArticle.authors && pageRefArticle.authors.length > 0 && (
-                                          <span className="text-primary-PARI-Red dark:text-primary-PARI-Red font-medium">
-                                            {pageRefArticle.authors.join(', ')}
+                                          <span>
+                                            Author: {pageRefArticle.authors.join(', ')}
                                           </span>
                                         )}
                                       </div>
-                                    </div>
+                                    )}
                                   </div>
-                                )}
+                                </div>
                               </div>
                             </div>
                           )
