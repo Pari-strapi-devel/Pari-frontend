@@ -33,6 +33,7 @@ export function FilterMenu({ isOpen, onClose }: FilterMenuProps) {
   const { language: currentLocale } = useLocale()
   const [activeTab, setActiveTab] = useState<'cards' | 'filters'>('cards')
   const [selectedOptions, setSelectedOptions] = useState<FilterOption[]>([])
+  const [isAnimating, setIsAnimating] = useState(false)
   const [filters, setFilters] = useState<FilterState>({
     authorName: '',
     place: '',
@@ -41,12 +42,18 @@ export function FilterMenu({ isOpen, onClose }: FilterMenuProps) {
     languages: []
   });
   const { categories } = useCategories()
-  
-  // Reset filters when menu is opened
+
+  // Handle animation timing when menu opens
   useEffect(() => {
     if (isOpen) {
-      // Don't reset filters when opening to allow for multiple filter selection
-      // Just keep the current state
+      // Small delay to ensure the panel renders off-screen first, then slides in
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          setIsAnimating(true)
+        })
+      })
+    } else {
+      setIsAnimating(false)
     }
   }, [isOpen]);
   
@@ -216,12 +223,18 @@ export function FilterMenu({ isOpen, onClose }: FilterMenuProps) {
     });
   }
 
+  // Only render when isOpen is true
+  if (!isOpen) return null;
+
   return (
     <>
       <div
-        className={`fixed top-0 right-0 h-full w-[545px] sm:max-w-[90vw] max-w-full bg-background border-l border-border transform transition-transform duration-300 ease-in-out z-[60] ${
-          isOpen ? 'translate-x-0' : 'translate-x-full'
-        }`}
+        className="fixed top-0 right-0 bottom-0 h-full w-[545px] sm:max-w-[90vw] max-w-full bg-background border-l border-border z-[60] overflow-hidden"
+        style={{
+          transition: 'transform 300ms ease-in-out',
+          transform: isAnimating ? 'translateX(0)' : 'translateX(100%)',
+          willChange: 'transform'
+        }}
       >
         <div className="flex flex-col h-full">
           {/* Fixed Header */}

@@ -30,11 +30,35 @@ export function SearchFiltersSidebar({
 }: SearchFiltersProps) {
   const [isSticky, setIsSticky] = useState(false)
   const [tempFilters, setTempFilters] = useState<SearchFilters>(filters)
+  const [isAnimating, setIsAnimating] = useState(false)
+  const [shouldRender, setShouldRender] = useState(false)
+  const [sliderDirection, setSliderDirection] = useState<'left' | 'right'>('right')
 
   // Sync temp filters with actual filters when they change externally
   useEffect(() => {
     setTempFilters(filters)
   }, [filters])
+
+  // Handle animation timing when sidebar opens/closes
+  useEffect(() => {
+    if (isOpen) {
+      // Render the component first
+      setShouldRender(true)
+      // Small delay to ensure the panel renders off-screen first, then slides in
+      const timer = setTimeout(() => {
+        setIsAnimating(true)
+      }, 50) // 50ms delay for smoother opening animation
+      return () => clearTimeout(timer)
+    } else {
+      // Start closing animation
+      setIsAnimating(false)
+      // Remove from DOM after animation completes
+      const timer = setTimeout(() => {
+        setShouldRender(false)
+      }, 300) // Match the transition duration
+      return () => clearTimeout(timer)
+    }
+  }, [isOpen])
 
   // Detect if sticky header is active
   useEffect(() => {
@@ -85,33 +109,91 @@ export function SearchFiltersSidebar({
     }
   }
 
+  // Drag handler to switch between left and right - only on drag indicator
+  const handleSliderDrag = (e: React.TouchEvent | React.MouseEvent) => {
+    // Prevent default to avoid interfering with other interactions
+    e.stopPropagation()
+
+    const startX = 'touches' in e ? e.touches[0].clientX : e.clientX
+
+    const handleMove = (moveEvent: TouchEvent | MouseEvent) => {
+      const currentX = 'touches' in moveEvent ? moveEvent.touches[0].clientX : moveEvent.clientX
+      const diff = currentX - startX
+
+      // If dragged more than 100px, switch direction
+      if (Math.abs(diff) > 100) {
+        if (diff > 0 && sliderDirection === 'left') {
+          setSliderDirection('right')
+        } else if (diff < 0 && sliderDirection === 'right') {
+          setSliderDirection('left')
+        }
+        cleanup()
+      }
+    }
+
+    const handleEnd = () => {
+      cleanup()
+    }
+
+    const cleanup = () => {
+      document.removeEventListener('touchmove', handleMove as EventListener)
+      document.removeEventListener('touchend', handleEnd)
+      document.removeEventListener('mousemove', handleMove as EventListener)
+      document.removeEventListener('mouseup', handleEnd)
+    }
+
+    document.addEventListener('touchmove', handleMove as EventListener)
+    document.addEventListener('touchend', handleEnd)
+    document.addEventListener('mousemove', handleMove as EventListener)
+    document.addEventListener('mouseup', handleEnd)
+  }
+
   const hasActiveFilters = Object.values(filters).some(value => value && value.length > 0)
   const hasChanges = JSON.stringify(tempFilters) !== JSON.stringify(filters)
 
   return (
     <>
       {/* Mobile Overlay with Backdrop Blur */}
-      {isOpen && (
+      {shouldRender && (
         <div
-          className={`fixed inset-0 bg-black/40 backdrop-blur-sm z-[66] md:mt-10 md:hidden transition-all duration-300 ease-out ${
-            isOpen ? 'opacity-100' : 'opacity-0'
-          }`}
+          className={`fixed inset-0 bg-black/40 backdrop-blur-sm z-[66] md:mt-10 md:hidden transition-all duration-300 ease-out`}
+          style={{
+            opacity: isAnimating ? 1 : 0,
+            WebkitBackdropFilter: 'blur(8px)'
+          }}
           onClick={onToggle}
-          style={{ WebkitBackdropFilter: 'blur(8px)' }}
         />
       )}
 
       {/* Sidebar Content or Toggle Button */}
-      {isOpen ? (
+      {shouldRender ? (
         /* Filter Sidebar - Full Content */
-        <div className={`
-          fixed md:sticky top-0 ${isSticky ? 'md:top-36' : 'md:top-60'} left-0 h-screen md:h-auto md:max-h-[calc(100vh-20rem)]
-          w-[90vw] sm:w-96 md:w-72 lg:w-80 bg-popover border-r md:border border-border-line dark:border-popover
-          shadow-2xl md:shadow-none  md:rounded-lg
-          transform transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] z-[70] md:z-auto
-          flex flex-col
-          ${isOpen ? 'translate-x-0 opacity-100' : '-translate-x-full opacity-0'}
-        `}>
+        <div
+          className={`
+            fixed md:sticky top-0 ${isSticky ? 'md:top-44' : 'md:top-72'} h-screen md:h-auto md:max-h-[calc(100vh-20rem)]
+            w-[90vw] sm:w-96 md:w-72 lg:w-80 bg-popover md:border border-border-line dark:border-popover
+            shadow-2xl md:shadow-none md:rounded-lg z-[70] md:z-auto flex flex-col overflow-hidden
+            ${sliderDirection === 'right' ? 'right-0 border-l' : 'left-0 border-r'}
+          `}
+          style={{
+            transition: 'transform 300ms ease-in-out, opacity 300ms ease-in-out',
+            transform: isAnimating
+              ? 'translateX(0)'
+              : sliderDirection === 'right'
+                ? 'translateX(100%)'
+                : 'translateX(-100%)',
+            opacity: isAnimating ? 1 : 0,
+            willChange: 'transform, opacity'
+          }}
+        >
+          {/* Drag Handle Indicator */}
+          <div
+            className={`absolute top-20 ${sliderDirection === 'right' ? 'left-0' : 'right-0'} w-1 h-20 bg-primary-PARI-Red/30 rounded-full cursor-grab active:cursor-grabbing md:hidden`}
+            title="Drag to switch sides"
+            onTouchStart={handleSliderDrag}
+            onMouseDown={handleSliderDrag}
+          />
+
           {/* Header */}
           <div className="flex items-center justify-between p-5 md:p-3 border-b border-border-line dark:border-popover flex-shrink-0 bg-popover/50 backdrop-blur-sm">
 
@@ -143,8 +225,8 @@ export function SearchFiltersSidebar({
               <Button
                 onClick={applyFilters}
                 size="sm"
-                className={`h-9 px-4 text-sm font-semibold bg-primary-PARI-Red hover:bg-primary-PARI-Red/90 text-white rounded-md shadow-md active:scale-95 transition-all duration-200 ${
-                  hasChanges ? 'ring-2 ring-primary-PARI-Red ring-offset-2' : ''
+                className={`h-8 px-4 text-sm font-semibold bg-primary-PARI-Red hover:bg-primary-PARI-Red/90 text-white rounded-full shadow-md active:scale-95 transition-all duration-200 ${
+                  hasChanges ? 'ring-1 ring-primary-PARI-Red ring-offset-1' : ''
                 }`}
               >
                 Apply
@@ -283,7 +365,7 @@ export function SearchFiltersSidebar({
             className="p-2 rounded-full bg-popover cursor-pointer dark:bg-background border dark:ring-primary-PARI-Red border-border dark:border-primary-PARI-Red text-discreet-text dark:text-discreet-text hover:text-white transition-all duration-200 hover:bg-primary-PARI-Red dark:hover:bg-primary-PARI-Red"
             aria-label="Open filters"
           >
-            <Filter className="w-5 h-5 pt-1 text-primary-PARI-Red" />
+            <Filter className="w-5 h-5 pt-1 hover:text-white text-primary-PARI-Red" />
           </button>
         </div>
       )}

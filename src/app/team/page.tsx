@@ -83,62 +83,12 @@ export default function TeamsPage() {
   const [mounted, setMounted] = useState(false)
   const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null)
   const [isSliderOpen, setIsSliderOpen] = useState(false)
+  const [sliderDirection, setSliderDirection] = useState<'left' | 'right'>('right')
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([])
   const [loading, setLoading] = useState(true)
   const [imageErrors, setImageErrors] = useState<Set<number>>(new Set())
   const [, setActiveSection] = useState<string>('')
   const [memberHasArticles, setMemberHasArticles] = useState<boolean>(false)
-
-  useEffect(() => {
-    setMounted(true)
-    console.log('##rohiiiiii## Component mounted, starting to fetch team data...')
-    fetchTeamData()
-  }, [])
-
-  // Scroll spy effect for team members
-  useEffect(() => {
-    if (teamMembers.length === 0) return
-
-    const handleScroll = () => {
-      const scrollPosition = window.scrollY + 100 // Offset for header
-
-      // Find the current section
-      let currentSection = ''
-      for (const member of teamMembers) {
-        const element = document.getElementById(`member-${member.id}`)
-        if (element) {
-          const elementTop = element.offsetTop
-          if (scrollPosition >= elementTop) {
-            currentSection = `member-${member.id}`
-          }
-        }
-      }
-
-      setActiveSection(currentSection)
-    }
-
-    // Throttle function to limit scroll event frequency
-    const throttle = (func: () => void, limit: number) => {
-      let inThrottle: boolean
-      return function() {
-        if (!inThrottle) {
-          func()
-          inThrottle = true
-          setTimeout(() => inThrottle = false, limit)
-        }
-      }
-    }
-
-    const throttledScroll = throttle(handleScroll, 100)
-    window.addEventListener('scroll', throttledScroll)
-
-    // Initial check
-    handleScroll()
-
-    return () => {
-      window.removeEventListener('scroll', throttledScroll)
-    }
-  }, [teamMembers])
 
   const fetchTeamData = async () => {
     try {
@@ -197,6 +147,57 @@ export default function TeamsPage() {
     }
   }
 
+  useEffect(() => {
+    setMounted(true)
+    console.log('##rohiiiiii## Component mounted, starting to fetch team data...')
+    fetchTeamData()
+  }, [])
+
+  // Scroll spy effect for team members
+  useEffect(() => {
+    if (teamMembers.length === 0) return
+
+    const handleScroll = () => {
+      const scrollPosition = window.scrollY + 100 // Offset for header
+
+      // Find the current section
+      let currentSection = ''
+      for (const member of teamMembers) {
+        const element = document.getElementById(`member-${member.id}`)
+        if (element) {
+          const elementTop = element.offsetTop
+          if (scrollPosition >= elementTop) {
+            currentSection = `member-${member.id}`
+          }
+        }
+      }
+
+      setActiveSection(currentSection)
+    }
+
+    // Throttle function to limit scroll event frequency
+    const throttle = (func: () => void, limit: number) => {
+      let inThrottle: boolean
+      return function() {
+        if (!inThrottle) {
+          func()
+          inThrottle = true
+          setTimeout(() => inThrottle = false, limit)
+        }
+      }
+    }
+
+    const throttledScroll = throttle(handleScroll, 100)
+    window.addEventListener('scroll', throttledScroll)
+
+    // Initial check
+    handleScroll()
+
+    return () => {
+      window.removeEventListener('scroll', throttledScroll)
+    }
+  }, [teamMembers])
+
   const handleImageError = (memberId: number, imageUrl: string) => {
     console.error(`##rohiiiiii## Image failed to load for member ID ${memberId}:`, imageUrl)
     setImageErrors(prev => new Set(prev).add(memberId))
@@ -219,9 +220,14 @@ export default function TeamsPage() {
   }
 
   const handleMemberClick = (member: TeamMember) => {
-    console.log('##Rohit_Rocks## Profile clicked, opening immediately:', member.Name)
+    console.log('##Rohit_Rocks## Profile clicked, opening slider:', member.Name)
     setSelectedMember(member)
-    setIsSliderOpen(true)
+    // Small delay to ensure the panel renders off-screen first, then slides in
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        setIsSliderOpen(true)
+      })
+    })
     checkIfMemberHasArticles(member.Name)
   }
 
@@ -240,6 +246,38 @@ export default function TeamsPage() {
       setSelectedMember(null)
       setMemberHasArticles(false)
     }, 300) // Wait for animation to complete
+  }
+
+  // Handle swipe/drag to change slider direction
+  const handleSliderDrag = (e: React.TouchEvent | React.MouseEvent) => {
+    const startX = 'touches' in e ? e.touches[0].clientX : e.clientX
+
+    const handleMove = (moveEvent: TouchEvent | MouseEvent) => {
+      const currentX = 'touches' in moveEvent ? moveEvent.touches[0].clientX : moveEvent.clientX
+      const diff = currentX - startX
+
+      // If dragged more than 100px, switch direction
+      if (Math.abs(diff) > 100) {
+        if (diff > 0 && sliderDirection === 'left') {
+          setSliderDirection('right')
+        } else if (diff < 0 && sliderDirection === 'right') {
+          setSliderDirection('left')
+        }
+        cleanup()
+      }
+    }
+
+    const cleanup = () => {
+      document.removeEventListener('touchmove', handleMove as EventListener)
+      document.removeEventListener('mousemove', handleMove as EventListener)
+      document.removeEventListener('touchend', cleanup)
+      document.removeEventListener('mouseup', cleanup)
+    }
+
+    document.addEventListener('touchmove', handleMove as EventListener)
+    document.addEventListener('mousemove', handleMove as EventListener)
+    document.addEventListener('touchend', cleanup)
+    document.addEventListener('mouseup', cleanup)
   }
 
   if (!mounted) {
@@ -272,7 +310,7 @@ export default function TeamsPage() {
               onClick={() => handleMemberClick(member)}
             >
               {/* Profile Image with gray background and rounded corners */}
-              <div className="w-full h-[200px] sm:h-[240px] lg:h-[268px] bg-gray-200 rounded-lg overflow-hidden mb-4 relative">
+              <div className="w-full h-[300px] sm:h-[240px] lg:h-[268px] bg-gray-200 rounded-lg overflow-hidden mb-4 relative">
                 {(() => {
                   console.log(`##rohiiiiii## Checking image for ${member.Name}:`, {
                     hasPhoto: !!member.Photo,
@@ -337,24 +375,40 @@ export default function TeamsPage() {
           {/* Overlay */}
           <div
             className={`fixed inset-0 bg-black/10 bg-opacity-50 z-40 transition-opacity duration-300 ${
-              isSliderOpen ? 'opacity-100' : 'opacity-0'
+              isSliderOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
             }`}
             onClick={closeSlider}
           />
 
-          {/* Right Side Slider Panel */}
+          {/* Slider Panel - Slides in from right to left (or left to right) */}
           <div
-            className={`fixed top-0 right-0 h-full w-full sm:w-96 bg-white dark:bg-background z-1000 transition-transform duration-300 ease-in-out ${
-              isSliderOpen ? 'translate-x-0' : 'translate-x-full'
-            } shadow-xl`}
+            className={`fixed top-0 bottom-0 h-full w-full sm:w-96 bg-white dark:bg-background z-50 shadow-xl overflow-hidden
+              ${sliderDirection === 'right' ? 'right-0' : 'left-0'}
+            `}
+            style={{
+              transition: 'transform 300ms ease-in-out',
+              transform: isSliderOpen
+                ? 'translateX(0)'
+                : sliderDirection === 'right'
+                  ? 'translateX(100%)'
+                  : 'translateX(-100%)',
+              willChange: 'transform'
+            }}
+            onTouchStart={handleSliderDrag}
+            onMouseDown={handleSliderDrag}
           >
-            {/* Close Button */}
+            {/* Close Button - Position based on slider direction */}
             <button
               onClick={closeSlider}
-              className="absolute top-4 left-4 p-2  text-primary-PARI-Red rounded-full transition-colors"
+              className={`absolute top-4 ${sliderDirection === 'right' ? 'left-4' : 'right-4'} p-2 text-primary-PARI-Red rounded-full transition-colors hover:bg-gray-100 dark:hover:bg-gray-800 z-10`}
             >
               <X className="w-5 h-5 text-primary-PARI-Red" />
             </button>
+
+            {/* Drag Handle Indicator */}
+            <div className={`absolute top-20 ${sliderDirection === 'right' ? 'left-0' : 'right-0'} w-1 h-20 bg-primary-PARI-Red/30 rounded-r-full cursor-grab active:cursor-grabbing`}
+                 title="Drag to switch sides"
+            />
 
             {/* Content */}
             <div className="flex flex-col h-full px-4  sm:px-6">
