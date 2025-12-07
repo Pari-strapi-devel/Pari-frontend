@@ -2389,6 +2389,23 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                       case 'modular-content.full-width-image':
                         const fullWidthImageData = extractImageData(obj)
 
+                        // Extract credits information
+                        let fullWidthCredits: string | undefined
+                        if ('credits' in obj && obj.credits) {
+                          if (typeof obj.credits === 'string') {
+                            fullWidthCredits = obj.credits
+                          } else if (typeof obj.credits === 'object' && obj.credits !== null) {
+                            const creditsObj = obj.credits as Record<string, unknown>
+                            if ('data' in creditsObj && creditsObj.data && typeof creditsObj.data === 'object') {
+                              const creditsData = creditsObj.data as Record<string, unknown>
+                              if ('attributes' in creditsData && creditsData.attributes && typeof creditsData.attributes === 'object') {
+                                const creditsAttrs = creditsData.attributes as Record<string, unknown>
+                                fullWidthCredits = creditsAttrs.Name as string || creditsAttrs.name as string
+                              }
+                            }
+                          }
+                        }
+
                         if (fullWidthImageData) {
                           return (
                             <div key={index} className="my-12 w-full flex justify-center">
@@ -2411,11 +2428,19 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                       <ZoomIn className="w-5 h-5" />
                                     </div>
                                   </div>
-                                  {fullWidthImageData.caption && (
-                                    <div className="mt-3">
-                                      <p className="text-sm text-gray-600 dark:text-gray-400 italic leading-relaxed">
-                                        {fullWidthImageData.caption}
-                                      </p>
+                                  {(fullWidthImageData.caption || fullWidthCredits) && (
+                                    <div className="mt-3 px-2">
+                                      {fullWidthCredits && (
+                                        <p className={`text-sm text-primary-PARI-Red mb-1`}>
+                                          {fullWidthCredits}
+                                        </p>
+                                      )}
+                                      {fullWidthImageData.caption && (
+                                        <div
+                                          className={`text-sm text-caption `}
+                                          dangerouslySetInnerHTML={{ __html: stripHtmlCssWithStyledStrong(fullWidthImageData.caption) }}
+                                        />
+                                      )}
                                     </div>
                                   )}
                                 </div>
