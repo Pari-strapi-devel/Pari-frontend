@@ -773,7 +773,7 @@ console.log('Razorpay options:', options)
       {/* Add floating language button */}
       <LanguageToggle />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-8 md:px-20 py-6 sm:py-10 md:py-20">
+      <div className="max-w-7xl mx-auto px-8 sm:px-8 md:px-20 py-6 sm:py-10 md:py-20">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-40">
           {/* Left Column - Main Content */}
           <div className="space-y-8">

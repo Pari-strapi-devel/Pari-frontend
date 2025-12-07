@@ -3907,8 +3907,8 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
             <div
               className={`absolute left-1/2 transform -translate-x-1/2 px-6 py-3 md:px-6 md:py-3 rounded-lg min-w-[350px] max-w-4xl text-center z-[100001] ${
                 story?.isStudent
-                  ? 'bg-student-blue/40 text-white'
-                  : 'bg-primary-PARI-Red/40 text-white'
+                  ? 'backdrop-blur-sm bg-student-blue/50 text-white'
+                  : 'backdrop-blur-sm bg-white/20  text-foreground'
               }`}
               style={{ bottom: imageScale > 1 ? '4.5rem' : '3rem ' }}
             >

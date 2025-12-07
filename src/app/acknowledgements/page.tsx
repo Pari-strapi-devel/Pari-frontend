@@ -103,7 +103,7 @@ export default function AcknowledgementsPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-[1200px] mx-auto px-4 sm:px-6 py-8 sm:py-12">
+      <div className="max-w-[1200px] mx-auto px-8 sm:px-6 py-8 sm:py-12">
         <div className="flex flex-col lg:flex-row gap-6 lg:gap-16">
           {/* Sidebar/Tabs Navigation - Only show if tabs exist */}
           {tabs.length > 0 && (

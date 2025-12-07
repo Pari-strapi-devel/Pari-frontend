@@ -560,13 +560,16 @@ export function Navigation({ onLinkClick }: NavigationProps = {}) {
             <span className="font-medium text-md text-discreet-text">{getHeaderItemByIndex(3)?.subheader[3]?.name || 'Acknowledgements'}</span>
           </LinkWithClose>
         </div>
+     
         <div className="w-full h-[180px] border-border border-t mt-2 relative">
+          <LinkWithClose href="/story-of-pari" className="cursor-pointer">
           <Image
             src="/images/categories/navigation-imgs/pari-story.png"
             alt="About PARI"
             fill
             className="object-cover bg rounded-[8px]"
           />
+          </LinkWithClose>
         </div>
       </div>
           )}

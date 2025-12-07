@@ -37,7 +37,7 @@ export function ArticleGridSkeleton() {
 export function SearchResultsSkeleton() {
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+      <div className="max-w-7xl mx-auto py-10 md:py-20 md:px-20 px-8">
         {/* Search Header */}
         <div className="mb-8 animate-pulse">
           <Skeleton className="h-12 w-full max-w-2xl mb-4" />

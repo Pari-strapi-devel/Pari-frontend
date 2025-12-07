@@ -675,7 +675,7 @@ const ContactForm = () => {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 lg:max-w-[1232px] max-w-2xl mx-auto px-4 sm:px-6 lg:px-0 py-6 sm:py-10 lg:py-16">
+      <div className="relative z-10 lg:max-w-[1232px] max-w-2xl mx-auto px-8 sm:px-6 lg:px-0 py-6 sm:py-10 lg:py-16">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-40 items-center min-h-[calc(100vh-10rem)] lg:min-h-[calc(100vh-40rem)]">
           {/* Left Content Section - Get in touch with us */}
           <div className="text-white flex flex-col justify-stretch h-full relative   space-y-8">
@@ -1329,7 +1329,7 @@ const ContactForm = () => {
                 )}
                 {(isLoadingArticles || isLoadingThisWeek) && (
                   <div>
-                    <p className="text-sm opacity-90" style={{ fontFamily: 'Noto Sans', fontWeight: 400 }}>Loading featured content...</p>
+                    <p className=" text-sm opacity-90" style={{ fontFamily: 'Noto Sans', fontWeight: 400 }}>Loading featured content...</p>
                   </div>
                 )}
               </div>

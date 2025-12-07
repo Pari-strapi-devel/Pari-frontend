@@ -690,7 +690,7 @@ const ContributeContent = () => {
 
   return (
     <div
-      className={`min-h-screen bg-background py-6 sm:py-10 md:py-20 px-4 sm:px-8 md:px-20 ${fontClass}`}
+      className={`min-h-screen bg-background py-10 md:py-20 md:px-20 px-8 ${fontClass}`}
       dir={getTextDirection(currentLocale)}
     >
       <div className="max-w-7xl mx-auto">

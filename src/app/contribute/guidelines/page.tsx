@@ -314,7 +314,7 @@ const ContributeGuidelinesContent = () => {
         </div>
 
         {/* Main content */}
-        <div className="flex-1 p-4 md:px-8">
+        <div className="flex-1 py-10 md:py-20 md:px-20 px-8">
           <div className="max-w-[45.75rem] mx-auto">
             {/* Header */}
             <div className="mb-12">

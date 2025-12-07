@@ -16,8 +16,8 @@ const LANGUAGE_CONFIG = {
   or: { lang: 'or', dir: 'ltr' as const, fontClass: 'font-noto-oriya' },
   ml: { lang: 'ml', dir: 'ltr' as const, fontClass: 'font-noto-malayalam' },
   pa: { lang: 'pa', dir: 'ltr' as const, fontClass: 'font-noto-gurmukhi' },
-  ur: { lang: 'ur', dir: 'rtl' as const, fontClass: 'font-noto-arabic' },
-  ar: { lang: 'ar', dir: 'rtl' as const, fontClass: 'font-noto-arabic' },
+  ur: { lang: 'ur', dir: 'rtl' as const, fontClass: 'font-noto-nastaliq-urdu' },
+  ar: { lang: 'ar', dir: 'rtl' as const, fontClass: 'font-noto-nastaliq-urdu' },
   as: { lang: 'as', dir: 'ltr' as const, fontClass: 'font-noto-bengali' },
   bho: { lang: 'bho', dir: 'ltr' as const, fontClass: 'font-noto-devanagari' },
   hne: { lang: 'hne', dir: 'ltr' as const, fontClass: 'font-noto-devanagari' }

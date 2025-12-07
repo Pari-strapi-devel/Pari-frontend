@@ -414,7 +414,7 @@ export default function AwardPage() {
   if (isLoading) {
     return (
       <div className="dark:bg-propover bg-popover min-h-screen">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-8 sm:py-12 md:py-16">
+        <div className="max-w-7xl mx-auto px-8 sm:px-6 md:px-8 py-8 sm:py-12 md:py-16">
           {/* Skeleton for Title and Subtitle */}
           <div className="mb-8 sm:mb-12 md:mb-16 animate-pulse">
             <div className="h-12 sm:h-14 md:h-16 bg-gray-200 dark:bg-gray-700 rounded-lg mb-4 w-3/4"></div>
@@ -470,7 +470,7 @@ export default function AwardPage() {
   if (error) {
     return (
       <div className="dark:bg-propover bg-popover min-h-screen">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-8 sm:py-12 md:py-16">
+        <div className="max-w-7xl mx-auto px-8 sm:px-6 md:px-8 py-8 sm:py-12 md:py-16">
           <div className="flex items-center justify-center h-64">
             <div className="text-center p-8 rounded-xl">
               <div className="w-16 h-16 bg-red-100 dark:bg-red-900/20 rounded-full mx-auto mb-4 flex items-center justify-center">
@@ -493,7 +493,7 @@ export default function AwardPage() {
 
   return (
     <div className="dark:bg-propover  bg-popover min-h-screen">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-8 sm:py-12 md:py-16">
+      <div className="max-w-7xl mx-auto px-8 sm:px-6 md:px-8 py-8 sm:py-12 md:py-16">
         {/* Main Title and Subtitle - Enhanced Styling */}
         <div className="mb-8 sm:mb-12 md:mb-16">
           <h1 className="mb-2">

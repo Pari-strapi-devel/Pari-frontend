@@ -290,7 +290,7 @@ export default function TeamsPage() {
 
   return (
     <div className="bg-background min-h-screen">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+      <div className="max-w-7xl mx-auto py-10 md:py-20 md:px-20 px-8">
         {/* Header Section */}
         <div className="text-center mb-8 sm:mb-12 lg:mb-16">
           <h1 className="text-foreground mb-2">
