@@ -329,11 +329,9 @@ function stripHtmlCssWithStyledStrong(text: string): string {
   result = result.replace(/<a\s+href\s*=\s*"([^"]*)"[^>]*>/gi, '___A_OPEN_$1___');
   result = result.replace(/<\/a>/gi, '___A_CLOSE___');
 
-  // Convert closing p tags to br tags (to preserve line breaks)
-  result = result.replace(/<\/p>/gi, '___BR_TAG___');
-
-  // Remove opening p tags
-  result = result.replace(/<p[^>]*>/gi, '');
+  // Protect p tags to preserve paragraph structure
+  result = result.replace(/<p[^>]*>/gi, '___P_OPEN___');
+  result = result.replace(/<\/p>/gi, '___P_CLOSE___');
 
   // Remove div and span tags but keep their content
   result = result.replace(/<div[^>]*>/gi, '');
@@ -350,8 +348,7 @@ function stripHtmlCssWithStyledStrong(text: string): string {
   // Clean up multiple consecutive br tags (replace 3+ with just 2)
   result = result.replace(/(___BR_TAG___){3,}/g, '___BR_TAG______BR_TAG___');
 
-  // Restore all protected tags
-  result = result.replace(/___BR_TAG___/g, '<br>');
+  // Restore all protected tags - keep br tags and p tags as is
   result = result.replace(/___STRONG_OPEN___/g, '<strong>');
   result = result.replace(/___STRONG_CLOSE___/g, '</strong>');
   result = result.replace(/___B_OPEN___/g, '<b>');
@@ -362,6 +359,9 @@ function stripHtmlCssWithStyledStrong(text: string): string {
   result = result.replace(/___I_CLOSE___/g, '</i>');
   result = result.replace(/___A_OPEN_([^_]+)___/g, '<a href="$1">');
   result = result.replace(/___A_CLOSE___/g, '</a>');
+  result = result.replace(/___BR_TAG___/g, '<br>');
+  result = result.replace(/___P_OPEN___/g, '<p>');
+  result = result.replace(/___P_CLOSE___/g, '</p>');
 
   return result;
 }
@@ -477,6 +477,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
     }>;
     content: (string | ContentParagraph | ExtendedContentItem)[];
     coverImage?: string;
+    mobileCoverImage?: string;
     categories?: Array<{ title: string; slug: string }>;
     location?: string;
     availableLanguages?: Array<{ code: string; slug: string }>;
@@ -486,7 +487,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
   } | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [fontSize, setFontSize] = useState(19)
+  const [fontSize, setFontSize] = useState(18)
   const [showPhotos, setShowPhotos] = useState(false)
   const [scrollProgress, setScrollProgress] = useState(0)
   const [showHeaderBar, setShowHeaderBar] = useState(false)
@@ -538,12 +539,12 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
 
   // State for image modal
   const [showImageModal, setShowImageModal] = useState(false)
-  const [selectedImage, setSelectedImage] = useState<{ src: string; alt: string; caption?: string } | null>(null)
+  const [selectedImage, setSelectedImage] = useState<{ src: string; alt: string; caption?: string; credits?: string } | null>(null)
   const [imageScale, setImageScale] = useState(1)
   const [imagePosition, setImagePosition] = useState({ x: 0, y: 0 })
   const [isDragging, setIsDragging] = useState(false)
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
-  const [allContentImages, setAllContentImages] = useState<Array<{ src: string; alt: string; caption?: string }>>([])
+  const [allContentImages, setAllContentImages] = useState<Array<{ src: string; alt: string; caption?: string; credits?: string }>>([])
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [imageAnimating, setImageAnimating] = useState(false)
   const [showOriginalSize, setShowOriginalSize] = useState(false)
@@ -553,7 +554,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
   const allImages = useMemo(() => {
     if (!story?.content) return []
 
-    const images: Array<{ src: string; alt: string; caption?: string }> = []
+    const images: Array<{ src: string; alt: string; caption?: string; credits?: string }> = []
 
     story.content.forEach((paragraph) => {
       if (!paragraph || typeof paragraph !== 'object') return
@@ -564,22 +565,22 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
       if (obj.__component === 'shared.media' || obj.__component === 'modular-content.media') {
         const mediaImages = extractMultipleImages(paragraph)
         mediaImages.forEach(img => {
-          images.push({ src: img.url, alt: img.alt || img.caption || 'Article image', caption: img.caption })
+          images.push({ src: img.url, alt: img.alt || img.caption || 'Article image', caption: img.caption, credits: img.credits })
         })
       } else if (obj.__component === 'modular-content.single-caption-mul-img') {
         const multiImages = extractMultipleImages(paragraph)
         multiImages.forEach(img => {
-          images.push({ src: img.url, alt: img.alt || img.caption || 'Article image', caption: img.caption })
+          images.push({ src: img.url, alt: img.alt || img.caption || 'Article image', caption: img.caption, credits: img.credits })
         })
       } else if (obj.__component === 'modular-content.multiple-caption-mul-img') {
         const multiCaptionImages = extractMultipleImages(paragraph)
         multiCaptionImages.forEach(img => {
-          images.push({ src: img.url, alt: img.alt || img.caption || 'Article image', caption: img.caption })
+          images.push({ src: img.url, alt: img.alt || img.caption || 'Article image', caption: img.caption, credits: img.credits })
         })
       } else if (obj.__component === 'shared.quote') {
         const quoteImageData = extractImageData(obj)
         if (quoteImageData) {
-          images.push({ src: quoteImageData.url, alt: quoteImageData.alt || 'Quote image', caption: quoteImageData.caption })
+          images.push({ src: quoteImageData.url, alt: quoteImageData.alt || 'Quote image', caption: quoteImageData.caption, credits: quoteImageData.credits })
         }
       } else if (obj.__component === 'shared.rich-text') {
         // Extract images from rich text content
@@ -1098,7 +1099,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
   }, [allContentImages, currentImageIndex])
 
   // Handle image click - memoized
-  const handleImageClick = useCallback((src: string, alt: string, caption?: string) => {
+  const handleImageClick = useCallback((src: string, alt: string, caption?: string, credits?: string) => {
     // Find the index of the clicked image
     const index = allContentImages.findIndex(img => img.src === src)
 
@@ -1106,11 +1107,11 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
       setCurrentImageIndex(index)
     } else {
       // If image not found in array, add it and set as current
-      setAllContentImages(prev => [...prev, { src, alt, caption }])
+      setAllContentImages(prev => [...prev, { src, alt, caption, credits }])
       setCurrentImageIndex(allContentImages.length)
     }
 
-    setSelectedImage({ src, alt, caption })
+    setSelectedImage({ src, alt, caption, credits })
     setShowImageModal(true)
     setImageScale(1)
     setImagePosition({ x: 0, y: 0 })
@@ -1428,15 +1429,26 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
       <div className="relative w-full">
         {story.coverImage && (
           <div className="relative w-full md:h-[100vh] h-[50vh]">
+            {/* Desktop cover image */}
             <Image
               src={story.coverImage}
               alt={story.title}
               fill
-              className="object-cover object-center md:rounded-none"
+              className="hidden md:block object-cover object-center md:rounded-none"
+              priority
+              unoptimized
+            />
+            {/* Mobile cover image - use mobileCoverImage if available, otherwise fallback to coverImage */}
+            <Image
+              src={story.mobileCoverImage || story.coverImage}
+              alt={story.title}
+              fill
+              className="block md:hidden object-cover object-center"
               priority
               unoptimized
             />
           </div>
+
         )}
       </div>
 
@@ -1898,15 +1910,21 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                 .article-content-text {
                                   font-weight: 400;
                                   line-height: 1.8;
+                                  white-space: pre-line;
                                 }
                                 .article-content-text :global(p) {
                                   margin-bottom: 1rem;
                                   font-weight: 400;
+                                  white-space: normal;
                                 }
                                 .article-content-text :global(br) {
-                                  display: block;
-                                  margin-bottom: 0.5em;
-                                  content: "";
+                                  display: block !important;
+                                  content: "" !important;
+                                  line-height: 1.5em !important;
+                                }
+                                .article-content-text :global(br)::after {
+                                  content: "" !important;
+                                  display: block !important;
                                 }
                                 .article-content-text :global(a) {
                                   color: #B91C1C;
@@ -2427,7 +2445,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                 <div className="w-full max-w-[768px] md:max-w-[768px] lg:max-w-[912px] xl:max-w-[970px] 2xl:max-w-[1016px]">
                                   <div
                                     className="cursor-pointer relative group"
-                                    onClick={() => handleImageClick(fullImgUrl, imgCaption || 'Article image', imgCaption)}
+                                    onClick={() => handleImageClick(fullImgUrl, imgCaption || 'Article image', imgCaption, imgPhotographer)}
                                   >
                                     <Image
                                       src={fullImgUrl}
@@ -2491,7 +2509,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                 <div className="space-y-3">
                                   <div
                                     className="w-full cursor-pointer relative group"
-                                    onClick={() => handleImageClick(fullWidthImageData.url, fullWidthImageData.alt || 'Full width image', fullWidthImageData.caption)}
+                                    onClick={() => handleImageClick(fullWidthImageData.url, fullWidthImageData.alt || 'Full width image', fullWidthImageData.caption, fullWidthCredits)}
                                   >
                                     <Image
                                       src={fullWidthImageData.url}
@@ -2661,7 +2679,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                         {item.image && (
                                           <div
                                             className="w-full h-[500px] md:h-[600px] cursor-pointer relative group"
-                                            onClick={() => handleImageClick(item.image!.url, item.image!.alt || `Image ${imgIndex + 1}`, item.caption)}
+                                            onClick={() => handleImageClick(item.image!.url, item.image!.alt || `Image ${imgIndex + 1}`, item.caption, item.credits)}
                                           >
                                             <Image
                                               src={item.image.url}
@@ -2726,7 +2744,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                   {columnarImages[0].image && (
                                     <div
                                       className="cursor-pointer relative group"
-                                      onClick={() => handleImageClick(columnarImages[0].image!.url, columnarImages[0].image!.alt || 'Image 1', columnarImages[0].caption)}
+                                      onClick={() => handleImageClick(columnarImages[0].image!.url, columnarImages[0].image!.alt || 'Image 1', columnarImages[0].caption, columnarImages[0].credits)}
                                     >
                                       <Image
                                         src={columnarImages[0].image.url}
@@ -2784,7 +2802,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                         {item.image && (
                                           <div
                                             className="w-full h-[300px] md:h-[400px] cursor-pointer relative group"
-                                            onClick={() => handleImageClick(item.image!.url, item.image!.alt || `Image ${imgIndex + 2}`, item.caption)}
+                                            onClick={() => handleImageClick(item.image!.url, item.image!.alt || `Image ${imgIndex + 2}`, item.caption, item.credits)}
                                           >
                                             <Image
                                               src={item.image.url}
@@ -3905,8 +3923,8 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
               <span className="hidden md:inline">Original</span>
               <span className="md:hidden">Orig</span>
             </button> */}
-            {/* Only show caption toggle button if there's a caption */}
-            {selectedImage.caption && (
+            {/* Only show caption toggle button if there's a caption or credits */}
+            {(selectedImage.caption || selectedImage.credits) && (
               <button
                 onClick={(e) => {
                   e.stopPropagation()
@@ -4000,8 +4018,8 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
 
           {/* Instructions - Positioned above caption */}
 
-          {/* Image Caption - Only show if there's an actual caption (not just alt text) */}
-          {showCaption && selectedImage.caption && (
+          {/* Image Caption and Credits - Only show if there's an actual caption or credits */}
+          {showCaption && (selectedImage.caption || selectedImage.credits) && (
             <div
               className={`absolute left-1/2 transform -translate-x-1/2 px-6 py-3 md:px-6 md:py-3 rounded-lg min-w-[350px] max-w-4xl text-center z-[100001] ${
                 story?.isStudent
@@ -4010,10 +4028,17 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
               }`}
               style={{ bottom: imageScale > 1 ? '4.5rem' : '3rem ' }}
             >
-              <div
-                className="text-base md:text-base font-medium"
-                dangerouslySetInnerHTML={{ __html: stripHtmlCssWithStyledStrong(selectedImage.caption) }}
-              />
+              {selectedImage.credits && (
+                <div className="text-sm md:text-sm font-semibold text-primary-PARI-Red mb-2">
+                  {selectedImage.credits}
+                </div>
+              )}
+              {selectedImage.caption && (
+                <div
+                  className="text-base md:text-base font-medium"
+                  dangerouslySetInnerHTML={{ __html: stripHtmlCssWithStyledStrong(selectedImage.caption) }}
+                />
+              )}
             </div>
           )}
         </div>
@@ -4222,6 +4247,7 @@ function extractMultipleImages(paragraph: FilterableContentItem): Array<{
   url: string;
   alt?: string;
   caption?: string;
+  credits?: string;
   width?: number;
   height?: number;
 }> {
@@ -4234,6 +4260,7 @@ function extractMultipleImages(paragraph: FilterableContentItem): Array<{
     url: string;
     alt?: string;
     caption?: string;
+    credits?: string;
     width?: number;
     height?: number;
   }> = []
@@ -4252,6 +4279,7 @@ function extractMultipleImages(paragraph: FilterableContentItem): Array<{
                 url: `${API_BASE_URL}${attrs.url}`,
                 alt: typeof attrs.alternativeText === 'string' ? attrs.alternativeText : undefined,
                 caption: typeof attrs.caption === 'string' ? attrs.caption : undefined,
+                credits: undefined,
                 width: typeof attrs.width === 'number' ? attrs.width : undefined,
                 height: typeof attrs.height === 'number' ? attrs.height : undefined,
               })
@@ -4282,6 +4310,7 @@ function extractMultipleImages(paragraph: FilterableContentItem): Array<{
                   url: `${API_BASE_URL}${attrs.url}`,
                   alt: typeof attrs.alternativeText === 'string' ? attrs.alternativeText : undefined,
                   caption: typeof attrs.caption === 'string' ? attrs.caption : undefined,
+                  credits: undefined,
                   width: typeof attrs.width === 'number' ? attrs.width : undefined,
                   height: typeof attrs.height === 'number' ? attrs.height : undefined,
                 })
@@ -4299,6 +4328,7 @@ function extractMultipleImages(paragraph: FilterableContentItem): Array<{
                 url: `${API_BASE_URL}${attrs.url}`,
                 alt: typeof attrs.alternativeText === 'string' ? attrs.alternativeText : undefined,
                 caption: typeof attrs.caption === 'string' ? attrs.caption : undefined,
+                credits: undefined,
                 width: typeof attrs.width === 'number' ? attrs.width : undefined,
                 height: typeof attrs.height === 'number' ? attrs.height : undefined,
               })
@@ -4332,6 +4362,7 @@ function extractImageData(paragraph: FilterableContentItem): {
   url: string;
   alt?: string;
   caption?: string;
+  credits?: string;
   width?: number;
   height?: number;
 } | null {
@@ -4368,6 +4399,7 @@ function extractImageData(paragraph: FilterableContentItem): {
             url: fullUrl,
             alt: typeof attrs.alternativeText === 'string' ? attrs.alternativeText : undefined,
             caption: finalCaption,
+            credits: undefined,
             width: typeof attrs.width === 'number' ? attrs.width : undefined,
             height: typeof attrs.height === 'number' ? attrs.height : undefined,
           }
@@ -4381,6 +4413,7 @@ function extractImageData(paragraph: FilterableContentItem): {
         url: imageObj.url.startsWith('http') ? imageObj.url : `${API_BASE_URL}${imageObj.url}`,
         alt: typeof imageObj.alt === 'string' ? imageObj.alt : undefined,
         caption: componentCaption || (typeof imageObj.caption === 'string' ? imageObj.caption : undefined),
+        credits: undefined,
       }
     }
   }
@@ -4399,6 +4432,7 @@ function extractImageData(paragraph: FilterableContentItem): {
             url: `${API_BASE_URL}${attrs.url}`,
             alt: typeof attrs.alternativeText === 'string' ? attrs.alternativeText : undefined,
             caption: finalCaption,
+            credits: undefined,
             width: typeof attrs.width === 'number' ? attrs.width : undefined,
             height: typeof attrs.height === 'number' ? attrs.height : undefined,
           }
@@ -4421,6 +4455,7 @@ function extractImageData(paragraph: FilterableContentItem): {
             url: `${API_BASE_URL}${attrs.url}`,
             alt: typeof attrs.alternativeText === 'string' ? attrs.alternativeText : undefined,
             caption: finalCaption,
+            credits: undefined,
             width: typeof attrs.width === 'number' ? attrs.width : undefined,
             height: typeof attrs.height === 'number' ? attrs.height : undefined,
           }
@@ -4443,6 +4478,7 @@ function extractImageData(paragraph: FilterableContentItem): {
             url: `${API_BASE_URL}${attrs.url}`,
             alt: typeof attrs.alternativeText === 'string' ? attrs.alternativeText : undefined,
             caption: finalCaption,
+            credits: undefined,
             width: typeof attrs.width === 'number' ? attrs.width : undefined,
             height: typeof attrs.height === 'number' ? attrs.height : undefined,
           }
@@ -4465,6 +4501,7 @@ function extractImageData(paragraph: FilterableContentItem): {
             url: `${API_BASE_URL}${attrs.url}`,
             alt: typeof attrs.alternativeText === 'string' ? attrs.alternativeText : undefined,
             caption: finalCaption,
+            credits: undefined,
             width: typeof attrs.width === 'number' ? attrs.width : undefined,
             height: typeof attrs.height === 'number' ? attrs.height : undefined,
           }
@@ -4487,6 +4524,7 @@ function extractImageData(paragraph: FilterableContentItem): {
             url: `${API_BASE_URL}${attrs.url}`,
             alt: typeof attrs.alternativeText === 'string' ? attrs.alternativeText : undefined,
             caption: finalCaption,
+            credits: undefined,
             width: typeof attrs.width === 'number' ? attrs.width : undefined,
             height: typeof attrs.height === 'number' ? attrs.height : undefined,
           }
@@ -4509,6 +4547,7 @@ function extractImageData(paragraph: FilterableContentItem): {
             url: `${API_BASE_URL}${attrs.url}`,
             alt: typeof attrs.alternativeText === 'string' ? attrs.alternativeText : undefined,
             caption: finalCaption,
+            credits: undefined,
             width: typeof attrs.width === 'number' ? attrs.width : undefined,
             height: typeof attrs.height === 'number' ? attrs.height : undefined,
           }
@@ -4523,6 +4562,7 @@ function extractImageData(paragraph: FilterableContentItem): {
       url: obj.url.startsWith('http') ? obj.url : `${API_BASE_URL}${obj.url}`,
       alt: typeof obj.alt === 'string' ? obj.alt : undefined,
       caption: componentCaption || (typeof obj.caption === 'string' ? obj.caption : undefined),
+      credits: undefined,
     }
   }
 
@@ -4798,6 +4838,9 @@ async function fetchStoryBySlug(slug: string) {
       locale: 'all', // Get all locales
       populate: {
         Cover_image: {
+          fields: ['url']
+        },
+        mobilecover: {
           fields: ['url']
         },
         Authors: {
@@ -5114,6 +5157,22 @@ async function fetchStoryBySlug(slug: string) {
       ? `${API_BASE_URL}${articleData.attributes.Cover_image.data.attributes.url}`
       : undefined
 
+    // Get mobile cover image
+    const attrs = articleData.attributes as unknown as Record<string, unknown>
+    const mobileCoverImageUrl =
+      attrs.mobilecover &&
+      typeof attrs.mobilecover === 'object' &&
+      'data' in attrs.mobilecover &&
+      attrs.mobilecover.data &&
+      typeof attrs.mobilecover.data === 'object' &&
+      'attributes' in attrs.mobilecover.data &&
+      attrs.mobilecover.data.attributes &&
+      typeof attrs.mobilecover.data.attributes === 'object' &&
+      'url' in attrs.mobilecover.data.attributes &&
+      typeof attrs.mobilecover.data.attributes.url === 'string'
+        ? `${API_BASE_URL}${attrs.mobilecover.data.attributes.url}`
+        : undefined
+
     // Get categories with title and slug
     const categories = articleData.attributes.categories?.data?.map(
       cat => ({
@@ -5178,6 +5237,7 @@ async function fetchStoryBySlug(slug: string) {
       authors: sortedAuthors,
       content: finalContent,
       coverImage: coverImageUrl,
+      mobileCoverImage: mobileCoverImageUrl,
       categories,
       location,
       availableLanguages,

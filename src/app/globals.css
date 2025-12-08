@@ -1119,6 +1119,18 @@
   margin-top: 0.5rem;
 }
 
+/* Article content br tag styling */
+.article-content-text br {
+  display: block;
+  content: "";
+  margin-bottom: 0.5em;
+}
+
+.article-content-text p {
+  display: block;
+  margin-bottom: 1rem;
+}
+
 /* Page reference text content styling */
 .page-ref-text-content {
   font-family: 'Noto Sans', sans-serif !important;

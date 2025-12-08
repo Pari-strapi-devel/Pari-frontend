@@ -618,7 +618,7 @@ export const NewsletterBottomSheet: React.FC<NewsletterBottomSheetProps> = ({
               </div>
 
               {/* Submit Button */}
-              <div className="pt-4">
+              <div className="pt-4 relative bottom-2">
                 <button
                   type="submit"
                
