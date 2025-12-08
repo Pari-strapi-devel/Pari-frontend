@@ -477,105 +477,7 @@ export function Navigation({ onLinkClick }: NavigationProps = {}) {
           </div>
           )}
         </div>
-
-        {/* Get Involved Section */}
-        <div className="border-b border-border">
-          <div
-            className="p-4 flex justify-between items-center text-foreground cursor-pointer"
-            onClick={() => toggleMobileItem('get-involved')}
-          >
-            <h2 className="text-md font-medium">{getHeaderItemByIndex(4)?.title || 'Get Involved'}</h2>
-            {isMobileItemExpanded('get-involved') ?
-              <ChevronDown className="h-5 w-5" /> :
-              <ChevronRight className="h-5 w-5" />
-            }
-          </div>
-
-          {isMobileItemExpanded('get-involved') && (
-            <div className="grid grid-cols-1 px-4 py-3 gap-2">
-            <div className="w-full bg-white dark:bg-popover border-border">
-              <LinkWithClose href="/contribute" className="flex items-center gap-3 p-4 hover:bg-gray-100 dark:hover:bg-background border-b border-border cursor-pointer">
-                <FileUp className="h-5 w-5 text-primary-PARI-Red" />
-                <span className="font-medium text-md text-discreet-text">{getHeaderItemByIndex(4)?.subheader[0]?.name || 'Contact'}</span>
-              </LinkWithClose>
-              <LinkWithClose href="/contribute/guidelines" className="flex items-center gap-3 p-4 hover:bg-gray-100 dark:hover:bg-background border-b border-border cursor-pointer">
-                <FileText className="h-5 w-5 text-primary-PARI-Red" />
-                <span className="font-medium text-md text-discreet-text">{getHeaderItemByIndex(4)?.subheader[1]?.name || 'Donate'}</span>
-              </LinkWithClose>
-              <LinkWithClose href="/volunteer" className="flex items-center gap-3 p-4 hover:bg-gray-100 dark:hover:bg-background border-b border-border cursor-pointer">
-                <UserPlus className="h-5 w-5 text-primary-PARI-Red" />
-                <span className="font-medium text-md text-discreet-text">{getHeaderItemByIndex(4)?.subheader[2]?.name || 'Volunteer'}</span>
-              </LinkWithClose>
-              <LinkWithClose href="/intern-with-us" className="flex items-center gap-3 p-4 hover:bg-gray-100 dark:hover:bg-background border-b border-border cursor-pointer">
-                <GraduationCap className="h-5 w-5 text-primary-PARI-Red" />
-                <span className="text-discreet-text text-md font-medium">{getHeaderItemByIndex(4)?.subheader[3]?.name || 'Intern'}</span>
-              </LinkWithClose>
-              <LinkWithClose href="/contact-us" className="flex items-center gap-3 p-4 hover:bg-gray-100 dark:hover:bg-background cursor-pointer">
-                <MessageCircle className="h-5 w-5 text-primary-PARI-Red" />
-                <span className="font-medium text-md text-discreet-text">{getHeaderItemByIndex(4)?.subheader[4]?.name || 'Contact'}</span>
-              </LinkWithClose>
-            </div>
-           <div className="w-full h-[180px] mt-1 relative">
-            <LinkWithClose href="/donate" className="cursor-pointer">
-              <div className="relative w-full h-full">
-                <Image
-                  src="/images/categories/navigation-imgs/Donate.jpeg"
-                  alt="Support PARI - Donate"
-                  fill
-                  className="object-cover rounded-[8px]"
-                />
-              </div>
-            </LinkWithClose>
-          </div>
-          </div>
-          )}
-        </div>
-
-        {/* About Section */}
-        <div className="border-b border-border">
-          <div
-            className="p-4 flex justify-between items-center text-foreground cursor-pointer"
-            onClick={() => toggleMobileItem('about')}
-          >
-            <h2 className="text-md font-medium">{getHeaderItemByIndex(3)?.title || 'About'}</h2>
-            {isMobileItemExpanded('about') ?
-              <ChevronDown className="h-5 w-5" /> :
-              <ChevronRight className="h-5 w-5" />
-            }
-          </div>
-
-          {isMobileItemExpanded('about') && (
-        <div className="grid grid-cols-1 py-3 px-4 gap-2">
-        <div className="w-full bg-white pr-4 dark:bg-popover border-border">
-          <LinkWithClose href="/team" className="flex items-center gap-3 p-4 hover:bg-gray-100 dark:hover:bg-background border-b border-border cursor-pointer">
-            <Users className="h-5 w-5 text-primary-PARI-Red" />
-            <span className="font-medium text-md text-discreet-text">{getHeaderItemByIndex(3)?.subheader[1]?.name || 'Our Team'}</span>
-          </LinkWithClose>
-          <LinkWithClose href="/award" className="flex items-center gap-3 p-4 hover:bg-gray-100 dark:hover:bg-background border-b border-border cursor-pointer">
-            <HandCoins className="h-5 w-5 text-primary-PARI-Red" />
-            <span className="font-medium text-md text-discreet-text">{getHeaderItemByIndex(3)?.subheader[2]?.name || 'Contributors'}</span>
-          </LinkWithClose>
-          <LinkWithClose href="/acknowledgements" className="flex items-center gap-3 p-4 hover:bg-gray-100 dark:hover:bg-background border-b border-border cursor-pointer">
-            <ScrollText className="h-5 w-5 text-primary-PARI-Red" />
-            <span className="font-medium text-md text-discreet-text">{getHeaderItemByIndex(3)?.subheader[3]?.name || 'Acknowledgements'}</span>
-          </LinkWithClose>
-        </div>
-     
-        <div className="w-full h-[180px] border-border border-t mt-2 relative">
-          <LinkWithClose href="/story-of-pari" className="cursor-pointer">
-          <Image
-            src="/images/categories/navigation-imgs/pari-story.png"
-            alt="About PARI"
-            fill
-            className="object-cover bg rounded-[8px]"
-          />
-          </LinkWithClose>
-        </div>
-      </div>
-          )}
-        </div>
-
-        {/* Resources Section */}
+           {/* Resources Section */}
         <div className="border-b border-border">
           <div
             className="p-4 flex justify-between items-center text-foreground cursor-pointer"
@@ -636,6 +538,106 @@ export function Navigation({ onLinkClick }: NavigationProps = {}) {
          </div>
           )}
         </div>
+        {/* About Section */}
+        <div className="border-b border-border">
+          <div
+            className="p-4 flex justify-between items-center text-foreground cursor-pointer"
+            onClick={() => toggleMobileItem('about')}
+          >
+            <h2 className="text-md font-medium">{getHeaderItemByIndex(3)?.title || 'About'}</h2>
+            {isMobileItemExpanded('about') ?
+              <ChevronDown className="h-5 w-5" /> :
+              <ChevronRight className="h-5 w-5" />
+            }
+          </div>
+
+          {isMobileItemExpanded('about') && (
+        <div className="grid grid-cols-1 py-3 px-4 gap-2">
+        <div className="w-full bg-white pr-4 dark:bg-popover border-border">
+          <LinkWithClose href="/team" className="flex items-center gap-3 p-4 hover:bg-gray-100 dark:hover:bg-background border-b border-border cursor-pointer">
+            <Users className="h-5 w-5 text-primary-PARI-Red" />
+            <span className="font-medium text-md text-discreet-text">{getHeaderItemByIndex(3)?.subheader[1]?.name || 'Our Team'}</span>
+          </LinkWithClose>
+          <LinkWithClose href="/award" className="flex items-center gap-3 p-4 hover:bg-gray-100 dark:hover:bg-background border-b border-border cursor-pointer">
+            <HandCoins className="h-5 w-5 text-primary-PARI-Red" />
+            <span className="font-medium text-md text-discreet-text">{getHeaderItemByIndex(3)?.subheader[2]?.name || 'Contributors'}</span>
+          </LinkWithClose>
+          <LinkWithClose href="/acknowledgements" className="flex items-center gap-3 p-4 hover:bg-gray-100 dark:hover:bg-background border-b border-border cursor-pointer">
+            <ScrollText className="h-5 w-5 text-primary-PARI-Red" />
+            <span className="font-medium text-md text-discreet-text">{getHeaderItemByIndex(3)?.subheader[3]?.name || 'Acknowledgements'}</span>
+          </LinkWithClose>
+        </div>
+     
+        <div className="w-full h-[180px] border-border border-t mt-2 relative">
+          <LinkWithClose href="/story-of-pari" className="cursor-pointer">
+          <Image
+            src="/images/categories/navigation-imgs/pari-story.png"
+            alt="About PARI"
+            fill
+            className="object-cover bg rounded-[8px]"
+          />
+          </LinkWithClose>
+        </div>
+      </div>
+          )}
+        </div>
+
+        {/* Get Involved Section */}
+        <div className="border-b border-border">
+          <div
+            className="p-4 flex justify-between items-center text-foreground cursor-pointer"
+            onClick={() => toggleMobileItem('get-involved')}
+          >
+            <h2 className="text-md font-medium">{getHeaderItemByIndex(4)?.title || 'Get Involved'}</h2>
+            {isMobileItemExpanded('get-involved') ?
+              <ChevronDown className="h-5 w-5" /> :
+              <ChevronRight className="h-5 w-5" />
+            }
+          </div>
+
+          {isMobileItemExpanded('get-involved') && (
+            <div className="grid grid-cols-1 px-4 py-3 gap-2">
+            <div className="w-full bg-white dark:bg-popover border-border">
+              <LinkWithClose href="/contribute" className="flex items-center gap-3 p-4 hover:bg-gray-100 dark:hover:bg-background border-b border-border cursor-pointer">
+                <FileUp className="h-5 w-5 text-primary-PARI-Red" />
+                <span className="font-medium text-md text-discreet-text">{getHeaderItemByIndex(4)?.subheader[0]?.name || 'Contact'}</span>
+              </LinkWithClose>
+              <LinkWithClose href="/contribute/guidelines" className="flex items-center gap-3 p-4 hover:bg-gray-100 dark:hover:bg-background border-b border-border cursor-pointer">
+                <FileText className="h-5 w-5 text-primary-PARI-Red" />
+                <span className="font-medium text-md text-discreet-text">{getHeaderItemByIndex(4)?.subheader[1]?.name || 'Donate'}</span>
+              </LinkWithClose>
+              <LinkWithClose href="/volunteer" className="flex items-center gap-3 p-4 hover:bg-gray-100 dark:hover:bg-background border-b border-border cursor-pointer">
+                <UserPlus className="h-5 w-5 text-primary-PARI-Red" />
+                <span className="font-medium text-md text-discreet-text">{getHeaderItemByIndex(4)?.subheader[2]?.name || 'Volunteer'}</span>
+              </LinkWithClose>
+              <LinkWithClose href="/intern-with-us" className="flex items-center gap-3 p-4 hover:bg-gray-100 dark:hover:bg-background border-b border-border cursor-pointer">
+                <GraduationCap className="h-5 w-5 text-primary-PARI-Red" />
+                <span className="text-discreet-text text-md font-medium">{getHeaderItemByIndex(4)?.subheader[3]?.name || 'Intern'}</span>
+              </LinkWithClose>
+              <LinkWithClose href="/contact-us" className="flex items-center gap-3 p-4 hover:bg-gray-100 dark:hover:bg-background cursor-pointer">
+                <MessageCircle className="h-5 w-5 text-primary-PARI-Red" />
+                <span className="font-medium text-md text-discreet-text">{getHeaderItemByIndex(4)?.subheader[4]?.name || 'Contact'}</span>
+              </LinkWithClose>
+            </div>
+           <div className="w-full h-[180px] mt-1 relative">
+            <LinkWithClose href="/donate" className="cursor-pointer">
+              <div className="relative w-full h-full">
+                <Image
+                  src="/images/categories/navigation-imgs/Donate.jpeg"
+                  alt="Support PARI - Donate"
+                  fill
+                  className="object-cover rounded-[8px]"
+                />
+              </div>
+            </LinkWithClose>
+          </div>
+          </div>
+          )}
+        </div>
+
+        
+
+     
 
         {/* Education Section - No Dropdown */}
         {/* <div className="border-b border-border">
