@@ -231,7 +231,7 @@ const BentoCard = ({
       {/* Language Bottom Sheet - Between Image and Content */}
       {Array.isArray(availableLanguages) && availableLanguages.length > 0 && (
         <>
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20">
+          <div className={`absolute ${currentLocale === 'ur' ? 'top-[230px]' : 'top-1/2'} left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20`}>
             <Button
               variant="outline"
               size="sm"
@@ -398,10 +398,12 @@ const BentoCard = ({
       {/* Content wrapper */}
       <div className="relative flex flex-col w-full pt-2 h-[380px] z-10 bg-white dark:bg-popover">
         <div className="px-6 py-6 w-full">
-         <h3 className="font-noto-sans pb-4 h-20 flex  text-[26px] font-bold leading-[136%] tracking-[-0.04em]  text-foreground  !line-clamp-2">
-                {title}
-              </h3>
-          <p className="text-discreet-text mb-4 line-clamp-2">{description}</p>
+          <div className={`flex flex-col gap-1 ${currentLocale === 'ur' ? 'md:h-[180px] h-[190px]' : 'md:h-[150px] h-[160px]'}`}>
+            <h3 className="font-noto-sans pb-4 h-20 flex  text-[26px] font-bold leading-[136%] tracking-[-0.04em]  text-foreground  !line-clamp-2">
+              {title}
+            </h3>
+            <p className="text-discreet-text py-1 mb-4 line-clamp-2">{description}</p>
+          </div>
           <h5 className=" text-grey-300 text-[15px] mb-2 line-clamp-1">
             {authors && authors.length > 0 ? (
               authors.map((author, index) => (
@@ -429,9 +431,9 @@ const BentoCard = ({
 
             {(location || date) && (
               <div className="flex gap-1 items-center text-primary-PARI-Red font-noto-sans text-[14px] font-medium leading-[160%] tracking-[-0.03em]">
-                {location && <p className="text-sm">{location}</p>}
+                {location && <p className="text-sm font-noto-sans">{location}</p>}
                 {location && date && <span>•</span>}
-                {date && <p className="text-sm">{date}</p>}
+                {date && <p className="text-sm font-noto-sans">{date}</p>}
                 <span className="text-sm group-hover:translate-x-1 transition-transform duration-300">
                   <ArrowRightIcon className="h-4 w-4" />
                 </span>

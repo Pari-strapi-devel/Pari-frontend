@@ -213,12 +213,12 @@ export function ArticleCard({
           </div>
           <div className=" ">
 
-          <div className="flex flex-col md:h-[150px] h-[160px] gap-1 ">
+          <div className={`flex flex-col gap-1 ${currentLocale === 'ur' ? 'md:h-[190px] h-[190px]' : 'md:h-[150px] h-[160px]'}`}>
           <h3 className=" md:h-20 h-20 text-[1.975rem] text-foreground line-clamp-">
             {title}
           </h3>
-          
-          <p className="text-discreet-text line-clamp-2">
+
+          <p className="text-discreet-text py-1 line-clamp-2">
             {description}
           </p>
           </div>
@@ -243,10 +243,10 @@ export function ArticleCard({
                 ))}
               </h5>
               <div className='flex gap-1 items-center w-fit text-primary-PARI-Red pt-1'> 
-                {location && <p className='text-sm'>{location}</p>}
+                {location && <p className='text-sm font-noto-sans'>{location}</p>}
                 {location && date && '•'}
-                {date && <p className='text-sm'>{date}</p>}
-                {readMore && <p className='text-sm'>{readMore}</p>}
+                {date && <p className='text-sm font-noto-sans'>{date}</p>}
+                {readMore && <p className='text-sm font-noto-sans'>{readMore}</p>}
                 <span className="text-sm group-hover:translate-x-1 transition-transform duration-300">
                   <ArrowRight className="h-4 gap-2 w-4" />
                 </span>
