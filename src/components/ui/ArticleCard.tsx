@@ -70,11 +70,20 @@ export function ArticleCard({
     >
       <article className="group relative rounded-lg overflow-hidden sm:pt-8 hover:rounded-xl transition-discrete-00 transition-all duration-300 h-full">
         <div className="relative h-[376px] w-100% overflow-hidden  rounded-2xl" style={{ boxShadow: '0px 1px 4px 0px #00000047' }}>
+          {/* Desktop Image */}
+          <Image
+            src={imageUrl}
+            alt={title}
+            fill
+            className="hidden md:block object-cover transition-transform scale-102 rounded-xl duration-300 group-hover:scale-108"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          />
+          {/* Mobile Image */}
           <Image
             src={mobileImageUrl || imageUrl}
             alt={title}
             fill
-            className="object-cover transition-transform scale-102 rounded-xl duration-300 group-hover:scale-108"
+            className="block md:hidden object-cover transition-transform scale-102 rounded-xl duration-300 group-hover:scale-108"
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           />
           
