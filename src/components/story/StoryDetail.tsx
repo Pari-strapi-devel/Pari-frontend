@@ -9,7 +9,7 @@ import { formatDate } from '@/lib/utils'
 import { BASE_URL } from '@/config'
 import { Button } from "@/components/ui/button"
 import { languages as allLanguages } from '@/data/languages'
-import { useLocale } from '@/lib/locale'
+import { useLocale, getTextDirection, getLangAttribute } from '@/lib/locale'
 import { API_BASE_URL } from '@/utils/constants'
 import axios from 'axios'
 import qs from 'qs'
@@ -1268,9 +1268,15 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
     }
   }
 
+  const storyDir = getTextDirection(story.storyLocale || 'en')
+
   return (
-    <div className="min-h-screen bg-background">
-      {/* Global style to force font-size inheritance for article content */}
+    <div
+      className="min-h-screen bg-background story-content-wrapper"
+      lang={getLangAttribute(story.storyLocale || 'en')}
+      dir={storyDir}
+    >
+      {/* Global style to force font-size inheritance and direction isolation for article content */}
       <style>{`
         .article-content-text,
         .article-content-text * {
@@ -1278,6 +1284,16 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
         }
         .article-content-text {
           font-size: ${fontSize}px !important;
+        }
+
+        /* Force story content to use its own direction, overriding parent HTML dir */
+        .story-content-wrapper {
+          direction: ${storyDir} !important;
+          text-align: ${storyDir === 'rtl' ? 'right' : 'left'} !important;
+        }
+
+        .story-content-wrapper * {
+          direction: inherit !important;
         }
       `}</style>
 
@@ -1397,8 +1413,10 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
       {/* White Card Overlay - Separate from content */}
       {showCard && (
         <div className={`relative mx-auto px-4 my-16 md:px-8 ${story.coverImage ? '-mt-32' : ''}`}>
-          <div className="bg-white dark:bg-popover rounded-3xl p-[2.5rem]  lg:p-[4rem] shadow-[0px_4px_20px_0px_rgba(0,0,0,0.1)] relative mx-auto max-w-[768px] md:max-w-[768px] lg:max-w-[912px] xl:max-w-[970px] 2xl:max-w-[1016px] mx-auto"
-           
+          <div
+            className="bg-white dark:bg-popover rounded-3xl p-[2.5rem]  lg:p-[4rem] shadow-[0px_4px_20px_0px_rgba(0,0,0,0.1)] relative mx-auto max-w-[768px] md:max-w-[768px] lg:max-w-[912px] xl:max-w-[970px] 2xl:max-w-[1016px] mx-auto"
+            lang={getLangAttribute(story.storyLocale || 'en')}
+            dir={getTextDirection(story.storyLocale || 'en')}
           >
             {/* Close Button */}
             <button
@@ -1629,9 +1647,13 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
         </div>
       )}
 
- 
+
       {/* Main Content - Always visible */}
-      <div className="w-full lg:my-16 md:my-12 my-8 mx-auto  md:px-8">
+      <div
+        className="w-full lg:my-16 md:my-12 my-8 mx-auto  md:px-8"
+        lang={getLangAttribute(story.storyLocale || 'en')}
+        dir={getTextDirection(story.storyLocale || 'en')}
+      >
         {story.content && story.content.length > 0 ? (
           <div>
               {(() => {

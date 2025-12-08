@@ -89,7 +89,9 @@ export function useLocale() {
     }
   }, [searchparams])
 
-  // Apply lang and dir attributes to html element
+  // Apply site-wide lang and dir attributes to HTML element
+  // This controls the Header, Footer, Navigation, and all UI elements
+  // Individual components (like StoryDetail) can override this for their content
   useEffect(() => {
     if (typeof document !== 'undefined') {
       const htmlElement = document.documentElement
@@ -98,8 +100,6 @@ export function useLocale() {
 
       htmlElement.setAttribute('lang', langAttr)
       htmlElement.setAttribute('dir', dir)
-
-      console.log('##Rohit_Rocks## Language attributes applied:', { locale: language, lang: langAttr, dir })
     }
   }, [language])
 
