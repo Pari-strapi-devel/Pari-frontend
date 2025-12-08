@@ -382,7 +382,7 @@ export default function TeamsPage() {
 
           {/* Slider Panel - Slides in from right to left (or left to right) */}
           <div
-            className={`fixed top-0 bottom-0 h-full w-full sm:w-96 bg-white dark:bg-background z-50 shadow-xl overflow-hidden
+            className={`fixed top-0 bottom-0 h-full w-full sm:w-96 bg-white dark:bg-background z-[9999] shadow-xl overflow-hidden
               ${sliderDirection === 'right' ? 'right-0' : 'left-0'}
             `}
             style={{
@@ -413,7 +413,7 @@ export default function TeamsPage() {
             {/* Content */}
             <div className="flex flex-col h-full px-4  sm:px-6">
               {/* Profile Image - Large and prominent */}
-              <div className="w-full max-w-[436px] h-[268px] sm:w-full bg-gray-200 sm:h-72 rounded-[8px] overflow-hidden mt-16 mb-8 relative mx-auto sm:mx-0">
+              <div className="w-full max-w-[436px] h-[268px] sm:w-full bg-gray-200 sm:h-72 min-h-[238px] rounded-[8px] overflow-hidden mt-16 mb-8 relative mx-auto sm:mx-0">
                 {selectedMember.Photo?.data && !imageErrors.has(selectedMember.id) ? (() => {
                   const imageUrl = `${API_BASE_URL}/v1${selectedMember.Photo.data.attributes.formats.large?.url || selectedMember.Photo.data.attributes.url}`
                   console.log(`##rohiiiiii## Rendering modal image for ${selectedMember.Name}:`, imageUrl)
@@ -445,14 +445,14 @@ export default function TeamsPage() {
                 <h3 className="text-xl sm:text-2xl lg:text-3xl  text-primary-PARI-Red mb-2">
                   {selectedMember.Name}
                 </h3>
-                <p className="text-foreground text-sm sm:text-base font-medium mb-6 sm:mb-8">
+                <p className="text-foreground text-sm sm:text-base font-medium mb-6  sm:mb-8">
                   {selectedMember.Designation}
                 </p>
 
                 {/* Bio */}
                 {selectedMember.Bio && (
                   <div
-                    className="text-gray-600 dark:text-gray-300 text-sm sm:text-base mb-6 sm:mb-8 leading-relaxed"
+                    className="text-gray-600 dark:text-gray-300 text-sm sm:text-base mb-6 sm:mb-8 xl:line-clamp-none md:line-clamp-5 leading-relaxed"
                     dangerouslySetInnerHTML={{ __html: selectedMember.Bio }}
                   />
                 )}
@@ -514,9 +514,9 @@ export default function TeamsPage() {
                 {memberHasArticles && (
                   <button
                     onClick={handleSeeStoriesClick}
-                    className="mt-auto w-full bg-primary-PARI-Red text-white py-3 rounded-full font-semibold hover:bg-red-700 transition-colors"
+                    className="mt-auto w-full bg-primary-PARI-Red text-white py-3 relative bottom-4 md:bottom-6 xl:bottom-3 rounded-full font-semibold hover:bg-red-700 transition-colors"
                   >
-                    See Stories
+                    See stories
                   </button>
                 )}
               </div>
