@@ -9,6 +9,7 @@ import { LanguageToggle } from '@/components/layout/header/LanguageToggle';
 import { useLocale } from '@/lib/locale';
 import { FormPageSkeleton } from '@/components/skeletons/PageSkeletons';
 import { API_BASE_URL } from '@/utils/constants';
+import { FiUser, FiMail, FiPhone } from 'react-icons/fi';
 
 // API response interface for internship page data
 interface InternshipPageData {
@@ -1580,6 +1581,7 @@ const InternContent = () => {
                   <div className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="relative">
+                        <FiUser className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primary-PARI-Red h-4 w-4 z-10" />
                         <input
                           type="text"
                           name="firstName"
@@ -1587,7 +1589,7 @@ const InternContent = () => {
                           value={formData.firstName}
                           onChange={handleInputChange}
                           required
-                          className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary-PARI-Red outline-none bg-background ${
+                          className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary-PARI-Red outline-none bg-background ${
                             validationErrors.firstName ? 'border-primary-PARI-Red border-2' : 'border-input focus:border-primary-PARI-Red'
                           }`}
                         />
@@ -1625,6 +1627,7 @@ const InternContent = () => {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="relative">
+                        <FiMail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primary-PARI-Red h-4 w-4 z-10" />
                         <input
                           type="email"
                           name="email"
@@ -1632,7 +1635,7 @@ const InternContent = () => {
                           value={formData.email}
                           onChange={handleInputChange}
                           required
-                          className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary-PARI-Red outline-none bg-background ${
+                          className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary-PARI-Red outline-none bg-background ${
                             validationErrors.email ? 'border-primary-PARI-Red border-2' : 'border-input focus:border-primary-PARI-Red'
                           }`}
                         />
@@ -1646,14 +1649,15 @@ const InternContent = () => {
                         )}
                       </div>
                       <div className="relative">
+                        <FiPhone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primary-PARI-Red h-4 w-4 z-10" />
                         <input
                           type="tel"
                           name="phone"
                           placeholder={internshipPageData?.attributes?.phone ? `${internshipPageData.attributes.phone} *` : "Phone "}
                           value={formData.phone}
                           onChange={handleInputChange}
-                         
-                          className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary-PARI-Red outline-none bg-background ${
+
+                          className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary-PARI-Red outline-none bg-background ${
                             validationErrors.phone ? 'border-primary-PARI-Red border-2' : 'border-input focus:border-primary-PARI-Red'
                           }`}
                         />
@@ -1796,7 +1800,13 @@ const InternContent = () => {
                           value={formData.country}
                           onChange={handleInputChange}
                           disabled={loadingCountries}
-                          className="w-full px-4 py-3 border border-input rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-primary-PARI-Red outline-none bg-background disabled:opacity-50"
+                          className="w-full px-4 py-3 border border-input rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-primary-PARI-Red outline-none bg-background disabled:opacity-50 appearance-none"
+                          style={{
+                            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23B82929' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
+                            backgroundRepeat: 'no-repeat',
+                            backgroundPosition: 'right 0.75rem center',
+                            backgroundSize: '20px 20px'
+                          }}
                         >
                           <option value="">
                             {loadingCountries ? 'Loading countries...' : 'Country'}
@@ -1814,7 +1824,13 @@ const InternContent = () => {
                           value={formData.state}
                           onChange={handleInputChange}
                           disabled={loadingStates || !isIndiaSelected()}
-                          className="w-full px-4 py-3 border border-input rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-primary-PARI-Red outline-none bg-background disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="w-full px-4 py-3 border border-input rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-primary-PARI-Red outline-none bg-background disabled:opacity-50 disabled:cursor-not-allowed appearance-none"
+                          style={{
+                            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23B82929' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
+                            backgroundRepeat: 'no-repeat',
+                            backgroundPosition: 'right 0.75rem center',
+                            backgroundSize: '20px 20px'
+                          }}
                         >
                           <option value="">
                             {loadingStates ? 'Loading states...' : 'State'}
@@ -1832,7 +1848,13 @@ const InternContent = () => {
                           value={formData.district}
                           onChange={handleInputChange}
                           disabled={loadingDistricts || !isIndiaSelected() || !formData.state.trim()}
-                          className="w-full px-4 py-3 border border-input rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-primary-PARI-Red outline-none bg-background disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="w-full px-4 py-3 border border-input rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-primary-PARI-Red outline-none bg-background disabled:opacity-50 disabled:cursor-not-allowed appearance-none"
+                          style={{
+                            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23B82929' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
+                            backgroundRepeat: 'no-repeat',
+                            backgroundPosition: 'right 0.75rem center',
+                            backgroundSize: '20px 20px'
+                          }}
                         >
                           <option value="">
                             {loadingDistricts ? 'Loading districts...' : 'District'}

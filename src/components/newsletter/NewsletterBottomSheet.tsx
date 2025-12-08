@@ -6,6 +6,7 @@ import { X } from 'lucide-react';
 import axios from 'axios';
 import { useNewsletterSubscription } from '@/hooks/useBrevo';
 import { BASE_URL } from '@/config';
+import { FiUser, FiMail, FiPhone } from 'react-icons/fi';
 
 // Location data interfaces
 interface Country {
@@ -447,13 +448,14 @@ export const NewsletterBottomSheet: React.FC<NewsletterBottomSheetProps> = ({
               {/* First Name and Last Name */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="relative">
+                  <FiUser className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primary-PARI-Red h-4 w-4" />
                   <input
                     type="text"
                     name="firstName"
-                    placeholder={newsletterData?.attributes?.firstName || "First"}
+                    placeholder={newsletterData?.attributes?.firstName || "First*"}
                     value={formData.firstName}
                     onChange={handleInputChange}
-                    className="w-full pl-4 pr-4 py-3 border border-border dark:border-borderline rounded-lg focus:ring-2 focus:ring-primary-PARI-Red dark:focus:ring-primary focus:border-transparent outline-none bg-white dark:bg-background text-gray-900 dark:text-foreground placeholder-gray-500 dark:placeholder-muted-foreground text-sm"
+                    className="w-full pl-10 pr-4 py-3 border border-border dark:border-borderline rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-transparent outline-none bg-white dark:bg-background text-gray-900 dark:text-foreground placeholder-gray-500 dark:placeholder-muted-foreground text-sm"
                     required
                   />
                 </div>
@@ -461,10 +463,10 @@ export const NewsletterBottomSheet: React.FC<NewsletterBottomSheetProps> = ({
                   <input
                     type="text"
                     name="lastName"
-                    placeholder={newsletterData?.attributes?.lastName || "Last"}
+                    placeholder={newsletterData?.attributes?.lastName || "Last*"}
                     value={formData.lastName}
                     onChange={handleInputChange}
-                    className="w-full pl-4 pr-4 py-3 border border-border dark:border-borderline rounded-lg focus:ring-2 focus:ring-primary-PARI-Red dark:focus:ring-primary focus:border-transparent outline-none bg-white dark:bg-background text-gray-900 dark:text-foreground placeholder-gray-500 dark:placeholder-muted-foreground text-sm"
+                    className="w-full pl-4 pr-4 py-3 border border-border dark:border-borderline rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-transparent outline-none bg-white dark:bg-background text-gray-900 dark:text-foreground placeholder-gray-500 dark:placeholder-muted-foreground text-sm"
                     required
                   />
                 </div>
@@ -472,26 +474,28 @@ export const NewsletterBottomSheet: React.FC<NewsletterBottomSheetProps> = ({
 
               {/* Email */}
               <div className="relative">
+                <FiMail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primary-PARI-Red h-4 w-4" />
                 <input
                   type="email"
                   name="email"
-                  placeholder={newsletterData?.attributes?.email || "Email"}
+                  placeholder={newsletterData?.attributes?.email || "Email*"}
                   value={formData.email}
                   onChange={handleInputChange}
-                  className="w-full pl-4 pr-4 py-3 border border-border dark:border-borderline rounded-lg focus:ring-2 focus:ring-primary-PARI-Red dark:focus:ring-primary focus:border-transparent outline-none bg-white dark:bg-background text-gray-900 dark:text-foreground placeholder-gray-500 dark:placeholder-muted-foreground text-sm"
+                  className="w-full pl-10 pr-4 py-3 border border-border dark:border-borderline rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-transparent outline-none bg-white dark:bg-background text-gray-900 dark:text-foreground placeholder-gray-500 dark:placeholder-muted-foreground text-sm"
                   required
                 />
               </div>
 
               {/* Phone */}
               <div className="relative">
+                <FiPhone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primary-PARI-Red h-4 w-4" />
                 <input
                   type="tel"
                   name="phone"
                   placeholder={newsletterData?.attributes?.phone || "Phone (optional)"}
                   value={formData.phone}
                   onChange={handleInputChange}
-                  className="w-full pl-4 pr-4 py-3 border border-border dark:border-borderline rounded-lg focus:ring-2 focus:ring-primary-PARI-Red dark:focus:ring-primary focus:border-transparent outline-none bg-white dark:bg-background text-gray-900 dark:text-foreground placeholder-gray-500 dark:placeholder-muted-foreground text-sm"
+                  className="w-full pl-10 pr-4 py-3 border border-border dark:border-borderline rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-transparent outline-none bg-white dark:bg-background text-gray-900 dark:text-foreground placeholder-gray-500 dark:placeholder-muted-foreground text-sm"
                 />
               </div>
 
@@ -503,9 +507,9 @@ export const NewsletterBottomSheet: React.FC<NewsletterBottomSheetProps> = ({
                     name="country"
                     value={formData.country}
                     onChange={handleInputChange}
-                    className="w-full pl-4 pr-10 py-3 border border-border dark:border-borderline rounded-lg focus:ring-2 focus:ring-primary-PARI-Red dark:focus:ring-primary focus:border-transparent outline-none bg-white dark:bg-background text-gray-900 dark:text-foreground text-sm disabled:opacity-50 appearance-none"
+                    className="w-full pl-4 pr-10 py-3 border border-border dark:border-borderline rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-transparent outline-none bg-white dark:bg-background text-gray-900 dark:text-foreground text-sm disabled:opacity-50 appearance-none"
                     style={{
-                      backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
+                      backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23B82929' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
                       backgroundRepeat: 'no-repeat',
                       backgroundPosition: 'right 12px center',
                       backgroundSize: '20px'
@@ -526,10 +530,10 @@ export const NewsletterBottomSheet: React.FC<NewsletterBottomSheetProps> = ({
                     name="state"
                     value={formData.state}
                     onChange={handleInputChange}
-                    className="w-full pl-4 pr-10 py-3 border border-border dark:border-borderline rounded-lg focus:ring-2 focus:ring-primary-PARI-Red dark:focus:ring-primary focus:border-transparent outline-none bg-white dark:bg-background text-gray-900 dark:text-foreground text-sm disabled:opacity-50 disabled:cursor-not-allowed appearance-none"
+                    className="w-full pl-4 pr-10 py-3 border border-border dark:border-borderline rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-transparent outline-none bg-white dark:bg-background text-gray-900 dark:text-foreground text-sm disabled:opacity-50 disabled:cursor-not-allowed appearance-none"
                     disabled={!formData.country}
                     style={{
-                      backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
+                      backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23B82929' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
                       backgroundRepeat: 'no-repeat',
                       backgroundPosition: 'right 12px center',
                       backgroundSize: '20px'
@@ -550,10 +554,10 @@ export const NewsletterBottomSheet: React.FC<NewsletterBottomSheetProps> = ({
                     name="district"
                     value={formData.district}
                     onChange={handleInputChange}
-                    className="w-full pl-4 pr-10 py-3 border border-border dark:border-borderline rounded-lg focus:ring-2 focus:ring-primary-PARI-Red dark:focus:ring-primary focus:border-transparent outline-none bg-white dark:bg-background text-gray-900 dark:text-foreground text-sm disabled:opacity-50 disabled:cursor-not-allowed appearance-none"
+                    className="w-full pl-4 pr-10 py-3 border border-border dark:border-borderline rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-transparent outline-none bg-white dark:bg-background text-gray-900 dark:text-foreground text-sm disabled:opacity-50 disabled:cursor-not-allowed appearance-none"
                     disabled={!formData.state}
                     style={{
-                      backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
+                      backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23B82929' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
                       backgroundRepeat: 'no-repeat',
                       backgroundPosition: 'right 12px center',
                       backgroundSize: '20px'
@@ -575,10 +579,10 @@ export const NewsletterBottomSheet: React.FC<NewsletterBottomSheetProps> = ({
                   name="language"
                   value={formData.language}
                   onChange={handleInputChange}
-                  className="w-full pl-4 pr-10 py-3 border border-border dark:border-borderline rounded-lg focus:ring-2 focus:ring-primary-PARI-Red dark:focus:ring-primary focus:border-transparent outline-none bg-white dark:bg-background text-gray-900 dark:text-foreground text-sm appearance-none"
+                  className="w-full pl-4 pr-10 py-3 border border-border dark:border-borderline rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-transparent outline-none bg-white dark:bg-background text-gray-900 dark:text-foreground text-sm appearance-none"
                   style={{
                     fontFamily: 'Noto Sans, Noto Sans Devanagari, Noto Sans Telugu UI, Noto Sans Tamil UI, Noto Sans Bengali UI, Noto Sans Gujarati UI, Noto Sans Kannada UI, Noto Sans Malayalam UI, Noto Sans Oriya UI, Noto Sans Gurmukhi UI, sans-serif',
-                    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
+                    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23B82929' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
                     backgroundRepeat: 'no-repeat',
                     backgroundPosition: 'right 12px center',
                     backgroundSize: '20px'
@@ -588,7 +592,7 @@ export const NewsletterBottomSheet: React.FC<NewsletterBottomSheetProps> = ({
                   <option value="English" className="text-gray-700 dark:text-gray-200">English</option>
                   <option value="Malayalam" className="text-gray-700 dark:text-gray-200" style={{ fontFamily: 'Noto Sans Malayalam UI, sans-serif' }}>Malayalam/മലയാളം</option>
                   <option value="Punjabi" className="text-gray-700 dark:text-gray-200" style={{ fontFamily: 'Noto Sans Gurmukhi UI, sans-serif' }}>Punjabi/ਪੰਜਾਬੀ</option>
-                 
+
                 </select>
               </div>
 

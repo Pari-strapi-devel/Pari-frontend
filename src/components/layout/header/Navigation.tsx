@@ -336,12 +336,13 @@ export function Navigation({ onLinkClick }: NavigationProps = {}) {
               
             </NavigationMenuItem>
             {/* Education */}
-              {/* <NavigationMenuItem>
+              <NavigationMenuItem>
+                <LinkWithClose href="/childrens-paintings" className="group block cursor-pointer">
               <NavigationMenuTrigger className="dark:bg-popover bg-white text-foreground transition-colors duration-150 font-medium">
                 {getHeaderItemByIndex(2)?.title || 'Pari Education'}
               </NavigationMenuTrigger>
-             
-            </NavigationMenuItem> */}
+              </LinkWithClose>
+            </NavigationMenuItem>
 
             {/* About */}
             <NavigationMenuItem value="about">
@@ -538,6 +539,14 @@ export function Navigation({ onLinkClick }: NavigationProps = {}) {
          </div>
           )}
         </div>
+        <div className="border-b border-border">
+          <LinkWithClose
+            href="/articles?content=Student+Articles"
+            className="p-4 block text-foreground cursor-pointer"
+          >
+            <h2 className="text-md font-medium">{getHeaderItemByIndex(2)?.title || 'Education'}</h2>
+          </LinkWithClose>
+        </div>
         {/* About Section */}
         <div className="border-b border-border">
           <div
@@ -581,6 +590,7 @@ export function Navigation({ onLinkClick }: NavigationProps = {}) {
       </div>
           )}
         </div>
+          
 
         {/* Get Involved Section */}
         <div className="border-b border-border">
@@ -640,14 +650,7 @@ export function Navigation({ onLinkClick }: NavigationProps = {}) {
      
 
         {/* Education Section - No Dropdown */}
-        {/* <div className="border-b border-border">
-          <LinkWithClose
-            href="/education"
-            className="p-4 block text-grey-300 cursor-pointer"
-          >
-            <h2 className="text-lg font-semibold">{getHeaderItemByIndex(2)?.title || 'Education'}</h2>
-          </LinkWithClose>
-        </div> */}
+      
       </div>
     </>
   );
