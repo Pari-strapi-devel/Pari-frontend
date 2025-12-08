@@ -9,7 +9,7 @@ import { formatDate } from '@/lib/utils'
 import { BASE_URL } from '@/config'
 import { Button } from "@/components/ui/button"
 import { languages as allLanguages } from '@/data/languages'
-import { useLocale, getTextDirection, getLangAttribute } from '@/lib/locale'
+import { useLocale, getTextDirection, getLangAttribute, addLocaleToUrl } from '@/lib/locale'
 import { API_BASE_URL } from '@/utils/constants'
 import axios from 'axios'
 import qs from 'qs'
@@ -497,7 +497,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
 
   const router = useRouter()
   const searchParams = useSearchParams()
-  const { language: currentLocale, addLocaleToUrl } = useLocale()
+  const { language: currentLocale } = useLocale()
 
   // Get locale from URL search params to trigger re-render on language change
   const urlLocale = searchParams?.get('locale') || 'en'
@@ -1295,6 +1295,8 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
         .story-content-wrapper * {
           direction: inherit !important;
         }
+
+
       `}</style>
 
       {/* Reading Progress Line Bar */}
@@ -1565,7 +1567,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
               <div className="grid grid-cols-1 md:flex md:flex-row gap-6 md:gap-12 flex-1">
                 {groupedAuthors.map((group, index) => (
                   <div key={index}>
-                    <h6 className="text-grey-300 dark:text-discreet-text text-[14px] mb-2"
+                    <h6 className=" font-noto-sans text-grey-300 dark:text-discreet-text text-[14px] mb-2"
                     >
                       {group.title || getTranslatedLabel('author', currentLocale)}
                     </h6>
@@ -3426,9 +3428,21 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
 
       {/* Related Stories Section */}
       {relatedStories.length > 0 && (
-        <div className="w-full bg-background py-12 md:py-16">
-          <div className="max-w-7xl mx-auto px-4 md:px-8">
-            <h2 className="font-noto-sans font-bold text-foreground text-3xl md:text-4xl mb-8">
+        <div
+          className="w-full bg-background py-12 md:py-16 related-stories-section"
+          dir={storyDir}
+          style={{
+            direction: storyDir,
+            textAlign: storyDir === 'rtl' ? 'right' : 'left'
+          }}
+        >
+          <div className="max-w-7xl mx-auto px-4 md:px-8 ">
+            <h2
+              className="font-noto-sans font-bold text-foreground text-3xl md:text-4xl mb-8"
+              style={{
+                textAlign: storyDir === 'rtl' ? 'right' : 'left'
+              }}
+            >
               Related Stories
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -3508,8 +3522,12 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                         <button
                           key={lang.code}
                           onClick={() => {
-                            const newUrl = addLocaleToUrl(`/article/${lang.slug}`)
-                            router.push(newUrl)
+                            // Remove locale parameter only for Urdu, keep it for other languages
+                            if (lang.code === 'ur') {
+                              window.location.href = `/article/${lang.slug}`
+                            } else {
+                              window.location.href = (addLocaleToUrl(`/article/${lang.slug}`))
+                            }
                             setShowLanguageSelector(false)
                           }}
                           className={`w-full text-left p-4 rounded-xl border transition-all duration-200 ${
@@ -3593,8 +3611,12 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                         <button
                           key={lang.code}
                           onClick={() => {
-                            const newUrl = addLocaleToUrl(`/article/${lang.slug}`)
-                            router.push(newUrl)
+                            // Remove locale parameter only for Urdu, keep it for other languages
+                            if (lang.code === 'ur') {
+                              window.location.href = `/article/${lang.slug}`
+                            } else {
+                              router.push(addLocaleToUrl(`/article/${lang.slug}`))
+                            }
                             setShowLanguageSelector(false)
                           }}
                           className={`w-full text-left p-4 rounded-xl border transition-all duration-200 ${
