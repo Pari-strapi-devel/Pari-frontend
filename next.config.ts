@@ -32,6 +32,22 @@ const nextConfig: NextConfig = {
     '@radix-ui/react-select',
     '@radix-ui/react-slot',
   ],
+  // Turbopack configuration (Next.js 16 default)
+  turbopack: {
+    root: process.cwd(),
+    resolveAlias: {
+      '@radix-ui/react-checkbox': '@radix-ui/react-checkbox',
+      '@radix-ui/react-collapsible': '@radix-ui/react-collapsible',
+      '@radix-ui/react-dialog': '@radix-ui/react-dialog',
+      '@radix-ui/react-dropdown-menu': '@radix-ui/react-dropdown-menu',
+      '@radix-ui/react-icons': '@radix-ui/react-icons',
+      '@radix-ui/react-label': '@radix-ui/react-label',
+      '@radix-ui/react-navigation-menu': '@radix-ui/react-navigation-menu',
+      '@radix-ui/react-select': '@radix-ui/react-select',
+      '@radix-ui/react-slot': '@radix-ui/react-slot',
+    },
+  },
+  // Webpack configuration (fallback for when using --webpack flag)
   webpack: (config) => {
     config.resolve.alias = {
       ...config.resolve.alias,
