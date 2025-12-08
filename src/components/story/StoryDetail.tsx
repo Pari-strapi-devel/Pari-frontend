@@ -316,31 +316,52 @@ function stripHtmlCssWithStyledStrong(text: string): string {
   result = result.replace(/\s*style\s*=\s*"[^"]*"/gi, '');
   result = result.replace(/\s*style\s*=\s*'[^']*'/gi, '');
 
-  // Keep all original HTML tags: <p>, <strong>, <b>, <em>, <i>, <a>, <br>, etc.
-  // Just clean up any unwanted attributes from tags (except href for links)
+  // Protect tags we want to keep with placeholders
+  result = result.replace(/<br\s*\/?>/gi, '___BR_TAG___');
+  result = result.replace(/<strong>/gi, '___STRONG_OPEN___');
+  result = result.replace(/<\/strong>/gi, '___STRONG_CLOSE___');
+  result = result.replace(/<b>/gi, '___B_OPEN___');
+  result = result.replace(/<\/b>/gi, '___B_CLOSE___');
+  result = result.replace(/<em>/gi, '___EM_OPEN___');
+  result = result.replace(/<\/em>/gi, '___EM_CLOSE___');
+  result = result.replace(/<i>/gi, '___I_OPEN___');
+  result = result.replace(/<\/i>/gi, '___I_CLOSE___');
+  result = result.replace(/<a\s+href\s*=\s*"([^"]*)"[^>]*>/gi, '___A_OPEN_$1___');
+  result = result.replace(/<\/a>/gi, '___A_CLOSE___');
 
-  // Clean p tags but keep them
-  result = result.replace(/<p[^>]*>/gi, '<p>');
+  // Convert closing p tags to br tags (to preserve line breaks)
+  result = result.replace(/<\/p>/gi, '___BR_TAG___');
 
-  // Clean strong/b/em/i tags but keep them
-  result = result.replace(/<strong[^>]*>/gi, '<strong>');
-  result = result.replace(/<b[^>]*>/gi, '<b>');
-  result = result.replace(/<em[^>]*>/gi, '<em>');
-  result = result.replace(/<i[^>]*>/gi, '<i>');
+  // Remove opening p tags
+  result = result.replace(/<p[^>]*>/gi, '');
 
-  // Keep <a> tags with href attribute
-  result = result.replace(/<a\s+[^>]*href\s*=\s*"([^"]*)"[^>]*>/gi, '<a href="$1">');
-  result = result.replace(/<a\s+[^>]*href\s*=\s*'([^']*)'[^>]*>/gi, '<a href="$1">');
+  // Remove div and span tags but keep their content
+  result = result.replace(/<div[^>]*>/gi, '');
+  result = result.replace(/<\/div>/gi, '');
+  result = result.replace(/<span[^>]*>/gi, '');
+  result = result.replace(/<\/span>/gi, '');
 
-  // Clean br tags
-  result = result.replace(/<br\s*\/?>/gi, '<br>');
+  // Convert newline characters to br placeholder
+  result = result.replace(/\n/g, '___BR_TAG___');
 
   // Handle nbsp
   result = result.replace(/&nbsp;/gi, ' ');
 
-  // Remove div and span tags but keep their content
-  result = result.replace(/<\/?div[^>]*>/gi, '');
-  result = result.replace(/<\/?span[^>]*>/gi, '');
+  // Clean up multiple consecutive br tags (replace 3+ with just 2)
+  result = result.replace(/(___BR_TAG___){3,}/g, '___BR_TAG______BR_TAG___');
+
+  // Restore all protected tags
+  result = result.replace(/___BR_TAG___/g, '<br>');
+  result = result.replace(/___STRONG_OPEN___/g, '<strong>');
+  result = result.replace(/___STRONG_CLOSE___/g, '</strong>');
+  result = result.replace(/___B_OPEN___/g, '<b>');
+  result = result.replace(/___B_CLOSE___/g, '</b>');
+  result = result.replace(/___EM_OPEN___/g, '<em>');
+  result = result.replace(/___EM_CLOSE___/g, '</em>');
+  result = result.replace(/___I_OPEN___/g, '<i>');
+  result = result.replace(/___I_CLOSE___/g, '</i>');
+  result = result.replace(/___A_OPEN_([^_]+)___/g, '<a href="$1">');
+  result = result.replace(/___A_CLOSE___/g, '</a>');
 
   return result;
 }
@@ -360,7 +381,9 @@ function stripHtmlCssNoParagraphs(text: string): string {
   result = result.replace(/\s*style\s*=\s*'[^']*'/gi, '');
 
   // Keep formatting tags: strong, b, em, i
-  result = result.replace(/<strong[^>]*>/gi, '<strong>');
+  // Wrap <strong> tags with <b> tags for bold text
+  result = result.replace(/<strong[^>]*>/gi, '<b><strong>');
+  result = result.replace(/<\/strong>/gi, '</strong></b>');
   result = result.replace(/<b[^>]*>/gi, '<b>');
   result = result.replace(/<em[^>]*>/gi, '<em>');
   result = result.replace(/<i[^>]*>/gi, '<i>');
@@ -369,20 +392,25 @@ function stripHtmlCssNoParagraphs(text: string): string {
   result = result.replace(/<a\s+[^>]*href\s*=\s*"([^"]*)"[^>]*>/gi, '<a href="$1">');
   result = result.replace(/<a\s+[^>]*href\s*=\s*'([^']*)'[^>]*>/gi, '<a href="$1">');
 
-  // Clean br tags
+  // Clean br tags FIRST to preserve them
   result = result.replace(/<br\s*\/?>/gi, '<br>');
+
+  // Remove div, span, p tags but keep content
+  result = result.replace(/<div[^>]*>/gi, '');
+  result = result.replace(/<\/div>/gi, '');
+  result = result.replace(/<span[^>]*>/gi, '');
+  result = result.replace(/<\/span>/gi, '');
+  result = result.replace(/<p[^>]*>/gi, ' ');
+  result = result.replace(/<\/p>/gi, ' ');
+
+  // Convert newline characters to <br> tags
+  result = result.replace(/\n/g, '<br>');
 
   // Handle nbsp
   result = result.replace(/&nbsp;/gi, ' ');
 
-  // Remove div, span, p tags but keep content
-  result = result.replace(/<\/?div[^>]*>/gi, '');
-  result = result.replace(/<\/?span[^>]*>/gi, '');
-  result = result.replace(/<\/?p[^>]*>/gi, ' ');
-
-  // Clean up extra whitespace
-  result = result.replace(/\s+/g, ' ');
-
+  // Don't clean up whitespace for this function - preserve line breaks
+  // Just trim the start and end
   return result.trim();
 }
 
@@ -1847,12 +1875,20 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                         // Skip text content if showing photos only
                         if (showPhotos) return null
 
+                        // Debug log to see what data we're receiving
+                        if (obj.__component === 'modular-content.text') {
+                          console.log('##Rohit_Rocks## modular-content.text data:', obj)
+                        }
+
                         // Try all possible field names for text content
-                        const textContent = obj.Paragraph || obj.Text || obj.content || obj.text || obj.Body || obj.body || ''
+                        const textContent = obj.Text || obj.Paragraph || obj.content || obj.text || obj.Body || obj.body || ''
 
                         if (textContent && typeof textContent === 'string' && textContent.trim().length > 0) {
                           // Check if content is only stars (asterisks)
                           const strippedContent = stripHtmlCssWithStyledStrong(textContent)
+
+                          // Debug: log the processed content
+                          console.log('##Rohit_Rocks## Processed HTML:', strippedContent)
 
                           const isStarsOnly = /^[\s*]+$/.test(strippedContent)
 
@@ -1861,10 +1897,16 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                               <style jsx>{`
                                 .article-content-text {
                                   font-weight: 400;
+                                  line-height: 1.8;
                                 }
                                 .article-content-text :global(p) {
                                   margin-bottom: 1rem;
                                   font-weight: 400;
+                                }
+                                .article-content-text :global(br) {
+                                  display: block;
+                                  margin-bottom: 0.5em;
+                                  content: "";
                                 }
                                 .article-content-text :global(a) {
                                   color: #B91C1C;
@@ -2196,7 +2238,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                         // Handle single column (when only 1 item in Content array)
                         if (columnarContentArray && columnarContentArray.length === 1) {
                           const singleColumn = columnarContentArray[0] as Record<string, unknown>
-                          const singleText = 'Paragraph' in singleColumn && typeof singleColumn.Paragraph === 'string' ? singleColumn.Paragraph : ''
+                          const singleText = 'Paragraph' in singleColumn && typeof singleColumn.Paragraph === 'string' ? stripHtmlCssWithStyledStrong(singleColumn.Paragraph) : ''
 
                           return (
                             <div key={index} className="my-12 w-full flex justify-center">
@@ -2225,24 +2267,36 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                           const leftColumn = columnarContentArray[0] as Record<string, unknown>
                           const rightColumn = columnarContentArray[1] as Record<string, unknown>
 
-                          const leftText = 'Paragraph' in leftColumn && typeof leftColumn.Paragraph === 'string' ? leftColumn.Paragraph : ''
-                          const rightText = 'Paragraph' in rightColumn && typeof rightColumn.Paragraph === 'string' ? rightColumn.Paragraph : ''
+                          const leftText = 'Paragraph' in leftColumn && typeof leftColumn.Paragraph === 'string' ? stripHtmlCssWithStyledStrong(leftColumn.Paragraph) : ''
+                          const rightText = 'Paragraph' in rightColumn && typeof rightColumn.Paragraph === 'string' ? stripHtmlCssWithStyledStrong(rightColumn.Paragraph) : ''
 
                           return (
                             <div key={index} className="my-12 w-full flex justify-center">
-                              <div className="my-6 max-w-3xl mx-auto  px-8 md:px-10 lg:px-16 ">
+                              <div className="my-6 max-w-3xl mx-auto px-8 md:px-10 lg:px-16">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                   {/* Left Column */}
                                   <div
-                                    className="text-foreground  "
-                                    
+                                    className="text-discreet-text columnar-text-content"
+                                    style={{
+                                      fontFamily: 'Noto Sans',
+                                      fontWeight: 400,
+                                      fontSize: `${fontSize}px`,
+                                      lineHeight: '170%',
+                                      letterSpacing: '-3%'
+                                    }}
                                     dangerouslySetInnerHTML={{ __html: leftText }}
                                   />
 
                                   {/* Right Column */}
                                   <div
-                                    className="text-foreground "
-                                   
+                                    className="text-discreet-text columnar-text-content"
+                                    style={{
+                                      fontFamily: 'Noto Sans',
+                                      fontWeight: 400,
+                                      fontSize: `${fontSize}px`,
+                                      lineHeight: '170%',
+                                      letterSpacing: '-3%'
+                                    }}
                                     dangerouslySetInnerHTML={{ __html: rightText }}
                                   />
                                 </div>
@@ -2262,7 +2316,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
 
                         if (singleColumnarContentArray && singleColumnarContentArray.length >= 1) {
                           const singleColumn = singleColumnarContentArray[0] as Record<string, unknown>
-                          const singleText = 'Paragraph' in singleColumn && typeof singleColumn.Paragraph === 'string' ? singleColumn.Paragraph : ''
+                          const singleText = 'Paragraph' in singleColumn && typeof singleColumn.Paragraph === 'string' ? stripHtmlCssWithStyledStrong(singleColumn.Paragraph) : ''
 
                           return (
                             <div key={index} className="my-12 w-full flex justify-center">
@@ -5105,6 +5159,9 @@ async function fetchStoryBySlug(slug: string) {
     const finalContent = Array.isArray(articleData.attributes.Modular_Content)
       ? articleData.attributes.Modular_Content
       : []
+
+    // Debug log to see the modular content structure
+    console.log('##Rohit_Rocks## Modular_Content:', finalContent)
 
     const finalTitle = articleData.attributes.Title || "Untitled Story"
 
