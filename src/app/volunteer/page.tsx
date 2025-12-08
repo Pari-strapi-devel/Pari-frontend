@@ -954,7 +954,7 @@ const VolunteerPageContent = () => {
                       <input
                         type="text"
                         name="fullName"
-                        placeholder={volunteerApiData?.attributes.first_name || "First name *"}
+                        placeholder={volunteerApiData?.attributes.first_name ? `${volunteerApiData.attributes.first_name} *` : "First name *"}
                         value={formData.fullName}
                         onChange={handleInputChange}
                         required
@@ -963,7 +963,7 @@ const VolunteerPageContent = () => {
                       <input
                         type="text"
                         name="lastName"
-                        placeholder={volunteerApiData?.attributes.last_name || "Last name *"}
+                        placeholder={volunteerApiData?.attributes.last_name ? `${volunteerApiData.attributes.last_name} *` : "Last name *"}
                         value={formData.lastName}
                         onChange={handleInputChange}
                         required
@@ -975,7 +975,7 @@ const VolunteerPageContent = () => {
                       <input
                         type="email"
                         name="email"
-                        placeholder={volunteerApiData?.attributes.email || "Email *"}
+                        placeholder={volunteerApiData?.attributes.email ? `${volunteerApiData.attributes.email} *` : "Email *"}
                         value={formData.email}
                         onChange={handleInputChange}
                         required
@@ -1120,7 +1120,7 @@ const VolunteerPageContent = () => {
                     <div>
                       <textarea
                         name="aboutYourself"
-                        placeholder={volunteerApiData?.attributes.about_yourself || "Tell us about yourself briefly *"}
+                        placeholder={volunteerApiData?.attributes.about_yourself ? `${volunteerApiData.attributes.about_yourself} *` : "Tell us about yourself briefly *"}
                         value={formData.aboutYourself}
                         onChange={handleInputChange}
                         rows={4}
@@ -1131,7 +1131,7 @@ const VolunteerPageContent = () => {
                     <div>
                       <textarea
                         name="whyVolunteer"
-                        placeholder={volunteerApiData?.attributes.why_volunteer || "Why you would like to volunteer with PARI *"}
+                        placeholder={volunteerApiData?.attributes.why_volunteer ? `${volunteerApiData.attributes.why_volunteer} *` : "Why you would like to volunteer with PARI *"}
                         value={formData.whyVolunteer}
                         onChange={handleInputChange}
                         rows={4}

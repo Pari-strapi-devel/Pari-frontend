@@ -248,7 +248,7 @@ export function Footer() {
                     <button
                       type="button"
                       disabled={isSubscribing}
-                      className="px-4 py-2 bg-primary-PARI-Red text-white rounded-[26px] hover:bg-primary-PARI-Red/90 focus:outline-none focus:ring-2 focus:ring-primary-PARI-Red focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed font-noto-sans text-[15px] font-medium"
+                      className="px-4 py-2 bg-primary-PARI-Red text-white rounded-[26px] hover:bg-primary-PARI-Red/90 focus:outline-none focus:ring-2 focus:ring-primary-PARI-Red focus:ring-offset-2 font-noto-sans text-[15px] font-medium"
                       onClick={() => {
                        
                         setIsNewsletterSheetOpen(true);

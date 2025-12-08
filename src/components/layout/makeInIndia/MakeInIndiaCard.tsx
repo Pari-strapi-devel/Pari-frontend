@@ -353,7 +353,7 @@ export function MakeInIndiaCard() {
               </h6>
             </div>
           </div>
-          <div className="flex justify-between items-end">
+          <div className="flex justify-between items-center">
             <h1 className="text-foreground mb-2">
               {sectionTitle}
             </h1>

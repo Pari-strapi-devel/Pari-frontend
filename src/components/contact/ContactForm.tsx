@@ -874,7 +874,7 @@ const ContactForm = () => {
 
                     console.log('##Rohit_Rocks## ContactForm - Strapi Newsletter API Payload:', JSON.stringify(newsletterPayload, null, 2));
 
-                    const newsletterApiResponse = await axios.post(`${BASE_URL}api/newslatters`, newsletterPayload, {
+                    const newsletterApiResponse = await axios.post(`${BASE_URL}api/newsletter-submits`, newsletterPayload, {
                       headers: {
                         'Content-Type': 'application/json'
                       }
@@ -886,14 +886,19 @@ const ContactForm = () => {
                       data: newsletterApiResponse.data
                     });
                   } catch (error) {
-                    const axiosError = error as { message?: string; response?: { data?: unknown; status?: number; statusText?: string } };
-                    console.error('##Rohit_Rocks## ContactForm - Strapi Newsletter API submission error:', {
-                      message: axiosError?.message || 'Unknown error',
-                      response: axiosError?.response?.data,
-                      status: axiosError?.response?.status,
-                      statusText: axiosError?.response?.statusText
-                    });
+                    if (axios.isAxiosError(error)) {
+                      console.error('##Rohit_Rocks## ContactForm - Strapi Newsletter API submission error:', {
+                        message: error.message,
+                        status: error.response?.status,
+                        statusText: error.response?.statusText,
+                        data: error.response?.data,
+                        url: error.config?.url
+                      });
+                    } else {
+                      console.error('##Rohit_Rocks## ContactForm - Strapi Newsletter API submission error:', error);
+                    }
                     // Don't throw error to prevent form from showing error state
+                    // Newsletter submission will still work via Brevo
                   }
                 }
 
@@ -1000,7 +1005,7 @@ const ContactForm = () => {
                     <input
                       type="text"
                       name="firstName"
-                      placeholder="First Name"
+                      placeholder="First Name *"
                       value={formData.firstName}
                       onChange={handleInputChange}
                       required
@@ -1011,7 +1016,7 @@ const ContactForm = () => {
                     <input
                       type="text"
                       name="lastName"
-                      placeholder="Last Name"
+                      placeholder="Last Name *"
                       value={formData.lastName}
                       onChange={handleInputChange}
                       required
@@ -1026,7 +1031,7 @@ const ContactForm = () => {
                   <input
                     type="email"
                     name="email"
-                    placeholder="Email"
+                    placeholder="Email *"
                     value={formData.email}
                     onChange={handleInputChange}
                     required
@@ -1157,7 +1162,7 @@ const ContactForm = () => {
                   <FiMessageSquare className="absolute left-3 top-3 text-gray-400 dark:text-muted-foreground h-4 w-4" />
                   <textarea
                     name="message"
-                    placeholder="Message"
+                    placeholder="Message *"
                     value={formData.message}
                     onChange={handleInputChange}
                     required
@@ -1216,7 +1221,7 @@ const ContactForm = () => {
                     >
                       <option value="English">English</option>
                       <option value="Malayalam">Malayalam / മലയാളം</option>
-
+                      <option value="Punjabi">Punjabi / ਪੰਜਾਬੀ</option>
                     </select>
                   </div>
                 </div>

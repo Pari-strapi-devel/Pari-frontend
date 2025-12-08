@@ -5,8 +5,7 @@ import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import axios from 'axios';
 import { useNewsletterSubscription } from '@/hooks/useBrevo';
-import { useLocale } from '@/lib/locale';
-import { languages as staticLanguages } from '@/data/languages';
+import { BASE_URL } from '@/config';
 
 // Location data interfaces
 interface Country {
@@ -24,12 +23,6 @@ interface State {
 interface District {
   id: number;
   name: string;
-}
-
-interface Language {
-  code: string;
-  name: string;
-  names?: string[];
 }
 
 interface NewsletterFormData {
@@ -71,7 +64,6 @@ export const NewsletterBottomSheet: React.FC<NewsletterBottomSheetProps> = ({
   onClose,
   title = "Sign up for our newsletter"
 }) => {
-  const { language: currentLanguage } = useLocale();
   const { subscribe, isLoading: isSubscribing, isSuccess, error: subscribeError, reset } = useNewsletterSubscription();
   const [mounted, setMounted] = useState(false);
 
@@ -79,8 +71,6 @@ export const NewsletterBottomSheet: React.FC<NewsletterBottomSheetProps> = ({
   const [countries, setCountries] = useState<Country[]>([]);
   const [states, setStates] = useState<State[]>([]);
   const [districts, setDistricts] = useState<District[]>([]);
-  const [languages, setLanguages] = useState<Language[]>([]);
-  const [languagesLoading, setLanguagesLoading] = useState(true);
 
   // Newsletter API data state
   const [newsletterData, setNewsletterData] = useState<NewsletterApiData | null>(null);
@@ -163,81 +153,7 @@ export const NewsletterBottomSheet: React.FC<NewsletterBottomSheetProps> = ({
     }
   };
 
-  // Load languages (merge imported data with API data)
-  const fetchLanguages = useCallback(async () => {
-    console.log('##Rohit_Rocks## Loading languages from both sources');
-    setLanguagesLoading(true);
 
-    // Start with imported language data as base
-    const importedLanguages = staticLanguages.map(lang => ({
-      code: lang.code,
-      name: lang.name,
-      names: lang.names
-    }));
-
-    console.log('##Rohit_Rocks## Imported languages loaded:', importedLanguages.length);
-
-    // Try to fetch from API and merge with imported data
-    try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://production.ruralindiaonline.org'}/v1/api/languages?locale=${currentLanguage || 'en'}`, {
-        method: 'GET',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        if (data?.data && data.data.length > 0) {
-          // Merge API languages with imported languages
-          const apiLanguages = data.data;
-          const mergedLanguages = [...importedLanguages];
-
-          // Add API languages that don't exist in imported data
-          apiLanguages.forEach((apiLang: Language) => {
-            const existsInImported = importedLanguages.some(importedLang =>
-              importedLang.code === apiLang.code
-            );
-
-            if (!existsInImported) {
-              mergedLanguages.push({
-                code: apiLang.code,
-                name: apiLang.name,
-                names: apiLang.names || [apiLang.name, '']
-              });
-            }
-          });
-
-          // Remove duplicates and sort by name
-          const uniqueLanguages = mergedLanguages.filter((lang, index, self) =>
-            index === self.findIndex(l => l.code === lang.code)
-          ).sort((a, b) => (a.names?.[0] || a.name || '').localeCompare(b.names?.[0] || b.name || ''));
-
-          // Filter to only English and Malayalam
-          const filteredLanguages = uniqueLanguages.filter(lang =>
-            lang.code === 'en' || lang.code === 'ml'
-          );
-
-          setLanguages(filteredLanguages);
-          setLanguagesLoading(false);
-          console.log('##Rohit_Rocks## Languages merged and filtered - Total:', filteredLanguages.length);
-          return;
-        }
-      }
-    } catch {
-      console.log('##Rohit_Rocks## API languages not available, using imported data only');
-    }
-
-    // Fallback to imported languages only, filtered to English and Malayalam
-    const filteredImportedLanguages = importedLanguages.filter(lang =>
-      lang.code === 'en' || lang.code === 'ml'
-    );
-    setLanguages(filteredImportedLanguages);
-    setLanguagesLoading(false);
-    console.log('##Rohit_Rocks## Using imported languages only (filtered):', filteredImportedLanguages.length);
-    console.log('##Rohit_Rocks## Filtered languages:', filteredImportedLanguages);
-  }, [currentLanguage]);
 
   // Fetch newsletter data for placeholders
   const fetchNewsletterData = useCallback(async () => {
@@ -291,18 +207,7 @@ export const NewsletterBottomSheet: React.FC<NewsletterBottomSheetProps> = ({
     });
   }, []);
 
-  // Load languages immediately when component mounts or language changes
-  useEffect(() => {
-    fetchLanguages();
-  }, [fetchLanguages, currentLanguage]);
 
-  // Debug: Log when languages change
-  useEffect(() => {
-    console.log('##Rohit_Rocks## Languages state updated:', {
-      count: languages.length,
-      sample: languages.slice(0, 3).map(l => ({ code: l.code, name: l.name }))
-    });
-  }, [languages]);
 
   // Load initial data when sheet opens
   useEffect(() => {
@@ -395,7 +300,7 @@ export const NewsletterBottomSheet: React.FC<NewsletterBottomSheetProps> = ({
 
       // Submit to PARI newsletter API
       try {
-        const apiResponse = await axios.post(`${process.env.NEXT_PUBLIC_API_URL || 'https://production.ruralindiaonline.org'}/v1/api/newslatters`, newsletterPayload, {
+        const apiResponse = await axios.post(`${BASE_URL}api/newsletter-submits`, newsletterPayload, {
           headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json'
@@ -409,8 +314,19 @@ export const NewsletterBottomSheet: React.FC<NewsletterBottomSheetProps> = ({
           data: apiResponse.data
         });
       } catch (apiError) {
-        console.error('##Rohit_Rocks## PARI newsletter API error:', apiError);
+        if (axios.isAxiosError(apiError)) {
+          console.error('##Rohit_Rocks## PARI newsletter API error:', {
+            message: apiError.message,
+            status: apiError.response?.status,
+            statusText: apiError.response?.statusText,
+            data: apiError.response?.data,
+            url: apiError.config?.url
+          });
+        } else {
+          console.error('##Rohit_Rocks## PARI newsletter API error:', apiError);
+        }
         // Continue with Brevo submission even if PARI API fails
+        // Newsletter submission will still work via Brevo
       }
 
       // Also submit to Brevo for email automation
@@ -514,7 +430,7 @@ export const NewsletterBottomSheet: React.FC<NewsletterBottomSheetProps> = ({
           </div>
 
           {/* Content */}
-          <div className="px-6 pb-6 max-h-[calc(90vh-120px)] overflow-y-auto">
+          <div className="px-6 pb-6 pt-2 max-h-[calc(90vh-120px)] overflow-y-auto">
             {isSuccess && (
               <div className="mb-4 p-4 bg-green-100 dark:bg-green-900/20 border border-green-300 dark:border-green-700 rounded-md text-green-800 dark:text-green-200 text-center">
                 Successfully subscribed to newsletter! Thank you for joining us.
@@ -669,31 +585,10 @@ export const NewsletterBottomSheet: React.FC<NewsletterBottomSheetProps> = ({
                   }}
                 >
                   <option value="" className="text-gray-400">{newsletterData?.attributes?.language || "Select language"}</option>
-                  {/* Debug: Show language count */}
-                  {languagesLoading && languages.length === 0 && (
-                    <option disabled className="text-gray-400">Loading languages...</option>
-                  )}
-                  {!languagesLoading && languages.length === 0 && (
-                    <option disabled className="text-gray-400">No languages available</option>
-                  )}
-                  {languages.map((language, index) => {
-                    // Debug log for first few languages
-                    if (index < 3) {
-                      console.log('##Rohit_Rocks## Rendering language:', language);
-                    }
-                    return (
-                    <option
-                      key={language.code || index}
-                      value={language.names?.[0] || language.name}
-                      className="text-gray-700 dark:text-gray-200"
-                      style={{
-                        fontFamily: 'Noto Sans, Noto Sans Devanagari, Noto Sans Telugu UI, Noto Sans Tamil UI, Noto Sans Bengali UI, Noto Sans Gujarati UI, Noto Sans Kannada UI, Noto Sans Malayalam UI, Noto Sans Oriya UI, Noto Sans Gurmukhi UI, sans-serif'
-                      }}
-                    >
-                      {language.names?.[0] || language.name || 'Unknown'}
-                    </option>
-                    );
-                  })}
+                  <option value="English" className="text-gray-700 dark:text-gray-200">English</option>
+                  <option value="Malayalam" className="text-gray-700 dark:text-gray-200" style={{ fontFamily: 'Noto Sans Malayalam UI, sans-serif' }}>Malayalam/മലയാളം</option>
+                  <option value="Punjabi" className="text-gray-700 dark:text-gray-200" style={{ fontFamily: 'Noto Sans Gurmukhi UI, sans-serif' }}>Punjabi/ਪੰਜਾਬੀ</option>
+                 
                 </select>
               </div>
 
@@ -722,8 +617,8 @@ export const NewsletterBottomSheet: React.FC<NewsletterBottomSheetProps> = ({
               <div className="pt-4">
                 <button
                   type="submit"
-                  disabled={isSubscribing || !formData.firstName.trim() || !formData.lastName.trim() || !formData.email.trim() || !formData.agreeToTerms}
-                  className="w-full bg-primary-PARI-Red dark:bg-primary-PARI-Red text-white py-4 px-6 rounded-full font-medium hover:bg-red-700 dark:hover:bg-red-700 transition-colors duration-200 text-base  disabled:cursor-not-allowed flex items-center justify-center"
+               
+                  className="w-full bg-primary-PARI-Red dark:bg-primary-PARI-Red cursor-pointer text-white py-4 px-6 rounded-full font-medium hover:bg-red-700 dark:hover:bg-red-700 transition-colors duration-200 text-base  disabled:cursor-not-allowed flex items-center justify-center"
                 >
                   {isSubscribing ? 'Subscribing...' : (newsletterData?.attributes?.buttonText || 'Confirm Sign up')}
                 </button>

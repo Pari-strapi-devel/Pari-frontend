@@ -1583,7 +1583,7 @@ const InternContent = () => {
                         <input
                           type="text"
                           name="firstName"
-                          placeholder={internshipPageData?.attributes?.first_name || "First Name"}
+                          placeholder={internshipPageData?.attributes?.first_name ? `${internshipPageData.attributes.first_name} *` : "First Name *"}
                           value={formData.firstName}
                           onChange={handleInputChange}
                           required
@@ -1604,7 +1604,7 @@ const InternContent = () => {
                         <input
                           type="text"
                           name="lastName"
-                          placeholder={internshipPageData?.attributes?.last_name || "Last Name"}
+                          placeholder={internshipPageData?.attributes?.last_name ? `${internshipPageData.attributes.last_name} *` : "Last Name *"}
                           value={formData.lastName}
                           onChange={handleInputChange}
                           required
@@ -1628,7 +1628,7 @@ const InternContent = () => {
                         <input
                           type="email"
                           name="email"
-                          placeholder={internshipPageData?.attributes?.email || "Email"}
+                          placeholder={internshipPageData?.attributes?.email ? `${internshipPageData.attributes.email} *` : "Email *"}
                           value={formData.email}
                           onChange={handleInputChange}
                           required
@@ -1649,10 +1649,10 @@ const InternContent = () => {
                         <input
                           type="tel"
                           name="phone"
-                          placeholder={internshipPageData?.attributes?.phone || "Phone"}
+                          placeholder={internshipPageData?.attributes?.phone ? `${internshipPageData.attributes.phone} *` : "Phone "}
                           value={formData.phone}
                           onChange={handleInputChange}
-                          required
+                         
                           className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary-PARI-Red outline-none bg-background ${
                             validationErrors.phone ? 'border-primary-PARI-Red border-2' : 'border-input focus:border-primary-PARI-Red'
                           }`}
@@ -1672,7 +1672,7 @@ const InternContent = () => {
                       <input
                         type="text"
                         name="collegeName"
-                        placeholder={internshipPageData?.attributes?.college_name || "College/University Name"}
+                        placeholder={internshipPageData?.attributes?.college_name ? `${internshipPageData.attributes.college_name} ` : "College/University Name "}
                         value={formData.collegeName}
                         onChange={handleInputChange}
                         className="w-full px-4 py-3 border border-input rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-primary-PARI-Red outline-none bg-background"
@@ -1683,7 +1683,7 @@ const InternContent = () => {
                       <input
                         type="text"
                         name="course"
-                        placeholder={internshipPageData?.attributes?.course || "Course"}
+                        placeholder={internshipPageData?.attributes?.course ? `${internshipPageData.attributes.course} ` : "Course "}
                         value={formData.course}
                         onChange={handleInputChange}
                         className="w-full px-4 py-3 border border-input rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-primary-PARI-Red outline-none bg-background"
@@ -1731,7 +1731,7 @@ const InternContent = () => {
                           <input
                             type="date"
                             name="startDate"
-                            placeholder={internshipPageData?.attributes?.start_date || "Start date"}
+                            placeholder={internshipPageData?.attributes?.start_date ? `${internshipPageData.attributes.start_date} *` : "Start date *"}
                             value={formData.startDate}
                             onChange={handleInputChange}
                             min={getTodayDate()}
@@ -1752,7 +1752,7 @@ const InternContent = () => {
                           <input
                             type="date"
                             name="endDate"
-                            placeholder={internshipPageData?.attributes?.end_date || "End date"}
+                            placeholder={internshipPageData?.attributes?.end_date ? `${internshipPageData.attributes.end_date} *` : "End date *"}
                             value={formData.endDate}
                             onChange={handleInputChange}
                             min={formData.startDate || getTodayDate()}
