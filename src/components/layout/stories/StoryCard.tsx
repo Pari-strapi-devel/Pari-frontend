@@ -318,8 +318,8 @@ export function StoryCard({
                     </div>
 
                     <div className="flex gap-1 justify-start items-center text-primary-PARI-Red font-noto-sans text-[14px] font-medium leading-[160%] tracking-[-0.03em]">
-                      <p className="flex-shrink-1 text-sm  line-clamp-1" >{location}</p>•
-                      <p className="flex-shrink-0 text-sm">{date}</p>
+                      <p className="flex-shrink-1 font-noto-sans text-sm  line-clamp-1" >{location}</p>•
+                      <p className="flex-shrink-0 font-noto-sans text-sm">{date}</p>
                       <span className="text-sm  group-hover:translate-x-1  transition-transform duration-300"> 
                         <ArrowRight className="h-4 w-4" />
                       </span>

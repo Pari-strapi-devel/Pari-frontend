@@ -615,14 +615,14 @@
  
  /* Urdu (Arabic) (ur) */
   [lang="ur"] h1 {
-   font-family: var(--font-noto-nastaliq-urdu), 'Noto Nastaliq Urdu', 'Noto Sans', sans-serif !important;
+   font-family: var(--font-noto-nastaliq-urdu), 'Noto Nastaliq Urdu', 'Noto Sans', sans-serif ;
    line-height: 1.6;
    font-size: clamp(2.1rem, 2.5vw,  4rem);
    font-variation-settings: 'wdth' 85, 'wght' 800;
    direction: rtl;
  }
  [lang="ur"] h2 {
-   font-family: var(--font-noto-nastaliq-urdu), 'Noto Nastaliq Urdu', 'Noto Sans', sans-serif !important;
+   font-family: var(--font-noto-nastaliq-urdu), 'Noto Nastaliq Urdu', 'Noto Sans', sans-serif ;
    line-height: 1.6;
    font-size: clamp(1.4rem, 1.2vw,  2rem);
    letter-spacing: 0em;
@@ -630,14 +630,14 @@
    direction: rtl;
  }
    [lang="ur"] h3 {
-   font-family: var(--font-noto-nastaliq-urdu), 'Noto Sans Arabic', 'Noto Sans', sans-serif !important;
+   font-family: var(--font-noto-nastaliq-urdu), 'Noto Sans nastaliq urdu', 'Noto Sans', sans-serif ;
    line-height: 1.6;
    letter-spacing: 0em;
    font-variation-settings: 'wdth' 90, 'wght' 800 ;
    direction: rtl;
  }
   [lang="ur"] p {
-   font-family: var(--font-noto-nastaliq-urdu), 'Noto Sans Arabic', 'Noto Sans', sans-serif !important;
+   font-family: var(--font-noto-nastaliq-urdu), 'Noto Sans nastaliq urdu', 'Noto Sans', sans-serif ;
    line-height: 1.8;
    font-size: clamp(.9rem, 1vw,  1.05rem);
    letter-spacing: 0em;
@@ -645,21 +645,21 @@
    direction: rtl;
  }
   [lang="ur"] h4 {
-   font-family: var(--font-noto-nastaliq-urdu), 'Noto Sans Arabic', 'Noto Sans', sans-serif !important;
+   font-family: var(--font-noto-nastaliq-urdu), 'Noto Sans nastaliq urdu', 'Noto Sans', sans-serif ;
    line-height: 1.5%;
    letter-spacing: 0em;
    font-variation-settings: 'wdth' 90, 'wght' 700;
    direction: rtl;
  }
   [lang="ur"] h5 {
-   font-family: var(--font-noto-nastaliq-urdu), 'Noto Sans Arabic', 'Noto Sans', 'noto sans' sans-serif !important;
+   font-family: var(--font-noto-nastaliq-urdu), 'Noto Sans nastaliq urdu', 'Noto Sans', 'noto sans' sans-serif ;
    line-height: 1.5;
    letter-spacing: 0em;
    font-variation-settings: 'wdth' 90, 'wght' 700;
    direction: rtl;
  }
   [lang="ur"] h6 {
-   font-family: var(--font-noto-nastaliq-urdu), 'Noto Sans Arabic', 'Noto Sans', sans-serif !important;
+   font-family: var(--font-noto-nastaliq-urdu), 'Noto Sans nastaliq urdu', 'Noto Sans', sans-serif ;
    line-height: 1;
    font-size: 14px;
    text-transform: uppercase;
@@ -777,7 +777,7 @@
   /* Gurmukhi (Punjabi) */
   .font-noto-gurmukhi,
   .font-noto-gurmukhi * {
-    font-family: var(--font-noto-sans-gurmukhi), 'Noto Sans Gurmukhi', 'Noto Sans', sans-serif !important;
+    font-family: var(--font-noto-sans-gurmukhi), 'Noto Sans Gurmukhi', 'Noto Sans', sans-serif ;
     font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
@@ -788,7 +788,7 @@
   /* Urdu (Arabic) */
   .font-noto-nastaliq-urdu,
   .font-noto-nastaliq-urdu * {
-    font-family: var(--font-noto-nastaliq-urdu), 'Noto Sans Nastaliq Urdu', 'Noto Sans', sans-serif !important;
+    font-family: var(--font-noto-nastaliq-urdu), 'Noto Sans Nastaliq Urdu', 'Noto Sans', sans-serif ;
     font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
@@ -796,6 +796,14 @@
     direction: rtl; /* Right-to-left for Arabic/Urdu */
     font-variation-settings: 'wdth' 85, 'wght' 700;
   }
+}
+
+.font-noto-sans {
+  font-family: var(--font-noto-sans), 'Noto Sans', sans-serif !important;
+  font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .fixed {

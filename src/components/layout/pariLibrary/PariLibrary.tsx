@@ -68,6 +68,10 @@ export function PariLibrary() {
         const sections = response.data.data.attributes.pari_movable_sections[0];
         const titlesab = sections;
 
+        console.log('##Rohit_Rocks## PariLibrary sections:', sections);
+        console.log('##Rohit_Rocks## PariLibrary pariProjects:', sections.pariProjects);
+        console.log('##Rohit_Rocks## PariLibrary libraryArticles:', sections.libraryArticles);
+
         const formattedData = sections.pariProjects.map((project: {
           title: string;
           Button: string;
@@ -82,21 +86,25 @@ export function PariLibrary() {
           };
           Categories?: string;
           link: string;
-        }) => ({
-          title: stripHtmlTags(project.title),
-          headDescription: stripHtmlTags(titlesab.description),
-          headtitle: stripHtmlTags(titlesab.title),
-          Button: stripHtmlTags(titlesab.Button),
-          sub_title: stripHtmlTags(titlesab.sub_title),
-          description: stripHtmlTags(project.description),
-          imageUrl: project.image?.data?.attributes?.url 
-            ? `${BASE_URL}${project.image.data.attributes.url}`
-            : '/images/categories/default.jpg',
-          categories: project.Categories?.split(',').map(cat => stripHtmlTags(cat)) || [],
-          slug: project.link,
-          authors: [''],
-          readMore: 'See project'
-        }));
+        }) => {
+          console.log('##Rohit_Rocks## Individual project:', project);
+          console.log('##Rohit_Rocks## Project title:', project.title);
+          return {
+            title: stripHtmlTags(project.title),
+            headDescription: stripHtmlTags(titlesab.description),
+            headtitle: stripHtmlTags(titlesab.title),
+            Button: stripHtmlTags(titlesab.Button),
+            sub_title: stripHtmlTags(titlesab.sub_title),
+            description: stripHtmlTags(project.description),
+            imageUrl: project.image?.data?.attributes?.url
+              ? `${BASE_URL}${project.image.data.attributes.url}`
+              : '/images/categories/default.jpg',
+            categories: project.Categories?.split(',').map(cat => stripHtmlTags(cat)) || [],
+            slug: project.link,
+            authors: [''],
+            readMore: 'See project'
+          };
+        });
 
         setLibraryData(formattedData);
       } catch (error) {

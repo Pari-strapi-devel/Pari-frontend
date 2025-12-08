@@ -1431,14 +1431,14 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
             </button>
 
             {/* Location and Date */}
-            <div className="flex items-center gap-2 mb-4">
-              <h6 className={`${story.isStudent ? ' text-[#2F80ED]' : 'text-primary-PARI-Red'} text-[14px] `}
+            <div className="flex items-center  gap-2 mb-4">
+              <h6 className={`${story.isStudent ? ' text-[#2F80ED]' : 'text-primary-PARI-Red'} font-noto-sans text-[14px] `}
                
               >
                 {story.location || 'SANGUR, PUNJAB'}
               </h6>
               <span className="text-gray-400 dark:text-[#8e8888]">|</span>
-              <h6 className="text-grey-300 dark:text-discreet-text text-[14px]"
+              <h6 className="text-grey-300 dark:text-discreet-text font-noto-sans text-[14px]"
               >
                 {formatDate(story.publishedDate)}
               </h6>
@@ -1566,7 +1566,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
             <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
               <div className="grid grid-cols-1 md:flex md:flex-row gap-6 md:gap-12 flex-1">
                 {groupedAuthors.map((group, index) => (
-                  <div key={index}>
+                  <div key={index} >
                     <h6 className=" font-noto-sans text-grey-300 dark:text-discreet-text text-[14px] mb-2"
                     >
                       {group.title || getTranslatedLabel('author', currentLocale)}
@@ -2234,7 +2234,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                   {/* Left Column */}
                                   <div
-                                    className="text-foreground "
+                                    className="text-foreground  "
                                     
                                     dangerouslySetInnerHTML={{ __html: leftText }}
                                   />
@@ -3281,12 +3281,12 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
         <div id="credits-section" className="w-full bg-[#ececec] dark:bg-[#1e1e1e] py-12 md:py-16  md:pb-16">
           <div className="max-w-3xl mx-auto px-4 md:px-8">
             {/* Donate Section */}
-            <div className="bg-white dark:bg-popover rounded-lg p-6 md:p-8 mb-8 shadow-sm">
-              <h3 className={`text-2xl mb-4 ${story.isStudent ? 'text-[#2F80ED]' : 'text-primary-PARI-Red'}`}>
+            <div className="bg-white dark:bg-popover  rounded-lg p-6 md:p-8 mb-8 shadow-sm">
+              <h3 className={`text-2xl font-noto-sans mb-4 ${story.isStudent ? 'text-[#2F80ED] ' : 'text-primary-PARI-Red'}`}>
                 {getTranslatedLabel('donateToPARI', currentLocale)}
               </h3>
 
-              <p className="text-discreet  mb-6">
+              <p className="text-discreet font-noto-sans  mb-6">
                 {getTranslatedLabel('donateDisclaimer', currentLocale)}
               </p>
 
@@ -3323,11 +3323,11 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                     }}
                     className="bg-white dark:bg-popover rounded-lg p-6 md:p-8 mb-6 shadow-sm cursor-pointer hover:shadow-md transition-shadow"
                   >
-                    <h6 className="">
+                    <h6 className="font-noto-sans">
                       {group.title || getTranslatedLabel('author', currentLocale)}
                     </h6>
                     <div className={`text-2xl font-bold mb-4 ${story.isStudent ? 'text-[#2F80ED]' : 'text-foreground'}`}>
-                      <h3 className='text-2xl '>{name}</h3>
+                      <h3 className='text-2xl font-noto-sans'>{name}</h3>
                     </div>
 
                     {/* Show bio if available */}
