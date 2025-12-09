@@ -14,6 +14,7 @@ import qs from 'qs'
 import { BASE_URL } from '@/config'
 import { useLocale } from '@/lib/locale'
 import { useTheme } from 'next-themes'
+import { ArticleData, AuthorData } from '@/components/articles/ArticlesContent'
 
 // Helper function to get current date
 const getCurrentDate = (monthsObj: Record<string, string>, weekDaysObj: Record<string, string>) => {
@@ -56,6 +57,9 @@ interface SearchSuggestion {
   id: number;
   title: string;
   type: string;
+  authors?: string[];
+  location?: string;
+  categories?: Array<{ title: string; slug: string }>;
 }
 
 // Helper function to get logo path based on theme and language
@@ -211,30 +215,61 @@ export function Header() {
       }
 
       try {
-        // Build query for Strapi
-        const query = {
-          filters: {
-            $or: [
-              { Title: { $containsi: searchQuery } },
-              { strap: { $containsi: searchQuery } }
-            ]
-          },
-          fields: ['id', 'Title', 'type'],
-          pagination: {
-            page: 1,
-            pageSize: 5
-          }
+        // Build search parameters to search by title, strap, and author name
+        const searchParams: Record<string, string | number> = {
+          'filters[$or][0][Title][$containsi]': searchQuery,
+          'filters[$or][1][strap][$containsi]': searchQuery,
+          'filters[$or][2][Authors][author_name][Name][$containsi]': searchQuery,
+          'pagination[page]': 1,
+          'pagination[pageSize]': 5,
+          'fields[0]': 'id',
+          'fields[1]': 'Title',
+          'fields[2]': 'type',
+          'populate[Authors][populate][author_name][fields][0]': 'Name',
+          'populate[location][fields][0]': 'name',
+          'populate[location][fields][1]': 'district',
+          'populate[location][fields][2]': 'state',
+          'populate[categories][fields][0]': 'Title',
+          'populate[categories][fields][1]': 'slug'
         }
-        
-        const queryString = qs.stringify(query, { encodeValuesOnly: true })
-        const response = await axios.get(`${BASE_URL}api/articles?${queryString}`)
-        
-        const formattedSuggestions = response.data.data.map((item: {id: number, attributes: {Title: string, type?: string}}) => ({
-          id: item.id,
-          title: item.attributes.Title,
-          type: item.attributes.type || 'article'
-        }))
-        
+
+        const response = await axios.get(`${BASE_URL}api/articles`, { params: searchParams })
+
+        const formattedSuggestions = response.data.data.map((item: ArticleData) => {
+          // Extract authors
+          const authors = item.attributes.Authors
+            ? 'data' in item.attributes.Authors
+              ? item.attributes.Authors.data?.map(
+                  (author: AuthorData) =>
+                    author.attributes?.author_name?.data?.attributes?.Name || 'PARI'
+                ) || ['PARI']
+              : (item.attributes.Authors as AuthorData[]).map(
+                  (author: AuthorData) =>
+                    author.author_name?.data?.attributes?.Name || 'PARI'
+                )
+            : ['PARI'];
+
+          // Extract location
+          const location = item.attributes.location?.data?.attributes?.name ||
+                          item.attributes.location_auto_suggestion ||
+                          'India';
+
+          // Extract categories
+          const categories = item.attributes.categories?.data?.map((cat: { attributes: { Title: string; slug?: string } }) => ({
+            title: cat.attributes.Title,
+            slug: cat.attributes.slug || ''
+          })) || [];
+
+          return {
+            id: item.id,
+            title: item.attributes.Title,
+            type: item.attributes.type || 'article',
+            authors,
+            location,
+            categories
+          };
+        })
+
         setSuggestions(formattedSuggestions)
         setShowSuggestions(formattedSuggestions.length > 0)
       } catch (error) {
@@ -417,20 +452,38 @@ export function Header() {
                 {isSearchExpanded && showSuggestions && suggestions.length > 0 && (
                   <div
                     ref={suggestionsRef}
-                    className="absolute z-50 w-full bg-background border border-input rounded-md shadow-md mt-1 left-0 right-0 md:mx-0 px-4 md:px-0"
+                    className="absolute z-50 w-full bg-background dark:bg-popover border border-input rounded-md shadow-md mt-1 left-0 right-0 md:mx-0 px-4 md:px-0"
                   >
                     <div className="max-w-[1232px] mx-auto">
                       {suggestions.map((suggestion) => (
                         <div
                           key={suggestion.id}
-                          className="p-3 hover:bg-muted cursor-pointer flex items-center border-b border-border last:border-0"
+                          className="p-3 hover:bg-muted cursor-pointer border-b border-border last:border-0"
                           onClick={() => handleSuggestionSelect(suggestion.title)}
                         >
                           <div className="flex-1">
-                            {highlightMatch(suggestion.title, searchQuery)}
-                            <span className="ml-2 text-xs text-muted-foreground">
-                              {suggestion.type}
-                            </span>
+                            <div className="font-medium">
+                              {highlightMatch(suggestion.title, searchQuery)}
+                            </div>
+                            <div className="flex flex-wrap items-center gap-2 mt-1 text-xs text-muted-foreground">
+                              {suggestion.authors && suggestion.authors.length > 0 && (
+                                <span>
+                                  Author {suggestion.authors.map((author, idx) => (
+                                    <span key={idx}>
+                                      {idx > 0 && ', '}
+                                      {highlightMatch(author, searchQuery)},
+                                    </span>
+                                  ))}
+                                </span>
+                              )}
+                              Location {suggestion.location && (
+                                <span className="flex items-center">
+                                  <span className="mx-1">•</span>
+                                  {highlightMatch(suggestion.location, searchQuery)}
+                                </span>
+                              )}
+                             
+                            </div>
                           </div>
                         </div>
                       ))}
