@@ -402,7 +402,7 @@ export const NewsletterBottomSheet: React.FC<NewsletterBottomSheetProps> = ({
         onClick={onClose}
       >
         <div
-          className="bg-white dark:bg-popover py-3 rounded-t-3xl md:rounded-[16px] shadow-2xl md:max-w-lg w-full max-h-[90vh] overflow-hidden border border-border dark:border-borderline"
+          className="bg-white dark:bg-popover py-3 rounded-t-3xl md:rounded-[16px] shadow-2xl md:max-w-lg w-full max-h-[95vh] overflow-hidden border border-border dark:border-borderline"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Handle Bar */}
@@ -618,7 +618,7 @@ export const NewsletterBottomSheet: React.FC<NewsletterBottomSheetProps> = ({
               </div>
 
               {/* Submit Button */}
-              <div className="pt-4 relative bottom-2">
+              <div className="pt-4 relative bottom-4">
                 <button
                   type="submit"
                
