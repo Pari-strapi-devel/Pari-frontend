@@ -1179,6 +1179,13 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
     window.location.href = `mailto:?subject=${subject}&body=${body}`
   }, [story?.title])
 
+  const shareToInstagram = useCallback(() => {
+    // Instagram doesn't have a direct web share URL, so we copy the link
+    // Users can then paste it in Instagram
+    navigator.clipboard.writeText(window.location.href)
+    alert('Link copied! You can now paste it in Instagram.')
+  }, [])
+
   const handlePrint = useCallback(() => {
     window.print()
   }, [])
@@ -4086,7 +4093,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                   {/* PARI Logo */}
                   <div className="absolute top-3 left-3">
                     <Image
-                      src="/images/header-logo/For-dark-mode/pari-english-dark.png"
+                      src="/pari-logo.png"
                       alt="PARI"
                       width={80}
                       height={30}
@@ -4095,13 +4102,18 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                     />
                   </div>
 
-                  {/* Title on Image */}
+                  {/* Title and Strap on Image */}
                   <div className="absolute bottom-0 left-0 right-0 p-4">
                     <h3 className="text-white text-lg font-semibold line-clamp-2 drop-shadow-lg">
                       {story.title}
                     </h3>
+                    {story.subtitle && (
+                      <p className="text-white/90 text-sm mt-2 line-clamp-2 drop-shadow-md">
+                        {story.subtitle}
+                      </p>
+                    )}
                     {story.authors && story.authors.length > 0 && (
-                      <p className="text-white/80 text-sm mt-1">
+                      <p className="text-white/80 text-xs mt-2">
                         By {story.authors.map(a => a.name).slice(0, 2).join(', ')}
                         {story.authors.length > 2 && ' & others'}
                       </p>
@@ -4115,7 +4127,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                 <div className={`relative w-full h-48 ${story.isStudent ? 'bg-[#2F80ED]' : 'bg-primary-PARI-Red'} flex items-center justify-center`}>
                   <div className="absolute top-3 left-3">
                     <Image
-                      src="/images/header-logo/For-dark-mode/pari-english-dark.png"
+                      src="/pari-logo.png"
                       alt="PARI"
                       width={80}
                       height={30}
@@ -4124,9 +4136,14 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                     />
                   </div>
                   <div className="p-4 text-center">
-                    <h3 className="text-white text-lg font-semibold line-clamp-3">
+                    <h3 className="text-white text-lg font-semibold line-clamp-2">
                       {story.title}
                     </h3>
+                    {story.subtitle && (
+                      <p className="text-white/90 text-sm mt-2 line-clamp-2">
+                        {story.subtitle}
+                      </p>
+                    )}
                   </div>
                 </div>
               )}
@@ -4169,6 +4186,17 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                     <FaXTwitter size={22} />
                   </div>
                   <span className="text-xs text-gray-600 dark:text-gray-400">X</span>
+                </button>
+
+                {/* Instagram */}
+                <button
+                  onClick={shareToInstagram}
+                  className="flex flex-col items-center gap-2 group"
+                >
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#833AB4] via-[#FD1D1D] to-[#F77737] flex items-center justify-center text-white group-hover:scale-110 transition-transform shadow-lg">
+                    <FaInstagram size={24} />
+                  </div>
+                  <span className="text-xs text-gray-600 dark:text-gray-400">Instagram</span>
                 </button>
 
                 {/* Telegram */}

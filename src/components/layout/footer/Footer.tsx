@@ -186,8 +186,8 @@ export function Footer() {
 
 
 
-  if (isLoading) return <div className="font-noto-sans text-[15px] text-[#4F4F4F] font-normal leading-[150%] tracking-[-0.03em]">Loading...</div>
-  if (error) return <div className="font-noto-sans text-[15px] text-[#4F4F4F] font-normal leading-[150%] tracking-[-0.03em]">Error: {error}</div>
+  if (isLoading) return <div className="text-[15px] text-[#4F4F4F] font-normal leading-[150%] tracking-[-0.03em]">Loading...</div>
+  if (error) return <div className="text-[15px] text-[#4F4F4F] font-normal leading-[150%] tracking-[-0.03em]">Error: {error}</div>
 
   const logoUrl = footerData?.data?.attributes?.logo?.data?.attributes?.url
 
@@ -216,17 +216,17 @@ export function Footer() {
               </div>
             )}
             <div>
-              <h5 className="font-noto-sans text-[18px]  text-foreground mb-2">
+              <h5 className=" text-[18px]  text-foreground mb-2">
                {title}
               </h5>
-              <p className="font-noto-sans text-[15px] text-discreet-text  font-normal leading-[150%] tracking-[-0.03em] mb-10">
+              <p className="text-[15px] text-discreet-text  font-normal leading-[150%] tracking-[-0.03em] mb-10">
                 {description}
               </p>
             </div>
             
             <div className="mt-4">
               <div className="bg-transparent shadow-none p-0 max-w-none">
-                <h5 className="font-noto-sans text-[18px]  text-foreground mb-4">
+                <h5 className=" text-[18px]  text-foreground mb-4">
                   {footerData?.data?.attributes?.sign_up_for_our_newsletter || 'Sign up for our newsletter'}
                 </h5>
 
@@ -248,7 +248,7 @@ export function Footer() {
                     <button
                       type="button"
                       disabled={isSubscribing}
-                      className="px-4 py-2 bg-primary-PARI-Red text-white rounded-[26px] hover:bg-primary-PARI-Red/90 focus:outline-none focus:ring-2 focus:ring-primary-PARI-Red focus:ring-offset-2 font-noto-sans text-[15px] font-medium"
+                      className="px-4 py-2 bg-primary-PARI-Red text-white rounded-[26px] hover:bg-primary-PARI-Red/90 focus:outline-none focus:ring-2 focus:ring-primary-PARI-Red focus:ring-offset-2  text-[15px] font-medium"
                       onClick={() => {
                        
                         setIsNewsletterSheetOpen(true);
@@ -277,7 +277,7 @@ export function Footer() {
                     <nav className="space-y-3 gap-y-2 flex flex-col">
                       <Link
                         href={addLocaleToUrl(footerLink.link || '/')}
-                        className="flex items-center gap-2 text-discreet-text hover:text-foreground transition-colors group font-noto-sans text-[15px] leading-[170%] tracking-[-0.03em]"
+                        className="flex items-center gap-2 text-discreet-text hover:text-foreground transition-colors group text-[15px] leading-[170%] tracking-[-0.03em]"
                       >
                         {/* {iconUrl && (
                           <div className="w-[20px] h-[20px] flex items-center justify-center flex-shrink-0">
@@ -290,7 +290,7 @@ export function Footer() {
                             />
                           </div>
                         )} */}
-                        <span className="font-noto-sans text-[15px] font-medium leading-[170%] tracking-[-0.03em]">{footerLink.name}</span>
+                        <span className="text-[15px]  ">{footerLink.name}</span>
                       </Link>
                     </nav>
                   </div>
