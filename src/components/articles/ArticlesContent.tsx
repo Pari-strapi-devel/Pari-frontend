@@ -988,10 +988,10 @@ export default function ArticlesContent() {
         <div className="mb-8 pl-3">
           <div className={`flex items-center justify-between mb-4 ${currentLocale === 'ur' ? 'flex-row-reverse' : ''}`}>
             <div>
-              <h1 className="text-4xl ml-3 font-bold">Articles</h1>
+              <h1 className="text-4xl font-noto-sans font-bold">Articles</h1>
               {/* Author-specific title */}
               {activeFilters.author && (
-                <h2 className="text-xl ml-3 mt-2 font-semibold text-primary-PARI-Red">
+                <h2 className="text-xl ml-3 mt-2 font-noto-sans font-semibold text-primary-PARI-Red">
                   Stories by {activeFilters.author}
                 </h2>
               )}
@@ -1026,7 +1026,7 @@ export default function ArticlesContent() {
                 variant="secondary"
                 size="sm"
                 onClick={clearFilters}
-                className="text-primary-PARI-Red rounded-[48px] hover:bg-primary-PARI-Red hover:text-white border-primary-PARI-Red"
+                className="text-primary-PARI-Red font-noto-sans rounded-[48px] hover:bg-primary-PARI-Red hover:text-white border-primary-PARI-Red"
               >
                 Clear all filters
               </Button>
@@ -1209,7 +1209,7 @@ export default function ArticlesContent() {
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center min-h-[400px]">
-            <h2 className="text-2xl font-semibold mb-4">No articles found</h2>
+            <h2 className="text-2xl font-noto-sans font-semibold mb-4">No articles found</h2>
             <p className="text-gray-600 text-center max-w-md">
               We couldn&apos;t find any articles matching your selected filters. 
               Try adjusting your filters or browse our categories.
@@ -1217,7 +1217,7 @@ export default function ArticlesContent() {
             {hasActiveFilters && (
               <Button 
                 variant="secondary"
-                className="mt-4 bg-primary-PARI-Red rounded-[48px] text-white hover:bg-primary-PARI-Red/80"
+                className="mt-4 bg-primary-PARI-Red font-noto-sans rounded-[48px] text-white hover:bg-primary-PARI-Red/80"
                 onClick={clearFilters}
               >
                 Clear All Filters
