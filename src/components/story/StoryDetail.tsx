@@ -1180,10 +1180,23 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
   }, [story?.title])
 
   const shareToInstagram = useCallback(() => {
-    // Instagram doesn't have a direct web share URL, so we copy the link
-    // Users can then paste it in Instagram
-    navigator.clipboard.writeText(window.location.href)
-    alert('Link copied! You can now paste it in Instagram.')
+    const url = window.location.href
+
+    // Try to open Instagram app with the URL
+    // Instagram doesn't support direct sharing via URL, so we open the app
+    const instagramUrl = `instagram://`
+
+    // Try to open Instagram app
+    window.location.href = instagramUrl
+
+    // Fallback: If Instagram app doesn't open (desktop), copy link after a delay
+    setTimeout(() => {
+      navigator.clipboard.writeText(url).then(() => {
+        // Link copied as fallback
+      }).catch(() => {
+        console.log('Failed to copy link')
+      })
+    }, 1000)
   }, [])
 
   const handlePrint = useCallback(() => {
