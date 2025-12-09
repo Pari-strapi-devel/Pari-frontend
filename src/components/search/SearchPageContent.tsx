@@ -200,6 +200,7 @@ export default function SearchPageContent() {
         'filters[$or][6][categories][Title][$containsi]': query,
         'pagination[page]': page,
         'pagination[pageSize]': pageSize,
+        'sort[0]': 'Original_published_date:desc',
         'populate[Cover_image][fields][0]': 'url',
         'populate[location][fields][0]': 'name',
         'populate[location][fields][1]': 'district',
@@ -590,7 +591,7 @@ export default function SearchPageContent() {
             {(filters.category || filters.author || filters.location || filters.dateFrom || filters.dateTo) && (
               <div className="flex flex-wrap gap-2 mt-4">
                 {filters.category && (
-                  <div className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-background border-2 border-primary-PARI-Red text-primary-PARI-Red rounded-full text-sm font-medium">
+                  <div className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-background border-1 border-primary-PARI-Red text-primary-PARI-Red rounded-full text-sm font-medium">
                     <span>{filters.category}</span>
                     <button
                       onClick={() => clearFilter('category')}
@@ -602,7 +603,7 @@ export default function SearchPageContent() {
                   </div>
                 )}
                 {filters.author && (
-                  <div className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-background border-2 border-primary-PARI-Red text-primary-PARI-Red rounded-full text-sm font-medium">
+                  <div className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-background border-1 border-primary-PARI-Red text-primary-PARI-Red rounded-full text-sm font-medium">
                     <span>Author: {filters.author}</span>
                     <button
                       onClick={() => clearFilter('author')}
@@ -614,7 +615,7 @@ export default function SearchPageContent() {
                   </div>
                 )}
                 {filters.location && (
-                  <div className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-background border-2 border-primary-PARI-Red text-primary-PARI-Red rounded-full text-sm font-medium">
+                  <div className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-background border-1 border-primary-PARI-Red text-primary-PARI-Red rounded-full text-sm font-medium">
                     <span>Location: {filters.location}</span>
                     <button
                       onClick={() => clearFilter('location')}
@@ -626,7 +627,7 @@ export default function SearchPageContent() {
                   </div>
                 )}
                 {(filters.dateFrom || filters.dateTo) && (
-                  <div className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-background border-2 border-primary-PARI-Red text-primary-PARI-Red rounded-full text-sm font-medium">
+                  <div className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-background border-1 border-primary-PARI-Red text-primary-PARI-Red rounded-full text-sm font-medium">
                     <span>
                       Date: {filters.dateFrom || '...'} to {filters.dateTo || '...'}
                     </span>

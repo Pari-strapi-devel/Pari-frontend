@@ -480,6 +480,8 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
     mobileCoverImage?: string;
     categories?: Array<{ title: string; slug: string }>;
     location?: string;
+    city?: string;
+    state?: string;
     availableLanguages?: Array<{ code: string; slug: string }>;
     relatedStoriesData?: ArticleData[];
     isStudent?: boolean;
@@ -1472,10 +1474,10 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
 
             {/* Location and Date */}
             <div className="flex items-center  gap-2 mb-4">
-              <h6 className={`${story.isStudent ? ' text-[#2F80ED]' : 'text-primary-PARI-Red'} font-noto-sans text-[14px] `}
-               
+              <h6 className={`${story.isStudent ? ' text-[#2F80ED]' : 'text-primary-PARI-Red'} font-noto-sans text-[14px] uppercase`}
+
               >
-                {story.location || 'SANGUR, PUNJAB'}
+                {[ story.city, story.state].filter(Boolean).join(', ') || 'SANGUR, PUNJAB'}
               </h6>
               <span className="text-gray-400 dark:text-[#8e8888]">|</span>
               <h6 className="text-grey-300 dark:text-discreet-text font-noto-sans text-[14px]"
@@ -5186,6 +5188,10 @@ async function fetchStoryBySlug(slug: string) {
                     articleData.attributes.location_auto_suggestion ||
                     undefined
 
+    // Get city (district) and state
+    const city = articleData.attributes.location?.data?.attributes?.district || undefined
+    const state = articleData.attributes.location?.data?.attributes?.state || undefined
+
     // Get available languages from localizations with slugs
     let availableLanguages: Array<{ code: string; slug: string }> = []
 
@@ -5240,6 +5246,8 @@ async function fetchStoryBySlug(slug: string) {
       mobileCoverImage: mobileCoverImageUrl,
       categories,
       location,
+      city,
+      state,
       availableLanguages,
       relatedStoriesData,
       isStudent,
