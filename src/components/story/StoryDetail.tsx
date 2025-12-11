@@ -339,8 +339,8 @@ function stripHtmlCssWithStyledStrong(text: string): string {
   result = result.replace(/<span[^>]*>/gi, '');
   result = result.replace(/<\/span>/gi, '');
 
-  // Convert newline characters to br placeholder
-  result = result.replace(/\n/g, '___BR_TAG___');
+  // Remove newline characters (don't convert to br - Strapi already has proper p tags)
+  result = result.replace(/\n/g, '');
 
   // Handle nbsp
   result = result.replace(/&nbsp;/gi, ' ');
@@ -1935,9 +1935,12 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                   white-space: pre-line;
                                 }
                                 .article-content-text :global(p) {
-                                  margin-bottom: 1rem;
+                                  margin-bottom: 0;
                                   font-weight: 400;
                                   white-space: normal;
+                                }
+                                .article-content-text :global(p + p) {
+                                  margin-top: 1rem;
                                 }
                                 .article-content-text :global(br) {
                                   display: block !important;
