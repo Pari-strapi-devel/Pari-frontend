@@ -478,6 +478,8 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
     content: (string | ContentParagraph | ExtendedContentItem)[];
     coverImage?: string;
     mobileCoverImage?: string;
+    coverImageCaption?: string;
+    coverImageCredits?: string;
     categories?: Array<{ title: string; slug: string }>;
     location?: string;
     city?: string;
@@ -551,6 +553,14 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
   const [imageAnimating, setImageAnimating] = useState(false)
   const [showOriginalSize, setShowOriginalSize] = useState(false)
   const [showCaption, setShowCaption] = useState(true)
+
+  // State for banner zoom
+  const [showBannerZoom, setShowBannerZoom] = useState(false)
+  const [bannerScale, setBannerScale] = useState(1)
+  const [bannerPosition, setBannerPosition] = useState({ x: 0, y: 0 })
+  const [isBannerDragging, setIsBannerDragging] = useState(false)
+  const [bannerDragStart, setBannerDragStart] = useState({ x: 0, y: 0 })
+  const [showBannerCaption, setShowBannerCaption] = useState(true)
 
   // Collect all images from content when story loads - memoized
   const allImages = useMemo(() => {
@@ -1256,6 +1266,38 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
     setShowCaption(prev => !prev)
   }, [])
 
+  // Banner zoom handlers
+  const handleBannerClick = useCallback(() => {
+    if (story?.coverImage) {
+      setShowBannerZoom(true)
+      setBannerScale(1)
+      setBannerPosition({ x: 0, y: 0 })
+    }
+  }, [story?.coverImage])
+
+  const handleCloseBannerZoom = useCallback(() => {
+    setShowBannerZoom(false)
+    setBannerScale(1)
+    setBannerPosition({ x: 0, y: 0 })
+  }, [])
+
+  const handleBannerZoomIn = useCallback(() => {
+    setBannerScale(prev => Math.min(prev + 0.5, 5))
+  }, [])
+
+  const handleBannerZoomOut = useCallback(() => {
+    setBannerScale(prev => Math.max(prev - 0.5, 0.5))
+  }, [])
+
+  const handleBannerResetZoom = useCallback(() => {
+    setBannerScale(1)
+    setBannerPosition({ x: 0, y: 0 })
+  }, [])
+
+  const handleToggleBannerCaption = useCallback(() => {
+    setShowBannerCaption(prev => !prev)
+  }, [])
+
   // Keyboard navigation for image modal
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -1273,6 +1315,20 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [showImageModal, handleCloseImageModal, handleNextImage, handlePrevImage])
+
+  // Keyboard navigation for banner zoom modal
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!showBannerZoom) return
+
+      if (e.key === 'Escape') {
+        handleCloseBannerZoom()
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [showBannerZoom, handleCloseBannerZoom])
 
   if (isLoading) {
     return <StoryDetailSkeleton />
@@ -1448,7 +1504,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
       </div>
 
       {/* Hero Image */}
-      <div className="relative w-full">
+      <div className="relative w-full group">
         {story.coverImage && (
           <div className="relative w-full md:h-[100vh] h-[50vh]">
             {/* Desktop cover image */}
@@ -1456,19 +1512,32 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
               src={story.coverImage}
               alt={story.title}
               fill
-              className="hidden md:block object-cover object-center md:rounded-none"
+              className="hidden md:block object-cover object-center md:rounded-none cursor-pointer"
               priority
               unoptimized
+              onClick={handleBannerClick}
             />
             {/* Mobile cover image - use mobileCoverImage if available, otherwise fallback to coverImage */}
             <Image
               src={story.mobileCoverImage || story.coverImage}
               alt={story.title}
               fill
-              className="block md:hidden object-cover object-center"
+              className="block md:hidden object-cover object-center cursor-pointer"
               priority
               unoptimized
+              onClick={handleBannerClick}
             />
+
+            {/* Zoom Icon Overlay */}
+            <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              <button
+                onClick={handleBannerClick}
+                className={`${story.isStudent ? 'bg-[#2F80ED]' : 'bg-primary-PARI-Red'} text-white p-3 rounded-full shadow-lg hover:scale-110 transition-transform`}
+                title="Zoom Image"
+              >
+                <ZoomIn size={24} />
+              </button>
+            </div>
           </div>
 
         )}
@@ -1773,7 +1842,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                               <div key={`img-${index}-${imgIndex}`} className="space-y-3">
                                 <div
                                   className="w-full h-auto md:h-[600px] cursor-pointer relative group"
-                                  onClick={() => handleImageClick(imageData!.url, imageData!.alt || 'Article image', imageData!.caption)}
+                                  onClick={() => handleImageClick(imageData!.url, imageData!.alt || 'Article image', imageData!.caption, imageData!.credits)}
                                 >
                                   <Image
                                     src={imageData!.url}
@@ -1811,7 +1880,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                             <div className="space-y-3">
                               <div
                                 className="w-full h-auto md:h-[600px] cursor-pointer relative group"
-                                onClick={() => handleImageClick(allImageData[0]!.url, allImageData[0]!.alt || 'Article image', allImageData[0]!.caption)}
+                                onClick={() => handleImageClick(allImageData[0]!.url, allImageData[0]!.alt || 'Article image', allImageData[0]!.caption, allImageData[0]!.credits)}
                               >
                                 <Image
                                   src={allImageData[0]!.url}
@@ -1843,7 +1912,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                 <div key={`img-${index}-${imgIndex + 1}`} className="space-y-3">
                                   <div
                                     className="w-full h-auto md:h-[600px] cursor-pointer relative group"
-                                    onClick={() => handleImageClick(imageData!.url, imageData!.alt || `Article image ${imgIndex + 2}`, imageData!.caption)}
+                                    onClick={() => handleImageClick(imageData!.url, imageData!.alt || `Article image ${imgIndex + 2}`, imageData!.caption, imageData!.credits)}
                                   >
                                     <Image
                                       src={imageData!.url}
@@ -2037,7 +2106,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                       <div key={imgIndex} className="space-y-3">
                                         <div
                                           className="w-full h-auto md:h-[600px] cursor-pointer relative group"
-                                          onClick={() => handleImageClick(img.url, img.alt || `Image ${imgIndex + 1}`, img.caption)}
+                                          onClick={() => handleImageClick(img.url, img.alt || `Image ${imgIndex + 1}`, img.caption, img.credits)}
                                         >
                                           <Image
                                             src={img.url}
@@ -2053,6 +2122,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                           </div>
                                         </div>
                                       </div>
+                                    
                                     ))}
                                   </div>
 
@@ -2071,6 +2141,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                         />
                                       )}
                                     </div>
+
                                   )}
                                 </div>
                               </div>
@@ -2085,7 +2156,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                 <div className="space-y-3">
                                   <div
                                     className="w-full cursor-pointer relative group"
-                                    onClick={() => handleImageClick(multipleImages[0].url, multipleImages[0].alt || 'Image 1', multipleImages[0].caption)}
+                                    onClick={() => handleImageClick(multipleImages[0].url, multipleImages[0].alt || 'Image 1', multipleImages[0].caption, multipleImages[0].credits)}
                                   >
                                     <Image
                                       src={multipleImages[0].url}
@@ -2109,7 +2180,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                       <div key={imgIndex + 1} className="space-y-3">
                                         <div
                                           className="w-full cursor-pointer relative group"
-                                          onClick={() => handleImageClick(img.url, img.alt || `Image ${imgIndex + 2}`, img.caption)}
+                                          onClick={() => handleImageClick(img.url, img.alt || `Image ${imgIndex + 2}`, img.caption, img.credits)}
                                         >
                                           <Image
                                             src={img.url}
@@ -2123,6 +2194,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                           <div className="absolute bottom-2 right-2 bg-black/60 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
                                             <ZoomIn className="w-5 h-5" />
                                           </div>
+                                          
                                         </div>
                                       </div>
                                     ))}
@@ -2596,7 +2668,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                     <div key={imgIndex} className="space-y-3">
                                       <div
                                         className="w-full h-auto md:h-[600px] cursor-pointer relative group"
-                                        onClick={() => handleImageClick(img.url, img.alt || `Image ${imgIndex + 1}`, img.caption)}
+                                        onClick={() => handleImageClick(img.url, img.alt || `Image ${imgIndex + 1}`, img.caption, img.credits)}
                                       >
                                         <Image
                                           src={img.url}
@@ -2633,7 +2705,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                 <div className="space-y-3">
                                   <div
                                     className="w-full cursor-pointer relative group"
-                                    onClick={() => handleImageClick(multCaptionImages[0].url, multCaptionImages[0].alt || 'Image 1', multCaptionImages[0].caption)}
+                                    onClick={() => handleImageClick(multCaptionImages[0].url, multCaptionImages[0].alt || 'Image 1', multCaptionImages[0].caption, multCaptionImages[0].credits)}
                                   >
                                     <Image
                                       src={multCaptionImages[0].url}
@@ -2664,7 +2736,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                       <div key={imgIndex + 1} className="space-y-3">
                                         <div
                                           className="w-full h-[300px] md:h-[400px] cursor-pointer relative group"
-                                          onClick={() => handleImageClick(img.url, img.alt || `Image ${imgIndex + 2}`, img.caption)}
+                                          onClick={() => handleImageClick(img.url, img.alt || `Image ${imgIndex + 2}`, img.caption, img.credits)}
                                         >
                                           <Image
                                             src={img.url}
@@ -2999,7 +3071,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                   <div className="space-y-3">
                                     <div
                                       className="w-full cursor-pointer relative group"
-                                      onClick={() => handleImageClick(quoteImageData.url, quoteImageData.alt || 'Quote image', quoteImageData.caption)}
+                                      onClick={() => handleImageClick(quoteImageData.url, quoteImageData.alt || 'Quote image', quoteImageData.caption, quoteImageData.credits)}
                                     >
                                       <Image
                                         src={quoteImageData.url}
@@ -4083,14 +4155,220 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
               style={{ bottom: imageScale > 1 ? '4.5rem' : '3rem ' }}
             >
               {selectedImage.credits && (
-                <div className={`text-sm md:text-sm font-semibold ${story?.isStudent ? 'text-student-blue' : 'text-primary-PARI-Red'} mb-2`}>
+                <p className={`text-sm ${story?.isStudent ? 'text-white' : 'text-foreground'} mb-1`}>
                   {selectedImage.credits}
-                </div>
+                </p>
               )}
               {selectedImage.caption && (
                 <div
-                  className="text-base md:text-base font-medium"
+                  className={`text-sm text-foreground ${story?.isStudent ? 'text-white' : 'text-foreground'}`}
                   dangerouslySetInnerHTML={{ __html: stripHtmlCssWithStyledStrong(selectedImage.caption) }}
+                />
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Banner Zoom Modal */}
+      {showBannerZoom && story.coverImage && (
+        <div
+          className="fixed inset-0 z-[99999] bg-background/98 dark:bg-popover/98 flex items-center justify-center"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              handleCloseBannerZoom()
+            }
+          }}
+        >
+          {/* Close Button */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              handleCloseBannerZoom()
+            }}
+            className={`absolute top-3 right-3 md:top-4 md:right-4 z-[100001] w-14 h-14 md:w-12 md:h-12 flex items-center justify-center rounded-full transition-colors ${
+              story?.isStudent
+                ? 'bg-student-blue/20 hover:bg-student-blue/30 text-student-blue'
+                : 'bg-primary-PARI-Red/20 hover:bg-primary-PARI-Red/30 text-primary-PARI-Red'
+            }`}
+            aria-label="Close image"
+          >
+            <svg
+              width="28"
+              height="28"
+              className="md:w-6 md:h-6"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+
+          {/* Zoom Controls */}
+          <div className="absolute top-3 left-3 md:top-4 md:left-4 z-[100000] flex flex-col gap-2">
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                handleBannerZoomIn()
+              }}
+              className={`w-14 h-14 md:w-12 md:h-12 flex items-center justify-center rounded-full transition-colors ${
+                story?.isStudent
+                  ? 'bg-student-blue/20 hover:bg-student-blue/30 text-student-blue'
+                  : 'bg-primary-PARI-Red/20 hover:bg-primary-PARI-Red/30 text-primary-PARI-Red'
+              }`}
+              aria-label="Zoom in"
+              title="Zoom in"
+            >
+              <svg width="28" height="28" className="md:w-6 md:h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <line x1="12" y1="8" x2="12" y2="16" />
+                <line x1="8" y1="12" x2="16" y2="12" />
+              </svg>
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                handleBannerZoomOut()
+              }}
+              className={`w-14 h-14 md:w-12 md:h-12 flex items-center justify-center rounded-full transition-colors ${
+                story?.isStudent
+                  ? 'bg-student-blue/20 hover:bg-student-blue/30 text-student-blue'
+                  : 'bg-primary-PARI-Red/20 hover:bg-primary-PARI-Red/30 text-primary-PARI-Red'
+              }`}
+              aria-label="Zoom out"
+              title="Zoom out"
+            >
+              <svg width="28" height="28" className="md:w-6 md:h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <line x1="8" y1="12" x2="16" y2="12" />
+              </svg>
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                handleBannerResetZoom()
+              }}
+              className={`w-14 h-14 md:w-12 md:h-12 flex items-center justify-center rounded-full transition-colors text-sm md:text-xs font-semibold ${
+                story?.isStudent
+                  ? 'bg-student-blue/20 hover:bg-student-blue/30 text-student-blue'
+                  : 'bg-primary-PARI-Red/20 hover:bg-primary-PARI-Red/30 text-primary-PARI-Red'
+              }`}
+              aria-label="Reset zoom"
+              title="Reset zoom to fit screen"
+            >
+              1:1
+            </button>
+            {/* Caption Toggle Button - Only show if there's a caption or credits */}
+            {(story.coverImageCaption || story.coverImageCredits) && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  handleToggleBannerCaption()
+                }}
+                className={`w-14 h-14 md:w-auto md:h-12 md:px-3 flex items-center justify-center rounded-full transition-colors text-[10px] md:text-xs font-semibold ${
+                  story?.isStudent
+                    ? 'bg-student-blue/20 hover:bg-student-blue/30 text-student-blue'
+                    : 'bg-primary-PARI-Red/20 hover:bg-primary-PARI-Red/30 text-primary-PARI-Red'
+                }`}
+                aria-label={showBannerCaption ? "Hide caption" : "Show caption"}
+                title={showBannerCaption ? "Hide caption" : "Show caption"}
+              >
+                {showBannerCaption ? <CaptionsOff size={28} className="md:w-6 md:h-6" /> : <Captions size={28} className="md:w-6 md:h-6" />}
+              </button>
+            )}
+          </div>
+
+          {/* Zoom Level Indicator */}
+          <div className="absolute top-3 md:top-4 left-1/2 transform -translate-x-1/2 z-[100000]">
+            <div className={`px-5 py-2.5 md:px-4 md:py-2 rounded-lg text-base md:text-sm font-medium ${
+              story?.isStudent
+                ? 'bg-student-blue/90 text-white'
+                : 'bg-primary-PARI-Red/90 text-white'
+            }`}>
+              {Math.round(bannerScale * 100)}%
+            </div>
+          </div>
+
+          {/* Image Container */}
+          <div
+            className="absolute inset-0 flex items-center justify-center overflow-hidden px-20"
+            style={{ pointerEvents: 'none' }}
+            onMouseMove={(e: React.MouseEvent) => {
+              if (isBannerDragging && bannerScale > 1) {
+                setBannerPosition({
+                  x: e.clientX - bannerDragStart.x,
+                  y: e.clientY - bannerDragStart.y
+                })
+              }
+            }}
+            onMouseUp={() => setIsBannerDragging(false)}
+            onMouseLeave={() => setIsBannerDragging(false)}
+            onWheel={(e: React.WheelEvent) => {
+              e.preventDefault()
+              if (e.deltaY < 0) {
+                setBannerScale(prev => Math.min(prev + 0.2, 5))
+              } else {
+                setBannerScale(prev => Math.max(prev - 0.2, 0.5))
+              }
+            }}
+          >
+            <div
+              onClick={(e) => e.stopPropagation()}
+              onMouseDown={(e: React.MouseEvent) => {
+                if (bannerScale > 1) {
+                  setIsBannerDragging(true)
+                  setBannerDragStart({ x: e.clientX - bannerPosition.x, y: e.clientY - bannerPosition.y })
+                }
+              }}
+              style={{
+                transform: `translate(${bannerPosition.x}px, ${bannerPosition.y}px) scale(${bannerScale})`,
+                transition: isBannerDragging ? 'none' : 'transform 0.2s ease-out',
+                pointerEvents: 'auto',
+                cursor: bannerScale > 1 ? (isBannerDragging ? 'grabbing' : 'grab') : 'default',
+              }}
+              className="flex items-center justify-center"
+            >
+              <Image
+                src={story.coverImage}
+                alt={story.title}
+                width={0}
+                height={0}
+                sizes="100vw"
+                className="w-auto h-auto object-contain"
+                style={{
+                  width: 'auto',
+                  height: 'auto',
+                  maxWidth: bannerScale === 1 ? '95vw' : 'none',
+                  maxHeight: bannerScale === 1 ? '95vh' : 'none',
+                }}
+                unoptimized
+                draggable={false}
+              />
+            </div>
+          </div>
+
+          {/* Banner Caption and Credits - Only show if there's an actual caption or credits */}
+          {showBannerCaption && (story.coverImageCaption || story.coverImageCredits) && (
+            <div
+              className={`absolute left-1/2 transform -translate-x-1/2 px-6 py-3 md:px-6 md:py-3 rounded-lg min-w-[350px] max-w-4xl text-center z-[100001] ${
+                story?.isStudent
+                  ? 'backdrop-blur-sm bg-student-blue/50 text-white'
+                  : 'backdrop-blur-sm bg-white/20 text-foreground'
+              }`}
+              style={{ bottom: bannerScale > 1 ? '4.5rem' : '3rem' }}
+            >
+              {story.coverImageCredits && (
+                <div className={`text-sm md:text-sm font-semibold ${story?.isStudent ? 'text-student-white' : 'text-foreground'} mb-2`}>
+                  {story.coverImageCredits}
+                </div>
+              )}
+              {story.coverImageCaption && (
+                <div
+                  className="text-base md:text-base font-medium"
+                  dangerouslySetInnerHTML={{ __html: stripHtmlCssWithStyledStrong(story.coverImageCaption) }}
                 />
               )}
             </div>
@@ -4418,13 +4696,33 @@ function extractMultipleImages(paragraph: FilterableContentItem): Array<{
   let sharedCaption: string | undefined
   if ('Caption' in obj && typeof obj.Caption === 'string') {
     sharedCaption = obj.Caption
+  } else if ('caption' in obj && typeof obj.caption === 'string') {
+    sharedCaption = obj.caption
   }
 
-  // Apply shared caption to all images if they don't have individual captions
-  if (sharedCaption && images.length > 0) {
+  // Check for shared credits (for single-caption-mul-img)
+  let sharedCredits: string | undefined
+  if ('credits' in obj && obj.credits && typeof obj.credits === 'object') {
+    const creditsObj = obj.credits as Record<string, unknown>
+    if ('data' in creditsObj && creditsObj.data && typeof creditsObj.data === 'object') {
+      const creditsData = creditsObj.data as Record<string, unknown>
+      if ('attributes' in creditsData && creditsData.attributes && typeof creditsData.attributes === 'object') {
+        const creditsAttrs = creditsData.attributes as Record<string, unknown>
+        if ('Name' in creditsAttrs && typeof creditsAttrs.Name === 'string') {
+          sharedCredits = creditsAttrs.Name
+        }
+      }
+    }
+  }
+
+  // Apply shared caption and credits to all images if they don't have individual ones
+  if ((sharedCaption || sharedCredits) && images.length > 0) {
     images.forEach(img => {
-      if (!img.caption) {
+      if (!img.caption && sharedCaption) {
         img.caption = sharedCaption
+      }
+      if (!img.credits && sharedCredits) {
+        img.credits = sharedCredits
       }
     })
   }
@@ -4455,6 +4753,38 @@ function extractImageData(paragraph: FilterableContentItem): {
     componentCaption = obj.Caption
   }
 
+  // Extract photographer/credits at component level
+  let componentCredits: string | undefined
+  if ('Photographer' in obj && obj.Photographer) {
+    if (typeof obj.Photographer === 'string') {
+      componentCredits = obj.Photographer
+    } else if (typeof obj.Photographer === 'object' && obj.Photographer !== null) {
+      const photogObj = obj.Photographer as Record<string, unknown>
+      if ('data' in photogObj && photogObj.data && typeof photogObj.data === 'object') {
+        const photogData = photogObj.data as Record<string, unknown>
+        if ('attributes' in photogData && photogData.attributes && typeof photogData.attributes === 'object') {
+          const photogAttrs = photogData.attributes as Record<string, unknown>
+          componentCredits = photogAttrs.Name as string || photogAttrs.name as string
+        }
+      }
+    }
+  } else if ('photographer' in obj && typeof obj.photographer === 'string') {
+    componentCredits = obj.photographer
+  } else if ('credits' in obj && obj.credits) {
+    if (typeof obj.credits === 'string') {
+      componentCredits = obj.credits
+    } else if (typeof obj.credits === 'object' && obj.credits !== null) {
+      const creditsObj = obj.credits as Record<string, unknown>
+      if ('data' in creditsObj && creditsObj.data && typeof creditsObj.data === 'object') {
+        const creditsData = creditsObj.data as Record<string, unknown>
+        if ('attributes' in creditsData && creditsData.attributes && typeof creditsData.attributes === 'object') {
+          const creditsAttrs = creditsData.attributes as Record<string, unknown>
+          componentCredits = creditsAttrs.Name as string || creditsAttrs.name as string
+        }
+      }
+    }
+  }
+
   // Check for direct image properties
   if ('image' in obj && obj.image && typeof obj.image === 'object') {
     const imageObj = obj.image as Record<string, unknown>
@@ -4474,7 +4804,7 @@ function extractImageData(paragraph: FilterableContentItem): {
             url: fullUrl,
             alt: typeof attrs.alternativeText === 'string' ? attrs.alternativeText : undefined,
             caption: finalCaption,
-            credits: undefined,
+            credits: componentCredits,
             width: typeof attrs.width === 'number' ? attrs.width : undefined,
             height: typeof attrs.height === 'number' ? attrs.height : undefined,
           }
@@ -4488,7 +4818,7 @@ function extractImageData(paragraph: FilterableContentItem): {
         url: imageObj.url.startsWith('http') ? imageObj.url : `${API_BASE_URL}${imageObj.url}`,
         alt: typeof imageObj.alt === 'string' ? imageObj.alt : undefined,
         caption: componentCaption || (typeof imageObj.caption === 'string' ? imageObj.caption : undefined),
-        credits: undefined,
+        credits: componentCredits,
       }
     }
   }
@@ -4507,7 +4837,7 @@ function extractImageData(paragraph: FilterableContentItem): {
             url: `${API_BASE_URL}${attrs.url}`,
             alt: typeof attrs.alternativeText === 'string' ? attrs.alternativeText : undefined,
             caption: finalCaption,
-            credits: undefined,
+            credits: componentCredits,
             width: typeof attrs.width === 'number' ? attrs.width : undefined,
             height: typeof attrs.height === 'number' ? attrs.height : undefined,
           }
@@ -4530,7 +4860,7 @@ function extractImageData(paragraph: FilterableContentItem): {
             url: `${API_BASE_URL}${attrs.url}`,
             alt: typeof attrs.alternativeText === 'string' ? attrs.alternativeText : undefined,
             caption: finalCaption,
-            credits: undefined,
+            credits: componentCredits,
             width: typeof attrs.width === 'number' ? attrs.width : undefined,
             height: typeof attrs.height === 'number' ? attrs.height : undefined,
           }
@@ -4553,7 +4883,7 @@ function extractImageData(paragraph: FilterableContentItem): {
             url: `${API_BASE_URL}${attrs.url}`,
             alt: typeof attrs.alternativeText === 'string' ? attrs.alternativeText : undefined,
             caption: finalCaption,
-            credits: undefined,
+            credits: componentCredits,
             width: typeof attrs.width === 'number' ? attrs.width : undefined,
             height: typeof attrs.height === 'number' ? attrs.height : undefined,
           }
@@ -4576,7 +4906,7 @@ function extractImageData(paragraph: FilterableContentItem): {
             url: `${API_BASE_URL}${attrs.url}`,
             alt: typeof attrs.alternativeText === 'string' ? attrs.alternativeText : undefined,
             caption: finalCaption,
-            credits: undefined,
+            credits: componentCredits,
             width: typeof attrs.width === 'number' ? attrs.width : undefined,
             height: typeof attrs.height === 'number' ? attrs.height : undefined,
           }
@@ -4599,7 +4929,7 @@ function extractImageData(paragraph: FilterableContentItem): {
             url: `${API_BASE_URL}${attrs.url}`,
             alt: typeof attrs.alternativeText === 'string' ? attrs.alternativeText : undefined,
             caption: finalCaption,
-            credits: undefined,
+            credits: componentCredits,
             width: typeof attrs.width === 'number' ? attrs.width : undefined,
             height: typeof attrs.height === 'number' ? attrs.height : undefined,
           }
@@ -4622,7 +4952,7 @@ function extractImageData(paragraph: FilterableContentItem): {
             url: `${API_BASE_URL}${attrs.url}`,
             alt: typeof attrs.alternativeText === 'string' ? attrs.alternativeText : undefined,
             caption: finalCaption,
-            credits: undefined,
+            credits: componentCredits,
             width: typeof attrs.width === 'number' ? attrs.width : undefined,
             height: typeof attrs.height === 'number' ? attrs.height : undefined,
           }
@@ -4637,7 +4967,7 @@ function extractImageData(paragraph: FilterableContentItem): {
       url: obj.url.startsWith('http') ? obj.url : `${API_BASE_URL}${obj.url}`,
       alt: typeof obj.alt === 'string' ? obj.alt : undefined,
       caption: componentCaption || (typeof obj.caption === 'string' ? obj.caption : undefined),
-      credits: undefined,
+      credits: componentCredits,
     }
   }
 
@@ -4913,10 +5243,10 @@ async function fetchStoryBySlug(slug: string) {
       locale: 'all', // Get all locales
       populate: {
         Cover_image: {
-          fields: ['url']
+          fields: ['url', 'caption', 'alternativeText']
         },
         mobilecover: {
-          fields: ['url']
+          fields: ['url', 'caption', 'alternativeText']
         },
         Authors: {
           populate: {
@@ -5232,6 +5562,11 @@ async function fetchStoryBySlug(slug: string) {
       ? `${API_BASE_URL}${articleData.attributes.Cover_image.data.attributes.url}`
       : undefined
 
+    // Get cover image caption and credits
+    const coverImageAttrs = articleData.attributes.Cover_image?.data?.attributes as Record<string, unknown> | undefined
+    const coverImageCaption = (coverImageAttrs && typeof coverImageAttrs.caption === 'string') ? coverImageAttrs.caption : undefined
+    const coverImageCredits = (coverImageAttrs && typeof coverImageAttrs.alternativeText === 'string') ? coverImageAttrs.alternativeText : undefined
+
     // Get mobile cover image
     const attrs = articleData.attributes as unknown as Record<string, unknown>
     const mobileCoverImageUrl =
@@ -5317,6 +5652,8 @@ async function fetchStoryBySlug(slug: string) {
       content: finalContent,
       coverImage: coverImageUrl,
       mobileCoverImage: mobileCoverImageUrl,
+      coverImageCaption,
+      coverImageCredits,
       categories,
       location,
       city,
