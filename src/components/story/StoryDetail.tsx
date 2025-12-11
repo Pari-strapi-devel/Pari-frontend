@@ -1917,14 +1917,23 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                         // Try all possible field names for text content
                         const textContent = obj.Text || obj.Paragraph || obj.content || obj.text || obj.Body || obj.body || ''
 
+                        // Get alignment from Strapi
+                        const alignContent = 'align_content' in obj && typeof obj.align_content === 'string' ? obj.align_content : ''
+
                         if (textContent && typeof textContent === 'string' && textContent.trim().length > 0) {
                           // Check if content is only stars (asterisks)
                           const strippedContent = stripHtmlCssWithStyledStrong(textContent)
 
                           // Debug: log the processed content
                           console.log('##Rohit_Rocks## Processed HTML:', strippedContent)
+                          console.log('##Rohit_Rocks## Align content:', alignContent)
 
                           const isStarsOnly = /^[\s*]+$/.test(strippedContent)
+
+                          // Determine text alignment class
+                          const alignmentClass = alignContent === 'center' || isStarsOnly ? 'text-center' :
+                                                alignContent === 'right' ? 'text-right' :
+                                                alignContent === 'left' ? 'text-left' : ''
 
                           return (
                             <div key={index} className="my-6 max-w-3xl mx-auto px-8 md:px-10 lg:px-16">
@@ -1968,7 +1977,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                 }
                               `}</style>
                               <div
-                                className={`article-content-text text-discreet-text ${isStarsOnly ? 'text-center' : ''}`}
+                                className={`article-content-text text-discreet-text ${alignmentClass}`}
                                 style={{
                                   fontFamily: 'Noto Sans',
                                   fontSize: `${fontSize}px`,
