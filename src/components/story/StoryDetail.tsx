@@ -1189,25 +1189,85 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
     window.location.href = `mailto:?subject=${subject}&body=${body}`
   }, [story?.title])
 
-  const shareToInstagram = useCallback(() => {
+  const shareToInstagram = useCallback(async () => {
     const url = window.location.href
+    const title = story?.title || ''
+    const text = story?.subtitle || ''
+    const imageUrl = story?.coverImage || ''
 
-    // Try to open Instagram app with the URL
-    // Instagram doesn't support direct sharing via URL, so we open the app
-    const instagramUrl = `instagram://`
+    // Detect if user is on mobile
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
 
-    // Try to open Instagram app
-    window.location.href = instagramUrl
+    if (isMobile) {
+      // Try to share with image to Instagram Stories
+      try {
+        // If we have an image, try to share it with Web Share API
+        if (imageUrl && navigator.canShare) {
+          // Fetch the image and convert to blob
+          const response = await fetch(imageUrl)
+          const blob = await response.blob()
+          const file = new File([blob], 'story-image.jpg', { type: blob.type })
 
-    // Fallback: If Instagram app doesn't open (desktop), copy link after a delay
-    setTimeout(() => {
-      navigator.clipboard.writeText(url).then(() => {
-        // Link copied as fallback
-      }).catch(() => {
-        console.log('Failed to copy link')
-      })
-    }, 1000)
-  }, [])
+          // Check if we can share files
+          if (navigator.canShare({ files: [file] })) {
+            await navigator.share({
+              title: title,
+              text: text,
+              url: url,
+              files: [file],
+            })
+            return
+          }
+        }
+
+        // Fallback: Copy link and open Instagram Stories
+        await navigator.clipboard.writeText(url)
+
+        // Try to open Instagram Stories camera
+        const instagramStoryUrl = 'instagram://story-camera'
+        window.location.href = instagramStoryUrl
+
+        // If Instagram doesn't open, try Web Share API
+        setTimeout(() => {
+          if (navigator.share) {
+            navigator.share({
+              title: title,
+              text: text,
+              url: url,
+            }).catch(() => {
+              // Silently fail if user cancels
+            })
+          }
+        }, 1000)
+        return
+      } catch {
+        // Continue to Web Share API fallback
+      }
+    }
+
+    // Web Share API (works on mobile for Instagram feed sharing)
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: title,
+          text: text,
+          url: url,
+        })
+        return
+      } catch (error) {
+        // User cancelled or share failed
+        if ((error as Error).name === 'AbortError') {
+          // User cancelled, do nothing
+          return
+        }
+        // Continue to fallback
+      }
+    }
+
+    // Fallback: Open Instagram in new tab
+    const instagramUrl = 'https://www.instagram.com/'
+    window.open(instagramUrl, '_blank')
+  }, [story?.title, story?.subtitle, story?.coverImage])
 
   const handlePrint = useCallback(() => {
     window.print()
