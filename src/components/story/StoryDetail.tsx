@@ -1772,7 +1772,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                             {allImageData.map((imageData, imgIndex) => (
                               <div key={`img-${index}-${imgIndex}`} className="space-y-3">
                                 <div
-                                  className="w-full h-[500px] md:h-[600px] cursor-pointer relative group"
+                                  className="w-full h-auto md:h-[600px] cursor-pointer relative group"
                                   onClick={() => handleImageClick(imageData!.url, imageData!.alt || 'Article image', imageData!.caption)}
                                 >
                                   <Image
@@ -1810,7 +1810,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                           {allImageData[0] && (
                             <div className="space-y-3">
                               <div
-                                className="w-full h-[500px] md:h-[600px] cursor-pointer relative group"
+                                className="w-full h-auto md:h-[600px] cursor-pointer relative group"
                                 onClick={() => handleImageClick(allImageData[0]!.url, allImageData[0]!.alt || 'Article image', allImageData[0]!.caption)}
                               >
                                 <Image
@@ -1842,7 +1842,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                               {allImageData.slice(1).map((imageData, imgIndex) => (
                                 <div key={`img-${index}-${imgIndex + 1}`} className="space-y-3">
                                   <div
-                                    className="w-full h-[500px] md:h-[600px] cursor-pointer relative group"
+                                    className="w-full h-auto md:h-[600px] cursor-pointer relative group"
                                     onClick={() => handleImageClick(imageData!.url, imageData!.alt || `Article image ${imgIndex + 2}`, imageData!.caption)}
                                   >
                                     <Image
@@ -2036,7 +2036,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                     {multipleImages.map((img, imgIndex) => (
                                       <div key={imgIndex} className="space-y-3">
                                         <div
-                                          className="w-full h-[500px] md:h-[600px] cursor-pointer relative group"
+                                          className="w-full h-auto md:h-[600px] cursor-pointer relative group"
                                           onClick={() => handleImageClick(img.url, img.alt || `Image ${imgIndex + 1}`, img.caption)}
                                         >
                                           <Image
@@ -2060,7 +2060,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                   {(sharedCaption || singleCaptionCredits) && (
                                     <div className="mt-3 md:px-10 px-8">
                                       {singleCaptionCredits && (
-                                        <p className={`text-sm   mb-1`}>
+                                        <p className={`text-sm ${story.isStudent ? 'text-student-blue' : 'text-primary-PARI-Red'} mb-1`}>
                                         {singleCaptionCredits}
                                         </p>
                                       )}
@@ -2133,7 +2133,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                 {(sharedCaption || singleCaptionCredits) && (
                                   <div className="mt-3 md:px-10 px-8">
                                     {singleCaptionCredits && (
-                                      <p className={`text-sm text-primary-PARI-Red  mb-1`}>
+                                      <p className={`text-sm ${story.isStudent ? 'text-student-blue' : 'text-primary-PARI-Red'} mb-1`}>
                                         {singleCaptionCredits}
                                       </p>
                                     )}
@@ -2216,7 +2216,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                               </div>
                               {embedCaption && (
                                 <div
-                                  className={`text-sm ${story.isStudent ? 'text-[#2F80ED] dark:text-[#2F80ED]' : 'text-pari-red dark:text-pari-red'} mt-2 italic text-center`}
+                                  className={`text-sm ${story.isStudent ? 'text-student-blue dark:text-student-blue' : 'text-pari-red dark:text-pari-red'} mt-2 italic text-center`}
                                   dangerouslySetInnerHTML={{ __html: stripHtmlCssWithStyledStrong(embedCaption) }}
                                 />
                               )}
@@ -2497,7 +2497,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                   {(imgCaption || imgPhotographer) && (
                                     <div className="mt-3 px-2">
                                       {imgPhotographer && (
-                                        <p className={`text-sm text-primary-PARI-Red mb-1`}>
+                                        <p className={`text-sm ${story.isStudent ? 'text-student-blue' : 'text-primary-PARI-Red'} mb-1`}>
                                            {imgPhotographer}
                                         </p>
                                       )}
@@ -2561,7 +2561,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                   {(fullWidthImageData.caption || fullWidthCredits) && (
                                     <div className="mt-3 px-2">
                                       {fullWidthCredits && (
-                                        <p className={`text-sm text-primary-PARI-Red mb-1`}>
+                                        <p className={`text-sm ${story.isStudent ? 'text-student-blue' : 'text-primary-PARI-Red'} mb-1`}>
                                           {fullWidthCredits}
                                         </p>
                                       )}
@@ -2595,7 +2595,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                   {multCaptionImages.map((img, imgIndex) => (
                                     <div key={imgIndex} className="space-y-3">
                                       <div
-                                        className="w-full h-[500px] md:h-[600px] cursor-pointer relative group"
+                                        className="w-full h-auto md:h-[600px] cursor-pointer relative group"
                                         onClick={() => handleImageClick(img.url, img.alt || `Image ${imgIndex + 1}`, img.caption)}
                                       >
                                         <Image
@@ -2712,7 +2712,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                       <div key={imgIndex} className="space-y-3">
                                         {item.image && (
                                           <div
-                                            className="w-full h-[500px] md:h-[600px] cursor-pointer relative group"
+                                            className="w-full h-auto md:h-[600px] cursor-pointer relative group"
                                             onClick={() => handleImageClick(item.image!.url, item.image!.alt || `Image ${imgIndex + 1}`, item.caption, item.credits)}
                                           >
                                             <Image
@@ -2731,8 +2731,8 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                         )}
 
                                         {item.credits && (
-                                          <div className={`mt-3 mb-2 md:px-1 px-8 ${showPhotos ? 'md:px-4 lg:px-8' : ''}`}>
-                                            <p className={`text-sm text-primary-PARI-Red mb-1`}>
+                                          <div className={`mt-3 mb-2 md:px-1 px-8 ${showPhotos ? 'md:px-4  lg:px-8' : ' '}`}>
+                                            <p className={`text-sm ${story.isStudent ? 'text-student-blue' : 'text-primary-PARI-Red'} mb-1`}>
                                               {item.credits}
                                             </p>
                                           </div>
@@ -2797,7 +2797,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
 
                                   {columnarImages[0].credits && (
                                     <div className={`mt-3 mb-2 md:px-10 px-8 ${showPhotos ? 'md:px-4 lg:px-8' : ''}`}>
-                                      <p className={`text-sm text-primary-PARI-Red mb-1`}>
+                                      <p className={`text-sm ${story.isStudent ? 'text-student-blue' : 'text-primary-PARI-Red'} mb-1`}>
                                       {columnarImages[0].credits}
                                       </p>
                                     </div>
@@ -2855,7 +2855,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
 
                                         {item.credits && (
                                           <div className={`mt-3 mb-2 md:px-1 ${showPhotos ? 'md:px-4 lg:px-8' : ''}`}>
-                                            <p className={`text-sm text-primary-PARI-Red mb-1`}>
+                                            <p className={`text-sm ${story.isStudent ? 'text-student-blue' : 'text-primary-PARI-Red'} mb-1`}>
                                              {item.credits}
                                             </p>
                                           </div>
@@ -2984,7 +2984,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                 {quoteText && (
                                   <div className="relative  my-12 max-w-3xl mx-auto px-8 md:px-10   ">
                                     {/* Large quotation mark */}
-                                    <div className={` text-[5rem] leading-0 font-serif text-primary-PARI-Red pt-9  `}>
+                                    <div className={` text-[5rem] leading-0 font-serif ${story.isStudent ? 'text-student-blue' : 'text-primary-PARI-Red'} pt-9  `}>
                                       &ldquo;
                                     </div>
                                     <blockquote
@@ -3067,11 +3067,11 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                               <div key={index} className="my-12 w-full bg-[#FFF8F0] dark:bg-gray-800 py-12 md:py-16">
                                 <div className="max-w-[768px] md:max-w-[768px] lg:max-w-[912px] xl:max-w-[970px] 2xl:max-w-[1016px] mx-auto px-6 md:px-8">
                                   {/* Large quotation mark */}
-                                  <div className="text-8xl md:text-9xl font-serif leading-none text-primary-PARI-Red mb-6">
+                                  <div className={`text-8xl md:text-9xl font-serif leading-none ${story.isStudent ? 'text-student-blue' : 'text-primary-PARI-Red'} mb-6`}>
                                     &ldquo;
                                   </div>
                                   <blockquote
-                                    className="text-primary-PARI-Red -mt-16 md:-mt-20 pl-12 md:pl-16"
+                                    className={`${story.isStudent ? 'text-student-blue' : 'text-primary-PARI-Red'} -mt-16 md:-mt-20 pl-12 md:pl-16`}
                                     style={{
                                       fontFamily: 'Noto Sans',
                                       fontWeight: 400,
@@ -3136,7 +3136,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                   {/* Right side - Content */}
                                   <div className="flex-1">
                                     <Link href={`/article/${anthologySlug}`}>
-                                      <h2 className="text-xl md:text-2xl font-bold text-primary-PARI-Red mb-3 hover:underline">
+                                      <h2 className={`text-xl md:text-2xl font-bold ${story.isStudent ? 'text-student-blue' : 'text-primary-PARI-Red'} mb-3 hover:underline`}>
                                         {anthologyNumber && `${anthologyNumber}. `}{anthologyTitle}
                                       </h2>
                                     </Link>
@@ -3152,7 +3152,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                       {anthologyDate && <span>{anthologyDate}</span>}
                                       {anthologyAuthor && anthologyDate && <span>|</span>}
                                       {anthologyAuthor && (
-                                        <span className="text-primary-PARI-Red font-medium">{anthologyAuthor}</span>
+                                        <span className={`${story.isStudent ? 'text-student-blue' : 'text-primary-PARI-Red'} font-medium`}>{anthologyAuthor}</span>
                                       )}
                                     </div>
                                   </div>
@@ -3317,7 +3317,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                   <div className="flex-1">
                                     {displayTitle && (
                                       <Link href={`/article/${displaySlug}`}>
-                                        <h2 className="text-xl md:text-2xl font-bold mb-6 !text-primary-PARI-Red hover:underline leading-tight">
+                                        <h2 className={`text-xl md:text-2xl font-bold mb-6 ${story.isStudent ? '!text-student-blue' : '!text-primary-PARI-Red'} hover:underline leading-tight`}>
                                           {displayTitle}
                                         </h2>
                                       </Link>
@@ -3377,6 +3377,26 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
         ) : (
           <p>No content available</p>
         )}
+
+        {/* Republish Notice */}
+        <div className="max-w-3xl mx-auto px-8 md:px-10 lg:px-16 my-8">
+          <p className="text-discreet-text font-noto-sans text-sm md:text-base">
+            Want to republish this article? Please write to{' '}
+            <a
+              href="mailto:zahra@ruralindiaonline.org"
+              className={`${story.isStudent ? 'text-student-blue' : 'text-primary-PARI-Red'} hover:underline font-medium`}
+            >
+              zahra@ruralindiaonline.org
+            </a>
+            {' '}with a cc to{' '}
+            <a
+              href="mailto:namita@ruralindiaonline.org"
+              className={`${story.isStudent ? 'text-student-blue' : 'text-primary-PARI-Red'} hover:underline font-medium`}
+            >
+              namita@ruralindiaonline.org
+            </a>
+          </p>
+        </div>
 
         {/* Action Buttons - Photo Story, Share, Print, Text Size */}
 
@@ -4063,7 +4083,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
               style={{ bottom: imageScale > 1 ? '4.5rem' : '3rem ' }}
             >
               {selectedImage.credits && (
-                <div className="text-sm md:text-sm font-semibold text-primary-PARI-Red mb-2">
+                <div className={`text-sm md:text-sm font-semibold ${story?.isStudent ? 'text-student-blue' : 'text-primary-PARI-Red'} mb-2`}>
                   {selectedImage.credits}
                 </div>
               )}
