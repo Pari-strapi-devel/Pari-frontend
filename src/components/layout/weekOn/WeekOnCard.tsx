@@ -403,7 +403,7 @@ export function WeekOnCard() {
           <Link href="/articles">
 <Button 
                 variant="secondary" 
-                className="text-sm h-[36px] ml-1 flex md:hidden ring-[2px] rounded-[48px] text-primary-PARI-Red mr-4"
+                className="text-sm h-[36px] ml-1 flex md:hidden ring-[1px] rounded-[48px] text-primary-PARI-Red mr-4"
               >
                 {seeAllStories || "See all stories"}
                 <ChevronRight className="h-4 w-4 ml-1" />
