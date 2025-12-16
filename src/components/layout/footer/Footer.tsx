@@ -93,6 +93,13 @@ export function Footer() {
   // Newsletter bottom sheet state
   const [isNewsletterSheetOpen, setIsNewsletterSheetOpen] = useState(false)
 
+  // Auto-open newsletter if URL has #newsletter hash (for shared links)
+  useEffect(() => {
+    if (window.location.hash === '#newsletter') {
+      setIsNewsletterSheetOpen(true)
+    }
+  }, [])
+
   // Newsletter form submission handler
   const handleNewsletterSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
