@@ -7,6 +7,7 @@ import axios from 'axios';
 import { useNewsletterSubscription } from '@/hooks/useBrevo';
 import { BASE_URL } from '@/config';
 import { FiUser, FiMail, FiPhone } from 'react-icons/fi';
+import { useRouter } from 'next/navigation';
 
 // Location data interfaces
 interface Country {
@@ -67,6 +68,20 @@ export const NewsletterBottomSheet: React.FC<NewsletterBottomSheetProps> = ({
 }) => {
   const { subscribe, isLoading: isSubscribing, isSuccess, error: subscribeError, reset } = useNewsletterSubscription();
   const [mounted, setMounted] = useState(false);
+  const router = useRouter();
+
+  // Update URL hash when newsletter opens/closes
+  useEffect(() => {
+    if (isOpen) {
+      // Add #newsletter to URL when opened
+      window.history.pushState(null, '', '#newsletter');
+    } else if (mounted) {
+      // Remove hash from URL when closed (only if mounted to avoid initial render)
+      if (window.location.hash === '#newsletter') {
+        window.history.pushState(null, '', window.location.pathname + window.location.search);
+      }
+    }
+  }, [isOpen, mounted, router]);
 
   // Location data state
   const [countries, setCountries] = useState<Country[]>([]);

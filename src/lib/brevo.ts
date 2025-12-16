@@ -103,10 +103,10 @@ const getBrevoHeaders = () => {
 };
 
 /**
- * Add or update a contact in Brevo
+ * Add or update a contact in Brevo via server-side API route
  */
 export const addBrevoContact = async (contact: BrevoContact): Promise<BrevoResponse> => {
-  console.log('##Rohit_Rocks## Adding Brevo Contact:', {
+  console.log('##Rohit_Rocks## Adding Brevo Contact via API Route:', {
     email: contact.email,
     attributes: contact.attributes,
     listIds: contact.listIds,
@@ -114,73 +114,32 @@ export const addBrevoContact = async (contact: BrevoContact): Promise<BrevoRespo
     timestamp: new Date().toISOString()
   });
 
-  if (!isBrevoConfigured()) {
-    console.warn('##Rohit_Rocks## Brevo not configured, simulating contact addition');
-    console.warn('Brevo is not configured. Contact subscription simulated.');
-    return {
-      success: true,
-      message: 'Contact subscription simulated (Brevo not configured)',
-    };
-  }
-
-  const requestPayload = {
-    email: contact.email,
-    attributes: contact.attributes || {},
-    listIds: contact.listIds || [BREVO_CONFIG.listIds.default],
-    updateEnabled: contact.updateEnabled !== false,
-  };
-
-  console.log('##Rohit_Rocks## Brevo API Request:', {
-    url: `${BREVO_CONFIG.apiUrl}/contacts`,
-    payload: requestPayload,
-    method: 'POST'
-  });
-
   try {
-    const response = await axios.post(
-      `${BREVO_CONFIG.apiUrl}/contacts`,
-      requestPayload,
-      {
-        headers: getBrevoHeaders(),
-      }
-    );
-
-    console.log('##Rohit_Rocks## Brevo Contact Creation Success:', {
-      status: response.status,
-      statusText: response.statusText,
-      data: response.data,
-      headers: response.headers
+    // Use server-side API route to avoid CORS issues in production
+    const response = await fetch('/api/brevo', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        action: 'addContact',
+        data: {
+          email: contact.email,
+          attributes: contact.attributes || {},
+          listIds: contact.listIds || [BREVO_CONFIG.listIds.default],
+        },
+      }),
     });
 
-    return {
-      success: true,
-      message: 'Contact added successfully',
-      data: response.data,
-    };
+    const result = await response.json();
+    console.log('##Rohit_Rocks## Brevo API Route Response:', result);
+
+    return result;
   } catch (error: unknown) {
-    const axiosError = toAxiosError(error);
-
-    console.error('##Rohit_Rocks## Brevo Contact Creation Error:', {
-      status: axiosError.response?.status,
-      data: axiosError.response?.data,
-      message: axiosError.message,
-      fullError: axiosError
-    });
-
-    // Handle duplicate contact (already exists)
-    if (axiosError.response?.status === 400 && axiosError.response?.data?.code === 'duplicate_parameter') {
-      console.log('##Rohit_Rocks## Contact already exists, treating as success');
-      return {
-        success: true,
-        message: 'Contact already exists and was updated',
-        data: axiosError.response.data,
-      };
-    }
-
-    console.error('Brevo contact creation error:', axiosError.response?.data || axiosError.message);
+    console.error('##Rohit_Rocks## Brevo API Route Error:', error);
     return {
       success: false,
-      error: axiosError.response?.data?.message || axiosError.message || 'Failed to add contact',
+      error: 'Failed to add contact',
     };
   }
 };
@@ -629,10 +588,10 @@ export const addContributeSubmission = async (
 };
 
 /**
- * Send transactional email using Brevo template
+ * Send transactional email using Brevo template via server-side API route
  */
 export const sendBrevoEmail = async (emailData: BrevoEmailTemplate): Promise<BrevoResponse> => {
-  console.log('##Rohit_Rocks## Sending Brevo Email:', {
+  console.log('##Rohit_Rocks## Sending Brevo Email via API Route:', {
     templateId: emailData.templateId,
     to: emailData.to,
     params: emailData.params,
@@ -640,66 +599,36 @@ export const sendBrevoEmail = async (emailData: BrevoEmailTemplate): Promise<Bre
     timestamp: new Date().toISOString()
   });
 
-  if (!isBrevoConfigured()) {
-    console.warn('##Rohit_Rocks## Brevo not configured, simulating email sending');
-    console.warn('Brevo is not configured. Email sending simulated.');
-    return {
-      success: true,
-      message: 'Email sending simulated (Brevo not configured)',
-    };
-  }
-
-  const requestPayload = {
-    templateId: emailData.templateId,
-    to: emailData.to,
-    params: emailData.params || {},
-    replyTo: emailData.replyTo || {
-      email: BREVO_CONFIG.senderEmail,
-      name: BREVO_CONFIG.senderName,
-    },
-  };
-
-  console.log('##Rohit_Rocks## Email API Request:', {
-    url: `${BREVO_CONFIG.apiUrl}/smtp/email`,
-    payload: requestPayload,
-    method: 'POST'
-  });
-
   try {
-    const response = await axios.post(
-      `${BREVO_CONFIG.apiUrl}/smtp/email`,
-      requestPayload,
-      {
-        headers: getBrevoHeaders(),
-      }
-    );
-
-    console.log('##Rohit_Rocks## Email Sending Success:', {
-      status: response.status,
-      statusText: response.statusText,
-      data: response.data,
-      headers: response.headers
+    // Use server-side API route to avoid CORS issues in production
+    const response = await fetch('/api/brevo', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        action: 'sendEmail',
+        data: {
+          templateId: emailData.templateId,
+          to: emailData.to,
+          params: emailData.params || {},
+          replyTo: emailData.replyTo || {
+            email: BREVO_CONFIG.senderEmail,
+            name: BREVO_CONFIG.senderName,
+          },
+        },
+      }),
     });
 
-    return {
-      success: true,
-      message: 'Email sent successfully',
-      data: response.data,
-    };
+    const result = await response.json();
+    console.log('##Rohit_Rocks## Brevo Email API Route Response:', result);
+
+    return result;
   } catch (error: unknown) {
-    const axiosError = toAxiosError(error);
-
-    console.error('##Rohit_Rocks## Email Sending Error:', {
-      status: axiosError.response?.status,
-      data: axiosError.response?.data,
-      message: axiosError.message,
-      fullError: axiosError
-    });
-
-    console.error('Brevo email sending error:', axiosError.response?.data || axiosError.message);
+    console.error('##Rohit_Rocks## Brevo Email API Route Error:', error);
     return {
       success: false,
-      error: axiosError.response?.data?.message || axiosError.message || 'Failed to send email',
+      error: 'Failed to send email',
     };
   }
 };
