@@ -226,7 +226,7 @@ export function Footer() {
               <h5 className=" text-[18px]  text-foreground mb-2">
                {title}
               </h5>
-              <p className="text-[15px] text-discreet-text  font-normal leading-[150%] tracking-[-0.03em] mb-10">
+              <p className="text-[15px] text-discreet-text   mb-10">
                 {description}
               </p>
             </div>

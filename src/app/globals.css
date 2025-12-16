@@ -661,7 +661,7 @@
    direction: rtl;
  }
   [lang="ur"] h5 {
-   font-family: var(--font-noto-nastaliq-urdu), 'Noto Sans nastaliq urdu', 'Noto Sans', 'noto sans' sans-serif ;
+   font-family: var(--font-noto-nastaliq-urdu), 'Noto Sans nastaliq urdu', 'Noto Sans',  sans-serif ;
    line-height: 1.5;
    letter-spacing: 0em;
    font-variation-settings: 'wdth' 90, 'wght' 700;

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const BREVO_API_KEY = process.env.NEXT_PUBLIC_BREVO_API_KEY;
+// Use server-side env variable (BREVO_API_KEY) or fall back to public one
+const BREVO_API_KEY = process.env.BREVO_API_KEY || process.env.NEXT_PUBLIC_BREVO_API_KEY;
 const BREVO_API_URL = 'https://api.brevo.com/v3';
 
 // Main newsletter list ID - all subscriptions go here
