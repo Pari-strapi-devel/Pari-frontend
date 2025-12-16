@@ -399,7 +399,7 @@ const BentoCard = ({
       <div className="relative flex flex-col w-full pt-2 h-[380px] z-10 bg-white dark:bg-popover">
         <div className="px-6 py-6 w-full">
           <div className={`flex flex-col gap-1 ${currentLocale === 'ur' ? 'md:h-[180px] h-[190px]' : 'md:h-[150px] h-[160px]'}`}>
-            <h3 className="font-noto-sans pb-4 h-20 flex  text-[26px] font-bold leading-[136%] tracking-[-0.04em]  text-foreground  !line-clamp-2">
+            <h3 className=" pb-4 h-20 flex  text-[26px] font-bold leading-[136%] tracking-[-0.04em]  text-foreground  !line-clamp-2">
               {title}
             </h3>
             <p className="text-discreet-text py-1 mb-4 line-clamp-2">{description}</p>

@@ -266,7 +266,7 @@ export function Hero() {
 
           <div className='relative max-w-[1232px] h-fit mb-8 mx-auto'>
             {/* Modified navigation buttons container */}
-            <div className={`absolute right-10 top-[-78px] hidden md:block items-center !gap-3 z-10 ${language === 'ur' ? 'left-10 right-auto flex-row-reverse' : ''}`}>
+            <div className={`absolute right-10 top-[-78px] hidden md:block items-center !gap-3 z-10 ${language === 'ur' ? 'left-10 right-auto flex-row-reverse gap-4' : ''}`}>
               <Button
                 variant="outline"
                 size="icon"
@@ -274,7 +274,7 @@ export function Hero() {
                   e.stopPropagation()
                   instanceRef.current?.prev()
                 }}
-                className="pointer-events-auto mr-4  bg-white dark:bg-popover hover:bg-primary-PARI-Red text-primary-PARI-Red hover:text-white rounded-full cursor-pointer w-10 h-10"
+                className="pointer-events-auto mr-3  bg-white dark:bg-popover hover:bg-primary-PARI-Red text-primary-PARI-Red hover:text-white rounded-full cursor-pointer w-10 h-10"
               >
                 <ChevronLeft className="h-10 w-10" />
               </Button>
@@ -286,7 +286,7 @@ export function Hero() {
                   e.stopPropagation()
                   instanceRef.current?.next()
                 }}
-                className="pointer-events-auto bg-white dark:bg-popover hover:bg-primary-PARI-Red text-primary-PARI-Red hover:text-white rounded-full cursor-pointer w-10 h-10"
+                className="pointer-events-auto mr-3 bg-white dark:bg-popover hover:bg-primary-PARI-Red text-primary-PARI-Red hover:text-white rounded-full cursor-pointer w-10 h-10"
               >
                 <ChevronRight className="h-5 w-5" />
               </Button>
@@ -320,7 +320,7 @@ export function Hero() {
                           </div>
                         )} */}
                        
-                        <h3 className="font-noto-sans text-[20px] md:h-[70px] sm:text-[24px] md:text-[28px] font-bold leading-[124%] tracking-[-0.04em] mb-2 text-foreground line-clamp-1 sm:line-clamp-2">
+                        <h3 className={` text-2xl  text-foreground  mb-4 ${language === 'ur' ? 'pb-4' : 'md:line-clamp-2 h-16 pb-2'} sm:line-clamp-2 `}>
                           {info.title}
                         </h3>
                         <p className="line-clamp-2  text-discreet-text ">

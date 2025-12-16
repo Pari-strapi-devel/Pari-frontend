@@ -1755,9 +1755,9 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
 
             {/* Authors Info - Dynamic */}
             <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
-              <div className="grid grid-cols-1 md:flex md:flex-row gap-6 md:gap-12 flex-1">
+              <div className="grid grid-cols-1 md:flex md:flex-row gap-2 md:gap-12 flex-1">
                 {groupedAuthors.map((group, index) => (
-                  <div key={index} >
+                  <div key={index} className=' grid grid-cols-2 md:grid-cols-1 gap- ' >
                     <h6 className=" font-noto-sans text-grey-300 dark:text-discreet-text text-[14px] mb-2"
                     >
                       {group.title || getTranslatedLabel('author', currentLocale)}
@@ -1901,7 +1901,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                             {allImageData.map((imageData, imgIndex) => (
                               <div key={`img-${index}-${imgIndex}`} className="space-y-3">
                                 <div
-                                  className="w-full h-auto md:h-[600px] cursor-pointer relative group"
+                                  className="w-full h-auto md:h-[400px] cursor-pointer relative group"
                                   onClick={() => handleImageClick(imageData!.url, imageData!.alt || 'Article image', imageData!.caption, imageData!.credits)}
                                 >
                                   <Image
@@ -1939,7 +1939,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                           {allImageData[0] && (
                             <div className="space-y-3">
                               <div
-                                className="w-full h-auto md:h-[600px] cursor-pointer relative group"
+                                className="w-full h-auto md:h-[400px] cursor-pointer relative group"
                                 onClick={() => handleImageClick(allImageData[0]!.url, allImageData[0]!.alt || 'Article image', allImageData[0]!.caption, allImageData[0]!.credits)}
                               >
                                 <Image
@@ -1971,7 +1971,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                               {allImageData.slice(1).map((imageData, imgIndex) => (
                                 <div key={`img-${index}-${imgIndex + 1}`} className="space-y-3">
                                   <div
-                                    className="w-full h-auto md:h-[600px] cursor-pointer relative group"
+                                    className="w-full h-auto md:h-[400px] cursor-pointer relative group"
                                     onClick={() => handleImageClick(imageData!.url, imageData!.alt || `Article image ${imgIndex + 2}`, imageData!.caption, imageData!.credits)}
                                   >
                                     <Image
@@ -2165,7 +2165,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                     {multipleImages.map((img, imgIndex) => (
                                       <div key={imgIndex} className="space-y-3">
                                         <div
-                                          className="w-full h-auto md:h-[600px] cursor-pointer relative group"
+                                          className="w-full h-auto md:h-[400px] cursor-pointer relative group"
                                           onClick={() => handleImageClick(img.url, img.alt || `Image ${imgIndex + 1}`, img.caption, img.credits)}
                                         >
                                           <Image
@@ -2378,11 +2378,11 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                           return (
                             <div key={index} className="my-12 w-full flex justify-center">
                               <div className="w-full max-w-[768px] md:max-w-[768px] lg:max-w-[912px] xl:max-w-[970px] 2xl:max-w-[1016px]">
-                                <div className="w-full bg-gray-100 dark:bg-gray-800 rounded-lg p-4">
+                                <div className="w-full bg-gray-100 dark:bg-gray-800 rounded-lg p-4 h-full">
                                   <iframe
                                     src={audioEmbedUrl}
                                     className="w-full rounded-lg border-0"
-                                    height="200"
+                                    height="500"
                                     allow="autoplay"
                                     title="Embedded audio"
                                   />
@@ -2727,7 +2727,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                   {multCaptionImages.map((img, imgIndex) => (
                                     <div key={imgIndex} className="space-y-3">
                                       <div
-                                        className="w-full h-auto md:h-[600px] cursor-pointer relative group"
+                                        className="w-full h-auto md:h-[400px] cursor-pointer relative group"
                                         onClick={() => handleImageClick(img.url, img.alt || `Image ${imgIndex + 1}`, img.caption, img.credits)}
                                       >
                                         <Image
@@ -2844,7 +2844,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                       <div key={imgIndex} className="space-y-3">
                                         {item.image && (
                                           <div
-                                            className="w-full h-auto md:h-[600px] cursor-pointer relative group"
+                                            className="w-full h-auto md:h-[400px] cursor-pointer relative group"
                                             onClick={() => handleImageClick(item.image!.url, item.image!.alt || `Image ${imgIndex + 1}`, item.caption, item.credits)}
                                           >
                                             <Image
@@ -3426,20 +3426,23 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                   {displayImage && (
                                     <div className="flex-shrink-0 w-full md:w-64">
                                       <Link href={`/article/${displaySlug}`}>
-                                        <div className="relative w-full h-64 md:h-80 mb-3">
+                                        <div className="relative w-full h-40 rounded-lg mb-3">
                                           <Image
                                             src={displayImage}
                                             alt={displayTitle || 'Article image'}
                                             fill
-                                            className="object-cover"
+                                            className="object-cover rounded-lg"
                                           />
                                         </div>
                                       </Link>
                                       {displayTitle && (
                                         <Link href={`/article/${displaySlug}`}>
-                                          <h3 className="text-base font-semibold text-foreground leading-tight">
+                                          
+                                          {/* <h3 className="text-base font-semibold text-foreground leading-tight">
                                             {displayTitle}
-                                          </h3>
+                                          </h3> */}
+
+                                         
                                         </Link>
                                       )}
                                     </div>
@@ -3449,9 +3452,9 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                   <div className="flex-1">
                                     {displayTitle && (
                                       <Link href={`/article/${displaySlug}`}>
-                                        <h2 className={`text-xl md:text-2xl font-bold mb-6 ${story.isStudent ? '!text-student-blue' : '!text-primary-PARI-Red'} hover:underline leading-tight`}>
+                                        {/* <h2 className={`text-xl md:text-2xl font-bold mb-6 ${story.isStudent ? '!text-student-blue' : '!text-primary-PARI-Red'} hover:underline leading-tight`}>
                                           {displayTitle}
-                                        </h2>
+                                        </h2> */}
                                       </Link>
                                     )}
 
@@ -3467,7 +3470,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                     )}
 
                                     {/* Date and Author */}
-                                    {pageRefArticle && (pageRefArticle.date || pageRefArticle.authors) && (
+                                    {/* {pageRefArticle && (pageRefArticle.date || pageRefArticle.authors) && (
                                       <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                                         {pageRefArticle.date && (
                                           <span>
@@ -3487,7 +3490,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                           </span>
                                         )}
                                       </div>
-                                    )}
+                                    )} */}
                                   </div>
                                 </div>
                               </div>

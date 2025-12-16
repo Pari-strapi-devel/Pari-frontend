@@ -878,7 +878,7 @@ const VolunteerPageContent = () => {
 
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center space-x-3">
-                <h4 className="text-2xl font-bold text-gray-900 dark:text-foreground">
+                <h4 className="text-2xl font-bold font-noto-sans text-foreground">
                   Profile form
                 </h4>
                 {isLoadingVolunteerData && (
@@ -946,7 +946,7 @@ const VolunteerPageContent = () => {
                 handleNextSection();
               }} className="space-y-6">
                 <div>
-                  <h6 className="  mb-4 ">
+                  <h6 className="  mb-4 font-noto-sans">
                     PERSONAL INFO
                   </h6>
 
@@ -971,7 +971,7 @@ const VolunteerPageContent = () => {
                         value={formData.lastName}
                         onChange={handleInputChange}
                         required
-                        className={getInputClassName('lastName', "w-full px-4 py-3 border border-gray-300 dark:border-border rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-transparent outline-none bg-white dark:bg-background text-gray-900 dark:text-foreground placeholder-gray-500 dark:placeholder-muted-foreground text-sm")}
+                        className={getInputClassName('lastName', "w-full  px-4 py-3 border border-gray-300 dark:border-border rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-transparent outline-none bg-white dark:bg-background text-gray-900 dark:text-foreground placeholder-gray-500 dark:placeholder-muted-foreground text-sm")}
                       />
                     </div>
 
@@ -1122,7 +1122,7 @@ const VolunteerPageContent = () => {
                 handleNextSection();
               }} className="space-y-6">
                 <div>
-                  <h6 className="mb-4">
+                  <h6 className="mb-4 font-noto-sans">
                     WHY VOLUNTEER
                   </h6>
 
@@ -1168,13 +1168,13 @@ const VolunteerPageContent = () => {
                 handleSubmitProfile();
               }} className="space-y-6">
                 <div>
-                  <h6 className="mb-4">
+                  <h6 className="mb-4 font-noto-sans">
                     VOLUNTEERING DETAILS
                   </h6>
 
                   <div className="space-y-6">
                     <div>
-                      <label className={`block text-sm font-medium mb-3 ${validationErrors.contributions ? 'text-primary-PARI-Red' : 'text-gray-600 dark:text-muted-foreground'}`}>
+                      <label className={`block text-sm font-noto-sans font-medium mb-3 ${validationErrors.contributions ? 'text-primary-PARI-Red' : 'text-gray-600 dark:text-muted-foreground'}`}>
                         How would you like to contribute to PARI? *
                       </label>
                       <div className={`grid grid-cols-1 md:grid-cols-3 gap-2 p-3 rounded-lg ${validationErrors.contributions ? 'border-2 border-primary-PARI-Red bg-red-50 dark:bg-red-900/10' : ''}`}>
@@ -1186,7 +1186,7 @@ const VolunteerPageContent = () => {
                               onChange={() => handleCheckboxChange(contribution)}
                               className="mr-2 h-4 w-4 accent-primary-PARI-Red focus:ring-2 focus:ring-primary-PARI-Red border-gray-300 dark:border-border rounded"
                             />
-                            <span className="text-sm text-gray-900 dark:text-muted-foreground">{contribution}</span>
+                            <span className="text-sm font-noto-sans text-gray-900 dark:text-muted-foreground">{contribution}</span>
                           </label>
                         ))}
                       </div>
@@ -1196,7 +1196,7 @@ const VolunteerPageContent = () => {
                     {formData.contributions.some(contribution => contribution.toLowerCase().includes('translation')) && (
                       <>
                         <div>
-                          <label className="block text-sm font-medium text-gray-600 dark:text-muted-foreground mb-3">
+                          <label className="block text-sm font-noto-sans font-medium text-gray-600 dark:text-muted-foreground mb-3">
                             If you have prior experience as a translator, please list examples:
                           </label>
                           <div className="grid grid-cols-2 gap-4">
@@ -1220,7 +1220,7 @@ const VolunteerPageContent = () => {
                         </div>
 
                         <div>
-                          <label className={`block text-sm font-medium mb-3 ${validationErrors.translateLanguage ? 'text-primary-PARI-Red' : 'text-gray-600 dark:text-muted-foreground'}`}>
+                          <label className={`block text-sm font-noto-sans font-medium mb-3 ${validationErrors.translateLanguage ? 'text-primary-PARI-Red' : 'text-gray-600 dark:text-muted-foreground'}`}>
                             If you would like to translate for PARI, please choose the language: *
                           </label>
                           <select
@@ -1285,7 +1285,7 @@ const VolunteerPageContent = () => {
                       required
                       className="h-4 w-4 text-primary-PARI-Red focus:ring-primary-PARI-Red border-gray-300 rounded"
                     />
-                    <label htmlFor="agreeToTerms" className="text-sm text-muted-foreground">
+                    <label htmlFor="agreeToTerms" className="text-sm text-muted-foreground font-noto-sans">
                       I agree to PARI&apos;s{' '}
                       <a href="https://ruralindiaonline.org/termsofservices" target="_blank" rel="noopener noreferrer" className="text-primary-PARI-Red hover:underline">
                         terms of service

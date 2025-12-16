@@ -301,7 +301,7 @@ export const NewsletterBottomSheet: React.FC<NewsletterBottomSheetProps> = ({
 
       // Submit to PARI newsletter API
       try {
-        const apiResponse = await axios.post(`${BASE_URL}api/newsletter-submits`, newsletterPayload, {
+        const apiResponse = await axios.post(`${BASE_URL}api/newslatters`, newsletterPayload, {
           headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json'
@@ -314,17 +314,34 @@ export const NewsletterBottomSheet: React.FC<NewsletterBottomSheetProps> = ({
           statusText: apiResponse.statusText,
           data: apiResponse.data
         });
-      } catch (apiError) {
+      } catch (apiError: unknown) {
+        console.error('##Rohit_Rocks## PARI newsletter API error - Full error:', apiError);
+
         if (axios.isAxiosError(apiError)) {
-          console.error('##Rohit_Rocks## PARI newsletter API error:', {
+          const errorDetails = {
             message: apiError.message,
             status: apiError.response?.status,
             statusText: apiError.response?.statusText,
             data: apiError.response?.data,
-            url: apiError.config?.url
-          });
+            url: apiError.config?.url,
+            method: apiError.config?.method,
+            requestData: newsletterPayload
+          };
+
+          console.error('##Rohit_Rocks## PARI newsletter API error details:', JSON.stringify(errorDetails, null, 2));
+
+          // Log specific error details
+          if (apiError.response?.status === 404) {
+            console.error('##Rohit_Rocks## 404 Error: newsletter-submits collection may not exist in Strapi');
+          } else if (apiError.response?.status === 403) {
+            console.error('##Rohit_Rocks## 403 Error: Check Strapi permissions for newsletter-submits collection');
+          } else if (apiError.response?.status === 400) {
+            console.error('##Rohit_Rocks## 400 Error: Bad request - check data format:', apiError.response?.data);
+          } else if (!apiError.response) {
+            console.error('##Rohit_Rocks## Network Error: No response received from server. Check CORS or network connectivity.');
+          }
         } else {
-          console.error('##Rohit_Rocks## PARI newsletter API error:', apiError);
+          console.error('##Rohit_Rocks## PARI newsletter API error (non-axios):', String(apiError));
         }
         // Continue with Brevo submission even if PARI API fails
         // Newsletter submission will still work via Brevo
@@ -452,7 +469,7 @@ export const NewsletterBottomSheet: React.FC<NewsletterBottomSheetProps> = ({
                   <input
                     type="text"
                     name="firstName"
-                    placeholder={newsletterData?.attributes?.firstName || "First*"}
+                    placeholder="First Name *"
                     value={formData.firstName}
                     onChange={handleInputChange}
                     className="w-full pl-10 pr-4 py-3 border border-border dark:border-borderline rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-transparent outline-none bg-white dark:bg-background text-gray-900 dark:text-foreground placeholder-gray-500 dark:placeholder-muted-foreground text-sm"
@@ -463,7 +480,7 @@ export const NewsletterBottomSheet: React.FC<NewsletterBottomSheetProps> = ({
                   <input
                     type="text"
                     name="lastName"
-                    placeholder={newsletterData?.attributes?.lastName || "Last*"}
+                    placeholder="Last Name *"
                     value={formData.lastName}
                     onChange={handleInputChange}
                     className="w-full pl-4 pr-4 py-3 border border-border dark:border-borderline rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-transparent outline-none bg-white dark:bg-background text-gray-900 dark:text-foreground placeholder-gray-500 dark:placeholder-muted-foreground text-sm"
@@ -478,7 +495,7 @@ export const NewsletterBottomSheet: React.FC<NewsletterBottomSheetProps> = ({
                 <input
                   type="email"
                   name="email"
-                  placeholder={newsletterData?.attributes?.email || "Email*"}
+                  placeholder="Email *"
                   value={formData.email}
                   onChange={handleInputChange}
                   className="w-full pl-10 pr-4 py-3 border border-border dark:border-borderline rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-transparent outline-none bg-white dark:bg-background text-gray-900 dark:text-foreground placeholder-gray-500 dark:placeholder-muted-foreground text-sm"
@@ -515,7 +532,7 @@ export const NewsletterBottomSheet: React.FC<NewsletterBottomSheetProps> = ({
                       backgroundSize: '20px'
                     }}
                   >
-                    <option value="" className="text-gray-400">{newsletterData?.attributes?.country || "Country"}</option>
+                    <option value="" className="text-gray-400">{newsletterData?.attributes?.country || "Country*"}</option>
                     {countries.map((country) => (
                       <option key={country.iso2} value={country.name} className="text-gray-700 dark:text-gray-200">
                         {country.name}
@@ -539,7 +556,7 @@ export const NewsletterBottomSheet: React.FC<NewsletterBottomSheetProps> = ({
                       backgroundSize: '20px'
                     }}
                   >
-                    <option value="" className="text-gray-400">{newsletterData?.attributes?.state || "State"}</option>
+                    <option value="" className="text-gray-400">{newsletterData?.attributes?.state || "State*"}</option>
                     {states.map((state) => (
                       <option key={state.iso2} value={state.name} className="text-gray-700 dark:text-gray-200">
                         {state.name}
@@ -563,7 +580,7 @@ export const NewsletterBottomSheet: React.FC<NewsletterBottomSheetProps> = ({
                       backgroundSize: '20px'
                     }}
                   >
-                    <option value="" className="text-gray-400">{newsletterData?.attributes?.district || "District"}</option>
+                    <option value="" className="text-gray-400">{newsletterData?.attributes?.district || "District*"}</option>
                     {districts.map((district) => (
                       <option key={district.id} value={district.name} className="text-gray-700 dark:text-gray-200">
                         {district.name}
@@ -588,7 +605,7 @@ export const NewsletterBottomSheet: React.FC<NewsletterBottomSheetProps> = ({
                     backgroundSize: '20px'
                   }}
                 >
-                  <option value="" className="text-gray-400">{newsletterData?.attributes?.language || "Select language"}</option>
+                  <option value="" className="text-gray-400">{newsletterData?.attributes?.language || "Select language*"}</option>
                   <option value="English" className="text-gray-700 dark:text-gray-200">English</option>
                   <option value="Malayalam" className="text-gray-700 dark:text-gray-200" style={{ fontFamily: 'Noto Sans Malayalam UI, sans-serif' }}>Malayalam/മലയാളം</option>
                   <option value="Punjabi" className="text-gray-700 dark:text-gray-200" style={{ fontFamily: 'Noto Sans Gurmukhi UI, sans-serif' }}>Punjabi/ਪੰਜਾਬੀ</option>

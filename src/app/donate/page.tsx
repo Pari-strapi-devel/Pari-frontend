@@ -804,92 +804,15 @@ console.log('Razorpay options:', options)
               </div>
             )}
 
-            {/* Main Content Text */}
-            <div className="space-y-6">
-              {pageData?.attributes?.Content && (
-                <div
-                  className="text-discreet-text prose prose-p:text-discreet-text"
-                  style={{
-                    fontFamily: 'Noto Sans',
-                    fontWeight: 400,
-                    fontSize: '15px',
-                    lineHeight: '170%',
-                    letterSpacing: '-3%'
-                  }}
-                  dangerouslySetInnerHTML={{ __html: pageData.attributes.Content }}
-                />
-              )}
-            </div>
-
-            {/* The PARI Fellow Programme Section */}
-          
-
-            {/* FAQs Section */}
-            {pageData?.attributes?.FAQs && pageData.attributes.FAQs.length > 0 && (
-              <div className="space-y-6">
-                <h2 className="text-2xl font-bold text-foreground" style={{
-                  fontFamily: 'Noto Sans',
-                  fontWeight: 700,
-                  fontSize: '24px',
-                  lineHeight: '130%',
-                  letterSpacing: '-4%'
-                }}>
-                  Frequently Asked Questions
-                </h2>
-                <div className="space-y-4">
-                  {pageData.attributes.FAQs.map((faq: FAQ) => (
-                    <div key={faq.id} className="border-b border-border pb-4">
-                      <h3 className="font-semibold text-foreground mb-2" style={{
-                        fontFamily: 'Noto Sans',
-                        fontWeight: 600,
-                        fontSize: '16px',
-                        lineHeight: '130%',
-                        letterSpacing: '-3%'
-                      }}>
-                        {faq.Question}
-                      </h3>
-                      <div
-                        className="text-discreet-text prose prose-p:text-discreet-text prose-a:text-primary-PARI-Red"
-                        style={{
-                          fontFamily: 'Noto Sans',
-                          fontWeight: 400,
-                          fontSize: '15px',
-                          lineHeight: '170%',
-                          letterSpacing: '-3%'
-                        }}
-                        dangerouslySetInnerHTML={{ __html: faq.Answer }}
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-
-          </div>
-
-          {/* Right Column - Donation Form */}
-          <div className="space-y-4">
+             <div className="space-y-4 flex md:hidden">
             <div className="bg-white dark:bg-popover p-4 sm:p-6 md:p-8 rounded-2xl border border-gray-300 dark:border-border h-fit lg:sticky lg:top-8 shadow-xl" style={{ boxShadow: '0px 4px 20px 0px rgba(0,0,0,0.1)' }}>
             <div className="space-y-6">
-            <h4 className="text-2xl font-bold text-gray-900 dark:text-foreground mb-4" style={{
-              fontFamily: 'Noto Sans',
-              fontWeight: 700,
-              fontSize: '24px',
-              lineHeight: '130%',
-              letterSpacing: '-4%'
-            }}>
+            <h4 className="text-2xl font-noto-sans text-card-foreground" >
               Donate form
             </h4>
-            <p className="text-gray-600 dark:text-muted-foreground mb-6" style={{
-              fontFamily: 'Noto Sans',
-              fontWeight: 400,
-              fontSize: '14px',
-              lineHeight: '170%',
-              letterSpacing: '-3%'
-            }}>
+            <h2 className="text-discreet-text font-noto-sans  mb-6" >
               We need your support
-            </p>
+            </h2>
 
             {!showPaymentDetails ? (
               <div className="space-y-6">
@@ -901,7 +824,7 @@ console.log('Razorpay options:', options)
                     <input
                       type="text"
                       name="fullName"
-                      placeholder="First Name"
+                      placeholder="First Name*"
                       value={formData.fullName.split(' ')[0] || ''}
                       onChange={(e) => {
                         const lastName = formData.fullName.split(' ').slice(1).join(' ')
@@ -913,7 +836,7 @@ console.log('Razorpay options:', options)
                   </div>
                   <input
                     type="text"
-                    placeholder="Last Name"
+                    placeholder="Last Name *"
                     value={formData.fullName.split(' ').slice(1).join(' ')}
                     onChange={(e) => {
                       const firstName = formData.fullName.split(' ')[0] || ''
@@ -931,7 +854,7 @@ console.log('Razorpay options:', options)
                     <input
                       type="email"
                       name="email"
-                      placeholder="Email"
+                      placeholder="Email*"
                       value={formData.email}
                       onChange={handleInputChange}
                       required
@@ -940,14 +863,15 @@ console.log('Razorpay options:', options)
                   </div>
                   <div className="relative">
                     <FiPhone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primary-PARI-Red h-4 w-4" />
+                    <span className="absolute left-10 top-1/2 transform -translate-y-1/2 text-gray-900 dark:text-foreground text-sm">+91</span>
                     <input
                       type="tel"
                       name="phone"
-                      placeholder="Phone"
+                      placeholder="Phone*"
                       value={formData.phone}
                       onChange={handleInputChange}
                       required
-                      className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-border rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-transparent outline-none bg-white dark:bg-background text-gray-900 dark:text-foreground placeholder-gray-500 dark:placeholder-muted-foreground text-sm"
+                      className="w-full pl-[4.5rem] pr-4 py-3 border border-gray-300 dark:border-border rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-transparent outline-none bg-white dark:bg-background text-gray-900 dark:text-foreground placeholder-gray-500 dark:placeholder-muted-foreground text-sm"
                     />
                   </div>
                 </div>
@@ -958,7 +882,7 @@ console.log('Razorpay options:', options)
                   <input
                     type="text"
                     name="panNumber"
-                    placeholder="PAN Number"
+                    placeholder="PAN Number*"
                     value={formData.panNumber}
                     onChange={handleInputChange}
                     required
@@ -1055,7 +979,539 @@ console.log('Razorpay options:', options)
                   <input
                     type="text"
                     name="pincode"
-                    placeholder="Pincode"
+                    placeholder="Pincode*"
+                    value={formData.pincode}
+                    onChange={handleInputChange}
+                    required
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-border rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-transparent outline-none bg-white dark:bg-background text-gray-900 dark:text-foreground placeholder-gray-500 dark:placeholder-muted-foreground text-sm"
+                  />
+                </div>
+
+                {/* Citizen Checkbox */}
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="isIndianCitizen"
+                    name="isIndianCitizen"
+                    checked={formData.isIndianCitizen}
+                    onChange={handleInputChange}
+                    required
+                    className="h-4 w-4 accent-primary-PARI-Red focus:ring-2 focus:ring-primary-PARI-Red border-gray-300 dark:border-border rounded"
+                  />
+                  <label htmlFor="isIndianCitizen" className="text-sm text-gray-900 dark:text-foreground">
+                    I am a citizen of India
+                  </label>
+                </div>
+
+                {/* Donation Method */}
+                <div className="space-y-3">
+                  <label className="block text-sm font-medium text-gray-600 dark:text-muted-foreground">
+                    How would you prefer to donate? *
+                  </label>
+                  <div className="flex flex-wrap gap-3">
+                    {[
+                      { value: 'online', label: 'Online' },
+                      { value: 'bank-transfer', label: 'Bank Transfer' },
+                      { value: 'cheque', label: 'Cheque / DD' }
+                    ].map((method) => (
+                      <label key={method.value} className="flex items-center space-x-2 cursor-pointer">
+                        <input
+                          type="radio"
+                          name="paymentMethod"
+                          value={method.value}
+                          checked={formData.paymentMethod === method.value}
+                          onChange={() => {
+                            console.log('##Rohit_Rocks## Payment method selected:', method.value)
+                            setFormData(prev => ({ ...prev, paymentMethod: method.value as 'online' | 'cheque' | 'bank-transfer' | 'upi' | '' }))
+                          }}
+                          required
+                          className="h-4 w-4 accent-primary-PARI-Red focus:ring-2 focus:ring-primary-PARI-Red border-gray-300 dark:border-border"
+                        />
+                        <span className="text-sm text-gray-900 dark:text-muted-foreground">{method.label}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Donation Amount - Only show when online payment is selected */}
+                {formData.paymentMethod === 'online' && (
+                  <div className="space-y-3">
+                    <label className="block text-sm font-medium text-gray-600 dark:text-muted-foreground">
+                      Donation Amount (₹) *
+                    </label>
+                    <input
+                      type="number"
+                      name="amount"
+                      placeholder="Enter amount"
+                      value={formData.amount}
+                      onChange={handleInputChange}
+                      min="1"
+                      required
+                      className="w-full px-4 py-3 border border-gray-300 dark:border-border rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-transparent outline-none bg-white dark:bg-background text-gray-900 dark:text-foreground placeholder-gray-500 dark:placeholder-muted-foreground text-sm"
+                    />
+                  </div>
+                )}
+
+                {/* Terms of Service Agreement */}
+                {formData.paymentMethod !== '' && (
+                  <div className="mt-6">
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        name="agreeToTerms"
+                        id="agreeToTerms"
+                        checked={formData.agreeToTerms}
+                        onChange={handleInputChange}
+                        required
+                        className="h-4 w-4 text-primary-PARI-Red focus:ring-primary-PARI-Red border-gray-300 rounded"
+                      />
+                      <label htmlFor="agreeToTerms" className="text-sm text-muted-foreground">
+                        I agree to PARI&apos;s{' '}
+                        <a href="https://ruralindiaonline.org/termsofservices" target="_blank" rel="noopener noreferrer" className="text-primary-PARI-Red hover:underline">
+                          terms of service
+                        </a>
+                      </label>
+                    </div>
+                  </div>
+                )}
+
+                {/* Submit Button - Always show when payment method is selected */}
+                {formData.paymentMethod !== '' && (
+                  <button
+                    type="submit"
+                    disabled={isLoading || !formData.agreeToTerms}
+                    className={`w-full py-3 px-6 rounded-full font-medium transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
+                      !formData.agreeToTerms
+                        ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                        : 'bg-primary-PARI-Red text-white hover:bg-primary-PARI-Red/90'
+                    }`}
+                  >
+                    {isLoading ? 'Processing...' : 'Confirm details'}
+                  </button>
+                )}
+
+
+
+
+              </form>
+
+              {/* Disclaimer inside form container */}
+              <div className=" p-4 rounded-lg bg-popover mt-6  border border-border dark:border-borderline">
+                <p className="text-sm text-discreet-text font-noto-sans dark:text-muted-foreground">
+                  At present, we can only accept donations in Indian rupees by Indian citizens. All donations made to the CounterMedia Trust are eligible for exemption under Section 80G of the Income Tax Act, 1961. Here is a copy of our{' '}
+                  <a href="#" className="text-primary-PARI-Red  hover:underline font-medium">exemption certificate</a>.
+                </p>
+              </div>
+              </div>
+            ) : (
+              // Payment Details View
+              <div className="space-y-6">
+                {/* Success message for online payments */}
+                {formData.paymentMethod === 'online' && (
+                  <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-6">
+                    <div className="flex items-center space-x-3 mb-4">
+                      <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                        <FiCheck className="w-5 h-5 text-white" />
+                      </div>
+                      <h3 className="text-lg font-semibold text-green-800 dark:text-green-200">
+                        Payment Successful!
+                      </h3>
+                    </div>
+                    <p className="text-green-700 dark:text-green-300 mb-4">
+                      Thank you for your donation to The People&apos;s Archive of Rural India.
+                    </p>
+                    <div className="space-y-2">
+                      <p className="text-green-700 dark:text-green-300">
+                        <strong>Payment ID:</strong> {referenceId}
+                      </p>
+                      <p className="text-green-700 dark:text-green-300">
+                        <strong>Amount:</strong> ₹{formData.amount}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {formData.paymentMethod === 'cheque' && (
+                  <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6">
+                    <div className="flex items-center space-x-3 mb-4">
+                      <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                        <FiCheck className="w-5 h-5 text-white" />
+                      </div>
+                      <h3 className="text-lg font-semibold text-blue-800 dark:text-blue-200">
+                        Form Submitted Successfully!
+                      </h3>
+                    </div>
+                    <p className="text-blue-700 dark:text-blue-300 mb-4">
+                      Thank you for choosing to donate to The People&apos;s Archive of Rural India via Cheque/DD.
+                    </p>
+                    <div className="space-y-3">
+                      <p className="text-blue-700 dark:text-blue-300">
+                        <strong>Reference ID:</strong> {referenceId}
+                      </p>
+                      <p className="text-blue-700 dark:text-blue-300">
+                        Make your cheque to <strong>&quot;CounterMedia Trust&quot;</strong> and send it to us by courier/post along with the above reference ID.
+                      </p>
+                      <div className="bg-background p-4 rounded-lg border">
+                        <p className="font-semibold text-foreground mb-2">Send by courier/post to:</p>
+                        <p className="text-foreground">
+                          CounterMedia Trust c/o P. Sainath<br />
+                          27/43 Sagar Sangam, Bandra Reclamation<br />
+                          Bandra West, Mumbai - 400050<br />
+                          Maharashtra, India
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {formData.paymentMethod === 'bank-transfer' && (
+                  <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-6">
+                    <div className="flex items-center space-x-3 mb-4">
+                      <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                        <FiCheck className="w-5 h-5 text-white" />
+                      </div>
+                      <h3 className="text-lg font-semibold text-green-800 dark:text-green-200">
+                        Form Submitted Successfully!
+                      </h3>
+                    </div>
+                    <p className="text-green-700 dark:text-green-300 mb-4">
+                      Thank you for choosing to donate to The People&apos;s Archive of Rural India via Bank Transfer.
+                    </p>
+                    <div className="space-y-3">
+                      <p className="text-green-700 dark:text-green-300">
+                        <strong>Reference ID:</strong> {referenceId}
+                      </p>
+                      <div className="bg-background p-3 sm:p-4 rounded-lg border space-y-3">
+                        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-2">
+                          <span className="font-semibold text-sm sm:text-base">PAYABLE TO:</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm sm:text-base">CounterMedia Trust</span>
+                            <button
+                              onClick={() => copyToClipboard('CounterMedia Trust', 'payable')}
+                              className="text-primary-PARI-Red hover:text-red-700"
+                            >
+                              {copiedField === 'payable' ? <FiCheck className="h-4 w-4" /> : <FiCopy className="h-4 w-4" />}
+                            </button>
+                          </div>
+                        </div>
+
+                        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-2">
+                          <span className="font-semibold text-sm sm:text-base">BANK AND BRANCH:</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm sm:text-base">HDFC Bank, Aundh</span>
+                            <button
+                              onClick={() => copyToClipboard('HDFC Bank, Aundh', 'bank')}
+                              className="text-primary-PARI-Red hover:text-red-700"
+                            >
+                              {copiedField === 'bank' ? <FiCheck className="h-4 w-4" /> : <FiCopy className="h-4 w-4" />}
+                            </button>
+                          </div>
+                        </div>
+
+                        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-2">
+                          <span className="font-semibold text-sm sm:text-base">ACCOUNT NUMBER:</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm sm:text-base">50100091804541</span>
+                            <button
+                              onClick={() => copyToClipboard('50100091804541', 'account')}
+                              className="text-primary-PARI-Red hover:text-red-700"
+                            >
+                              {copiedField === 'account' ? <FiCheck className="h-4 w-4" /> : <FiCopy className="h-4 w-4" />}
+                            </button>
+                          </div>
+                        </div>
+
+                        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-2">
+                          <span className="font-semibold text-sm sm:text-base">IFSC CODE:</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm sm:text-base">HDFC0000052</span>
+                            <button
+                              onClick={() => copyToClipboard('HDFC0000052', 'ifsc')}
+                              className="text-primary-PARI-Red hover:text-red-700"
+                            >
+                              {copiedField === 'ifsc' ? <FiCheck className="h-4 w-4" /> : <FiCopy className="h-4 w-4" />}
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                <button
+                  onClick={() => {
+                    setShowPaymentDetails(false)
+                    // Reset form when going back
+                    setFormData({
+                      fullName: '',
+                      email: '',
+                      phone: '',
+                      panNumber: '',
+                      address: '',
+                      city: '',
+                      state: '',
+                      pincode: '',
+                      amount: '500',
+                      customAmount: '',
+                      donationType: 'monthly',
+                      paymentMethod: '',
+                      isIndianCitizen: true,
+                      agreeToTerms: true
+                    })
+                  }}
+                  className="w-full border-2 border-primary-PARI-Red text-primary-PARI-Red hover:bg-primary-PARI-Red hover:text-white py-3 px-6 rounded-lg font-medium transition-colors duration-200"
+                >
+                  Back to Form
+                </button>
+              </div>
+            )}
+            </div>
+            </div>
+
+
+          </div>
+
+            {/* Main Content Text */}
+            <div className="space-y-6">
+              {pageData?.attributes?.Content && (
+                <div
+                  className="text-discreet-text prose prose-p:text-discreet-text"
+                  style={{
+                    fontFamily: 'Noto Sans',
+                    fontWeight: 400,
+                    fontSize: '15px',
+                    lineHeight: '170%',
+                    letterSpacing: '-3%'
+                  }}
+                  dangerouslySetInnerHTML={{ __html: pageData.attributes.Content }}
+                />
+              )}
+            </div>
+
+            {/* The PARI Fellow Programme Section */}
+          
+
+            {/* FAQs Section */}
+            {pageData?.attributes?.FAQs && pageData.attributes.FAQs.length > 0 && (
+              <div className="space-y-6">
+                <h2 className="text-2xl font-bold text-foreground" style={{
+                  fontFamily: 'Noto Sans',
+                  fontWeight: 700,
+                  fontSize: '24px',
+                  lineHeight: '130%',
+                  letterSpacing: '-4%'
+                }}>
+                  Frequently Asked Questions
+                </h2>
+                <div className="space-y-4">
+                  {pageData.attributes.FAQs.map((faq: FAQ) => (
+                    <div key={faq.id} className="border-b border-border pb-4">
+                      <h3 className="font-semibold text-foreground mb-2" style={{
+                        fontFamily: 'Noto Sans',
+                        fontWeight: 600,
+                        fontSize: '16px',
+                        lineHeight: '130%',
+                        letterSpacing: '-3%'
+                      }}>
+                        {faq.Question}
+                      </h3>
+                      <div
+                        className="text-discreet-text prose prose-p:text-discreet-text prose-a:text-primary-PARI-Red"
+                        style={{
+                          fontFamily: 'Noto Sans',
+                          fontWeight: 400,
+                          fontSize: '15px',
+                          lineHeight: '170%',
+                          letterSpacing: '-3%'
+                        }}
+                        dangerouslySetInnerHTML={{ __html: faq.Answer }}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+
+          </div>
+
+          {/* Right Column - Donation Form */}
+          <div className="space-y-4 hidden md:block">
+            <div className="bg-white dark:bg-popover p-4 sm:p-6 md:p-8 rounded-2xl border border-gray-300 dark:border-border h-fit lg:sticky lg:top-8 shadow-xl" style={{ boxShadow: '0px 4px 20px 0px rgba(0,0,0,0.1)' }}>
+            <div className="space-y-6">
+            <h4 className="text-2xl font-bold text-gray-900 font-noto-sans dark:text-foreground mb-2" >
+              Donate form
+            </h4>
+            <p className="text-gray-600 font-noto-sans dark:text-muted-foreground mb-6" >
+              We need your support
+            </p>
+
+            {!showPaymentDetails ? (
+              <div className="space-y-6 ">
+              <form onSubmit={handleSubmit} className="space-y-4">
+                {/* Name Fields */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="relative">
+                    <FiUser className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primary-PARI-Red h-4 w-4" />
+                    <input
+                      type="text"
+                      name="fullName"
+                      placeholder="First Name*"
+                      value={formData.fullName.split(' ')[0] || ''}
+                      onChange={(e) => {
+                        const lastName = formData.fullName.split(' ').slice(1).join(' ')
+                        setFormData(prev => ({ ...prev, fullName: `${e.target.value} ${lastName}`.trim() }))
+                      }}
+                      required
+                      className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-border rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-transparent outline-none bg-white dark:bg-background text-gray-900 dark:text-foreground placeholder-gray-500 dark:placeholder-muted-foreground text-sm"
+                    />
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Last Name*"
+                    value={formData.fullName.split(' ').slice(1).join(' ')}
+                    onChange={(e) => {
+                      const firstName = formData.fullName.split(' ')[0] || ''
+                      setFormData(prev => ({ ...prev, fullName: `${firstName} ${e.target.value}`.trim() }))
+                    }}
+                    required
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-border rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-transparent outline-none bg-white dark:bg-background text-gray-900 dark:text-foreground placeholder-gray-500 dark:placeholder-muted-foreground text-sm"
+                  />
+                </div>
+
+                {/* Email and Phone */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="relative">
+                    <FiMail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primary-PARI-Red h-4 w-4" />
+                    <input
+                      type="email"
+                      name="email"
+                      placeholder="Email*"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      required
+                      className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-border rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-transparent outline-none bg-white dark:bg-background text-gray-900 dark:text-foreground placeholder-gray-500 dark:placeholder-muted-foreground text-sm"
+                    />
+                  </div>
+                  <div className="relative">
+                    <FiPhone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primary-PARI-Red h-4 w-4" />
+                    <span className="absolute left-10 top-1/2 transform -translate-y-1/2 text-gray-900 dark:text-foreground text-sm">+91</span>
+                    <input
+                      type="tel"
+                      name="phone"
+                      placeholder="Phone*"
+                      value={formData.phone}
+                      onChange={handleInputChange}
+                      required
+                      className="w-full pl-[4.5rem] pr-4 py-3 border border-gray-300 dark:border-border rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-transparent outline-none bg-white dark:bg-background text-gray-900 dark:text-foreground placeholder-gray-500 dark:placeholder-muted-foreground text-sm"
+                    />
+                  </div>
+                </div>
+
+                {/* PAN Number */}
+                <div className="relative">
+                  <FiCreditCard className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primary-PARI-Red h-4 w-4" />
+                  <input
+                    type="text"
+                    name="panNumber"
+                    placeholder="PAN Number*"
+                    value={formData.panNumber}
+                    onChange={handleInputChange}
+                    required
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-border uppercase rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-transparent outline-none bg-white dark:bg-background text-gray-900 dark:text-foreground placeholder-gray-500 dark:placeholder-muted-foreground text-sm"
+                  />
+                </div>
+
+                {/* Address Fields */}
+                <div className="relative">
+                  <FiMapPin className="absolute left-3 top-3 text-primary-PARI-Red h-4 w-4" />
+                  <input
+                    type="text"
+                    placeholder="Address Line 1"
+                    value={formData.address.split('\n')[0] || ''}
+                    onChange={(e) => {
+                      const lines = formData.address.split('\n')
+                      lines[0] = e.target.value
+                      setFormData(prev => ({ ...prev, address: lines.join('\n') }))
+                    }}
+                    required
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-border rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-transparent outline-none bg-white dark:bg-background text-gray-900 dark:text-foreground placeholder-gray-500 dark:placeholder-muted-foreground text-sm"
+                  />
+                </div>
+
+                <div className="relative">
+                  <FiMapPin className="absolute left-3 top-3 text-primary-PARI-Red h-4 w-4" />
+                  <input
+                    type="text"
+                    placeholder="Address Line 2"
+                    value={formData.address.split('\n')[1] || ''}
+                    onChange={(e) => {
+                      const lines = formData.address.split('\n')
+                      lines[1] = e.target.value
+                      setFormData(prev => ({ ...prev, address: lines.join('\n') }))
+                    }}
+                    required
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-border rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-transparent outline-none bg-white dark:bg-background text-gray-900 dark:text-foreground placeholder-gray-500 dark:placeholder-muted-foreground text-sm"
+                  />
+                </div>
+
+                {/* State, City, Pincode */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  {/* State dropdown */}
+                  <select
+                    name="state"
+                    value={formData.state}
+                    onChange={handleInputChange}
+                    disabled={loadingStates}
+                    required
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-border rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-transparent outline-none bg-white dark:bg-background text-gray-900 dark:text-foreground disabled:opacity-50 appearance-none text-sm"
+                    style={{
+                      backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23B82929' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
+                      backgroundRepeat: 'no-repeat',
+                      backgroundPosition: 'right 0.75rem center',
+                      backgroundSize: '20px 20px'
+                    }}
+                  >
+                    <option value="">
+                      {loadingStates ? 'Loading states...' : 'State'}
+                    </option>
+                    {states.map((state) => (
+                      <option key={state.id} value={state.iso2}>
+                        {state.name}
+                      </option>
+                    ))}
+                  </select>
+
+                  {/* City dropdown */}
+                  <select
+                    name="city"
+                    value={formData.city}
+                    onChange={handleInputChange}
+                    disabled={loadingDistricts || !formData.state.trim()}
+                    required
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-border rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-transparent outline-none bg-white dark:bg-background text-gray-900 dark:text-foreground disabled:opacity-50 disabled:cursor-not-allowed appearance-none text-sm"
+                    style={{
+                      backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23B82929' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
+                      backgroundRepeat: 'no-repeat',
+                      backgroundPosition: 'right 0.75rem center',
+                      backgroundSize: '20px 20px'
+                    }}
+                  >
+                    <option value="">
+                      {loadingDistricts ? 'Loading cities...' : 'City'}
+                    </option>
+                    {districts.map((district) => (
+                      <option key={district.id} value={district.name}>
+                        {district.name}
+                      </option>
+                    ))}
+                  </select>
+
+                  {/* Pincode */}
+                  <input
+                    type="text"
+                    name="pincode"
+                    placeholder="Pincode*"
                     value={formData.pincode}
                     onChange={handleInputChange}
                     required
@@ -1173,7 +1629,7 @@ console.log('Razorpay options:', options)
 
               {/* Disclaimer inside form container */}
               <div className=" p-4 rounded-lg bg-popover mt-6 border border-border dark:border-borderline">
-                <p className="text-sm text-discreet-text dark:text-muted-foreground">
+                <p className="text-sm text-discreet-text font-noto-sans dark:text-muted-foreground">
                   At present, we can only accept donations in Indian rupees by Indian citizens. All donations made to the CounterMedia Trust are eligible for exemption under Section 80G of the Income Tax Act, 1961. Here is a copy of our{' '}
                   <a href="#" className="text-primary-PARI-Red hover:underline font-medium">exemption certificate</a>.
                 </p>

@@ -193,7 +193,7 @@ export function AudioVideoBigCard({
           )}
         </div>
 
-          <h3 className="text-2xl md:text-3xl  text-foreground">
+          <h3 className="text-2xl  text-foreground">
             {title}
           </h3>
 

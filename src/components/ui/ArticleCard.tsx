@@ -68,7 +68,74 @@ export function ArticleCard({
       href={addLocaleToUrl(`/article/${slug}`)}
       className={className}
     >
-      <article className="group relative rounded-lg overflow-hidden sm:pt-8 hover:rounded-xl transition-discrete-00 transition-all duration-300 h-full">
+     
+      <article className="group relative rounded-lg overflow-hidden  hover:rounded-xl transition-discrete-00 transition-all duration-300 h-full">
+       <div className="flex items-center mt-4 gap-2">
+            {categories?.length > 0 && (
+              <div className="flex flex-wrap px-1 gap-2">
+                {/* Show 2 categories at a time */}
+                {categories.slice(categoryStartIndex, categoryStartIndex + 2).map((category, index) => (
+                  <span
+                    key={`${categoryStartIndex}-${index}`}
+                    className="inline-block items-center px-2 py-1 ring-1 hover:bg-primary-PARI-Red hover:text-white ring-primary-PARI-Red text-xs text-primary-PARI-Red rounded-full w-fit h-[23px] mb-2 cursor-pointer animate-slide-in-left"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+
+                      // Get current URL and parameters
+                      const url = new URL(window.location.href);
+                      const params = new URLSearchParams(url.search);
+
+                      // Get existing types if any
+                      const existingTypes = params.get('types')?.split(',').filter(Boolean) || [];
+                      const actualIndex = categoryStartIndex + index;
+                      const slug = categorySlug[actualIndex] || category.toLowerCase().replace(/\s+/g, '-');
+
+                      // Add the new category if it's not already included
+                      if (!existingTypes.includes(slug)) {
+                        existingTypes.push(slug);
+                      }
+
+                      // Update the URL
+                      params.set('types', existingTypes.join(','));
+
+                      // Navigate to the updated URL
+                      window.location.href = `/articles?${params.toString()}`;
+                    }}
+                  >
+                    {category}
+                  </span>
+                ))}
+
+                {/* Next/Reset button */}
+               
+                {categories.length > 2 && (
+                  <span
+                    className="inline-block items-center px-2 py-1 ring-1 hover:bg-primary-PARI-Red hover:text-white ring-primary-PARI-Red text-xs text-primary-PARI-Red rounded-full w-fit h-[23px] mb-2 cursor-pointer"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      if (categoryStartIndex + 2 >= categories.length) {
+                        // If at end, reset to beginning
+                        setCategoryStartIndex(0);
+                      } else {
+                        // Move to next pair
+                        setCategoryStartIndex(prev => prev + 2);
+                      }
+                    }}
+                  >
+                    {categoryStartIndex + 2 >= categories.length
+                      ? '-'
+                      : `+${categories.length - (categoryStartIndex + 2)}`
+                    }
+                  </span>
+                )}
+              </div>
+            )}
+            </div>
+        <h3 className={` md:h-20 h-20 text-[1.975rem] ${currentLocale === 'ur' ? 'md:pt-2' : ''} mb-2 px-1 text-foreground line-clamp-2`}>
+            {title}
+          </h3>
         <div className="relative h-[376px] w-100% overflow-hidden  rounded-2xl" style={{ boxShadow: '0px 1px 4px 0px #00000047' }}>
           {/* Desktop Image */}
           <Image
@@ -145,78 +212,15 @@ export function ArticleCard({
         <div>
         <div className="py-5 px-1 rounded-2xl">
           <div className="flex flex-wrap gap-2 mb-2 items-center justify-between">
-            <div className="flex items-center mt-4 gap-2">
-            {categories?.length > 0 && (
-              <>
-                {/* Show 2 categories at a time */}
-                {categories.slice(categoryStartIndex, categoryStartIndex + 2).map((category, index) => (
-                  <span
-                    key={`${categoryStartIndex}-${index}`}
-                    className="inline-block items-center px-2 py-1 ring-1 hover:bg-primary-PARI-Red hover:text-white ring-primary-PARI-Red text-xs text-primary-PARI-Red rounded-full w-fit h-[23px] mb-2 cursor-pointer animate-slide-in-left"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-
-                      // Get current URL and parameters
-                      const url = new URL(window.location.href);
-                      const params = new URLSearchParams(url.search);
-
-                      // Get existing types if any
-                      const existingTypes = params.get('types')?.split(',').filter(Boolean) || [];
-                      const actualIndex = categoryStartIndex + index;
-                      const slug = categorySlug[actualIndex] || category.toLowerCase().replace(/\s+/g, '-');
-
-                      // Add the new category if it's not already included
-                      if (!existingTypes.includes(slug)) {
-                        existingTypes.push(slug);
-                      }
-
-                      // Update the URL
-                      params.set('types', existingTypes.join(','));
-
-                      // Navigate to the updated URL
-                      window.location.href = `/articles?${params.toString()}`;
-                    }}
-                  >
-                    {category}
-                  </span>
-                ))}
-
-                {/* Next/Reset button */}
-                {categories.length > 2 && (
-                  <span
-                    className="inline-block items-center px-2 py-1 ring-1 hover:bg-primary-PARI-Red hover:text-white ring-primary-PARI-Red text-xs text-primary-PARI-Red rounded-full w-fit h-[23px] mb-2 cursor-pointer"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      if (categoryStartIndex + 2 >= categories.length) {
-                        // If at end, reset to beginning
-                        setCategoryStartIndex(0);
-                      } else {
-                        // Move to next pair
-                        setCategoryStartIndex(prev => prev + 2);
-                      }
-                    }}
-                  >
-                    {categoryStartIndex + 2 >= categories.length
-                      ? '-'
-                      : `+${categories.length - (categoryStartIndex + 2)}`
-                    }
-                  </span>
-                )}
-              </>
-            )}
-            </div>
+            
 
 
 
           </div>
           <div className=" ">
 
-          <div className={`flex flex-col gap-1 ${currentLocale === 'ur' ? 'md:h-[190px] h-[190px]' : 'md:h-[150px] h-[160px]'}`}>
-          <h3 className=" md:h-20 h-20 text-[1.975rem] text-foreground line-clamp-">
-            {title}
-          </h3>
+          <div className={`flex flex-col gap-1 ${currentLocale === 'ur' ? 'md:h-[90px] h-[100px]' : ' h-[90px]'}`}>
+         
 
           <p className="text-discreet-text py-1 line-clamp-2">
             {description}

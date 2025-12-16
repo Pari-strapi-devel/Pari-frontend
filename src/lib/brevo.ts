@@ -186,6 +186,43 @@ export const addBrevoContact = async (contact: BrevoContact): Promise<BrevoRespo
 };
 
 /**
+ * Get language-specific newsletter list ID
+ */
+const getLanguageNewsletterListId = (language?: string): number => {
+  if (!language) {
+    return BREVO_CONFIG.listIds.newsletter;
+  }
+
+  const languageMap: Record<string, number> = {
+    'en': BREVO_CONFIG.listIds.newsletterEnglish,
+    'english': BREVO_CONFIG.listIds.newsletterEnglish,
+    'pa': BREVO_CONFIG.listIds.newsletterPunjabi,
+    'punjabi': BREVO_CONFIG.listIds.newsletterPunjabi,
+    'ml': BREVO_CONFIG.listIds.newsletterMalayalam,
+    'malayalam': BREVO_CONFIG.listIds.newsletterMalayalam,
+    'hi': BREVO_CONFIG.listIds.newsletterHindi,
+    'hindi': BREVO_CONFIG.listIds.newsletterHindi,
+    'mr': BREVO_CONFIG.listIds.newsletterMarathi,
+    'marathi': BREVO_CONFIG.listIds.newsletterMarathi,
+    'te': BREVO_CONFIG.listIds.newsletterTelugu,
+    'telugu': BREVO_CONFIG.listIds.newsletterTelugu,
+    'ta': BREVO_CONFIG.listIds.newsletterTamil,
+    'tamil': BREVO_CONFIG.listIds.newsletterTamil,
+    'ur': BREVO_CONFIG.listIds.newsletterUrdu,
+    'urdu': BREVO_CONFIG.listIds.newsletterUrdu,
+    'bn': BREVO_CONFIG.listIds.newsletterBengali,
+    'bengali': BREVO_CONFIG.listIds.newsletterBengali,
+    'or': BREVO_CONFIG.listIds.newsletterOdiya,
+    'odiya': BREVO_CONFIG.listIds.newsletterOdiya,
+    'kn': BREVO_CONFIG.listIds.newsletterKannada,
+    'kannada': BREVO_CONFIG.listIds.newsletterKannada,
+  };
+
+  const normalizedLanguage = language.toLowerCase().trim();
+  return languageMap[normalizedLanguage] || BREVO_CONFIG.listIds.newsletter;
+};
+
+/**
  * Subscribe to newsletter (footer form)
  */
 export const subscribeToNewsletter = async (
@@ -197,6 +234,16 @@ export const subscribeToNewsletter = async (
   district?: string,
   language?: string
 ): Promise<BrevoResponse> => {
+  // Get language-specific list ID
+  const languageListId = getLanguageNewsletterListId(language);
+
+  // Always include the main newsletter list (50) along with language-specific list
+  const mainNewsletterListId = BREVO_CONFIG.listIds.newsletter; // This is 50
+
+  // Create array of list IDs - include both main list and language-specific list
+  // Use Set to avoid duplicates if languageListId is also 50
+  const listIds = Array.from(new Set([mainNewsletterListId, languageListId]));
+
   console.log('##Rohit_Rocks## Newsletter Subscription:', {
     email,
     name,
@@ -205,7 +252,9 @@ export const subscribeToNewsletter = async (
     state,
     district,
     language,
-    listIds: [BREVO_CONFIG.listIds.newsletter, BREVO_CONFIG.listIds.footer],
+    languageListId,
+    mainNewsletterListId,
+    listIds,
     timestamp: new Date().toISOString()
   });
 
@@ -226,7 +275,7 @@ export const subscribeToNewsletter = async (
       ...(district && { DISTRICT: district }),
       ...(language && { LANGUAGE: language }),
     },
-    listIds: [BREVO_CONFIG.listIds.newsletter, BREVO_CONFIG.listIds.footer],
+    listIds: listIds,
   };
 
   console.log('##Rohit_Rocks## Newsletter Contact Object:', contact);

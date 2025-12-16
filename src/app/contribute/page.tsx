@@ -768,12 +768,12 @@ const ContributeContent = () => {
           {/* Right Form Section */}
           <div className="bg-popover dark:bg-popover p-4 sm:p-6 md:p-8 rounded-lg shadow-sm border border-border">
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-2xl text-card-foreground">
+              <h3 className="text-2xl text-card-foreground font-noto-sans">
                 { 'Contribute content form'}
               </h3>
             </div>
 
-            <p className="text-muted-foreground mb-4">
+            <p className="text-muted-foreground font-noto-sans mb-4">
               Help us build India&apos;s biggest archive by contributing your content
             </p>
 
@@ -781,7 +781,7 @@ const ContributeContent = () => {
               formName="Content Upload Form"
               requiredFields={[]}
               onSuccess={async () => {
-                console.log('##Rohit_Rocks## Content Upload Form - Form Success');
+              
                 // Reset form on success
                 setFormData({
                   firstName: '',
@@ -809,7 +809,7 @@ const ContributeContent = () => {
             }} className="space-y-6">
               {/* Personal Info Section */}
               <div>
-                <h6 className="text-grey-300 dark:text-discreet-text mb-4">
+                <h6 className="text-grey-300 font-noto-sans dark:text-discreet-text mb-4">
                   PERSONAL INFO
                 </h6>
 
@@ -962,7 +962,7 @@ const ContributeContent = () => {
 
               {/* Upload Content Section */}
               <div>
-                <h6 className="text-grey-300 dark:text-discreet-text mb-4">
+                <h6 className="text-grey-300 font-noto-sans dark:text-discreet-text mb-4">
                   UPLOAD CONTENT
                 </h6>
 
@@ -975,15 +975,15 @@ const ContributeContent = () => {
                       accept=".tiff,.png,.jpg,.pdf,.docx,.txt,.mp3,.mp4,.wav"
                       className="w-full px-4 py-3 border border-input rounded-lg focus:ring-2 focus:ring-primary-PARI-Red focus:border-primary-PARI-Red outline-none bg-background file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary-PARI-Red file:text-white hover:file:bg-primary-PARI-Red/90 text-sm"
                     />
-                    <p className="text-xs text-muted-foreground mt-2">
+                    <p className="text-xs text-muted-foreground font-noto-sans mt-2">
                       Supported formats: tiff, png, jpg, pdf, docx, txt, mp3, mp4, wav
                     </p>
-                    <p className="text-xs text-green-600 mt-1">
+                    <p className="text-xs text-green-600 font-noto-sans mt-1">
                       File will be uploaded directly to the server when you submit the form.
                     </p>
                   </div>
 
-                  <div className="text-center text-muted-foreground text-sm">
+                  <div className="text-center text-muted-foreground font-noto-sans text-sm">
                     <span>Or</span>
                   </div>
 
@@ -1022,7 +1022,7 @@ const ContributeContent = () => {
                     required
                     className="h-4 w-4 text-primary-PARI-Red focus:ring-primary-PARI-Red border-gray-300 rounded"
                   />
-                  <label htmlFor="agreeToTerms" className="text-sm text-muted-foreground">
+                  <label htmlFor="agreeToTerms" className="text-sm text-muted-foreground font-noto-sans">
                     I agree to PARI&apos;s{' '}
                     <a href="/terms-and-conditions" target="_blank" rel="noopener noreferrer" className="text-primary-PARI-Red hover:underline">
                       terms of service

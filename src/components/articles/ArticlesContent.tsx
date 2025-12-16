@@ -991,7 +991,7 @@ export default function ArticlesContent() {
               <h1 className="text-4xl font-noto-sans font-bold">Articles</h1>
               {/* Author-specific title */}
               {activeFilters.author && (
-                <h2 className="text-xl ml-3 mt-2 font-noto-sans font-semibold text-primary-PARI-Red">
+                <h2 className="text-xl  mt-2 font-noto-sans font-semibold text-primary-PARI-Red">
                   Stories by {activeFilters.author}
                 </h2>
               )}

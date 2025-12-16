@@ -768,7 +768,7 @@ const ContactForm = () => {
           <div className='flex flex-col justify-center py-6 sm:py-8 md:py-20 h-full'>
           <div className="bg-white dark:bg-popover p-4 sm:p-6 md:p-8 rounded-2xl w-full max-w-2xl mx-auto shadow-xl" style={{ boxShadow: '0px 4px 20px 0px rgba(0,0,0,0.1)' }}>
             <div className="mb-6">
-              <h4 className="text-2xl font-bold text-gray-900 dark:text-foreground mb-2">
+              <h4 className="text-2xl font-bold font-noto-sans text-gray-900 dark:text-foreground mb-2">
                 Contact us
               </h4>
             </div>
@@ -874,7 +874,7 @@ const ContactForm = () => {
 
                     console.log('##Rohit_Rocks## ContactForm - Strapi Newsletter API Payload:', JSON.stringify(newsletterPayload, null, 2));
 
-                    const newsletterApiResponse = await axios.post(`${BASE_URL}api/newsletter-submits`, newsletterPayload, {
+                    const newsletterApiResponse = await axios.post(`${BASE_URL}api/newslatters`, newsletterPayload, {
                       headers: {
                         'Content-Type': 'application/json'
                       }
@@ -887,18 +887,34 @@ const ContactForm = () => {
                     });
                   } catch (error) {
                     if (axios.isAxiosError(error)) {
-                      console.error('##Rohit_Rocks## ContactForm - Strapi Newsletter API submission error:', {
+                      console.error('##Rohit_Rocks## ContactForm - Strapi Newsletter API submission error (Axios):', {
                         message: error.message,
                         status: error.response?.status,
                         statusText: error.response?.statusText,
                         data: error.response?.data,
-                        url: error.config?.url
+                        url: error.config?.url,
+                        baseURL: error.config?.baseURL,
+                        fullURL: `${error.config?.baseURL || ''}${error.config?.url || ''}`,
+                        errorCode: error.code,
+                        errorName: error.name
+                      });
+                    } else if (error instanceof Error) {
+                      console.error('##Rohit_Rocks## ContactForm - Strapi Newsletter API submission error (Error):', {
+                        message: error.message,
+                        name: error.name,
+                        stack: error.stack
                       });
                     } else {
-                      console.error('##Rohit_Rocks## ContactForm - Strapi Newsletter API submission error:', error);
+                      console.error('##Rohit_Rocks## ContactForm - Strapi Newsletter API submission error (Unknown):', {
+                        error,
+                        errorType: typeof error,
+                        errorString: String(error),
+                        errorJSON: JSON.stringify(error)
+                      });
                     }
                     // Don't throw error to prevent form from showing error state
                     // Newsletter submission will still work via Brevo
+                    console.log('##Rohit_Rocks## ContactForm - Strapi newsletter submission failed, but continuing with Brevo submission');
                   }
                 }
 

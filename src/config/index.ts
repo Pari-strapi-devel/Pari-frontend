@@ -26,6 +26,18 @@ export const BREVO_CONFIG = {
     volunteer: parseInt(process.env.NEXT_PUBLIC_BREVO_VOLUNTEER_LIST_ID || '45'),
     footer: parseInt(process.env.NEXT_PUBLIC_BREVO_NEWSLETTER_LIST_ID || '50'), // Use newsletter for footer
     default: parseInt(process.env.NEXT_PUBLIC_BREVO_NEWSLETTER_LIST_ID || '50'), // Use newsletter as default
+    // Language-specific newsletter lists
+    newsletterEnglish: parseInt(process.env.NEXT_PUBLIC_BREVO_NEWSLETTER_ENGLISH_LIST_ID || '6', 10),
+    newsletterPunjabi: parseInt(process.env.NEXT_PUBLIC_BREVO_NEWSLETTER_PUNJABI_LIST_ID || '52', 10),
+    newsletterMalayalam: parseInt(process.env.NEXT_PUBLIC_BREVO_NEWSLETTER_MALAYALAM_LIST_ID || '51', 10),
+    newsletterHindi: parseInt(process.env.NEXT_PUBLIC_BREVO_NEWSLETTER_HINDI_LIST_ID || '50', 10),
+    newsletterMarathi: parseInt(process.env.NEXT_PUBLIC_BREVO_NEWSLETTER_MARATHI_LIST_ID || '50', 10),
+    newsletterTelugu: parseInt(process.env.NEXT_PUBLIC_BREVO_NEWSLETTER_TELUGU_LIST_ID || '50', 10),
+    newsletterTamil: parseInt(process.env.NEXT_PUBLIC_BREVO_NEWSLETTER_TAMIL_LIST_ID || '50', 10),
+    newsletterUrdu: parseInt(process.env.NEXT_PUBLIC_BREVO_NEWSLETTER_URDU_LIST_ID || '50', 10),
+    newsletterBengali: parseInt(process.env.NEXT_PUBLIC_BREVO_NEWSLETTER_BENGALI_LIST_ID || '50', 10),
+    newsletterOdiya: parseInt(process.env.NEXT_PUBLIC_BREVO_NEWSLETTER_ODIYA_LIST_ID || '50', 10),
+    newsletterKannada: parseInt(process.env.NEXT_PUBLIC_BREVO_NEWSLETTER_KANNADA_LIST_ID || '50', 10),
   },
 };
 

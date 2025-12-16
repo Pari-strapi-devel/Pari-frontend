@@ -238,7 +238,7 @@ export function StoryCard({
                 </div>
               </div>
             ) : null}
-              <h4 className=" pt-2 flex  text-[18px] font-semibold leading-[136%] tracking-[-0.04em]  text-foreground  line-clamp-2">
+              <h4 className=" pt-2 flex  text-[18px] font-semibold leading-[136%] tracking-[-0.04em] pb-4 text-foreground  line-clamp-2">
                 {title}
               </h4>
 
@@ -284,7 +284,7 @@ export function StoryCard({
             </div>
           ) : (
             <div className="py-6 flex min-h-[180px] items-start bg-popover rounded-b-[16px] justify-between flex-col px-4">
-              <h4 className=" pt-2 flex  text-[18px] font-semibold leading-[136%] tracking-[-0.04em]  text-foreground  line-clamp-2">
+              <h4 className={` pt-2 flex  text-[18px] font-semibold leading-[136%] tracking-[-0.04em] ${currentLocale === 'ur' ? 'pb-4' : ''}  text-foreground  line-clamp-2`}>
                 {title}
               </h4>
 

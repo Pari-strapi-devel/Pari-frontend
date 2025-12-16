@@ -122,7 +122,7 @@ export function MakeInIndiaCard() {
   const [sliderRef, instanceRef] = useKeenSlider({
     initial: 0,
     slides: {
-      perView: 1,
+      perView: 1.1,
       spacing: 12,
     },
     breakpoints: {

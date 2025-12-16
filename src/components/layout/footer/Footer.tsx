@@ -290,7 +290,7 @@ export function Footer() {
                             />
                           </div>
                         )} */}
-                        <span className="text-[15px]  ">{footerLink.name}</span>
+                        <p className="text-[15px]   ">{footerLink.name}</p>
                       </Link>
                     </nav>
                   </div>

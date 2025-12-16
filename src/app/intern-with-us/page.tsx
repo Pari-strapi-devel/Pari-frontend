@@ -1529,7 +1529,7 @@ const InternContent = () => {
           {/* Right Form Section */}
           <div className="bg-popover dark:bg-popover p-8 rounded-lg shadow-sm border border-border">
             <div className="flex items-center justify-between ">
-              <h3 className="text-2xl  text-card-foreground">
+              <h3 className="text-2xl font-noto-sans text-card-foreground">
                 {currentStep === 1 && 'Internship form'}
                 {currentStep === 2 && 'Internship form'}
                 {currentStep === 3 && 'Profile form'}
@@ -1566,7 +1566,7 @@ const InternContent = () => {
               </div>
             </div>
 
-            <h2 className="text-discreet-text mb-8">
+            <h2 className="text-discreet-text font-noto-sans mb-8">
               Help us best assess your skills for PARI
             </h2>
 
@@ -1574,7 +1574,7 @@ const InternContent = () => {
             {currentStep === 1 && (
               <div className="space-y-6">
                 <div>
-                  <h6 className="text-grey-300 dark:text-discreet-text mb-4">
+                  <h6 className="text-grey-300 font-noto-sans dark:text-discreet-text mb-4">
                     PERSONAL INFO
                   </h6>
 
@@ -1717,7 +1717,7 @@ const InternContent = () => {
             {currentStep === 2 && (
               <div className="space-y-6">
                 <div>
-                  <h6 className="text-grey-300 dark:text-discreet-text mb-4">
+                  <h6 className="text-grey-300 font-noto-sans dark:text-discreet-text mb-4">
                     INTERNSHIP DETAILS
                   </h6>
 
@@ -1980,13 +1980,13 @@ const InternContent = () => {
             {currentStep === 3 && (
               <div className="space-y-6">
                 <div>
-                  <h6 className="text-grey-300 dark:text-discreet-text mb-4">
+                  <h6 className="text-grey-300 font-noto-sans dark:text-discreet-text mb-4">
                     UPLOAD DOCUMENTS
                   </h6>
 
                   <div className="space-y-4">
                     <div>
-                      <p className="text-sm text-muted-foreground mb-3">
+                      <p className="text-sm font-noto-sans text-muted-foreground mb-3">
                         Upload a statement of purpose indicating why you wish to intern with PARI, and how you would like to contribute. (300-500 words)
                       </p>
                       <div className="border-2 border-dashed border-input rounded-lg p-6 text-center hover:border-primary-PARI-Red transition-colors">
@@ -2002,11 +2002,11 @@ const InternContent = () => {
                             <svg className="mx-auto h-8 w-8 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                             </svg>
-                            <span className="text-sm">Upload a statement of purpose (300-500 words)</span>
+                            <span className="text-sm font-noto-sans">Upload a statement of purpose (300-500 words)</span>
                           </div>
                         </label>
                         {formData.statementOfPurpose && (
-                          <p className="text-sm text-green-600 mt-2">
+                          <p className="text-sm font-noto-sans text-green-600 mt-2">
                             File uploaded: {formData.statementOfPurpose.name}
                           </p>
                         )}
@@ -2027,11 +2027,11 @@ const InternContent = () => {
                             <svg className="mx-auto h-8 w-8 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                             </svg>
-                            <span className="text-sm">Upload your CV / Resume here*</span>
+                            <span className="text-sm font-noto-sans">Upload your CV / Resume here*</span>
                           </div>
                         </label>
                         {formData.cvResume && (
-                          <p className="text-sm text-green-600 mt-2">
+                          <p className="text-sm font-noto-sans text-green-600 mt-2">
                             File uploaded: {formData.cvResume.name}
                           </p>
                         )}
@@ -2052,11 +2052,11 @@ const InternContent = () => {
                             <svg className="mx-auto h-8 w-8 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                             </svg>
-                            <span className="text-sm">Upload writing samples (published or unpublished)*</span>
+                            <span className="text-sm font-noto-sans">Upload writing samples (published or unpublished)*</span>
                           </div>
                         </label>
                         {formData.writingSamples && (
-                          <p className="text-sm text-green-600 mt-2">
+                          <p className="text-sm font-noto-sans text-green-600 mt-2">
                             File uploaded: {formData.writingSamples.name}
                           </p>
                         )}
@@ -2077,7 +2077,7 @@ const InternContent = () => {
                       required
                       className="h-4 w-4 text-primary-PARI-Red focus:ring-primary-PARI-Red border-gray-300 rounded"
                     />
-                    <label htmlFor="agreeToTerms" className="text-sm text-muted-foreground">
+                    <label htmlFor="agreeToTerms" className="text-sm text-muted-foreground font-noto-sans">
                       I agree to PARI&apos;s{' '}
                       <a href="https://ruralindiaonline.org/termsofservices" target="_blank" rel="noopener noreferrer" className="text-primary-PARI-Red hover:underline">
                         terms of service
