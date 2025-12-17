@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import axios from 'axios'
 import Image from 'next/image'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
+import { useLocale } from '@/lib/locale'
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi'
 import { PaintingDetailSkeleton } from '@/components/skeletons/PageSkeletons'
 import { API_BASE_URL } from '@/utils/constants'
@@ -76,6 +77,7 @@ export default function PaintingDetailPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const slug = params.slug as string
+  const { language: locale } = useLocale()
 
   const [painting, setPainting] = useState<PaintingData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -95,9 +97,9 @@ export default function PaintingDetailPage() {
       try {
         setIsLoading(true)
 
-        // Fetch current painting by slug
+        // Fetch current painting by slug with locale
         const response = await axios.get<ApiResponse>(
-          `${BASE_URL}api/childrens-paintings?filters[slug][$eq]=${slug}&populate=*`
+          `${BASE_URL}api/childrens-paintings?filters[slug][$eq]=${slug}&populate=*&locale=${locale}`
         )
 
         if (response.data.data.length > 0) {
