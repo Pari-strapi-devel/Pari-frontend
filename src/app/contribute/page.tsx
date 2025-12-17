@@ -329,7 +329,7 @@ const ContributeContent = () => {
                   <li key={listIndex} className="flex items-start space-x-2">
                     <span className="w-2 h-2 bg-foreground rounded-full mt-2 flex-shrink-0"></span>
                     <p
-                      className="leading-relaxed text-discreet-text font-noto-sans prose-links:text-foreground prose-links:underline"
+                      className="leading-relaxed text-discreet-text  prose-links:text-foreground prose-links:underline"
                       dangerouslySetInnerHTML={{ __html: listItem.innerHTML }}
                     />
                   </li>

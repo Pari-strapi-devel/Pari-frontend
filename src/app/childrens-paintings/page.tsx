@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import axios from 'axios'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
@@ -98,7 +98,7 @@ interface PageApiResponse {
   }
 }
 
-export default function ChildrensPaintingsPage() {
+function ChildrensPaintingsContent() {
   const router = useRouter()
   const { language: locale } = useLocale()
   const [paintings, setPaintings] = useState<PaintingData[]>([])
@@ -408,3 +408,16 @@ export default function ChildrensPaintingsPage() {
   )
 }
 
+export default function ChildrensPaintingsPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-background py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <LibraryGridSkeleton />
+        </div>
+      </div>
+    }>
+      <ChildrensPaintingsContent />
+    </Suspense>
+  )
+}

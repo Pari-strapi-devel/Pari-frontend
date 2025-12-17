@@ -202,24 +202,13 @@ const GrievanceContent = () => {
         <div className="mb-12">
           <h1
             className="text-foreground dark:text-white mb-2"
-            style={{
-              fontFamily: 'Noto Sans',
-              fontWeight: 700,
-              fontSize: '49px',
-              lineHeight: '112%',
-              letterSpacing: '-4%'
-            }}
+          
           >
             {attributes.Grievance_Banner_Card?.Title || 'Grievance Redressal'}
           </h1>
           <p
             className="text-discreet-text dark:text-gray-300"
-            style={{
-              fontFamily: 'Noto Sans',
-              fontWeight: 400,
-              fontSize: '18px',
-              lineHeight: '150%'
-            }}
+          
           >
             {attributes.Grievance_Content?.Grievance_Description || 'Residents of India can file a complaint about website content within a reasonable time after publication.'}
           </p>
@@ -230,7 +219,7 @@ const GrievanceContent = () => {
 
         {/* For general grievances */}
         <section className="mb-16">
-          <h2 
+          {/* <h2 
             className="text-foreground dark:text-white mb-4"
             style={{
               fontFamily: 'Noto Sans',
@@ -241,15 +230,10 @@ const GrievanceContent = () => {
             }}
           >
             For general grievances
-          </h2>
+          </h2> */}
           <p
             className="text-discreet-text dark:text-gray-300 mb-8"
-            style={{
-              fontFamily: 'Noto Sans',
-              fontWeight: 400,
-              fontSize: '16px',
-              lineHeight: '150%'
-            }}
+           
           >
             {attributes.Grievance_Content?.Grievance_Content || 'Grievances can be addressed to our grievance officer'}
           </p>
@@ -257,28 +241,18 @@ const GrievanceContent = () => {
           {/* Contact Details */}
           <div className="space-y-4">
             <div className="flex">
-              <span
+              <p
                 className="text-discreet-text dark:text-gray-400 w-32"
-                style={{
-                  fontFamily: 'Noto Sans',
-                  fontWeight: 400,
-                  fontSize: '16px',
-                  lineHeight: '150%'
-                }}
+               
               >
                 {attributes.Grievance_Address?.nameLabel || 'Name'}
-              </span>
-              <span
+              </p>
+              <p
                 className="text-foreground dark:text-white"
-                style={{
-                  fontFamily: 'Noto Sans',
-                  fontWeight: 500,
-                  fontSize: '16px',
-                  lineHeight: '150%'
-                }}
+                
               >
                 {attributes.Grievance_Address?.name || 'Zahra Latif'}
-              </span>
+              </p>
             </div>
             <div className="flex">
               <span
@@ -292,89 +266,54 @@ const GrievanceContent = () => {
               >
                 Position
               </span>
-              <span
+              <p
                 className="text-foreground dark:text-white"
-                style={{
-                  fontFamily: 'Noto Sans',
-                  fontWeight: 500,
-                  fontSize: '16px',
-                  lineHeight: '150%'
-                }}
+                
               >
                 {attributes.Grievance_Address?.Designation }
-              </span>
+              </p>
             </div>
             <div className="flex">
-              <span
-                className="text-discreet-text dark:text-gray-400 w-32"
-                style={{
-                  fontFamily: 'Noto Sans',
-                  fontWeight: 400,
-                  fontSize: '16px',
-                  lineHeight: '150%'
-                }}
+              <p
+                className="text-discreet-text font-noto-sans dark:text-gray-400 w-32"
+                
               >
                 Organization
-              </span>
-              <span
+              </p>
+              <p
                 className="text-foreground dark:text-white"
-                style={{
-                  fontFamily: 'Noto Sans',
-                  fontWeight: 500,
-                  fontSize: '16px',
-                  lineHeight: '150%'
-                }}
+                
               >
                 {attributes.Grievance_Address?.Address_field_1 }
-              </span>
+              </p>
             </div>
             <div className="flex">
-              <span
+              <p
                 className="text-discreet-text dark:text-gray-400 w-32"
-                style={{
-                  fontFamily: 'Noto Sans',
-                  fontWeight: 400,
-                  fontSize: '16px',
-                  lineHeight: '150%'
-                }}
+                
               >
                 {attributes.Grievance_Address?.emailLabel }
-              </span>
-              <span
-                className="text-foreground dark:text-white"
-                style={{
-                  fontFamily: 'Noto Sans',
-                  fontWeight: 500,
-                  fontSize: '16px',
-                  lineHeight: '150%'
-                }}
+              </p>
+              <p
+                className="text-foreground font-noto-sans dark:text-white"
+                
               >
                 {attributes.Grievance_Address?.email }
-              </span>
+              </p>
             </div>
             <div className="flex">
-              <span
+              <p
                 className="text-discreet-text dark:text-gray-400 w-32"
-                style={{
-                  fontFamily: 'Noto Sans',
-                  fontWeight: 400,
-                  fontSize: '16px',
-                  lineHeight: '150%'
-                }}
+                
               >
                 {attributes.Grievance_Address?.phoneLabel }
-              </span>
-              <span
+              </p>
+              <p
                 className="text-foreground dark:text-white"
-                style={{
-                  fontFamily: 'Noto Sans',
-                  fontWeight: 500,
-                  fontSize: '16px',
-                  lineHeight: '150%'
-                }}
+                
               >
                 {attributes.Grievance_Address?.phone }
-              </span>
+              </p>
             </div>
           </div>
         </section>
@@ -383,24 +322,13 @@ const GrievanceContent = () => {
         <section>
           <h2 
             className="text-foreground dark:text-white mb-4"
-            style={{
-              fontFamily: 'Noto Sans',
-              fontWeight: 700,
-              fontSize: '28px',
-              lineHeight: '130%',
-              letterSpacing: '-5%'
-            }}
+          
           >
             {attributes.GrievancesRelatingtoSexualMisconductLabel || 'For grievances relating to sexual misconduct'}
           </h2>
           <p 
             className="text-discreet-text dark:text-gray-300"
-            style={{
-              fontFamily: 'Noto Sans',
-              fontWeight: 400,
-              fontSize: '16px',
-              lineHeight: '150%'
-            }}
+          
           >
             {attributes.GrievancesRelatingtoSexualMisconductValue || 'Our Internal Complaints Committee can be contacted at: icc_pari@ruralindiaonline.org'}
           </p>

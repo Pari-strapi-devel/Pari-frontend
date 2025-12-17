@@ -421,7 +421,7 @@ export function WeekOnCard() {
                   variant="secondary"
                   className="text-sm h-[36px] md:flex hidden ring-[1px] rounded-[48px]"
                 >
-                  {seeAllStories || "See all stories"}
+                  <p>{seeAllStories || "See all stories"}</p>
                   <ChevronRight className="h-5 w-5 ml-1" />
                 </Button>
               </Link>

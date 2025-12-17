@@ -261,7 +261,9 @@ export function Footer() {
                         setIsNewsletterSheetOpen(true);
                       }}
                     >
-                      {isSubscribing ? 'Subscribing...' : (footerData?.data?.attributes?.subscribe || 'Subscribe')}
+                     <p>
+                     {isSubscribing ? 'Subscribing...' : (footerData?.data?.attributes?.subscribe || 'Subscribe')}
+                     </p>
                     </button>
                   </div>
                 </form>

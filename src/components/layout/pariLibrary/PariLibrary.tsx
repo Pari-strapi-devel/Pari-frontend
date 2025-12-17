@@ -173,7 +173,9 @@ export function PariLibrary() {
               variant="secondary" 
               className="text-sm h-[36px] ring-[1px] rounded-[48px] text-primary-PARI-Red"
             >
-              {libraryData[0]?.Button}
+              <p>
+                {libraryData[0]?.Button}
+              </p>
               <ChevronRight className="h-4 w-4" />
             </Button>
             

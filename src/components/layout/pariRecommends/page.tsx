@@ -506,7 +506,9 @@ export default function StoriesPage() {
                 variant="secondary"
                 className="text-sm h-[36px] md:flex hidden ring-[1px] rounded-[48px] text-primary-PARI-Red"
               >
-                {stories[0]?.sub_title || "See all stories"}
+                <p>
+                  {stories[0]?.sub_title || "See all stories"}
+                </p>
                 <ChevronRight className="h-5 w-5 ml-1" />
               </Button>
             </Link>

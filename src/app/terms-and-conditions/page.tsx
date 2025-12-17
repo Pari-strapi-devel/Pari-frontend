@@ -224,10 +224,10 @@ const TermsConditionsContent = () => {
                     {termsData.attributes.TermsAndConditionsPoints
                       .sort((a, b) => a.serial_no - b.serial_no)
                       .map((point) => (
-                        <li key={point.id} className="mb-4">
-                          <span className="font-medium">{point.serial_no}. </span>
+                        <p key={point.id} className="mb-4 flex">
+                          <p className="font-medium">{point.serial_no}. </p>
                           {point.text}
-                        </li>
+                        </p>
                       ))}
                   </ol>
                 ) : null}
@@ -250,10 +250,10 @@ const TermsConditionsContent = () => {
                     {termsData.attributes.PrivacyPolicyPoints
                       .sort((a, b) => a.serial_no - b.serial_no)
                       .map((point) => (
-                        <li key={point.id} className="mb-4">
-                          <span className="font-medium">{point.serial_no}. </span>
+                        <p key={point.id} className="mb-4 flex">
+                          <p className="font-medium">{point.serial_no}. </p>
                           {point.text}
-                        </li>
+                        </p>
                       ))}
                   </ol>
                 ) : null}
@@ -268,7 +268,9 @@ const TermsConditionsContent = () => {
             <h4 className="font-noto font-bold text-[16px] leading-[130%] tracking-[-4%] text-foreground mb-4">
               {termsData.attributes.DonatePari_Title}
             </h4>
+          
             {renderHTMLContent(termsData.attributes.DonateToPariContentWithLink)}
+          
           </div>
         )}
         </div>
