@@ -300,7 +300,7 @@ export function Hero() {
                     href={addLocaleToUrl(info.url || '#')} // Add fallback to prevent null href and preserve locale
                     className="keen-slider__slide bg-none cursor-pointer block"
                   >
-                    <div className="flex flex-col rounded-lg h-[350px]  md:h-[406px] dark:bg-popover duration-200 relative group">
+                    <div className="flex flex-col rounded-lg h-[380px]  md:h-[406px] dark:bg-popover duration-200 relative group">
                       <div className="relative aspect-[16/9] min-h-[170px] w-full overflow-hidden rounded-lg">
                         <Image
                           src={info.image.data.attributes.url}

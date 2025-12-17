@@ -3,7 +3,6 @@
 import { useKeenSlider } from "keen-slider/react";
 import { useState, useEffect } from "react";
 import { useLocale } from "@/lib/locale";
-import { useSearchParams } from "next/navigation";
 import { StoryCard } from "@/components/layout/stories/StoryCard";
 import { languages as languagesList } from "@/data/languages";
 import "keen-slider/keen-slider.min.css";
@@ -57,6 +56,7 @@ export interface ArticleWithLangSelection {
         original_published_date: string;
         Original_published_date: string;
         type: string;
+        locale: string;
         localizations: {
           locale: string;
           title: string;
@@ -119,8 +119,7 @@ export interface ArticleWithLangSelection {
 export default function StoriesPage() {
   const [stories, setStories] = useState<Story[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const { language: currentLocale,  isLocaleSet, addLocaleToUrl } = useLocale();
-  const searchParams = useSearchParams();
+  const { language: currentLocale, addLocaleToUrl } = useLocale();
 
   // Add slider states
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -170,12 +169,9 @@ export default function StoriesPage() {
       try {
         setIsLoading(true);
 
-        // Get locale from URL if present
-
-        const targetLocale = currentLocale;
-
+        // Fetch home page based on current locale - each locale has different articles configured
         const query = {
-          locale: "all", // Get all locales
+          locale: currentLocale || "en",
           populate: {
             fields: ["seeallStories"],
             pari_movable_sections: {
@@ -218,6 +214,7 @@ export default function StoriesPage() {
                             "slug",
                             "location_auto_suggestion",
                             "type",
+                            "locale",
                           ],
                         },
                       },
@@ -234,105 +231,49 @@ export default function StoriesPage() {
           `${BASE_URL}api/home-page?${queryString}`
         );
 
-        // Show content from all languages regardless of the selected language
-        const filteredData = response?.data?.data || [];
+        const responseData = response?.data?.data;
+        // Handle both array and single object response
+        const pageData = Array.isArray(responseData) ? responseData[0] : responseData;
 
-        // Process the filtered data
-        if (filteredData.length === 0) {
+        if (!pageData) {
           setStories([]);
           setIsLoading(false);
           return;
         }
 
-        const currentLangData: {
-          attributes: {
-            locale: string;
-            seeallStories: string;
-            pari_movable_sections: {
-              Title: string;
-              see_all_button: string;
-              article_with_lang_selection_1: ArticleWithLangSelection[];
-            }[];
-          };
-        } = filteredData.find(
-          (element: {
-            attributes: {
-              locale: string;
-              pari_movable_sections: {
-                Title: string;
-                see_all_button: string;
-                article_with_lang_selection_1: ArticleWithLangSelection[];
-              }[];
-            };
-          }) => {
-            return element?.attributes?.locale === targetLocale;
-          }
-        );
-
-        const section = currentLangData?.attributes?.pari_movable_sections?.[0];
-        
-
-        if (!isLocaleSet) {
-          
-          const article_with_lang_selection_1: ArticleWithLangSelection[] = [];
-          // Assuming 'en' is the locale code for English
-          // If the target language is English, keep the staggered/mixed language logic
-          (response?.data?.data || []).forEach(
-            (
-              element: {
-                attributes: {
-                  locale: string;
-                  pari_movable_sections: {
-                    Title: string;
-                    see_all_button: string;
-                    article_with_lang_selection_1: ArticleWithLangSelection[];
-                  }[];
-                };
-              },
-              index: number
-            ) => {
-              element?.attributes?.pari_movable_sections?.[0]?.article_with_lang_selection_1?.forEach(
-                (article, i: number) => {
-                  
-                  if (i == index) {
-                    console.log('======')
-                    console.log(i, index)
-                    console.log('======')
-                    article_with_lang_selection_1.push(article);
-                  }
-                }
-              );
-            }
-            
-          );
-          section.article_with_lang_selection_1 = article_with_lang_selection_1;
-        } else {
-          
-          // If the target language is NOT English, show recommendations ONLY for that language
-          // We need to find the specific element in response.data.data that matches the targetLocale
-          const specificLangElement = (response?.data?.data || []).find(
-            (element: { attributes: { locale: string } }) =>
-              element?.attributes?.locale === targetLocale
-          );
-
-          if (specificLangElement) {
-            // If the element for the targetLocale is found, add all its articles
-            section.article_with_lang_selection_1 = specificLangElement.attributes.pari_movable_sections?.[0]?.article_with_lang_selection_1 || [];
-          }
-        }
-
+        const section = pageData?.attributes?.pari_movable_sections?.[0];
 
         if (!section) {
           setStories([]);
           return;
         }
 
-        const see_all_button = currentLangData?.attributes?.seeallStories;
+        const see_all_button = pageData?.attributes?.seeallStories;
 
         const articles = section?.article_with_lang_selection_1 || [];
         if (!articles.length) {
           return;
         }
+
+        // Map language names to locale codes
+        const languageNameToCode: { [key: string]: string } = {
+          'English': 'en',
+          'Hindi': 'hi',
+          'Telugu': 'te',
+          'Tamil': 'ta',
+          'Marathi': 'mr',
+          'Gujarati': 'gu',
+          'Odia': 'or',
+          'Oriya': 'or',
+          'Kannada': 'kn',
+          'Punjabi': 'pa',
+          'Assamese': 'as',
+          'Malayalam': 'ml',
+          'Urdu': 'ur',
+          'Bengali': 'bn',
+          'Bhojpuri': 'bho',
+          'Chhattisgarhi': 'hne'
+        };
 
         const formattedStories = articles
           .filter(
@@ -354,12 +295,14 @@ export default function StoriesPage() {
               : ["PARI"];
             const langsData = article.all_language?.data;
             let langs: string[] = [];
+            let targetLanguageName = "";
 
             if (Array.isArray(langsData)) {
               langs = langsData.map(
                 (lang: { attributes: { language_name: string } }) =>
                   lang.attributes.language_name
               );
+              targetLanguageName = langs[0] || "";
             } else if (
               langsData &&
               typeof langsData === "object" &&
@@ -368,13 +311,15 @@ export default function StoriesPage() {
                 (langsData as { attributes: { language_name: string } })
                   .attributes
             ) {
-              langs = [
-                (langsData as { attributes: { language_name: string } })
-                  .attributes.language_name,
-              ];
+              targetLanguageName = (langsData as { attributes: { language_name: string } })
+                .attributes.language_name;
+              langs = [targetLanguageName];
             } else {
               langs = ["Available in 6 languages"];
             }
+
+            // Get the target locale code from language name
+            const targetLocaleCode = languageNameToCode[targetLanguageName] || 'en';
 
             // Extract localizations data
             const localizationsData = Array.isArray(articleData.localizations)
@@ -382,21 +327,44 @@ export default function StoriesPage() {
               : (articleData.localizations as { data: Array<{ locale: string; title: string; strap: string; slug: string }> })?.data || [];
 
             // Map to consistent format with proper typing
+            // Note: API returns Title/Strap with capital letters
             const localizations = localizationsData.map(
               (loc: {
-                attributes?: { locale: string; title: string; strap: string; slug: string };
+                attributes?: { locale: string; Title: string; Strap: string; slug: string; title?: string; strap?: string };
                 locale?: string;
+                Title?: string;
+                Strap?: string;
                 title?: string;
                 strap?: string;
                 slug?: string;
               }) => ({
                 locale: loc.attributes?.locale || loc.locale || '',
-                title: loc.attributes?.title || loc.title || '',
-                strap: loc.attributes?.strap || loc.strap || '',
+                title: loc.attributes?.Title || loc.attributes?.title || loc.Title || loc.title || '',
+                strap: loc.attributes?.Strap || loc.attributes?.strap || loc.Strap || loc.strap || '',
                 slug: loc.attributes?.slug || loc.slug || ''
               })
             );
-            
+
+            // Check if article is already in the target language
+            const articleLocale = articleData.locale || 'en';
+
+            let displayTitle: string;
+            let displaySlug: string;
+
+            if (articleLocale === targetLocaleCode) {
+              // Article is already in the target language, use its data directly
+              displayTitle = articleData.Title;
+              displaySlug = articleData.slug;
+            } else {
+              // Find the localization that matches the target language
+              const targetLocalization = localizations.find(
+                (loc: { locale: string }) => loc.locale === targetLocaleCode
+              );
+              // Use target language title/strap/slug if available, otherwise use default
+              displayTitle = targetLocalization?.title || articleData.Title;
+              displaySlug = targetLocalization?.slug || articleData.slug;
+            }
+
             // Get available languages from localizations
             const availableLanguages = localizations.map((loc: { locale:  string; slug: string; }) => {
               const langCode = loc.locale;
@@ -407,29 +375,16 @@ export default function StoriesPage() {
                 slug: loc.slug
               };
             });
-            
-            // Add current language if not in localizations
-            const hasCurrentLocale = availableLanguages.some((lang: { code: string; }) => lang.code === currentLocale);
-            if (!hasCurrentLocale) {
-              const currentLanguage = languagesList.find(lang => lang.code === currentLocale);
-              if (currentLanguage) {
-                availableLanguages.unshift({
-                  code: currentLocale,
-                  name: currentLanguage.name,
-                  slug: articleData.slug
-                });
-              }
-            }
 
             return {
               headtitle: section?.Title,
               sub_title: see_all_button,
-              title: articleData.Title,
+              title: displayTitle,
               description: articleData.strap,
               imageUrl: articleData.Cover_image?.data?.attributes?.url
                 ? `${BASE_URL}${articleData.Cover_image.data.attributes.url}`
                 : "/images/categories/default.jpg",
-              slug: articleData.slug,
+              slug: displaySlug,
               categories:
                 articleData.categories?.data?.map(
                   (cat: { attributes: { Title: string; slug: string } }) => ({
@@ -462,8 +417,7 @@ export default function StoriesPage() {
                 articleData.type?.toLowerCase() === "audio"
                   ? "true"
                   : undefined,
-              availableLanguages,
-              currentLocale: targetLocale
+              availableLanguages
             };
           });
 
@@ -476,7 +430,7 @@ export default function StoriesPage() {
     };
 
     fetchStories();
-  }, [currentLocale, searchParams, isLocaleSet]);
+  }, [currentLocale]); // Refetch when locale changes
 
   if (isLoading) {
     return (
@@ -556,7 +510,7 @@ export default function StoriesPage() {
                     : story.authors
                 }
                 localizations={story.localizations}
-                slug={story.slug}
+              
                 availableLanguages={story.availableLanguages}
                 currentLocale={currentLocale}
                 className="h-full"

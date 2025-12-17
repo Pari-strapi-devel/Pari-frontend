@@ -253,7 +253,7 @@ export function Navigation({ onLinkClick }: NavigationProps = {}) {
                       <Headphones className="h-5 w-5 text-primary-PARI-Red" />
                       <p className="font-medium text-sm text-discreet-text">{getHeaderItemByIndex(0)?.subheader[2]?.name || 'Audio stories'}</p>
                     </LinkWithClose>
-                    <LinkWithClose href="/articles?content=Photo+Articles" className="flex items-center gap-3 p-4 hover:bg-gray-100 dark:hover:bg-background cursor-pointer">
+                    <LinkWithClose href="/articles?types=photozone" className="flex items-center gap-3 p-4 hover:bg-gray-100 dark:hover:bg-background cursor-pointer">
                       <Camera className="h-5 w-5 text-primary-PARI-Red" />
                       <p className="font-medium text-sm text-discreet-text">{getHeaderItemByIndex(0)?.subheader[3]?.name || 'Photo stories'}</p>
                     </LinkWithClose>
@@ -465,7 +465,7 @@ export function Navigation({ onLinkClick }: NavigationProps = {}) {
                 <Headphones className="h-5 w-5 text-primary-PARI-Red" />
                 <p className="font-medium text-sm text-discreet-text">{getHeaderItemByIndex(0)?.subheader[2]?.name || 'Audio stories'}</p>
               </LinkWithClose>
-              <LinkWithClose href="/articles?content=Photo+Articles" className="flex items-center gap-3 p-4 hover:bg-gray-100 dark:hover:bg-background cursor-pointer">
+              <LinkWithClose href="/articles?types=photozone" className="flex items-center gap-3 p-4 hover:bg-gray-100 dark:hover:bg-background cursor-pointer">
                 <Camera className="h-5 w-5 text-primary-PARI-Red" />
                 <p className="font-medium text-sm text-discreet-text">{getHeaderItemByIndex(0)?.subheader[3]?.name || 'Photo stories'}</p>
               </LinkWithClose>
