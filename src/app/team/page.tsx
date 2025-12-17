@@ -1,13 +1,35 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { API_BASE_URL } from '@/utils/constants'
 import { TeamPageSkeleton } from '@/components/skeletons/PageSkeletons'
+import { useLocale } from '@/lib/locale'
 
 import { X, Mail } from 'lucide-react'
 import { FaInstagram, FaXTwitter, FaFacebookF, FaLinkedinIn } from 'react-icons/fa6'
+
+// Translation map for "See stories" button
+const seeStoriesTranslations: { [locale: string]: string } = {
+  'en': 'See stories',
+  'hi': 'कहानियाँ देखें',
+  'mr': 'कथा पहा',
+  'bn': 'গল্প দেখুন',
+  'or': 'କାହାଣୀ ଦେଖନ୍ତୁ',
+  'ur': 'کہانیاں دیکھیں',
+  'ta': 'கதைகளைப் பாருங்கள்',
+  'te': 'కథలు చూడండి',
+  'kn': 'ಕಥೆಗಳನ್ನು ನೋಡಿ',
+  'ml': 'കഥകൾ കാണുക',
+  'pa': 'ਕਹਾਣੀਆਂ ਦੇਖੋ',
+  'gu': 'વાર્તાઓ જુઓ',
+  'as': 'কাহিনীবোৰ চাওক'
+}
+
+function getSeeStoriesText(locale: string): string {
+  return seeStoriesTranslations[locale] || seeStoriesTranslations['en']
+}
 
 interface PhotoFormat {
   ext: string
@@ -68,90 +90,94 @@ interface TeamMember {
   Photo: Photo
 }
 
-interface ApiResponse {
-  data: {
-    id: number
-    attributes: {
-      Title: string
-      TeamMember: TeamMember[]
-    }
-  }
-}
-
-export default function TeamsPage() {
+function TeamsPageContent() {
   const router = useRouter()
+  const { language: currentLocale } = useLocale()
   const [mounted, setMounted] = useState(false)
   const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null)
   const [isSliderOpen, setIsSliderOpen] = useState(false)
   const [sliderDirection, setSliderDirection] = useState<'left' | 'right'>('right')
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([])
+  const [englishTeamMembers, setEnglishTeamMembers] = useState<TeamMember[]>([])
+  const [pageTitle, setPageTitle] = useState<string>('Our Team')
   const [loading, setLoading] = useState(true)
   const [imageErrors, setImageErrors] = useState<Set<number>>(new Set())
   const [, setActiveSection] = useState<string>('')
   const [memberHasArticles, setMemberHasArticles] = useState<boolean>(false)
+  const [selectedMemberEnglishName, setSelectedMemberEnglishName] = useState<string>('')
 
-  const fetchTeamData = async () => {
+  const fetchTeamData = async (locale: string) => {
     try {
-      console.log('##rohiiiiii## Fetching team data from API...')
-      console.log('##rohiiiiii## API URL:', `${API_BASE_URL}/v1/api/page-our-team?populate[TeamMember][populate]=*`)
+      setLoading(true)
+      console.log('##Rohit_Rocks## Fetching team data from API for locale:', locale)
 
-      const response = await fetch(`${API_BASE_URL}/v1/api/page-our-team?populate[TeamMember][populate]=*`)
-      console.log('##rohiiiiii## Response status:', response.status)
-      console.log('##rohiiiiii## Response ok:', response.ok)
+      // Always fetch English data first to store English names for article lookup
+      const englishUrl = `${API_BASE_URL}/v1/api/page-our-team?populate=deep&locale=en`
+      const englishResponse = await fetch(englishUrl)
+      const englishData = await englishResponse.json()
 
-      const data: ApiResponse = await response.json()
-      console.log('##rohiiiiii## Full API Response:', JSON.stringify(data, null, 2))
+      if (englishData.data?.attributes?.TeamMember) {
+        setEnglishTeamMembers(englishData.data.attributes.TeamMember)
+        console.log('##Rohit_Rocks## English team members stored, count:', englishData.data.attributes.TeamMember.length)
+      }
 
-      // Check if data exists
-      if (!data.data) {
-        console.error('##rohiiiiii## No data returned from API')
-        console.error('##rohiiiiii## Response was:', data)
-
-        // Try alternative populate strategy
-        console.log('##rohiiiiii## Trying alternative populate strategy...')
-        const altResponse = await fetch(`${API_BASE_URL}/v1/api/page-our-team?populate=deep,3`)
-        const altData: ApiResponse = await altResponse.json()
-        console.log('##rohiiiiii## Alternative API Response:', JSON.stringify(altData, null, 2))
-
-        if (altData.data && altData.data.attributes.TeamMember) {
-          setTeamMembers(altData.data.attributes.TeamMember)
-          console.log('##rohiiiiii## Team members set successfully from alternative API, count:', altData.data.attributes.TeamMember.length)
-          return
+      // If English locale, use the English data
+      if (locale === 'en') {
+        if (englishData.data) {
+          setTeamMembers(englishData.data.attributes.TeamMember || [])
+          setPageTitle(englishData.data.attributes.Title || 'Our Team')
         }
-
         return
       }
 
-      console.log('##rohiiiiii## Team Members:', data.data.attributes.TeamMember)
+      // Try to fetch the page with the requested locale
+      const localeUrl = `${API_BASE_URL}/v1/api/page-our-team?populate=deep&locale=${locale}`
+      console.log('##Rohit_Rocks## Fetching from URL:', localeUrl)
+      const response = await fetch(localeUrl)
+      console.log('##Rohit_Rocks## Response status:', response.status)
 
-      // Log image data for each member
-      if (data.data.attributes.TeamMember) {
-        data.data.attributes.TeamMember.forEach((member, index) => {
-          console.log(`##rohiiiiii## Member ${index + 1} (${member.Name}):`, {
-            hasPhoto: !!member.Photo?.data,
-            photoData: member.Photo?.data?.attributes,
-            imageUrl: member.Photo?.data ? `${API_BASE_URL}/v1${member.Photo.data.attributes.formats.medium?.url || member.Photo.data.attributes.url}` : 'No image'
-          })
-        })
+      const data = await response.json()
+      console.log('##Rohit_Rocks## API Response received')
+      console.log('##Rohit_Rocks## Response data:', data)
 
-        setTeamMembers(data.data.attributes.TeamMember)
-        console.log('##rohiiiiii## Team members set successfully, count:', data.data.attributes.TeamMember.length)
-      } else {
-        console.error('##rohiiiiii## No TeamMember data in response')
+      if (!data.data) {
+        console.error('##Rohit_Rocks## No data returned from API')
+        // Use English fallback
+        if (englishData.data) {
+          setTeamMembers(englishData.data.attributes.TeamMember || [])
+          setPageTitle(englishData.data.attributes.Title || 'Our Team')
+        }
+        return
       }
+
+      // Set team members from localized response
+      if (data.data.attributes.TeamMember) {
+        setTeamMembers(data.data.attributes.TeamMember)
+        console.log('##Rohit_Rocks## Team members set, count:', data.data.attributes.TeamMember.length)
+      }
+
+      // Set the page title from the localized response
+      const title = data.data.attributes.Title || 'Our Team'
+      console.log('##Rohit_Rocks## Setting page title:', title, 'for locale:', locale)
+      setPageTitle(title)
     } catch (error) {
-      console.error('##rohiiiiii## Error fetching team data:', error)
+      console.error('##Rohit_Rocks## Error fetching team data:', error)
     } finally {
       setLoading(false)
-      console.log('##rohiiiiii## Loading finished')
+      console.log('##Rohit_Rocks## Loading finished')
     }
   }
 
   useEffect(() => {
     setMounted(true)
-    console.log('##rohiiiiii## Component mounted, starting to fetch team data...')
-    fetchTeamData()
   }, [])
+
+  useEffect(() => {
+    if (mounted) {
+      console.log('##Rohit_Rocks## Locale changed to:', currentLocale)
+      fetchTeamData(currentLocale)
+    }
+  }, [mounted, currentLocale])
 
   // Scroll spy effect for team members
   useEffect(() => {
@@ -203,14 +229,29 @@ export default function TeamsPage() {
     setImageErrors(prev => new Set(prev).add(memberId))
   }
 
-  const checkIfMemberHasArticles = async (memberName: string) => {
+  const checkIfMemberHasArticles = async (memberName: string, englishName?: string) => {
     try {
-      console.log('##Rohit_Rocks## Checking if member has articles:', memberName)
+      console.log('##Rohit_Rocks## Checking if member has articles:', memberName, 'English name:', englishName)
+
+      // Always check with English locale to find articles by author
+      // The author name in the API is typically stored in English
+      const nameToCheck = englishName || memberName
       const response = await fetch(
-        `${API_BASE_URL}/v1/api/articles?filters[Authors][author_name][Name][$containsi]=${encodeURIComponent(memberName)}&pagination[limit]=1`
+        `${API_BASE_URL}/v1/api/articles?filters[Authors][author_name][Name][$containsi]=${encodeURIComponent(nameToCheck)}&pagination[limit]=1&locale=en`
       )
       const data = await response.json()
-      const hasArticles = data.data && data.data.length > 0
+      let hasArticles = data.data && data.data.length > 0
+
+      // If no articles found with English name and we have a different current name, try that too
+      if (!hasArticles && memberName !== nameToCheck) {
+        console.log('##Rohit_Rocks## No articles found with English name, trying current locale name:', memberName)
+        const localeResponse = await fetch(
+          `${API_BASE_URL}/v1/api/articles?filters[Authors][author_name][Name][$containsi]=${encodeURIComponent(memberName)}&pagination[limit]=1`
+        )
+        const localeData = await localeResponse.json()
+        hasArticles = localeData.data && localeData.data.length > 0
+      }
+
       console.log('##Rohit_Rocks## Member has articles:', hasArticles)
       setMemberHasArticles(hasArticles)
     } catch (error) {
@@ -219,8 +260,8 @@ export default function TeamsPage() {
     }
   }
 
-  const handleMemberClick = (member: TeamMember) => {
-    console.log('##Rohit_Rocks## Profile clicked, opening slider:', member.Name)
+  const handleMemberClick = (member: TeamMember, memberIndex: number) => {
+    console.log('##Rohit_Rocks## Profile clicked, opening slider:', member.Name, 'index:', memberIndex)
     setSelectedMember(member)
     // Small delay to ensure the panel renders off-screen first, then slides in
     requestAnimationFrame(() => {
@@ -228,15 +269,32 @@ export default function TeamsPage() {
         setIsSliderOpen(true)
       })
     })
-    checkIfMemberHasArticles(member.Name)
+
+    // Find the English name for this member by matching index (IDs differ between locales)
+    const englishMember = englishTeamMembers[memberIndex]
+    const englishName = englishMember?.Name || member.Name
+    console.log('##Rohit_Rocks## English name for article check:', englishName)
+    setSelectedMemberEnglishName(englishName)
+
+    checkIfMemberHasArticles(member.Name, englishName)
   }
 
   const handleSeeStoriesClick = () => {
-    if (selectedMember) {
-      const authorParam = encodeURIComponent(selectedMember.Name)
-      console.log('##Rohit_Rocks## Navigating to articles page for author:', selectedMember.Name)
-      console.log('##Rohit_Rocks## URL:', `/articles?author=${authorParam}`)
-      router.push(`/articles?author=${authorParam}`)
+    if (selectedMember && selectedMemberEnglishName) {
+      // Use English name for filtering since articles are indexed with English author names
+      const authorParam = encodeURIComponent(selectedMemberEnglishName)
+
+      // Get locale from current URL to preserve it
+      const urlParams = new URLSearchParams(window.location.search)
+      const localeFromUrl = urlParams.get('locale')
+
+      // Build URL with locale preserved
+      const baseUrl = `/articles?author=${authorParam}`
+      const finalUrl = localeFromUrl && localeFromUrl !== 'en'
+        ? `${baseUrl}&locale=${localeFromUrl}`
+        : baseUrl
+
+      router.push(finalUrl)
     }
   }
 
@@ -245,6 +303,7 @@ export default function TeamsPage() {
     setTimeout(() => {
       setSelectedMember(null)
       setMemberHasArticles(false)
+      setSelectedMemberEnglishName('')
     }, 300) // Wait for animation to complete
   }
 
@@ -294,20 +353,20 @@ export default function TeamsPage() {
         {/* Header Section */}
         <div className="text-center mb-8 sm:mb-12 lg:mb-16">
           <h1 className="text-foreground mb-2">
-            Our Team
+            {pageTitle}
           </h1>
-          <h2 className=" text-muted-foreground px-4">
+          {/* <h2 className=" text-muted-foreground px-4">
             PARI: A living journal, a breathing archive
-          </h2>
+          </h2> */}
         </div>
 
         {/* Team Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-          {teamMembers.map((member) => (
+          {teamMembers.map((member, index) => (
             <div
               key={member.id}
               className="cursor-pointer transition-all duration-300 hover:scale-105"
-              onClick={() => handleMemberClick(member)}
+              onClick={() => handleMemberClick(member, index)}
             >
               {/* Profile Image with gray background and rounded corners */}
               <div className="w-full h-[300px] sm:h-[240px] lg:h-[268px] bg-gray-200 rounded-lg overflow-hidden mb-4 relative">
@@ -516,10 +575,10 @@ export default function TeamsPage() {
                     onClick={handleSeeStoriesClick}
                     className="mt-auto w-full bg-primary-PARI-Red text-white py-3 relative bottom-4 md:bottom-6 xl:bottom-3 rounded-full font-semibold hover:bg-red-700 transition-colors"
                   >
-                    See stories
+                    {getSeeStoriesText(currentLocale)}
                   </button>
                 )}
-              </div>
+              </div> 
             </div>
           </div>
         </>
@@ -528,4 +587,11 @@ export default function TeamsPage() {
   )
 }
 
-
+// Main export wrapped in Suspense for useSearchParams
+export default function TeamsPage() {
+  return (
+    <Suspense fallback={<TeamPageSkeleton />}>
+      <TeamsPageContent />
+    </Suspense>
+  )
+}
