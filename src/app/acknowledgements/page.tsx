@@ -1,9 +1,10 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, Suspense } from 'react'
 import axios from 'axios'
 import { GenericPageSkeleton } from '@/components/skeletons/PageSkeletons'
 import { API_BASE_URL } from '@/utils/constants'
+import { useLocale } from '@/lib/locale'
 
 interface AcknowledgementGroup {
   id: number
@@ -36,20 +37,37 @@ interface ApiResponse {
   meta: Record<string, unknown>
 }
 
-export default function AcknowledgementsPage() {
+function AcknowledgementsContent() {
   const [data, setData] = useState<ApiResponse | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [activeTabId, setActiveTabId] = useState<number | null>(null)
   const [showMainAcknowledgements, setShowMainAcknowledgements] = useState(true)
+  const { language: currentLocale } = useLocale()
 
-  const fetchData = useCallback(async () => {
+  const fetchData = useCallback(async (locale: string) => {
     try {
       setIsLoading(true)
       setError(null)
 
-      const response = await axios.get<ApiResponse>(`${API_BASE_URL}/v1/api/page-acknowledgement?populate=deep`)
-      setData(response.data)
+      const apiUrl = `${API_BASE_URL}/v1/api/page-acknowledgement?populate=deep&locale=${locale}`
+      console.log('##Rohit_Rocks## Acknowledgements API URL:', apiUrl)
+
+      try {
+        const response = await axios.get<ApiResponse>(apiUrl)
+        console.log('##Rohit_Rocks## Acknowledgements API response status:', response.status)
+        setData(response.data)
+      } catch (apiError) {
+        // If locale-specific request failed (404), try English fallback
+        if (locale !== 'en') {
+          console.log('##Rohit_Rocks## Locale not found, falling back to English')
+          const fallbackUrl = `${API_BASE_URL}/v1/api/page-acknowledgement?populate=deep&locale=en`
+          const fallbackResponse = await axios.get<ApiResponse>(fallbackUrl)
+          setData(fallbackResponse.data)
+        } else {
+          throw apiError
+        }
+      }
 
       // Keep "Acknowledgements" as the default active section (showMainAcknowledgements is already true)
       // No need to set activeTabId - we want the main acknowledgements to show by default
@@ -63,8 +81,8 @@ export default function AcknowledgementsPage() {
   }, [])
 
   useEffect(() => {
-    fetchData()
-  }, [fetchData])
+    fetchData(currentLocale)
+  }, [fetchData, currentLocale])
 
   if (isLoading) {
     return <GenericPageSkeleton />
@@ -77,7 +95,7 @@ export default function AcknowledgementsPage() {
           <h1 className="text-2xl font-bold mb-4 text-red-600">Error</h1>
           <p className="text-gray-600 mb-4">{error}</p>
           <button
-            onClick={fetchData}
+            onClick={() => fetchData(currentLocale)}
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
           >
             Retry
@@ -101,14 +119,18 @@ export default function AcknowledgementsPage() {
   const { Title, Strap, StartContent, EndContent, Tab } = data.data.attributes
   const tabs = Tab || []
 
+  // Remove span tags from content, keeping only text
+  const cleanStartContent = StartContent?.replace(/<\/?span[^>]*>/gi, '') || ''
+  const cleanEndContent = EndContent?.replace(/<\/?span[^>]*>/gi, '') || ''
+
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-popover">
       <div className="max-w-[1200px] mx-auto px-8 sm:px-6 py-8 sm:py-12">
         <div className="flex flex-col lg:flex-row gap-6 lg:gap-16">
           {/* Sidebar/Tabs Navigation - Only show if tabs exist */}
           {tabs.length > 0 && (
-            <aside className="w-full lg:w-[180px] flex-shrink-0">
-              <div className="lg:sticky lg:top-6">
+            <aside className="w-full lg:w-[200px] flex-shrink-0">
+              <div className="lg:sticky lg:top-20">
                 {/* Navigation */}
                 <nav className="overflow-x-auto">
                   <ul className="flex lg:flex-col gap-2 lg:gap-4 pb-2 lg:pb-0">
@@ -119,29 +141,13 @@ export default function AcknowledgementsPage() {
                           setShowMainAcknowledgements(true)
                           setActiveTabId(null)
                         }}
-                        className="w-full text-left"
+                        className={`px-4 py-2 rounded-full flex items-center justify-center text-base font-semibold transition-all duration-300 ${
+                          showMainAcknowledgements && !activeTabId
+                            ? 'text-white bg-primary-PARI-Red dark:bg-primary-PARI-Red'
+                            : 'text-[#60606] bg-[#F0F0F0] dark:bg-popover'
+                        }`}
                       >
-                        <div className="flex items-center lg:items-start gap-2">
-                          <div
-                            className={`hidden lg:block w-1 h-5 rounded flex-shrink-0 mt-0.5 ${
-                              showMainAcknowledgements && !activeTabId ? 'bg-primary-PARI-Red' : 'bg-transparent'
-                            }`}
-                          ></div>
-                          <span
-                            className={`font-noto whitespace-nowrap px-3 py-1.5 lg:px-0 lg:py-0 rounded-full lg:rounded-none ${
-                              showMainAcknowledgements && !activeTabId
-                                ? 'text-foreground font-semibold bg-gray-100 dark:bg-gray-800 lg:bg-transparent lg:dark:bg-transparent'
-                                : 'text-discreet-text'
-                            }`}
-                            style={{
-                              fontWeight: showMainAcknowledgements && !activeTabId ? 600 : 400,
-                              fontSize: '13px',
-                              lineHeight: '150%'
-                            }}
-                          >
-                            Acknowledgements
-                          </span>
-                        </div>
+                        Acknowledgements
                       </button>
                     </li>
 
@@ -156,29 +162,13 @@ export default function AcknowledgementsPage() {
                               setShowMainAcknowledgements(false)
                               setActiveTabId(tab.id)
                             }}
-                            className="w-full text-left"
+                            className={`px-6 py-2 rounded-full flex items-center justify-center text-base font-semibold transition-all duration-300 ${
+                              isActive
+                                ? 'text-white bg-primary-PARI-Red dark:bg-primary-PARI-Red'
+                                : 'text-[#60606] bg-[#F0F0F0] dark:bg-popover'
+                            }`}
                           >
-                            <div className="flex items-center lg:items-start gap-2">
-                              <div
-                                className={`hidden lg:block w-1 h-5 rounded flex-shrink-0 mt-0.5 ${
-                                  isActive ? 'bg-primary-PARI-Red' : 'bg-transparent'
-                                }`}
-                              ></div>
-                              <span
-                                className={`font-noto whitespace-nowrap px-3 py-1.5 lg:px-0 lg:py-0 rounded-full lg:rounded-none ${
-                                  isActive
-                                    ? 'text-foreground font-semibold bg-gray-100 dark:bg-gray-800 lg:bg-transparent lg:dark:bg-transparent'
-                                    : 'text-foreground'
-                                }`}
-                                style={{
-                                  fontWeight: isActive ? 600 : 400,
-                                  fontSize: '13px',
-                                  lineHeight: '150%'
-                                }}
-                              >
-                                {tab.TabName}
-                              </span>
-                            </div>
+                            {tab.TabName}
                           </button>
                         </li>
                       )
@@ -213,7 +203,7 @@ export default function AcknowledgementsPage() {
               {showMainAcknowledgements && !activeTabId ? (
                 <>
                   {/* Start Content */}
-                  <div
+                  <p
                     className="font-noto text-foreground acknowledgement-content mb-12"
                     style={{
                       fontWeight: 400,
@@ -221,19 +211,14 @@ export default function AcknowledgementsPage() {
                       lineHeight: '170%',
                       letterSpacing: '-0.01em'
                     }}
-                    dangerouslySetInnerHTML={{ __html: StartContent }}
+                    dangerouslySetInnerHTML={{ __html: cleanStartContent }}
                   />
 
                   {/* End Content */}
-                  <div
+                  <p
                     className="font-noto text-foreground acknowledgement-content"
-                    style={{
-                      fontWeight: 400,
-                      fontSize: '16px',
-                      lineHeight: '170%',
-                      letterSpacing: '-0.01em'
-                    }}
-                    dangerouslySetInnerHTML={{ __html: EndContent }}
+                    
+                    dangerouslySetInnerHTML={{ __html: cleanEndContent }}
                   />
                 </>
               ) : null}
@@ -320,5 +305,14 @@ export default function AcknowledgementsPage() {
         `}</style>
       </div>
     </div>
+  )
+}
+
+// Main export wrapped in Suspense for useSearchParams
+export default function AcknowledgementsPage() {
+  return (
+    <Suspense fallback={<GenericPageSkeleton />}>
+      <AcknowledgementsContent />
+    </Suspense>
   )
 }
