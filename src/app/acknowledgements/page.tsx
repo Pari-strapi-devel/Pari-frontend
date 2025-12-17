@@ -147,7 +147,7 @@ function AcknowledgementsContent() {
                             : 'text-[#60606] bg-[#F0F0F0] dark:bg-popover'
                         }`}
                       >
-                        Acknowledgements
+                        {Title}
                       </button>
                     </li>
 

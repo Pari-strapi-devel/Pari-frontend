@@ -983,6 +983,17 @@
   background-color: rgba(32, 32, 32, 0.95);
 }
 
+/* Override inline styles from CMS content */
+.guideline-content span,
+.rendered-content span,
+.prose span,
+.acknowledgement-content span {
+  background-color: transparent !important;
+  color: inherit !important;
+  font-family: inherit !important;
+  font-size: inherit !important;
+}
+
 /* Styles for rendered HTML content */
 .rendered-content p {
   margin-bottom: 1rem;
