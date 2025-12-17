@@ -168,19 +168,19 @@ export function PariLibrary() {
             </p>
           </div>
           
-          <div className="flex items-center h-full sm:pt-0 pt-6 gap-8">
+          <div className="flex items-center h-full sm:pt-0 pt-6 gap-4">
             <Button 
               variant="secondary" 
               className="text-sm h-[36px] ring-[1px] rounded-[48px] text-primary-PARI-Red"
             >
-              <p>
+              <p className="text-sm pl-2">
                 {libraryData[0]?.Button}
               </p>
               <ChevronRight className="h-4 w-4" />
             </Button>
             
             {/* Add navigation buttons similar to other components */}
-            <div className="hidden md:flex items-center gap-3">
+            <div className="hidden md:flex items-center gap-2">
               <Button
                 variant="outline"
                 size="icon"

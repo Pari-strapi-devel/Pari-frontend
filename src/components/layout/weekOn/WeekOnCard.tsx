@@ -421,11 +421,11 @@ export function WeekOnCard() {
                   variant="secondary"
                   className="text-sm h-[36px] md:flex hidden ring-[1px] rounded-[48px]"
                 >
-                  <p>{seeAllStories || "See all stories"}</p>
-                  <ChevronRight className="h-5 w-5 ml-1" />
+                  <p className="text-sm pl-2">{seeAllStories || "See all stories"}</p>
+                  <ChevronRight className="h-5 w-5 " />
                 </Button>
               </Link>
-              <div className="gap-4 hidden md:flex">
+              <div className="gap-2 hidden md:flex">
                 <Button
                   variant="outline"
                   size="icon"

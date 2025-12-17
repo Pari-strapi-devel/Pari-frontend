@@ -332,7 +332,7 @@ export function AudioVideoCard() {
               variant="secondary" 
               className="text-sm h-[36px]  ml-1 sm:ml-0  ring-[1px] rounded-[48px] text-primary-PARI-Red group"
             >
-              More stories
+              <p className="text-sm pl-2">More stories</p>
               <ChevronRight className="h-4 w-4 " />
             </Button>
           </Link>
@@ -347,7 +347,7 @@ export function AudioVideoCard() {
       </div>
       
       <div className="relative overflow-hidden">
-      <div className="hidden md:flex items-center max-w-[1232px] mx-auto justify-end pb-5 gap-3">
+      <div className="hidden md:flex items-center max-w-[1232px] mx-auto justify-end pb-5 gap-2">
             <Button
               variant="outline"
               size="icon"

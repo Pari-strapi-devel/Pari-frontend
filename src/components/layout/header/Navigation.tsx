@@ -235,7 +235,7 @@ export function Navigation({ onLinkClick }: NavigationProps = {}) {
             {/* Stories */}
             <NavigationMenuItem value="stories">
               <NavigationMenuTrigger className="dark:bg-popover bg-white text-foreground transition-colors duration-150 font-medium">
-           <p> {getHeaderItemByIndex(0)?.title || 'Stories'}</p>
+           <p className="text-sm  "> {getHeaderItemByIndex(0)?.title || 'Stories'}</p>
 
               </NavigationMenuTrigger>
               <NavigationMenuContent className="w-[500px] h-[265px] p-5 rounded-lg overflow-hidden">
@@ -243,19 +243,19 @@ export function Navigation({ onLinkClick }: NavigationProps = {}) {
                   <div className="w-[270px] pr-4 pb-5 bg-white dark:bg-popover">
                     <LinkWithClose href="/articles" className="flex items-center gap-3 p-4 hover:bg-gray-100 dark:hover:bg-background border-b border-border cursor-pointer">
                       <Newspaper className="h-5 w-5 text-primary-PARI-Red" />
-                      <p className="font-medium text-md text-discreet-text">{getHeaderItemByIndex(0)?.subheader[0]?.name || 'All stories'}</p>
+                      <p className="font-medium text-sm text-discreet-text">{getHeaderItemByIndex(0)?.subheader[0]?.name || 'All stories'}</p>
                     </LinkWithClose>
                     <LinkWithClose href="/articles?content=Video+Articles" className="flex items-center gap-3 p-4 hover:bg-gray-100 dark:hover:bg-background border-b border-border cursor-pointer">
                       <Video className="h-5 w-5 text-primary-PARI-Red" />
-                      <p className="font-medium text-md text-discreet-text">{getHeaderItemByIndex(0)?.subheader[1]?.name || 'Video stories'}</p>
+                      <p className="font-medium text-sm text-discreet-text">{getHeaderItemByIndex(0)?.subheader[1]?.name || 'Video stories'}</p>
                     </LinkWithClose>
                     <LinkWithClose href="/articles?content=Audio+Articles" className="flex items-center gap-3 p-4 hover:bg-gray-100 dark:hover:bg-background border-b border-border cursor-pointer">
                       <Headphones className="h-5 w-5 text-primary-PARI-Red" />
-                      <p className="font-medium text-md text-discreet-text">{getHeaderItemByIndex(0)?.subheader[2]?.name || 'Audio stories'}</p>
+                      <p className="font-medium text-sm text-discreet-text">{getHeaderItemByIndex(0)?.subheader[2]?.name || 'Audio stories'}</p>
                     </LinkWithClose>
                     <LinkWithClose href="/articles?content=Photo+Articles" className="flex items-center gap-3 p-4 hover:bg-gray-100 dark:hover:bg-background cursor-pointer">
                       <Camera className="h-5 w-5 text-primary-PARI-Red" />
-                      <p className="font-medium text-md text-discreet-text">{getHeaderItemByIndex(0)?.subheader[3]?.name || 'Photo stories'}</p>
+                      <p className="font-medium text-sm text-discreet-text">{getHeaderItemByIndex(0)?.subheader[3]?.name || 'Photo stories'}</p>
                     </LinkWithClose>
                   </div>
                   <div className="w-[192px] h-[220px] relative">
@@ -265,7 +265,7 @@ export function Navigation({ onLinkClick }: NavigationProps = {}) {
                           src="/images/categories/navigation-imgs/Languages.jpeg"
                           alt="Languages in Pari"
                           fill
-                          className="object-cover rounded-[8px]"
+                          className="object-cover rounded-sm"
                         />
 
 
@@ -279,7 +279,7 @@ export function Navigation({ onLinkClick }: NavigationProps = {}) {
             {/* Resources */}
             <NavigationMenuItem value="resources">
               <NavigationMenuTrigger className="dark:bg-popover bg-white text-foreground transition-colors duration-150 font-medium">
-                <p>
+                <p className="text-sm  ">
                   {getHeaderItemByIndex(1)?.title || 'Resources'}
                 </p>
               </NavigationMenuTrigger>
@@ -341,7 +341,7 @@ export function Navigation({ onLinkClick }: NavigationProps = {}) {
               <NavigationMenuItem>
                 <LinkWithClose href="/articles?content=Student+Articles" className="group block cursor-pointer">
               <NavigationMenuTrigger className="dark:bg-popover bg-white text-foreground transition-colors duration-150 font-medium">
-                <p>
+                <p className="text-sm  ">
                   {getHeaderItemByIndex(2)?.title || 'Pari Education'}
                 </p>
               </NavigationMenuTrigger>
@@ -351,7 +351,7 @@ export function Navigation({ onLinkClick }: NavigationProps = {}) {
             {/* About */}
             <NavigationMenuItem value="about">
               <NavigationMenuTrigger className="dark:bg-popover bg-white transition-colors duration-150 font-medium text-foreground">
-                <p>
+                <p className="text-sm  ">
                 {getHeaderItemByIndex(3)?.title || 'About'}
                 </p>
               </NavigationMenuTrigger>
@@ -360,15 +360,15 @@ export function Navigation({ onLinkClick }: NavigationProps = {}) {
                   <div className="w-[260px]  pr-4 bg-white dark:bg-popover border-border">
                     <LinkWithClose href="/team" className="flex items-center gap-3 p-6 hover:bg-gray-100 dark:hover:bg-background border-b border-border cursor-pointer">
                       <Users className="h-5 w-5 text-primary-PARI-Red" />
-                      <p className="font-medium text-md text-discreet-text">{getHeaderItemByIndex(3)?.subheader[1]?.name || 'Our Team'}</p>
+                      <p className="font-medium text-sm text-discreet-text">{getHeaderItemByIndex(3)?.subheader[1]?.name || 'Our Team'}</p>
                     </LinkWithClose>
                     <LinkWithClose href="/award" className="flex items-center gap-3 p-6 hover:bg-gray-100 dark:hover:bg-background border-b border-border cursor-pointer">
                       <HandCoins className="h-5 w-5 text-primary-PARI-Red" />
-                      <p className="font-medium text-md text-discreet-text">{getHeaderItemByIndex(3)?.subheader[2]?.name || 'Contributors'}</p>
+                      <p className="font-medium text-sm text-discreet-text">{getHeaderItemByIndex(3)?.subheader[2]?.name || 'Contributors'}</p>
                     </LinkWithClose>
                     <LinkWithClose href="/acknowledgements" className="flex items-center gap-3 p-6 hover:bg-gray-100 dark:hover:bg-background cursor-pointer">
                       <ScrollText className="h-5 w-5 text-primary-PARI-Red" />
-                      <p className="font-medium text-md text-discreet-text">{getHeaderItemByIndex(3)?.subheader[3]?.name || 'Acknowledgements'}</p>
+                      <p className="font-medium text-sm text-discreet-text">{getHeaderItemByIndex(3)?.subheader[3]?.name || 'Acknowledgements'}</p>
                     </LinkWithClose>
                   </div>
                   <div className="w-[192px] h-[210px] relative">
@@ -377,7 +377,7 @@ export function Navigation({ onLinkClick }: NavigationProps = {}) {
                       src="/images/categories/navigation-imgs/pari-story.png"
                       alt="Story of Pari"
                       fill
-                      className="object-cover rounded-[8px]"
+                      className="object-cover rounded-sm"
                     />
                    </LinkWithClose>
                   </div>
@@ -388,42 +388,42 @@ export function Navigation({ onLinkClick }: NavigationProps = {}) {
             {/* Get Involved */}
             <NavigationMenuItem value="get-involved">
               <NavigationMenuTrigger className="dark:bg-popover bg-white text-foreground transition-colors duration-150 font-medium">
-                <p>
+                <p className="text-sm  ">
                   {getHeaderItemByIndex(4)?.title || 'Get Involved'}
                 </p>
               </NavigationMenuTrigger>
-              <NavigationMenuContent className="w-[540px] h-[325px] p-5 rounded-lg overflow-hidden">
+              <NavigationMenuContent className="w-[540px] h-[300px] p-5 rounded-lg overflow-hidden">
                 <div className="flex h-[280px]">
                   <div className="w-[270px] pr-4 pb-5 bg-white dark:bg-popover">
                     <LinkWithClose href="/contribute" className="flex items-center gap-3 p-4 hover:bg-gray-100 dark:hover:bg-background border-b border-border cursor-pointer">
                       <FileUp className="h-5 w-5 text-primary-PARI-Red" />
-                      <p className="font-medium text-md text-discreet-text">{getHeaderItemByIndex(4)?.subheader[0]?.name || 'Contact'}</p>
+                      <p className="font-medium text-sm text-discreet-text">{getHeaderItemByIndex(4)?.subheader[0]?.name || 'Contact'}</p>
                     </LinkWithClose>
                     <LinkWithClose href="/contribute/guidelines" className="flex items-center gap-3 p-4 hover:bg-gray-100 dark:hover:bg-background border-b border-border cursor-pointer">
                       <FileText className="h-5 w-5 text-primary-PARI-Red" />
-                      <p className="font-medium text-md text-discreet-text">{getHeaderItemByIndex(4)?.subheader[1]?.name || 'Donate'}</p>
+                      <p className="font-medium text-sm text-discreet-text">{getHeaderItemByIndex(4)?.subheader[1]?.name || 'Donate'}</p>
                     </LinkWithClose>
                     <LinkWithClose href="/volunteer" className="flex items-center gap-3 p-4 hover:bg-gray-100 dark:hover:bg-background border-b border-border cursor-pointer">
                       <UserPlus className="h-5 w-5 text-primary-PARI-Red" />
-                      <p className="font-medium text-md text-discreet-text">{getHeaderItemByIndex(4)?.subheader[2]?.name || 'Volunteer'}</p>
+                      <p className="font-medium text-sm text-discreet-text">{getHeaderItemByIndex(4)?.subheader[2]?.name || 'Volunteer'}</p>
                     </LinkWithClose>
                     <LinkWithClose href="/intern-with-us" className="flex items-center gap-3 p-4 hover:bg-gray-100 dark:hover:bg-background border-b border-border cursor-pointer">
                       <GraduationCap className="h-5 w-5 text-primary-PARI-Red" />
-                      <p className="font-medium text-md text-discreet-text">{getHeaderItemByIndex(4)?.subheader[3]?.name || 'Intern'}</p>
+                      <p className="font-medium text-sm text-discreet-text">{getHeaderItemByIndex(4)?.subheader[3]?.name || 'Intern'}</p>
                     </LinkWithClose>
                     <LinkWithClose href="/contact-us" className="flex items-center gap-3 p-4 hover:bg-gray-100 dark:hover:bg-background cursor-pointer">
                       <MessageCircle className="h-5 w-5 text-primary-PARI-Red" />
-                      <p className="font-medium text-md text-discreet-text">{getHeaderItemByIndex(4)?.subheader[4]?.name || 'Contact'}</p>
+                      <p className="font-medium text-sm text-discreet-text">{getHeaderItemByIndex(4)?.subheader[4]?.name || 'Contact'}</p>
                     </LinkWithClose>
                   </div>
-                  <div className="w-[215px] h-[278px] relative">
+                  <div className="w-[215px] h-[258px] relative">
                     <LinkWithClose href="/donate" className="cursor-pointer">
                       <div className="relative w-full h-full">
                         <Image
                           src="/images/categories/navigation-imgs/Donate.jpeg"
                           alt="Support PARI - Donate"
                           fill
-                          className="object-cover rounded-[8px]"
+                          className="object-cover rounded-sm"
                         />
                       </div>
                     </LinkWithClose>
@@ -455,19 +455,19 @@ export function Navigation({ onLinkClick }: NavigationProps = {}) {
             <div className="w-full bg-white dark:bg-popover border-border">
               <LinkWithClose href="/articles" className="flex items-center gap-3 p-4 hover:bg-gray-100 dark:hover:bg-background border-b border-border cursor-pointer">
                 <BookOpen className="h-5 w-5 text-primary-PARI-Red" />
-                <p className="font-medium text-md text-discreet-text">{getHeaderItemByIndex(0)?.subheader[0]?.name || 'All stories'}</p>
+                <p className="font-medium text-sm text-discreet-text">{getHeaderItemByIndex(0)?.subheader[0]?.name || 'All stories'}</p>
               </LinkWithClose>
               <LinkWithClose href="/articles?content=Video+Articles" className="flex items-center gap-3 p-4 hover:bg-gray-100 dark:hover:bg-background border-b border-border cursor-pointer">
                 <Video className="h-5 w-5 text-primary-PARI-Red" />
-                <p className="font-medium text-md text-discreet-text">{getHeaderItemByIndex(0)?.subheader[1]?.name || 'Video stories'}</p>
+                <p className="font-medium text-sm text-discreet-text">{getHeaderItemByIndex(0)?.subheader[1]?.name || 'Video stories'}</p>
               </LinkWithClose>
               <LinkWithClose href="/articles?content=Audio+Articles" className="flex items-center gap-3 p-4 hover:bg-gray-100 dark:hover:bg-background border-b border-border cursor-pointer">
                 <Headphones className="h-5 w-5 text-primary-PARI-Red" />
-                <p className="font-medium text-md text-discreet-text">{getHeaderItemByIndex(0)?.subheader[2]?.name || 'Audio stories'}</p>
+                <p className="font-medium text-sm text-discreet-text">{getHeaderItemByIndex(0)?.subheader[2]?.name || 'Audio stories'}</p>
               </LinkWithClose>
               <LinkWithClose href="/articles?content=Photo+Articles" className="flex items-center gap-3 p-4 hover:bg-gray-100 dark:hover:bg-background cursor-pointer">
                 <Camera className="h-5 w-5 text-primary-PARI-Red" />
-                <p className="font-medium text-md text-discreet-text">{getHeaderItemByIndex(0)?.subheader[3]?.name || 'Photo stories'}</p>
+                <p className="font-medium text-sm text-discreet-text">{getHeaderItemByIndex(0)?.subheader[3]?.name || 'Photo stories'}</p>
               </LinkWithClose>
             </div>
            <div className="w-full h-[180px] mt-1 relative">
@@ -573,15 +573,15 @@ export function Navigation({ onLinkClick }: NavigationProps = {}) {
         <div className="w-full bg-white pr-4 dark:bg-popover border-border">
           <LinkWithClose href="/team" className="flex items-center gap-3 p-4 hover:bg-gray-100 dark:hover:bg-background border-b border-border cursor-pointer">
             <Users className="h-5 w-5 text-primary-PARI-Red" />
-            <p className="font-medium text-md text-discreet-text">{getHeaderItemByIndex(3)?.subheader[1]?.name || 'Our Team'}</p>
+            <p className="font-medium text-sm text-discreet-text">{getHeaderItemByIndex(3)?.subheader[1]?.name || 'Our Team'}</p>
           </LinkWithClose>
           <LinkWithClose href="/award" className="flex items-center gap-3 p-4 hover:bg-gray-100 dark:hover:bg-background border-b border-border cursor-pointer">
             <HandCoins className="h-5 w-5 text-primary-PARI-Red" />
-            <p className="font-medium text-md text-discreet-text">{getHeaderItemByIndex(3)?.subheader[2]?.name || 'Contributors'}</p>
+            <p className="font-medium text-sm text-discreet-text">{getHeaderItemByIndex(3)?.subheader[2]?.name || 'Contributors'}</p>
           </LinkWithClose>
           <LinkWithClose href="/acknowledgements" className="flex items-center gap-3 p-4 hover:bg-gray-100 dark:hover:bg-background border-b border-border cursor-pointer">
             <ScrollText className="h-5 w-5 text-primary-PARI-Red" />
-            <p className="font-medium text-md text-discreet-text">{getHeaderItemByIndex(3)?.subheader[3]?.name || 'Acknowledgements'}</p>
+            <p className="font-medium text-sm text-discreet-text">{getHeaderItemByIndex(3)?.subheader[3]?.name || 'Acknowledgements'}</p>
           </LinkWithClose>
         </div>
      
@@ -618,23 +618,23 @@ export function Navigation({ onLinkClick }: NavigationProps = {}) {
             <div className="w-full bg-white dark:bg-popover border-border">
               <LinkWithClose href="/contribute" className="flex items-center gap-3 p-4 hover:bg-gray-100 dark:hover:bg-background border-b border-border cursor-pointer">
                 <FileUp className="h-5 w-5 text-primary-PARI-Red" />
-                <p className="font-medium text-md text-discreet-text">{getHeaderItemByIndex(4)?.subheader[0]?.name || 'Contact'}</p>
+                <p className="font-medium text-sm text-discreet-text">{getHeaderItemByIndex(4)?.subheader[0]?.name || 'Contact'}</p>
               </LinkWithClose>
               <LinkWithClose href="/contribute/guidelines" className="flex items-center gap-3 p-4 hover:bg-gray-100 dark:hover:bg-background border-b border-border cursor-pointer">
                 <FileText className="h-5 w-5 text-primary-PARI-Red" />
-                <p className="font-medium text-md text-discreet-text">{getHeaderItemByIndex(4)?.subheader[1]?.name || 'Donate'}</p>
+                <p className="font-medium text-sm text-discreet-text">{getHeaderItemByIndex(4)?.subheader[1]?.name || 'Donate'}</p>
               </LinkWithClose>
               <LinkWithClose href="/volunteer" className="flex items-center gap-3 p-4 hover:bg-gray-100 dark:hover:bg-background border-b border-border cursor-pointer">
                 <UserPlus className="h-5 w-5 text-primary-PARI-Red" />
-                <p className="font-medium text-md text-discreet-text">{getHeaderItemByIndex(4)?.subheader[2]?.name || 'Volunteer'}</p>
+                <p className="font-medium text-sm text-discreet-text">{getHeaderItemByIndex(4)?.subheader[2]?.name || 'Volunteer'}</p>
               </LinkWithClose>
               <LinkWithClose href="/intern-with-us" className="flex items-center gap-3 p-4 hover:bg-gray-100 dark:hover:bg-background border-b border-border cursor-pointer">
                 <GraduationCap className="h-5 w-5 text-primary-PARI-Red" />
-                <p className="text-discreet-text text-md font-medium">{getHeaderItemByIndex(4)?.subheader[3]?.name || 'Intern'}</p>
+                <p className="text-discreet-text text-sm font-medium">{getHeaderItemByIndex(4)?.subheader[3]?.name || 'Intern'}</p>
               </LinkWithClose>
               <LinkWithClose href="/contact-us" className="flex items-center gap-3 p-4 hover:bg-gray-100 dark:hover:bg-background cursor-pointer">
                 <MessageCircle className="h-5 w-5 text-primary-PARI-Red" />
-                <p className="font-medium text-md text-discreet-text">{getHeaderItemByIndex(4)?.subheader[4]?.name || 'Contact'}</p>
+                <p className="font-medium text-sm text-discreet-text">{getHeaderItemByIndex(4)?.subheader[4]?.name || 'Contact'}</p>
               </LinkWithClose>
             </div>
            <div className="w-full h-[180px] mt-1 relative">

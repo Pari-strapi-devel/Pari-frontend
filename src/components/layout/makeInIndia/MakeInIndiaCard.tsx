@@ -357,7 +357,7 @@ export function MakeInIndiaCard() {
             <h1 className="text-foreground mb-2">
               {sectionTitle}
             </h1>
-            <div className="hidden md:flex items-end gap-3">
+            <div className="hidden md:flex items-end gap-2">
               <Button
                 variant="outline"
                 size="icon"

@@ -499,22 +499,22 @@ export default function StoriesPage() {
             </h6>
           </div>
           
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4">
             {/* Add See All Stories button */}
             <Link href={addLocaleToUrl("/articles")}>
               <Button
                 variant="secondary"
                 className="text-sm h-[36px] md:flex hidden ring-[1px] rounded-[48px] text-primary-PARI-Red"
               >
-                <p>
+                <p className="text-sm pl-2">
                   {stories[0]?.sub_title || "See all stories"}
                 </p>
-                <ChevronRight className="h-5 w-5 ml-1" />
+                <ChevronRight className="h-5 w-5 " />
               </Button>
             </Link>
             
             {/* Navigation buttons */}
-            <div className="hidden md:flex items-center gap-3">
+            <div className="hidden md:flex items-center gap-2">
               <Button
                 variant="outline"
                 size="icon"

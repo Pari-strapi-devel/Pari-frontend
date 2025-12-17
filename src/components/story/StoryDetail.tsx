@@ -1934,7 +1934,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                             {allImageData.map((imageData, imgIndex) => (
                               <div key={`img-${index}-${imgIndex}`} className="space-y-3">
                                 <div
-                                  className="w-full h-auto  cursor-pointer relative group"
+                                  className="w-full h-auto md:h-[380px] cursor-pointer relative group"
                                   onClick={() => handleImageClick(imageData!.url, imageData!.alt || 'Article image', imageData!.caption, imageData!.credits)}
                                 >
                                   <Image
@@ -1942,7 +1942,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                     alt={imageData!.alt || 'Article image'}
                                     width={500}
                                     height={400}
-                                    className="w-full h-full object-cover "
+                                    className="w-full h-full object-cover md:rounded-md "
                                     unoptimized
                                   />
                                   {/* Zoom Icon */}
@@ -1972,7 +1972,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                           {allImageData[0] && (
                             <div className="space-y-3">
                               <div
-                                className="w-full h-auto  cursor-pointer relative group"
+                                className="w-full h-auto md:h-[600px] cursor-pointer relative group"
                                 onClick={() => handleImageClick(allImageData[0]!.url, allImageData[0]!.alt || 'Article image', allImageData[0]!.caption, allImageData[0]!.credits)}
                               >
                                 <Image
@@ -1980,7 +1980,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                   alt={allImageData[0]!.alt || 'Article image'}
                                   width={allImageData[0]!.width || 1920}
                                   height={allImageData[0]!.height || 1080}
-                                  className="w-full h-auto max-h-[600px] object-cover "
+                                  className="w-full h-auto max-h-[600px] object-cover md:rounded-md "
                                   unoptimized
                                 />
                                 {/* Zoom Icon */}
@@ -2004,7 +2004,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                               {allImageData.slice(1).map((imageData, imgIndex) => (
                                 <div key={`img-${index}-${imgIndex + 1}`} className="space-y-3">
                                   <div
-                                    className="w-full h-auto  cursor-pointer relative group"
+                                    className="w-full h-auto md:h-[380px] cursor-pointer relative group"
                                     onClick={() => handleImageClick(imageData!.url, imageData!.alt || `Article image ${imgIndex + 2}`, imageData!.caption, imageData!.credits)}
                                   >
                                     <Image
@@ -2012,7 +2012,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                       alt={imageData!.alt || `Article image ${imgIndex + 2}`}
                                       width={500}
                                       height={400}
-                                      className="w-full h-full object-cover "
+                                      className="w-full h-full object-cover md:rounded-md "
                                       unoptimized
                                     />
                                     {/* Zoom Icon */}
@@ -2198,7 +2198,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                     {multipleImages.map((img, imgIndex) => (
                                       <div key={imgIndex} className="space-y-3">
                                         <div
-                                          className="w-full h-auto  cursor-pointer relative group"
+                                          className="w-full h-auto md:h-[380px] cursor-pointer relative group"
                                           onClick={() => handleImageClick(img.url, img.alt || `Image ${imgIndex + 1}`, img.caption, img.credits)}
                                         >
                                           <Image
@@ -2206,7 +2206,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                             alt={img.alt || `Image ${imgIndex + 1}`}
                                             width={500}
                                             height={400}
-                                            className="w-full h-full object-cover "
+                                            className="w-full h-full object-cover md:rounded-md"
                                             unoptimized
                                           />
                                           {/* Zoom Icon */}
@@ -2256,7 +2256,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                       alt={multipleImages[0].alt || 'Image 1'}
                                       width={multipleImages[0].width || 1920}
                                       height={multipleImages[0].height || 1080}
-                                      className="w-full h-auto max-h-[600px] object-cover "
+                                      className="w-full h-auto max-h-[600px] object-cover md:rounded-md "
                                       unoptimized
                                     />
                                     {/* Zoom Icon */}
@@ -2272,7 +2272,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                     {multipleImages.slice(1).map((img, imgIndex) => (
                                       <div key={imgIndex + 1} className="space-y-3">
                                         <div
-                                          className="w-full cursor-pointer relative group"
+                                          className="w-full h-auto md:h-[380px] cursor-pointer relative group"
                                           onClick={() => handleImageClick(img.url, img.alt || `Image ${imgIndex + 2}`, img.caption, img.credits)}
                                         >
                                           <Image
@@ -2280,7 +2280,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                             alt={img.alt || `Image ${imgIndex + 2}`}
                                             width={500}
                                             height={400}
-                                            className="w-full h-full object-cover "
+                                            className="w-full h-full object-cover md:rounded-md"
                                             unoptimized
                                           />
                                           {/* Zoom Icon */}
@@ -2651,7 +2651,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                       alt={imgCaption || 'Article image'}
                                       width={imgWidth || 1920}
                                       height={imgHeight || 1080}
-                                      className=" shadow-md w-full h-auto max-h-[600px] object-cover"
+                                      className=" shadow-md md:rounded-md w-full h-auto max-h-[600px] object-cover"
                                       unoptimized
                                     />
                                     {/* Zoom Icon */}
@@ -2715,7 +2715,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                       alt={fullWidthImageData.alt || 'Full width image'}
                                       width={fullWidthImageData.width || 1920}
                                       height={fullWidthImageData.height || 1080}
-                                      className="w-full h-auto max-h-[600px] object-cover "
+                                      className="w-full h-auto max-h-[600px] md:rounded-md object-cover "
                                       unoptimized
                                     />
                                     {/* Zoom Icon */}
@@ -2760,7 +2760,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                   {multCaptionImages.map((img, imgIndex) => (
                                     <div key={imgIndex} className="space-y-3">
                                       <div
-                                        className="w-full h-auto  cursor-pointer relative group"
+                                        className="w-full h-auto md:h-[380px] cursor-pointer relative group"
                                         onClick={() => handleImageClick(img.url, img.alt || `Image ${imgIndex + 1}`, img.caption, img.credits)}
                                       >
                                         <Image
@@ -2768,7 +2768,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                           alt={img.alt || `Image ${imgIndex + 1}`}
                                           width={500}
                                           height={400}
-                                          className="w-full h-full object-cover "
+                                          className="w-full h-full object-cover md:rounded-md "
                                           unoptimized
                                         />
                                         {/* Zoom Icon */}
@@ -2805,7 +2805,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                       alt={multCaptionImages[0].alt || 'Image 1'}
                                       width={multCaptionImages[0].width || 1920}
                                       height={multCaptionImages[0].height || 1080}
-                                      className="w-full h-auto max-h-[600px] object-cover "
+                                      className="w-full h-auto max-h-[600px] md:rounded-md object-cover "
                                       unoptimized
                                     />
                                     {/* Zoom Icon */}
@@ -2828,7 +2828,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                     {multCaptionImages.slice(1).map((img, imgIndex) => (
                                       <div key={imgIndex + 1} className="space-y-3">
                                         <div
-                                          className="w-full h-[300px] md:h-[400px] cursor-pointer relative group"
+                                          className="w-full h-auto md:h-[380px] cursor-pointer relative group"
                                           onClick={() => handleImageClick(img.url, img.alt || `Image ${imgIndex + 2}`, img.caption, img.credits)}
                                         >
                                           <Image
@@ -2836,7 +2836,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                             alt={img.alt || `Image ${imgIndex + 2}`}
                                             width={500}
                                             height={400}
-                                            className="w-full h-full object-cover "
+                                            className="w-full h-full object-cover md:rounded-md "
                                             unoptimized
                                           />
                                           {/* Zoom Icon */}
@@ -2877,7 +2877,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                       <div key={imgIndex} className="space-y-3">
                                         {item.image && (
                                           <div
-                                            className="w-full h-auto  cursor-pointer relative group"
+                                            className="w-full h-auto md:h-[380px]  cursor-pointer relative group"
                                             onClick={() => handleImageClick(item.image!.url, item.image!.alt || `Image ${imgIndex + 1}`, item.caption, item.credits)}
                                           >
                                             <Image
@@ -2885,7 +2885,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                               alt={item.image.alt || `Image ${imgIndex + 1}`}
                                               width={500}
                                               height={400}
-                                              className="shadow-md w-full h-full object-cover "
+                                              className="shadow-md md:rounded-md w-full h-full object-cover "
                                               unoptimized
                                             />
                                             {/* Zoom Icon */}
@@ -2907,7 +2907,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                         {item.caption && (
                                           <div className={`mt-1 md:px-1 px-8 ${showPhotos ? 'md:px-4 lg:px-8' : ''}`}>
                                             <div
-                                              className={`text-sm text-caption  leading-relaxed`}
+                                              className={`text-[13px] text-caption  `}
                                               dangerouslySetInnerHTML={{ __html: stripHtmlCssWithStyledStrong(item.caption) }}
                                             />
                                           </div>
@@ -2950,7 +2950,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                         alt={columnarImages[0].image.alt || 'Image 1'}
                                         width={400}
                                         height={600}
-                                        className=" shadow-md w-full h-auto max-h-[600px] object-cover"
+                                        className=" shadow-md md:rounded-md w-full h-auto max-h-[600px] object-cover"
                                         unoptimized
                                       />
                                       {/* Zoom Icon */}
@@ -3000,7 +3000,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                       <div key={imgIndex + 1} className="space-y-3">
                                         {item.image && (
                                           <div
-                                            className="w-full h-[300px] md:h-[400px] cursor-pointer relative group"
+                                            className="w-full h-auto md:h-[380px] cursor-pointer relative group"
                                             onClick={() => handleImageClick(item.image!.url, item.image!.alt || `Image ${imgIndex + 2}`, item.caption, item.credits)}
                                           >
                                             <Image
@@ -3008,7 +3008,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                               alt={item.image.alt || `Image ${imgIndex + 2}`}
                                               width={500}
                                               height={400}
-                                              className="shadow-md w-full h-full object-cover "
+                                              className="shadow-md md:rounded-md w-full h-full object-cover "
                                               unoptimized
                                             />
                                             {/* Zoom Icon */}
@@ -3171,7 +3171,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                                         alt={quoteImageData.alt || 'Quote image'}
                                         width={quoteImageData.width || 1920}
                                         height={quoteImageData.height || 1080}
-                                        className="w-full h-auto max-h-[600px] object-cover  shadow-md"
+                                        className="w-full h-auto max-h-[600px] object-cover md:rounded-md shadow-md"
                                         unoptimized
                                       />
                                       {/* Zoom Icon */}

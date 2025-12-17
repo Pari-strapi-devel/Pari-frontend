@@ -181,7 +181,13 @@
     letter-spacing: -0.02em;
     font-variation-settings: 'wdth' 95, 'wght' 700;
   }
- 
+ :where([lang="en"], :not([lang])) i {
+    font-family: "Noto Sans";
+    line-height: 140% !important;
+    font-size: 14px;
+    letter-spacing: -0.02em;
+    font-variation-settings: 'wdth' 95, 'wght' 400;
+   }
   
   /* --- LANGUAGE-SPECIFIC TYPOGRAPHY --- */
 
@@ -693,6 +699,14 @@
    font-variation-settings: 'wdth' 70 , 'wght' 600;
    direction: rtl;
  }
+ [lang="ur"] li {
+   font-family: var(--font-noto-nastaliq-urdu), 'Noto Sans nastaliq urdu', 'Noto Sans', sans-serif ;
+   line-height: 2;
+   font-size: clamp(.8rem, .9vw,  1rem);
+   letter-spacing: 0em;
+   font-variation-settings: 'wdth' 95, 'wght' 400;
+   direction: rtl;
+ }
 
   /* Base Noto Sans font */
   
@@ -1130,7 +1144,10 @@
 .columnar-text-content em,
 .columnar-text-content i {
   font-style: italic;
+  font-size: 11px !important;
+  
 }
+
 
 .columnar-text-content br {
   display: block;
@@ -1188,7 +1205,7 @@
 .page-ref-text-content i {
   font-family: 'Noto Sans', sans-serif !important;
   font-weight: 400 !important;
-  font-size: 15px !important;
+  
   line-height: 170% !important;
   letter-spacing: -0.03em !important;
   font-style: italic;

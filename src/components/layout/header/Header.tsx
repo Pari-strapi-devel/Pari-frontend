@@ -361,7 +361,7 @@ export function Header() {
               {/* Date Section */}
                <div className={`${language === 'ur' ? 'text-right' : 'text-left'}`}>
         <div className=" max-w-[1232px] mx-auto px-6 ">
-          <h6 className="text-grey-300 dark:text-discreet-text font-noto-sans">
+          <h6 className="text-grey-300 dark:text-discreet-text ">
             {String(getCurrentDate(months, weekDays))}
           </h6>
         </div>

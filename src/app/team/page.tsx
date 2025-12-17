@@ -501,7 +501,7 @@ function TeamsPageContent() {
 
                 <div className="flex-1 overflow-y-auto pr-1">
                 {/* Name and Role */}
-                <h3 className="text-xl sm:text-2xl lg:text-3xl  text-primary-PARI-Red mb-2">
+                <h3 className="text-xl sm:text-2xl lg:text-3xl pt-2 text-primary-PARI-Red mb-2">
                   {selectedMember.Name}
                 </h3>
                 <p className="text-foreground text-sm sm:text-base font-medium mb-6  sm:mb-8">

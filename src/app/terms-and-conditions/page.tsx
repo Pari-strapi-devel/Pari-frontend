@@ -225,7 +225,7 @@ const TermsConditionsContent = () => {
                       .sort((a, b) => a.serial_no - b.serial_no)
                       .map((point) => (
                         <p key={point.id} className="mb-4 flex">
-                          <p className="font-medium">{point.serial_no}. </p>
+                          <span className="font-medium">{point.serial_no}. </span>
                           {point.text}
                         </p>
                       ))}
