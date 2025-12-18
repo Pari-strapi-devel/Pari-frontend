@@ -199,9 +199,11 @@ export function Navigation({ onLinkClick }: NavigationProps = {}) {
 
 
   // Wrapper for Link component to handle click events and preserve locale
-  const LinkWithClose = ({ href, className, children }: { href: string; className?: string; children: React.ReactNode }) => {
+  const LinkWithClose = ({ href, className, children, target }: { href: string; className?: string; children: React.ReactNode; target?: string }) => {
     const { addLocaleToUrl } = useLocale();
-    const urlWithLocale = addLocaleToUrl(href);
+    // Don't add locale to external URLs
+    const isExternal = href.startsWith('http://') || href.startsWith('https://');
+    const urlWithLocale = isExternal ? href : addLocaleToUrl(href);
 
     const handleClick = () => {
       // Immediately close dropdown by setting to empty string
@@ -215,6 +217,8 @@ export function Navigation({ onLinkClick }: NavigationProps = {}) {
       <Link
         href={urlWithLocale}
         className={className}
+        target={target}
+        rel={target === '_blank' ? 'noopener noreferrer' : undefined}
         onClick={handleClick}
       >
         {children}
@@ -285,7 +289,7 @@ export function Navigation({ onLinkClick }: NavigationProps = {}) {
               </NavigationMenuTrigger>
               <NavigationMenuContent className="!w-[800px] h-[250px] p-5">
                 <div className="grid grid-cols-4 gap-4">
-                  <LinkWithClose href="/library" className="group block cursor-pointer">
+                  <LinkWithClose target="_blank" href="https://wagtail.ruralindiaonline.org/library" className="group block cursor-pointer">
                   <div className="relative overflow-hidden rounded-md h-[210px]">
 
                       <Image
@@ -298,7 +302,7 @@ export function Navigation({ onLinkClick }: NavigationProps = {}) {
                     </div>
                   </LinkWithClose>
 
-                  <LinkWithClose href="/faces-of-india" className="group block cursor-pointer">
+                  <LinkWithClose target="_blank" href="https://wagtail.ruralindiaonline.org/faces-of-india" className="group block cursor-pointer">
                     <div className="relative overflow-hidden rounded-md h-[210px]">
                       <Image
                         src="/images/categories/faces-sm.png"
@@ -310,7 +314,7 @@ export function Navigation({ onLinkClick }: NavigationProps = {}) {
                     </div>
                   </LinkWithClose>
 
-                  <LinkWithClose href="/freedom-fighters" className="group block cursor-pointer">
+                  <LinkWithClose target="_blank" href="https://wagtail.ruralindiaonline.org/freedom-fighters" className="group block cursor-pointer">
                     <div className="relative overflow-hidden rounded-md h-[210px]">
                       <Image
                         src="/images/categories/ffg-sm.png"
@@ -501,7 +505,7 @@ export function Navigation({ onLinkClick }: NavigationProps = {}) {
 
           {isMobileItemExpanded('resources') && (
            <div className="grid grid-cols-2 py-3 px-4 gap-4">
-           <LinkWithClose href="/library" className="group block cursor-pointer">
+           <LinkWithClose target="_blank" href="https://wagtail.ruralindiaonline.org/library" className="group block cursor-pointer">
            <div className="relative overflow-hidden rounded-md h-[200px]">
                <Image
                  src="/images/categories/navigation-imgs/Library.jpeg"
@@ -512,7 +516,7 @@ export function Navigation({ onLinkClick }: NavigationProps = {}) {
              </div>
            </LinkWithClose>
 
-           <LinkWithClose href="/faces-of-india" className="group block cursor-pointer">
+           <LinkWithClose target="_blank" href="https://wagtail.ruralindiaonline.org/faces-of-india" className="group block cursor-pointer">
              <div className="relative overflow-hidden rounded-md h-[200px]">
                <Image
                  src="/images/categories/faces-sm.png"
@@ -523,7 +527,7 @@ export function Navigation({ onLinkClick }: NavigationProps = {}) {
              </div>
            </LinkWithClose>
 
-           <LinkWithClose href="/freedom-fighters" className="group block cursor-pointer">
+           <LinkWithClose target="_blank" href="https://wagtail.ruralindiaonline.org/freedom-fighters" className="group block cursor-pointer">
              <div className="relative overflow-hidden rounded-md h-[200px]">
                <Image
                  src="/images/categories/ffg-sm.png"
