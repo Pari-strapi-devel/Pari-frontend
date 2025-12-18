@@ -235,7 +235,6 @@
     line-height: 175%;
     font-size: clamp(1rem, 1.1vw,  1.1rem);
     letter-spacing: 0em;
-    text-transform: uppercase;
     font-variation-settings: 'wdth' 95, 'wght' 400;
   }
 
@@ -314,7 +313,6 @@
     line-height: 168%;
     font-size: clamp(.9rem, 1vw,  1.05rem);
     letter-spacing: 0em;
-    text-transform: uppercase;
     font-variation-settings: 'wdth' 95, 'wght' 400;
   }
   [lang="ta"] h4 {

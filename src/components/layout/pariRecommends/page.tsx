@@ -494,7 +494,7 @@ export default function StoriesPage() {
       <div className="relative !overflow-visible ">
         <div
           ref={sliderRef}
-          className="keen-slider max-w-[1232px] mx-auto relative !overflow-visible "
+          className="keen-slider max-w-[1232px] px-4 md:px-0 mx-auto relative !overflow-visible "
         >
           {visibleStories.map((story, index) => (
             <div

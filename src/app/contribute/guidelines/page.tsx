@@ -314,7 +314,7 @@ const ContributeGuidelinesContent = () => {
         </div>
 
         {/* Main content */}
-        <div className="flex-1 py-10 md:py-20 md:px-20 px-8">
+        <div className="flex-1 py-10 md:py-0 md:px-20 px-8">
           <div className="max-w-[45.75rem] mx-auto">
             {/* Header */}
             <div className="mb-12">
@@ -357,7 +357,7 @@ const ContributeGuidelinesContent = () => {
 
                 {/* Subsections */}
                 {section.GuidelineSubsection.map((subsection) => (
-                  <section key={subsection.id} id={`subsection-${subsection.id}`} className="mb-10 scroll-mt-20 pl-6 border-l-2 border-border dark:border-borderline">
+                  <section key={subsection.id} id={`subsection-${subsection.id}`} className={`mb-10 scroll-mt-20  ${currentLocale === 'ur' ? 'border-r-2 pr-6' : 'border-l-2 pl-6'} dark:border-borderline`}>
                     <h4
                       className={`text-[24px] text-foreground  mb-2 ${fontClass}`}
                      
