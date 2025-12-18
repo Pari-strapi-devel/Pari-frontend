@@ -16,6 +16,25 @@ import { StoryCard } from '@/components/layout/stories/StoryCard'
 import { LocalizationData } from '@/components/layout/stories/StoryCard'
 import { languages as languagesList } from '@/data/languages';
 
+// Translation map for "More stories" button
+const moreStoriesTranslations: { [locale: string]: string } = {
+  'en': 'More stories',
+  'hi': 'और कहानियां',
+  'mr': 'अधिक कथा',
+  'bn': 'আরও গল্প',
+  'or': 'ଅଧିକ କାହାଣୀ',
+  'ur': 'مزید کہانیاں',
+  'te': 'మరిన్ని కథలు',
+  'ta': 'மேலும் கதைகள்',
+  'gu': 'વધુ વાર્તાઓ',
+  'kn': 'ಹೆಚ್ಚಿನ ಕಥೆಗಳು',
+  'pa': 'ਹੋਰ ਕਹਾਣੀਆਂ',
+  'as': 'অধিক কাহিনী',
+  'ml': 'കൂടുതൽ കഥകൾ',
+  'bho': 'अउर कहानी',
+  'hne': 'अउ कहानी'
+};
+
 interface MediaStory {
   availableLanguages: { code: string; name: string; slug: string }[] | undefined
   headtitle:  string;
@@ -328,11 +347,11 @@ export function AudioVideoCard() {
         <div className="flex items-center gap-4">
          
           <Link href="articles?content=Video+Articles">
-            <Button 
-              variant="secondary" 
+            <Button
+              variant="secondary"
               className="text-sm h-[36px]  ml-1 sm:ml-0  ring-[1px] rounded-[48px] text-primary-PARI-Red group"
             >
-              <p className="text-sm pl-2">More stories</p>
+              <p className="text-sm pl-2">{moreStoriesTranslations[targetLocale] || moreStoriesTranslations['en']}</p>
               <ChevronRight className="h-4 w-4 " />
             </Button>
           </Link>

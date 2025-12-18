@@ -133,7 +133,7 @@ export function ArticleCard({
               </div>
             )}
             </div>
-        <h3 className={` md:h-20 h-24 text-[1.975rem] ${currentLocale === 'ur' ? 'md:pt-2 pb-6 h-28' : ''} mb-2 px-1 text-foreground line-clamp-2`}>
+        <h3 className={` md:h-20 h-20 flex items-end mb-4 text-[1.6rem] ${currentLocale === 'ur' ? 'md:pt-2 pb-4 h-28' : ''} mb-2 px-1 text-foreground line-clamp-`}>
             {title}
           </h3>
         <div className="relative h-[376px] w-100% overflow-hidden  rounded-2xl" style={{ boxShadow: '0px 1px 4px 0px #00000047' }}>
@@ -219,10 +219,10 @@ export function ArticleCard({
           </div>
           <div className=" ">
 
-          <div className={`flex flex-col gap-1 ${currentLocale === 'ur' ? 'md:h-[90px] h-[100px]' : ' h-[72px]'}`}>
+          <div className={`flex flex-col gap-1 ${currentLocale === 'ur' ? 'md:h-[90px] h-[100px]' : ' h-[70px] md:h-'}`}>
          
 
-          <p className="text-discreet-text py-1 line-clamp-2">
+          <p className="text-discreet-text py- line-clamp-2">
             {description}
           </p>
           </div>

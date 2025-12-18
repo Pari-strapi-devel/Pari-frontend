@@ -62,6 +62,17 @@ interface SearchSuggestion {
   categories?: Array<{ title: string; slug: string }>;
 }
 
+// Translation map for header buttons
+const headerTranslations: { [locale: string]: { explore: string; donate: string } } = {
+  'en': { explore: 'Explore', donate: 'Donate' },
+  'hi': { explore: 'खोजें', donate: 'दान करें' },
+  'mr': { explore: 'शोधा', donate: 'दान करा' },
+  'bn': { explore: 'অন্বেষণ', donate: 'দান করুন' },
+  'or': { explore: 'ଅନୁସନ୍ଧାନ', donate: 'ଦାନ କରନ୍ତୁ' },
+  'ur': { explore: 'تلاش کریں', donate: 'عطیہ دیں' },
+ 
+};
+
 // Helper function to get logo path based on theme and language
 const getLogoPath = (language: string, theme: string | undefined): string => {
   // Map language codes to logo file names
@@ -522,7 +533,7 @@ export function Header() {
                   {isFilterOpen ? (
                     <X className="h-4 w-4" />
                   ) : null}
-                  Filter
+                 <p className='text-sm '>{headerTranslations[language]?.explore || headerTranslations['en'].explore}</p> 
                 </Button>
 
                 <Link href="/donate">
@@ -530,7 +541,7 @@ export function Header() {
                     variant="secondary"
                     className="rounded-2xl items-center sm:hidden md:flex dark:hover:bg-primary-PARI-Red dark:bg-popover bg-white cursor-pointer w-[73px] h-[32px]"
                   >
-                    Donate
+                   <p className='text-sm '> {headerTranslations[language]?.donate || headerTranslations['en'].donate}</p>
                   </Button>
                 </Link>
               </div>

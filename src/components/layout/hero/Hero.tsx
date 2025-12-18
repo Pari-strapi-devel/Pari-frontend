@@ -241,9 +241,14 @@ export function Hero() {
 
             <div className={`flex sm:justify-between flex-col sm:flex-row gap-4 pt-7 ${language === 'ur' ? 'sm:flex-row' : ''}`}>
               <div className={language === 'ur' ? 'text-right' : 'text-left'}>
-                <h1 className="text-foreground  mb-2">
+                <h1 className="text-foreground md:flex hidden mb-2">
                   {pariInfo[0]?.heading}
-                  <br />
+                   <br />
+                  {pariInfo[0]?.sabHeading}
+                </h1>
+                 <h1 className="text-foreground flex  md:hidden mb-2">
+                  {pariInfo[0]?.heading}
+                
                   {pariInfo[0]?.sabHeading}
                 </h1>
               </div>
