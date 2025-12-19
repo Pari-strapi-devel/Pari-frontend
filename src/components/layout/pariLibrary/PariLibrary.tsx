@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { BookOpen, ChevronRight, ChevronLeft } from 'lucide-react'
-import { ArticleCard } from '@/components/ui/ArticleCard'
+import { PariProjectCard } from '@/components/ui/PariProjectCard'
 import { Button } from '@/components/ui/button'
 import { useKeenSlider } from 'keen-slider/react'
 import 'keen-slider/keen-slider.min.css'
@@ -23,6 +23,7 @@ interface PariLibraryData {
   slug: string;
   authors: string[];
   readMore: string;
+  isExternalLink?: boolean;
 }
 
 export function PariLibrary() {
@@ -89,6 +90,11 @@ export function PariLibrary() {
         }) => {
           console.log('##Rohit_Rocks## Individual project:', project);
           console.log('##Rohit_Rocks## Project title:', project.title);
+          console.log('##Rohit_Rocks## Project link:', project.link);
+
+          // Check if link is an external URL
+          const isExternalLink = project.link?.startsWith('http://') || project.link?.startsWith('https://');
+
           return {
             title: stripHtmlTags(project.title),
             headDescription: stripHtmlTags(titlesab.description),
@@ -102,7 +108,8 @@ export function PariLibrary() {
             categories: project.Categories?.split(',').map(cat => stripHtmlTags(cat)) || [],
             slug: project.link,
             authors: [''],
-            readMore: 'See project'
+            readMore: 'See project',
+            isExternalLink
           };
         });
 
@@ -205,8 +212,8 @@ export function PariLibrary() {
         <div className="relative overflow-visible">
           <div ref={sliderRef} className="keen-slider max-w-[1232px] mx-auto relative !overflow-visible">
             {libraryData.map((article, index) => (
-              <ArticleCard
-                key={`$ {slug}-${index}`}
+              <PariProjectCard
+                key={`${article.slug}-${index}`}
                 {...article}
                 className="keen-slider__slide !min-h-[500px]"
               />
