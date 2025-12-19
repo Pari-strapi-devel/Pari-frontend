@@ -133,7 +133,7 @@ export function ArticleCard({
               </div>
             )}
             </div>
-        <h3 className={` md:h-20 h-20 flex items-end mb-4 text-[1.6rem] ${currentLocale === 'ur' ? 'md:pt-2 pb-4 h-28' : ''} mb-2 px-1 text-foreground line-clamp-`}>
+        <h3 className={` md:h-20 h-20 mb-2 md:text-[1.9rem] text-[1.6rem] ${currentLocale === 'ur' ? 'md:pt-2 pb-4 h-28' : ''} mb-2 px-1 text-foreground line-clamp-`}>
             {title}
           </h3>
         <div className="relative h-[376px] w-100% overflow-hidden  rounded-2xl" style={{ boxShadow: '0px 1px 4px 0px #00000047' }}>
