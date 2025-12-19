@@ -1,7 +1,7 @@
+"use client"
 
-
-import * as React from "react"
-import { Suspense } from "react"
+import { Suspense, useEffect } from "react"
+import confetti from "canvas-confetti"
 
 import { Hero } from "@/components/layout/hero/Hero"
 import { WeekOnCard } from '@/components/layout/weekOn/WeekOnCard'
@@ -14,10 +14,47 @@ import './globals.css'
 import { AudioVideoCard } from '@/components/layout/audioVideo/AudioVideoCard'
 import { HomeCardSkeleton, LibraryGridSkeleton, AudioVideoCardSkeleton, HeroSectionSkeleton } from '@/components/skeletons/ArticleSkeletons'
 
-// Force dynamic rendering to prevent SSR issues with useSearchParams
-export const dynamic = 'force-dynamic'
-
 function HomeContent() {
+
+  useEffect(() => {
+    // Check if user has visited before
+    const hasVisited = sessionStorage.getItem('pari-welcomed')
+
+    if (!hasVisited) {
+      // Fire confetti for first-time visitors
+      const fireConfetti = () => {
+        // First burst - center
+        confetti({
+          particleCount: 400,
+          spread: 90,
+          origin: { x: 0.5, y: 0.3 }
+        })
+
+        // Side bursts after small delay
+        setTimeout(() => {
+          confetti({
+            particleCount: 400,
+            angle: 50,
+            spread: 90,
+            origin: { x: 0, y: 0.7 }
+          })
+          confetti({
+            particleCount: 400,
+            angle: 120,
+            spread: 80,
+            origin: { x: 1, y: 0.7 }
+          })
+        }, 900)
+      }
+
+      // Small delay to let page load
+      setTimeout(fireConfetti, 700)
+
+      // Mark as visited
+      sessionStorage.setItem('pari-welcomed', 'true')
+    }
+  }, [])
+
   return (
 
     <div className="min-h-screen bg-background !scroll-y-auto">
@@ -51,7 +88,11 @@ function HomeContent() {
 }
 
 export default function Home() {
-  return <HomeContent />
+  return (
+    <Suspense fallback={<HeroSectionSkeleton />}>
+      <HomeContent />
+    </Suspense>
+  )
 }
 
 

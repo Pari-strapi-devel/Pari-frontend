@@ -3945,7 +3945,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
             </div>
           )}
 
-          <div className="fixed bottom-4 sm:bottom-6 md:bottom-8 lg:bottom-10 right-4 sm:right-6 md:right-8 lg:right-10 z-50">
+          <div className="fixed bottom-4 sm:bottom-6 md:bottom-8 rounded-full lg:bottom-10 right-4 sm:right-6 md:right-8 lg:right-10 z-50">
 
             {/* Language Toggle Button */}
             <Button

@@ -416,19 +416,32 @@ export default function ArticlesContent() {
   // Preserve filters on page reload
   useEffect(() => {
     // This effect runs only once when the component mounts
-    
+
     // Check if this is a page refresh/reload
     const isPageRefresh = window.performance.getEntriesByType('navigation')
       .some((nav) => (nav as PerformanceNavigationTiming).type === 'reload');
-    
+
     if (isPageRefresh) {
       console.log('Page was refreshed - clearing filters');
       // Clear filters from sessionStorage
       sessionStorage.removeItem('articleFilters');
-      
+
       // Redirect to articles page without query params if we have query params
+      // But preserve the locale parameter
       if (window.location.search) {
-        router.replace('/articles');
+        const urlParams = new URLSearchParams(window.location.search);
+        const localeParam = urlParams.get('locale');
+
+        // Only redirect if there are filters other than locale
+        const hasOtherParams = Array.from(urlParams.keys()).some(key => key !== 'locale');
+
+        if (hasOtherParams) {
+          // Preserve locale if it exists
+          const newUrl = localeParam && localeParam !== 'en'
+            ? `/articles?locale=${localeParam}`
+            : '/articles';
+          router.replace(newUrl);
+        }
       }
     }
   }, [router]);
