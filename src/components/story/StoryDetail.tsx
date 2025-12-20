@@ -1640,7 +1640,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
       {showCard && (
         <div className={`relative mx-auto px-4 my-16 md:px-8 ${story.coverImage ? '-mt-32' : ''}`}>
           <div
-            className="bg-white dark:bg-popover rounded-3xl p-[2.5rem]  lg:p-[4rem] shadow-[0px_4px_20px_0px_rgba(0,0,0,0.1)] relative mx-auto max-w-[768px] md:max-w-[768px] lg:max-w-[912px] xl:max-w-[970px] 2xl:max-w-[1016px] mx-auto"
+            className="bg-white dark:bg-popover rounded-3xl p-[2.5rem]  lg:p-[4rem] shadow-[0px_4px_20px_0px_rgba(0,0,0,0.1)] relative mx-auto max-w-[768px] md:max-w-[768px] lg:max-w-[912px] xl:max-w-[970px] 2xl:max-w-[1016px] mx-auto overflow-wrap-anywhere break-words"
             lang={getLangAttribute(story.storyLocale || 'en')}
             dir={getTextDirection(story.storyLocale || 'en')}
           >

@@ -17,10 +17,20 @@ import { useTheme } from 'next-themes'
 import { ArticleData, AuthorData } from '@/components/articles/ArticlesContent'
 
 // Helper function to get current date
-const getCurrentDate = (monthsObj: Record<string, string>, weekDaysObj: Record<string, string>) => {
-  if (!monthsObj || !weekDaysObj) return '';
-
+const getCurrentDate = (monthsObj: Record<string, string>, weekDaysObj: Record<string, string>, showFallback: boolean = false) => {
   const currentDate = new Date();
+
+  // Show English fallback immediately while loading
+  if (showFallback || !monthsObj || !weekDaysObj || Object.keys(monthsObj).length === 0 || Object.keys(weekDaysObj).length === 0) {
+    const options: Intl.DateTimeFormatOptions = {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    };
+    return currentDate.toLocaleDateString('en-US', options).toUpperCase();
+  }
+
   const currentMonthIndex = currentDate.getMonth();
   const currentDay = currentDate.toLocaleString('en-US', { weekday: 'long' }).toLowerCase();
 
@@ -32,6 +42,17 @@ const getCurrentDate = (monthsObj: Record<string, string>, weekDaysObj: Record<s
 
   const currentMonthName = monthsObj[monthNames[currentMonthIndex]];
   const currentDayName = weekDaysObj[currentDay];
+
+  // Return fallback if we still don't have the required data
+  if (!currentMonthName || !currentDayName) {
+    const options: Intl.DateTimeFormatOptions = {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    };
+    return currentDate.toLocaleDateString('en-US', options).toUpperCase();
+  }
 
   return `${currentDayName}, ${currentMonthName} ${currentDate.getDate()}, ${currentDate.getFullYear()}`.toUpperCase();
 };
