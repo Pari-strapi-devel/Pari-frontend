@@ -55,7 +55,7 @@ export function StoryCard({
   description,
   authors,
   imageUrl,
-  categories,
+  // categories,
   slug,
   location,
   date,
@@ -71,7 +71,7 @@ export function StoryCard({
 }: StoryCardProps) {
   const [isSheetOpen, setIsSheetOpen] = useState<boolean>(false);
   const [mounted, setMounted] = useState(false);
-  const [showAllCategories, setShowAllCategories] = useState(false);
+  // const [showAllCategories, setShowAllCategories] = useState(false);
   const { addLocaleToUrl } = useLocale();
 
   useEffect(() => {
@@ -88,7 +88,7 @@ export function StoryCard({
 
         <article className="group rounded-[16px] m-2 sm:hover:scale-103 transition-transform duration-300 bg-white dark:bg-background hover:rounded-[16px] border border-border ">
           <div className="relative h-[180px] w-full overflow-hidden rounded-t-2xl">
-          <div className="absolute top-3 left-3 flex items-center gap-2 z-10 flex-wrap max-w-[calc(100%-24px)]">
+          {/* <div className="absolute top-3 left-3 flex items-center gap-2 z-10 flex-wrap max-w-[calc(100%-24px)]">
             {(categories && categories.length > 0) && (
               <>
                 {showAllCategories ? (
@@ -132,7 +132,7 @@ export function StoryCard({
                 )}
 
                 {/* Show all / Reset button */}
-                {categories.length > 1 && (
+                {/* {categories.length > 1 && (
                   <span
                     className={`inline-block items-center px-2 py-1 bg-white ${isStudentArticle ? 'text-student-blue hover:bg-student-blue' : 'text-primary-PARI-Red hover:bg-primary-PARI-Red'} hover:text-white text-xs rounded-full w-fit h-[24px] cursor-pointer transition-all duration-300`}
                     onClick={(e) => {
@@ -146,7 +146,7 @@ export function StoryCard({
                 )}
               </>
             )}
-          </div>
+          </div> */} 
             <Image
               src={imageUrl || '/images/placeholder.png'}
               alt={title || 'Story thumbnail'}

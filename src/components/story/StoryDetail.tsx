@@ -3966,9 +3966,8 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                 return currentLang ? (
                   <div className="flex flex-col items-center justify-center gap-0">
                     <div className="flex items-center gap-1">
-                      <span className="text-[10px] sm:text-xs md:text-sm font-bold">{currentLang.displayCode.en}</span>
-                      <span className="text-[8px] sm:text-[10px] opacity-50">|</span>
-                      <span className="text-[10px] sm:text-xs md:text-sm font-bold">{currentLang.displayCode.native}</span>
+                      <span className="text-[10px] sm:text-xs md:text-sm font-bold">{currentLang.names[0]}</span>
+                      <span className="text-[8px] sm:text-[10px] opacity-50">{currentLang.code.toUpperCase()}</span>
                     </div>
                     <span className="text-[8px] sm:text-[9px] md:text-[10px] opacity-80 font-normal">
                       {availableLanguages.length} {availableLanguages.length === 1 ? 'language' : 'languages'}
