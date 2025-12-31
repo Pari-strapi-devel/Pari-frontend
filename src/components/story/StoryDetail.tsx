@@ -458,9 +458,10 @@ interface ExtendedArticleData extends ArticleData {
 
 interface StoryDetailProps {
   slug: string;
+  publicationState?: 'live' | 'preview';
 }
 
-export default function StoryDetail({ slug }: StoryDetailProps) {
+export default function StoryDetail({ slug, publicationState = 'live' }: StoryDetailProps) {
   const [story, setStory] = useState<{
     title: string;
     subtitle: string;
@@ -735,7 +736,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
       try {
         setIsLoading(true)
 
-        const fetchedStory = await fetchStoryBySlug(slug)
+        const fetchedStory = await fetchStoryBySlug(slug, publicationState)
         setStory(fetchedStory)
 
         // Group authors by role
@@ -767,7 +768,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
     if (slug) {
       loadStory()
     }
-  }, [slug, urlLocale, currentLocale])
+  }, [slug, urlLocale, currentLocale, publicationState])
 
   // Fetch related stories dynamically based on author, title, and category - memoized
   const fetchRelatedStories = useCallback(async () => {
@@ -3613,7 +3614,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                   <div
                     key={`${groupIndex}-${authorIndex}`}
                     onClick={() => {
-                      router.push(`/articles?author=${encodeURIComponent(name)}`)
+                      router.push(addLocaleToUrl(`/articles?author=${encodeURIComponent(name)}`))
                     }}
                     className="bg-white dark:bg-popover rounded-lg p-6 md:p-8 mb-6 shadow-sm cursor-pointer hover:shadow-md transition-shadow"
                   >
@@ -3638,7 +3639,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                       <button
                         onClick={(e) => {
                           e.stopPropagation() // Prevent card click
-                          router.push(`/articles?author=${encodeURIComponent(name)}`)
+                          router.push(addLocaleToUrl(`/articles?author=${encodeURIComponent(name)}`))
                         }}
                         className={`px-6 py-2 border ${story.isStudent ? 'border-[#2F80ED] text-[#2F80ED] hover:bg-[#2F80ED]' : 'border-primary-PARI-Red text-primary-PARI-Red hover:bg-primary-PARI-Red'} rounded-full hover:text-white transition-colors text-sm font-medium flex items-center gap-2`}
                       >
@@ -3839,7 +3840,7 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                               </span>
                               {nativeName !== englishName && (
                                 <span className="text-sm text-gray-500 dark:text-gray-400">
-                                  / {nativeName}
+                                   {nativeName}
                                 </span>
                               )}
                             </div>
@@ -3966,9 +3967,8 @@ export default function StoryDetail({ slug }: StoryDetailProps) {
                 return currentLang ? (
                   <div className="flex flex-col items-center justify-center gap-0">
                     <div className="flex items-center gap-1">
-                      <span className="text-[10px] sm:text-xs md:text-sm font-bold">{currentLang.displayCode.en}</span>
-                      <span className="text-[8px] sm:text-[10px] opacity-50">|</span>
-                      <span className="text-[10px] sm:text-xs md:text-sm font-bold">{currentLang.displayCode.native}</span>
+                      <span className="text-[10px] sm:text-xs md:text-sm font-bold">{currentLang.names[0]}</span>|
+                      <span className="text-[8px] sm:text-[10px] opacity-50">{currentLang.code.toUpperCase()}</span>
                     </div>
                     <span className="text-[8px] sm:text-[9px] md:text-[10px] opacity-80 font-normal">
                       {availableLanguages.length} {availableLanguages.length === 1 ? 'language' : 'languages'}
@@ -5312,11 +5312,11 @@ function extractColumnarImages(paragraph: FilterableContentItem, locale: string 
 // Function to fetch story by slug
 // Note: Slugs are now in the same language/script as the article title
 // Each localized version has its own unique slug without language suffix
-async function fetchStoryBySlug(slug: string) {
+async function fetchStoryBySlug(slug: string, publicationState: 'live' | 'preview' = 'live') {
   try {
     // First, try to find the article by slug in the main locale (English)
     // Then check if the slug matches any localization
-    const query = {
+    const query: Record<string, unknown> = {
       filters: {
         $or: [
           // Search in main article slug
@@ -5337,6 +5337,8 @@ async function fetchStoryBySlug(slug: string) {
       },
       // Populate localizations to get all language versions
       locale: 'all', // Get all locales
+      // Add publicationState for draft/preview support
+      publicationState: publicationState,
       populate: {
         Cover_image: {
           fields: ['url', 'caption', 'alternativeText']
@@ -5523,6 +5525,7 @@ async function fetchStoryBySlug(slug: string) {
             }
           },
           locale: localeToFetch,
+          publicationState: publicationState, // Preserve publication state for draft support
           populate: query.populate // Use the same populate structure
         }
 

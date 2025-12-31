@@ -86,8 +86,8 @@ export function PariProjectCard({
         </div>
 
         <div className="">
-          <div className={`flex flex-col gap-1 ${currentLocale === 'ur' ? 'md:h-[90px] h-[100px]' : ' h-[70px] md:h-'}`}>
-            <p className="text-discreet-text py- line-clamp-2">
+          <div className={`flex flex-col gap-1 ${currentLocale === 'ur' ? 'md:h-[90px] h-[110px]' : ' h-[80px] md:h-'}`}>
+            <p className="text-discreet-text pt-2 line-clamp-2">
               {description}
             </p>
           </div>

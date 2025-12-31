@@ -166,7 +166,11 @@ interface CategoryData {
 //   header?: string;
 // } // Removed this unused interface
 
-export function WeekOnCard() {
+interface WeekOnCardProps {
+  publicationState?: 'live' | 'preview';
+}
+
+export function WeekOnCard({ publicationState = 'live' }: WeekOnCardProps) {
   const [currentSlide, setCurrentSlide] = useState(0)
   const [loaded, ] = useState(false)
   const [articles, setArticles] = useState<FormattedArticle[]>([])
@@ -175,7 +179,7 @@ export function WeekOnCard() {
   const [header, setHeader] = useState<string>()
   const [thisWeekData, setThisWeekData] = useState<ApiResponse['data']['attributes']['thisWeekOnPari'] | null>(null)
   const [seeAllStories, setSeeAllStories] = useState<string>("See all stories");
-  const { language } = useLocale()
+  const { language, addLocaleToUrl } = useLocale()
   const isRTL = language === 'ur'
 
   const [sliderRef, instanceRef] = useKeenSlider({
@@ -209,11 +213,12 @@ export function WeekOnCard() {
         setIsLoading(true)
 
         const query = {
+          publicationState,
           populate: {
             fields: ['seeallStories'],
             thisWeekOnPari: {
               populate: {
-                
+
                 ThisWeek_On_Pari_Icon: {
                   fields: ['url', 'name', 'alternativeText'],
                 },
@@ -376,7 +381,7 @@ export function WeekOnCard() {
     }
 
     thisWeekOnPari();
-  }, [language])
+  }, [language, publicationState])
   
 
   if (isLoading) {
@@ -400,9 +405,9 @@ export function WeekOnCard() {
             title={thisWeekData?.ThisWeek_On_Pari_Title || "This Week on PARI"}
          
           />
-          <Link href="/articles">
-<Button 
-                variant="secondary" 
+          <Link href={addLocaleToUrl("/articles")}>
+<Button
+                variant="secondary"
                 className="text-sm h-[36px] ml-1 flex md:hidden ring-[1px] rounded-[48px] text-primary-PARI-Red mr-4"
               >
                 {seeAllStories || "See all stories"}
@@ -416,7 +421,7 @@ export function WeekOnCard() {
         <div className="relative  mt-4">
           <div className={`absolute top-[-60px] z-10 ${isRTL ? 'left-0' : 'right-0'}`}>
             <div className={`flex items-center gap-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
-              <Link href="/articles" >
+              <Link href={addLocaleToUrl("/articles")} >
                 <Button
                   variant="secondary"
                   className="text-sm h-[36px] md:flex hidden ring-[1px] rounded-[48px]"
@@ -431,11 +436,11 @@ export function WeekOnCard() {
                   size="icon"
                   onClick={(e) => {
                     e.stopPropagation()
-                    
+                    if (isRTL) {
                       instanceRef.current?.next()
-                   
+                    } else {
                       instanceRef.current?.prev()
-                    
+                    }
                   }}
                   className="bg-white dark:bg-popover hover:bg-primary-PARI-Red text-primary-PARI-Red hover:text-white rounded-full cursor-pointer w-10 h-10"
                 >
@@ -447,11 +452,11 @@ export function WeekOnCard() {
                   size="icon"
                   onClick={(e) => {
                     e.stopPropagation()
-                    
+                    if (isRTL) {
                       instanceRef.current?.prev()
-                 
+                    } else {
                       instanceRef.current?.next()
-                    
+                    }
                   }}
                   className="bg-white dark:bg-popover hover:bg-primary-PARI-Red text-primary-PARI-Red hover:text-white rounded-full cursor-pointer w-10 h-10"
                 >

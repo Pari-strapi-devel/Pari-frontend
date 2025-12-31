@@ -7,6 +7,7 @@ import { ArrowRight, ChevronDown, Headphones, Play, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { languages as languagesList } from '@/data/languages';
 import { createPortal } from 'react-dom';
+import { useLocale } from '@/lib/locale';
 
 
 interface AudioVideoBigCardProps {
@@ -55,6 +56,7 @@ export function AudioVideoBigCard({
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [showAllCategories, setShowAllCategories] = useState(false);
+  const { addLocaleToUrl } = useLocale();
 
   useEffect(() => {
     setMounted(true);
@@ -78,7 +80,7 @@ export function AudioVideoBigCard({
 
   return (
     <Link
-      href={`/article/${slug}`}
+      href={addLocaleToUrl(`/article/${slug}`)}
       className="group"
     >
       <article className="grid grid-cols-1 md:grid-cols-2 justify-center md:gap-6 rounded-[8px] bg-background  transition-all duration-300 ">
@@ -147,7 +149,7 @@ export function AudioVideoBigCard({
                       // Navigate to articles page with this category filter
                       const params = new URLSearchParams();
                       params.set('types', category.slug);
-                      window.location.href = `/articles?${params.toString()}`;
+                      window.location.href = addLocaleToUrl(`/articles?${params.toString()}`);
                     }}
                   >
                     {category.title}
@@ -167,7 +169,7 @@ export function AudioVideoBigCard({
                         // Navigate to articles page with this category filter
                         const params = new URLSearchParams();
                         params.set('types', category.slug);
-                        window.location.href = `/articles?${params.toString()}`;
+                        window.location.href = addLocaleToUrl(`/articles?${params.toString()}`);
                       }}
                     >
                       {category.title}

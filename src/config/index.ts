@@ -4,6 +4,9 @@ import { API_BASE_URL } from '@/utils/constants';
 export const BASE_URL = `${API_BASE_URL}/v1/`;
 export const IMAGE_URL = `${API_BASE_URL}/v1/`;
 
+// Production site URL
+export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://ruralindiaonline.org';
+
 // EZForms configuration
 export const EZFORMS_CONFIG = {
   apiUrl: `${BASE_URL}api/get-in-touch-models`,

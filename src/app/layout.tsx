@@ -18,6 +18,8 @@ import {
 } from 'next/font/google';
 import { Header } from '@/components/layout/header/Header'
 import { LanguageToggle } from '@/components/layout/header/LanguageToggle'
+import GoogleAnalytics from '@/components/GoogleAnalytics'
+import { CanonicalAndHreflang } from '@/components/seo/CanonicalAndHreflang'
 
 const notoSans = Noto_Sans({
   subsets: ['latin'],
@@ -136,11 +138,15 @@ export default function RootLayout({ children }: RootLayoutProps) {
     <html lang="en" suppressHydrationWarning>
      <head>
       <meta name="algolia-site-verification"  content="F5CD6E39238D1785" />
+      <CanonicalAndHreflang />
      </head>
       <body
         className={`${notoSans.variable} ${notoSansDevanagari.variable} ${notoSansTelugu.variable} ${notoSansTamil.variable} ${notoSansKannada.variable} ${notoSansBengali.variable} ${notoSansGujarati.variable} ${notoSansOriya.variable} ${notoSansMalayalam.variable} ${notoSansGurmukhi.variable} ${notoNastaliqUrdu.variable} font-noto antialiased`}
         suppressHydrationWarning
       >
+        {/* Google Analytics */}
+        <GoogleAnalytics />
+
         <ThemeProvider
           attribute="class"
           defaultTheme="light"

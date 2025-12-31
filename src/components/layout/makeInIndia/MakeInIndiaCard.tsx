@@ -71,7 +71,11 @@ export interface Article {
 
 }
 
-export function MakeInIndiaCard() {
+interface MakeInIndiaCardProps {
+  publicationState?: 'live' | 'preview';
+}
+
+export function MakeInIndiaCard({ publicationState = 'live' }: MakeInIndiaCardProps) {
   const { language } = useLocale();
   const [features, setFeatures] = useState<{
     category: string[];
@@ -187,8 +191,9 @@ export function MakeInIndiaCard() {
           },
         };
 
-        const query = {
+        const query: Record<string, unknown> = {
           locale: language,
+          publicationState: publicationState,
           populate: {
             pari_movable_sections: {
               on: {
@@ -331,7 +336,7 @@ export function MakeInIndiaCard() {
     };
 
     fetchMakeInIndiaData();
-  }, [language, currentLocale]);
+  }, [language, currentLocale, publicationState]);
 
   if (isLoading) {
     return (

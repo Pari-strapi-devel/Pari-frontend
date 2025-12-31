@@ -73,13 +73,18 @@ interface ApiResponse {
   }
 }
 
-export function AudioVideoCard() {
+interface AudioVideoCardProps {
+  publicationState?: 'live' | 'preview';
+}
+
+export function AudioVideoCard({ publicationState = 'live' }: AudioVideoCardProps) {
   const [mediaStories, setMediaStories] = useState<MediaStory[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const { language: targetLocale } = useLocale()
+  const { language: targetLocale, addLocaleToUrl } = useLocale()
   const [currentSlide, setCurrentSlide] = useState(0)
   const [isLoaded, setIsLoaded] = useState(false)
+  const isRTL = targetLocale === 'ur'
   const [sliderRef, instanceRef] = useKeenSlider({
     initial: 0,
     slideChanged(slider) {
@@ -152,6 +157,7 @@ export function AudioVideoCard() {
         }
 
         const query = {
+          publicationState,
           populate: {
             pari_movable_sections: {
               on: {
@@ -305,7 +311,7 @@ export function AudioVideoCard() {
     }
 
     fetchAudioVideoStories()
-  }, [targetLocale]) // Only depend on language changes
+  }, [targetLocale, publicationState]) // Depend on language and publication state changes
 
   if (isLoading) {
     return (
@@ -345,8 +351,8 @@ export function AudioVideoCard() {
           </h6>
         </div>
         <div className="flex items-center gap-4">
-         
-          <Link href="articles?content=Video+Articles">
+
+          <Link href={addLocaleToUrl("articles?content=Video+Articles")}>
             <Button
               variant="secondary"
               className="text-sm h-[36px]  ml-1 sm:ml-0  ring-[1px] rounded-[48px] text-primary-PARI-Red group"
@@ -370,7 +376,7 @@ export function AudioVideoCard() {
             <Button
               variant="outline"
               size="icon"
-              onClick={() => instanceRef.current?.prev()}
+              onClick={() => isRTL ? instanceRef.current?.next() : instanceRef.current?.prev()}
               className="bg-white dark:bg-popover hover:bg-primary-PARI-Red text-primary-PARI-Red hover:text-white rounded-full cursor-pointer w-10 h-10"
             >
               <ChevronLeft className="h-5 w-5" />
@@ -379,7 +385,7 @@ export function AudioVideoCard() {
             <Button
               variant="outline"
               size="icon"
-              onClick={() => instanceRef.current?.next()}
+              onClick={() => isRTL ? instanceRef.current?.prev() : instanceRef.current?.next()}
               className="bg-white dark:bg-popover hover:bg-primary-PARI-Red text-primary-PARI-Red hover:text-white rounded-full cursor-pointer w-10 h-10"
             >
               <ChevronRight className="h-5 w-5" />

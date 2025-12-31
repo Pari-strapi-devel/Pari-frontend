@@ -26,7 +26,11 @@ interface PariLibraryData {
   isExternalLink?: boolean;
 }
 
-export function PariLibrary() {
+interface PariLibraryProps {
+  publicationState?: 'live' | 'preview';
+}
+
+export function PariLibrary({ publicationState = 'live' }: PariLibraryProps) {
   const [currentSlide, setCurrentSlide] = useState(0)
   const [loaded, setLoaded] = useState(false)
   const [libraryData, setLibraryData] = useState<PariLibraryData[]>([])
@@ -40,6 +44,7 @@ export function PariLibrary() {
 
         const query = {
           locale: language,
+          publicationState,
           populate: {
             pari_movable_sections: {
               on: {
@@ -122,7 +127,9 @@ export function PariLibrary() {
     };
 
     fetchLibraryData();
-  }, [language]); // Added language as a dependency
+  }, [language, publicationState]); // Added language and publicationState as dependencies
+
+  const isRTL = language === 'ur'
 
   const [sliderRef, instanceRef] = useKeenSlider({
     initial: 0,
@@ -191,7 +198,7 @@ export function PariLibrary() {
               <Button
                 variant="outline"
                 size="icon"
-                onClick={() => instanceRef.current?.prev()}
+                onClick={() => isRTL ? instanceRef.current?.next() : instanceRef.current?.prev()}
                 className="bg-white dark:bg-popover hover:bg-primary-PARI-Red text-primary-PARI-Red hover:text-white rounded-full cursor-pointer w-10 h-10"
               >
                 <ChevronLeft className="h-5 w-5" />
@@ -200,7 +207,7 @@ export function PariLibrary() {
               <Button
                 variant="outline"
                 size="icon"
-                onClick={() => instanceRef.current?.next()}
+                onClick={() => isRTL ? instanceRef.current?.prev() : instanceRef.current?.next()}
                 className="bg-white dark:bg-popover hover:bg-primary-PARI-Red text-primary-PARI-Red hover:text-white rounded-full cursor-pointer w-10 h-10"
               >
                 <ChevronRight className="h-5 w-5" />

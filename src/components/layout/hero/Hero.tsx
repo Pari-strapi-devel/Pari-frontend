@@ -59,7 +59,11 @@ export interface PariInformation {
 
 // Remove unused interface and add welcome_to_pari to fields
 
-export function Hero() {
+interface HeroProps {
+  publicationState?: 'live' | 'preview';
+}
+
+export function Hero({ publicationState = 'live' }: HeroProps) {
   const [currentSlide, setCurrentSlide] = useState(0)
   const [loaded, setLoaded] = useState(false)
   const [isVisible, setIsVisible] = useState(true)
@@ -92,7 +96,8 @@ export function Hero() {
               fields: ['locale', 'welcome_Title', 'welcome_subtitle', 'seeallStories']
             }
           },
-          locale: language
+          locale: language,
+          publicationState: publicationState
         }
 
         const queryString = qs.stringify(query, {
@@ -174,7 +179,9 @@ export function Hero() {
     }
 
     fetchHomePageData()
-  }, [language]) // Keep language as dependency
+  }, [language, publicationState]) // Keep language and publicationState as dependencies
+
+  const isRTL = language === 'ur'
 
   const [sliderRef, instanceRef] = useKeenSlider({
     initial: 0,
@@ -277,7 +284,11 @@ export function Hero() {
                 size="icon"
                 onClick={(e) => {
                   e.stopPropagation()
-                  instanceRef.current?.prev()
+                  if (isRTL) {
+                    instanceRef.current?.next()
+                  } else {
+                    instanceRef.current?.prev()
+                  }
                 }}
                 className="pointer-events-auto mr-3  bg-white dark:bg-popover hover:bg-primary-PARI-Red text-primary-PARI-Red hover:text-white rounded-full cursor-pointer w-10 h-10"
               >
@@ -289,11 +300,15 @@ export function Hero() {
                 size="icon"
                 onClick={(e) => {
                   e.stopPropagation()
-                  instanceRef.current?.next()
+                  if (isRTL) {
+                    instanceRef.current?.prev()
+                  } else {
+                    instanceRef.current?.next()
+                  }
                 }}
                 className="pointer-events-auto mr-3 bg-white dark:bg-popover hover:bg-primary-PARI-Red text-primary-PARI-Red hover:text-white rounded-full cursor-pointer w-10 h-10"
               >
-                <ChevronRight className="h-5 w-5" />
+                <ChevronRight className="h-5 w-5 " />
               </Button>
             </div>
 
