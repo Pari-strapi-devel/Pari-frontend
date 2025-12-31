@@ -116,7 +116,11 @@ export interface ArticleWithLangSelection {
   };
 }
 
-export default function StoriesPage() {
+interface StoriesPageProps {
+  publicationState?: 'live' | 'preview';
+}
+
+export default function StoriesPage({ publicationState = 'live' }: StoriesPageProps) {
   const [stories, setStories] = useState<Story[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { language: currentLocale, addLocaleToUrl } = useLocale();
@@ -124,6 +128,7 @@ export default function StoriesPage() {
   // Add slider states
   const [currentSlide, setCurrentSlide] = useState(0);
   const [loaded, setLoaded] = useState(false);
+  const isRTL = currentLocale === 'ur';
 
   // Initialize keen-slider
   const [sliderRef, instanceRef] = useKeenSlider({
@@ -172,6 +177,7 @@ export default function StoriesPage() {
         // Fetch home page based on current locale - each locale has different articles configured
         const query = {
           locale: currentLocale || "en",
+          publicationState,
           populate: {
             fields: ["seeallStories"],
             pari_movable_sections: {
@@ -430,7 +436,7 @@ export default function StoriesPage() {
     };
 
     fetchStories();
-  }, [currentLocale]); // Refetch when locale changes
+  }, [currentLocale, publicationState]); // Refetch when locale or publication state changes
 
   if (isLoading) {
     return (
@@ -472,7 +478,7 @@ export default function StoriesPage() {
               <Button
                 variant="outline"
                 size="icon"
-                onClick={() => instanceRef.current?.prev()}
+                onClick={() => isRTL ? instanceRef.current?.next() : instanceRef.current?.prev()}
                 className="bg-white dark:bg-popover hover:bg-primary-PARI-Red text-primary-PARI-Red hover:text-white rounded-full cursor-pointer w-10 h-10"
               >
                 <ChevronLeft className="h-5 w-5" />
@@ -481,7 +487,7 @@ export default function StoriesPage() {
               <Button
                 variant="outline"
                 size="icon"
-                onClick={() => instanceRef.current?.next()}
+                onClick={() => isRTL ? instanceRef.current?.prev() : instanceRef.current?.next()}
                 className="bg-white dark:bg-popover hover:bg-primary-PARI-Red text-primary-PARI-Red hover:text-white rounded-full cursor-pointer w-10 h-10"
               >
                 <ChevronRight className="h-5 w-5" />

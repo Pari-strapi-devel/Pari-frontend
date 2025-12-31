@@ -154,7 +154,7 @@ export interface LocalizationData {
 export default function ArticlesContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
-  const { language: currentLocale } = useLocale()
+  const { language: currentLocale, addLocaleToUrl } = useLocale()
   const textDirection = getTextDirection(currentLocale)
  
   const [stories, setStories] = useState<Story[]>([])
@@ -288,7 +288,7 @@ export default function ArticlesContent() {
     // Remove filters from sessionStorage
     sessionStorage.removeItem('articleFilters')
     // Navigate to articles page without query params
-    router.push('/articles')
+    router.push(addLocaleToUrl('/articles'))
   }
 
   // Function to clear a specific filter
@@ -357,7 +357,7 @@ export default function ArticlesContent() {
 
     // Navigate to the new URL
     const newSearchParams = params.toString();
-    router.push(newSearchParams ? `/articles?${newSearchParams}` : '/articles');
+    router.push(newSearchParams ? addLocaleToUrl(`/articles?${newSearchParams}`) : addLocaleToUrl('/articles'));
   }
 
   // Get display name for date range
@@ -436,9 +436,9 @@ export default function ArticlesContent() {
         const hasOtherParams = Array.from(urlParams.keys()).some(key => key !== 'locale');
 
         if (hasOtherParams) {
-          // Preserve locale if it exists
+          // Preserve locale using path-based approach
           const newUrl = localeParam && localeParam !== 'en'
-            ? `/articles?locale=${localeParam}`
+            ? `/${localeParam}/articles`
             : '/articles';
           router.replace(newUrl);
         }

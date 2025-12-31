@@ -3,15 +3,14 @@ import { BASE_URL } from '@/config'
 import { API_BASE_URL } from '@/utils/constants'
 import axios from 'axios'
 import qs from 'qs'
-import { CanonicalAndHreflang } from '@/components/seo/CanonicalAndHreflang'
 
-interface ArticleLayoutProps {
+interface DraftLayoutProps {
   children: React.ReactNode
   params: Promise<{ slug: string }>
 }
 
-// Fetch article localizations for SEO tags
-async function getArticleLocalizations(slug: string): Promise<string[]> {
+// Fetch draft article localizations for SEO tags
+async function getDraftLocalizations(slug: string): Promise<string[]> {
   try {
     const query = {
       filters: {
@@ -19,6 +18,7 @@ async function getArticleLocalizations(slug: string): Promise<string[]> {
           $eq: slug
         }
       },
+      publicationState: 'preview', // Include draft articles
       populate: {
         localizations: {
           fields: ['locale']
@@ -44,25 +44,26 @@ async function getArticleLocalizations(slug: string): Promise<string[]> {
       return [currentLocale, ...localizationLocales]
     }
   } catch (error) {
-    console.error('Error fetching article localizations:', error)
+    console.error('Error fetching draft localizations:', error)
   }
 
   // Default to English only
   return ['en']
 }
 
-// Generate metadata for the article page
+// Generate metadata for the draft page
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
 
   try {
-    // Fetch article data for metadata
+    // Fetch draft article data for metadata
     const query = {
       filters: {
         slug: {
           $eq: slug
         }
       },
+      publicationState: 'preview', // Include draft articles
       populate: {
         Cover_image: {
           fields: ['url', 'alternativeText']
@@ -80,22 +81,23 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       const article = response.data.data[0]
       const attrs = article.attributes
       
-      const title = attrs.Title || 'PARI - People\'s Archive of Rural India'
-      const description = attrs.Strap || 'Stories from rural India'
+      const title = attrs.Title || 'Draft - PARI'
+      const description = attrs.Strap || 'Draft story from rural India'
       const coverImageUrl = attrs.Cover_image?.data?.attributes?.url
       const imageUrl = coverImageUrl
         ? `${API_BASE_URL}${coverImageUrl}`
         : 'https://ruralindiaonline.org/images/header-logo/For-dark-mode/pari-english-dark.png'
 
-      const articleUrl = `https://ruralindiaonline.org/article/${slug}`
-
       return {
-        title: `${title} - PARI`,
+        title: `[Draft] ${title} - PARI`,
         description,
+        robots: {
+          index: false, // Don't index draft pages
+          follow: false,
+        },
         openGraph: {
-          title,
+          title: `[Draft] ${title}`,
           description,
-          url: articleUrl,
           siteName: 'PARI - People\'s Archive of Rural India',
           images: [
             {
@@ -108,58 +110,32 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
           locale: 'en_US',
           type: 'article',
         },
-        twitter: {
-          card: 'summary_large_image',
-          title,
-          description,
-          images: [imageUrl],
-        },
       }
     }
   } catch (error) {
-    console.error('Error fetching article metadata:', error)
+    console.error('Error fetching draft metadata:', error)
   }
 
   // Fallback metadata
   return {
-    title: 'PARI - People\'s Archive of Rural India',
-    description: 'Stories from rural India',
-    openGraph: {
-      title: 'PARI - People\'s Archive of Rural India',
-      description: 'Stories from rural India',
-      siteName: 'PARI - People\'s Archive of Rural India',
-      images: [
-        {
-          url: 'https://ruralindiaonline.org/images/header-logo/For-dark-mode/pari-english-dark.png',
-          width: 1200,
-          height: 630,
-        }
-      ],
-      locale: 'en_US',
-      type: 'website',
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title: 'PARI - People\'s Archive of Rural India',
-      description: 'Stories from rural India',
+    title: '[Draft] - PARI',
+    description: 'Draft story from rural India',
+    robots: {
+      index: false,
+      follow: false,
     },
   }
 }
 
-export default async function ArticleLayout({ children, params }: ArticleLayoutProps) {
+export default async function DraftLayout({ children, params }: DraftLayoutProps) {
   const { slug } = await params
 
-  // Fetch available languages for this article
-  const availableLanguages = await getArticleLocalizations(slug)
+  // Fetch available languages for this draft article
+  const availableLanguages = await getDraftLocalizations(slug)
+  
+  // Log for debugging
+  console.log('##Rohit_Rocks## Draft page loaded for slug:', slug, 'with languages:', availableLanguages)
 
-  return (
-    <>
-      <CanonicalAndHreflang
-        availableLanguages={availableLanguages}
-        customCanonical={`https://ruralindiaonline.org/article/${slug}`}
-      />
-      {children}
-    </>
-  )
+  return <>{children}</>
 }
 

@@ -78,7 +78,7 @@ export const languages: Language[] = [
   },
   { 
     code: 'ur', 
-    displayCode: { en: 'UR', native: 'اردو' }, 
+    displayCode: { en: 'UD', native: 'اردو' }, 
     names: ['اردو', '/ Urdu'] ,
     name: 'اردو '
   },
@@ -96,7 +96,7 @@ export const languages: Language[] = [
   },
   { 
     code: 'hne', 
-    displayCode: { en: 'HNE', native: 'छ' }, 
+    displayCode: { en: 'CHH', native: 'छ' }, 
     names: ['छत्तीसगढ़ी', '/ Chhattisgarhi'] ,
     name: 'छत्तीसगढ़ी '
   },
